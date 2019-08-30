@@ -4,7 +4,7 @@ The book introduces key concepts of data analysis from a frequentist and a Bayes
 
 Overiew:
 
-1.  **general introduction**
+1. **general introduction**
 
 - what stats is about
 - different practices
