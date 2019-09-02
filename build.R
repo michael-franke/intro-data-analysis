@@ -1,6 +1,6 @@
 #! /usr/bin/Rscript --no-init-file
 
-## choose webbook style: tufte or git
+## choose webbook style: "tufte" or "git"
 style <- "git"
 
 t_alpha <- Sys.time()
