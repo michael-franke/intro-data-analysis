@@ -1,0 +1,21 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+sudo: false
+cache:
+  packages: true
+
+script:
+  - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::gitbook")'
+  - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::pdf_book")'
+  - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::epub_book")'
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $INTRO_DA
+  keep_history: true
+  on:
+    branch: master
+  local_dir: _book
+  target_branch: gh-pages

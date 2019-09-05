@@ -17,6 +17,7 @@ cli_h1("Let's build a book!")
 cli_h2("Clean up")
 cli_alert("Deleting old output...")
 unlink("_book", recursive = TRUE)
+# unlink("_book", recursive = TRUE)
 cli_alert_success("done")
 
 
