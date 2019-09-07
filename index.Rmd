@@ -18,16 +18,28 @@ output:
   bookdown::tufte_book2:
     highlight: kate
     number_sections: yes
+    dev: "cairo_pdf"
     includes:
       in_header: la.tex
   bookdown::epub_book: default
 documentclass: scrbook
+citation_package: natbib
 bibliography: [book.bib, packages.bib]
 biblio-style: apalike
 link-citations: yes
 description: "Course Material for I2DA-2019 in Cognitive Science at University Osnabrück"
 github-repo: "michael-franke/intro-data-analysis"
 ---
+
+```{r init, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# hrbrthemes::import_public_sans()
+theme_set(hrbrthemes::theme_ipsum(plot_margin = margin(10, 10, 10, 10)))
+```
 
 # Preface {-}
 
@@ -58,12 +70,21 @@ See, the joke is about Descartes' famous philosophy of 'I think therefore, I am"
 
 ### Plots
 
-This is a plot:
+This is a plot of quite a famous dataset [@anscombe1973]:
 
 ```{r plot_example_01}
-library(ggplot2)
-
-ggplot(diamonds, aes(color)) +
-  geom_bar(fill = "blue", alpha = .6) +
-  theme_classic()
+tibble(
+  grp = rep(c("I", "II", "III", "IV"), each = 11),
+  x = c(anscombe$x1, anscombe$x2, anscombe$x3, anscombe$x4),
+  y = c(anscombe$y1, anscombe$y2, anscombe$y3, anscombe$y4)
+) %>% 
+  ggplot(aes(x, y)) +
+    geom_smooth(method = lm, se = F) +
+    geom_point(color = "orange", size = 2) +
+    scale_y_continuous(breaks = scales::pretty_breaks()) +
+    scale_x_continuous(breaks = scales::pretty_breaks()) +
+    labs(title = "Anscombe's Quartet", x = NULL, y = NULL,
+         subtitle = bquote(y == 0.5 * x + 3 ~ (R^2 %~~% .667) ~ "for all datasets")) +
+    facet_wrap(~grp, ncol = 2, scales = "free_x") +
+    theme(strip.background = element_rect(fill = "#f2f2f2", colour = "white"))
 ```
