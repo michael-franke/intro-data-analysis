@@ -16,8 +16,9 @@ cli_h1("Let's build a book!")
 ## clean up
 cli_h2("Clean up")
 cli_alert("Deleting old output...")
-unlink("_book", recursive = TRUE)
-unlink("_bookdown_files", recursive = TRUE)
+  unlink("_book", recursive = TRUE)
+  unlink("_bookdown_files", recursive = TRUE)
+  unlink("I2DA.Rmd")
 cli_alert_success("done")
 
 
@@ -49,6 +50,7 @@ cli_alert("Rendering PDF...")
 invisible(
   bookdown::render_book("index.Rmd", 
                         output_format = "bookdown::tufte_book2",
+                        # output_format = "hrbrthemes::ipsum_pdf",
                         quiet = TRUE, clean_envir = FALSE)
 )
 cli_alert_success("done")
