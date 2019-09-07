@@ -48,7 +48,7 @@ if (style == "git"){
 cli_alert("Rendering PDF...")
 invisible(
   bookdown::render_book("index.Rmd", 
-                        output_format = "bookdown::pdf_book",
+                        output_format = "bookdown::tufte_book2",
                         quiet = TRUE, clean_envir = FALSE)
 )
 cli_alert_success("done")
