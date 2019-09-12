@@ -56,7 +56,7 @@ Overiew:
 - credible intervals
 - briefly: algorithms for MLE & Bayesian inference
 
-6. **hypothesis testing**
+6. **null hypothesis significance testing**
 
 - p-value
   - error control
@@ -72,7 +72,12 @@ Overiew:
 - likelihood ratio test
 - Bayes factor
 
-8. **generalized regression modeling**
+8. **Bayesian approaches to hypothesis testing**
+
+- testing via Bayesian posterior inference
+- testing via model comparison
+
+9. **generalized regression modeling**
 
 - applications
  
@@ -81,6 +86,11 @@ Overiew:
 
 - Presupposition failure :: binomial.text theta = 0.5
 - Prospect Theory Tversky & Kahnemann :: 2 row 2 column contingency table -> chi-squared test
-- Simon Task :: 2 group metric variable (RTs)
+- Simon Task :: 2 group metric variable (RTs**
 - Mental Rotation :: ANOVA 2x2 design
 - Serial Exhaustive Search :: linear regression
+
+**Snippets**
+
+- where to put correlation?
+- where to put model criticism?
