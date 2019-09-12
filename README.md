@@ -23,10 +23,19 @@ Overiew:
 
 *learning goal:* get comfortable with basic notions of probability theory
 
-- probability distributions
-- random variables
-- conditional probability
+[follow script from BDA_CM2018]
+- basics of "probability"
+  - outcomes, events, observations
+  - probability distribution (on sigma-algebra)
+  - interpretations of probability
+- structured events and marginalization (like in script)
+  - marginals, join-probability ...
+  - conditional probability
+- random variables (like in script, but)
+  - move examples to next section
+  - include more descriptive measures (mode, median based on what was in Section 2)
 - selected distributions
+  - (read McElreath: Chapter 8; "Meet the family")
 
 4. **models**
 
@@ -49,6 +58,8 @@ Overiew:
 
 6. **hypothesis testing**
 
+- p-value
+  - error control
 - binomial test 
 - t-test
 - ANOVA
@@ -57,6 +68,7 @@ Overiew:
 7. **model comparison**
 
 - AIC
+  - check chapter 5 of McElreath
 - likelihood ratio test
 - Bayes factor
 
@@ -65,3 +77,10 @@ Overiew:
 - applications
  
 
+**Experiments**
+
+- Presupposition failure :: binomial.text theta = 0.5
+- Prospect Theory Tversky & Kahnemann :: 2 row 2 column contingency table -> chi-squared test
+- Simon Task :: 2 group metric variable (RTs)
+- Mental Rotation :: ANOVA 2x2 design
+- Serial Exhaustive Search :: linear regression
