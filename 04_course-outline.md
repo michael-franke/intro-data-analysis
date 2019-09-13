@@ -22,10 +22,26 @@ Overiew:
 *learning goal:* how to arrange, summarize and visualize (aspects of data) to address a question of interest ("hypothesis-driven data poking")
 
 - different kinds of data
-- summary statistics
-- data wrangling
+  - discrete/continuous
+  - nominal/orginal/metric/count/...
+  - ...
+- summary statistics (theory)
+  - mean/mode/median/quantiles
+  - variance, standard deviation
+  - ...
+- data wrangling (practical R)
+  - tidy data (read, write, ...)
+  - `gather`, `spread`, `join` ...
+  - `group_by`, `summarize`, ...
+  - 
 - data plotting
-
+- dependencies in data
+  - plotting schemes
+  - correlation
+    - Bravais-Pearson
+    - Spearman/Kendall
+    - ...
+    
 3. **probability**
 
 *learning goal:* get comfortable with basic notions of probability theory
@@ -51,6 +67,7 @@ Overiew:
 - priors & likelihood
 - conceptual differences between frequentist and Bayesian approaches (revisited)
 - notation (probabilistic causal networks)
+  - [possibly] elaborate on "stochastic d-independence"?
 - three example models:
   - "binomial model"
   - "factorial-design model"
@@ -93,3 +110,4 @@ Overiew:
 
 - where to put correlation?
 - where to put model criticism?
+- use/mention Jasp/WebPPL?
