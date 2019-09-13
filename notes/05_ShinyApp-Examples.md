@@ -1,6 +1,6 @@
 # General overview of App collections
-https://statistics.calpoly.edu/shiny#probview
-https://r.tquant.eu/
+* https://statistics.calpoly.edu/shiny#probview
+* https://r.tquant.eu/
 https://www.albany.edu/psychology/statistics/shinypsych.htm
 http://www.showmeshiny.com/
 https://sites.psu.edu/shinyapps/references/
