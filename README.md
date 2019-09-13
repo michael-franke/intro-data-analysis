@@ -82,14 +82,6 @@ Overiew:
 - applications
  
 
-**Experiments**
-
-- Presupposition failure :: binomial.text theta = 0.5
-- Prospect Theory Tversky & Kahnemann :: 2 row 2 column contingency table -> chi-squared test
-- Simon Task :: 2 group metric variable (RTs**
-- Mental Rotation :: ANOVA 2x2 design
-- Serial Exhaustive Search :: linear regression
-
 **Snippets**
 
 - where to put correlation?
