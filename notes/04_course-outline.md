@@ -66,7 +66,10 @@ Overiew:
 
 - priors & likelihood
 - conceptual differences between frequentist and Bayesian approaches (revisited)
-- notation (probabilistic causal networks)
+- notation
+  - explain `~` notation
+  - explain how `d_i ~ N(0,1)` means that all d_i are i.i.d.
+- probabilistic causal networks
   - [possibly] elaborate on "stochastic d-independence"?
 - three example models:
   - "binomial model"
