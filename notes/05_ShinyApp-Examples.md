@@ -8,7 +8,7 @@
 * https://shinyapps.org/
 * https://sahuvaibhav.shinyapps.io/Stats/ (-)
 * http://www2.stat.duke.edu/~mc301/shinyed/ (-)
-* http://www.artofstat.com/webapps.html
+* http://www.artofstat.com/webapps.html (-)
 * https://www.marinedatascience.co/blog/2019/01/16/helpful-shiny-apps/
 * https://github.com/gastonstat/shiny-introstats
 
