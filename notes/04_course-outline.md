@@ -75,6 +75,12 @@ Overiew:
   - "binomial model"
   - "factorial-design model"
   - simple linear regression model
+- additional things to mention:
+  - give an example of a hierarchical model (motivated / something that comes back later?)
+  - show how to computer priors of intermediary nodes
+    - use beta-binomial example from BDA+CM 2018
+    - mention the usefulness of reparameterization (of beta, in terms of kappa and omega)
+  - show how to derive the prior predictive distribution (Bayesian)
 
 5. **inference**
 
