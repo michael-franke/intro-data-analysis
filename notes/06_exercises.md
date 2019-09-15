@@ -29,3 +29,16 @@ Book: https://cnx.org/contents/MBiUQmmY@18.114:2T34_25K@11/Introduction
 * [The Chi-Square Distribution](https://stats.libretexts.org/Bookshelves/Introductory_Statistics/Book%3A_Introductory_Statistics_(OpenStax)/11%3A_The_Chi-Square_Distribution/11.E%3A_The_Chi-Square_Distribution_(Exercises))
 * [Linear Regression and Correlation](https://stats.libretexts.org/Bookshelves/Introductory_Statistics/Book%3A_Introductory_Statistics_(OpenStax)/12%3A_Linear_Regression_and_Correlation/12.E%3A_Linear_Regression_and_Correlation_(Exercises))
 * [F Distribution and One-Way ANOVA](https://stats.libretexts.org/Bookshelves/Introductory_Statistics/Book%3A_Introductory_Statistics_(OpenStax)/13%3A_F_Distribution_and_One-Way_ANOVA/13.E%3A_F_Distribution_and_One-Way_ANOVA_(Exercises))
+
+### 3. Mathematical Statistics: Exercises and Solutions
+Shao, J. (2005). Mathematical Statistics: Exercises and Solutions. Springer Science & Business Media. --> available in library as electronical ressource
+
+### 4. Lecture Material: Exercises and Solutions
+https://www0.gsb.columbia.edu/faculty/pglasserman/B6014/exercises.pdf
+(Descriptive Statistics. 2001. Prof. Paul Glasserman. Columbia Business School.)
+
+### 5. Statistics and R 
+https://www.r-exercises.com/tag/statistics/
+* [Introduction to Statistical Testing and Sampling 1](https://www.r-exercises.com/2017/12/08/statistical-theory-exercises1/)
+* [Introduction to Statistical Testing and Sampling 2](https://www.r-exercises.com/2017/12/15/statistical-theory-solutions2/)
+* ... further exercises
