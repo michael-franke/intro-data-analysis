@@ -65,23 +65,23 @@ Overiew:
 
 *learning goal:* diagnosing the (conceptual) differences between kinds of statistical models
 
-- priors & likelihood
-- conceptual differences between frequentist and Bayesian approaches (revisited)
+- priors & likelihood (not yet complete)
+- conceptual differences between frequentist and Bayesian approaches (revisited) (added - but have to shorten the section)
 - notation
-  - explain `~` notation
-  - explain how `d_i ~ N(0,1)` means that all d_i are i.i.d.
+  - explain `~` notation (added)
+  - explain how `d_i ~ N(0,1)` means that all d_i are i.i.d. (added)
 - probabilistic causal networks
-  - [possibly] elaborate on "stochastic d-independence"?
+  - [possibly] elaborate on "stochastic d-independence"? (has to be done)
 - three example models:
-  - "binomial model"
-  - "factorial-design model"
-  - simple linear regression model
+  - "binomial model" (added as explanatory example - coin flip)
+  - "factorial-design model" (added as beta-binomial two group case -- but not refered to factorial design - flip two coins)
+  - simple linear regression model (added - cars data)
 - additional things to mention:
-  - give an example of a hierarchical model (motivated / something that comes back later?)
-  - show how to computer priors of intermediary nodes
+  - give an example of a hierarchical model (motivated / something that comes back later?) (has to be done)
+  - show how to computer priors of intermediary nodes (has to be done - perhaps in "prior"-section)
     - use beta-binomial example from BDA+CM 2018
     - mention the usefulness of reparameterization (of beta, in terms of kappa and omega)
-  - show how to derive the prior predictive distribution (Bayesian)
+  - show how to derive the prior predictive distribution (Bayesian) (has to be done - perhaps as outline in the "prior&likelihood"-section)
 
 5. **inference**
 
