@@ -6,7 +6,7 @@ output:
   pdf_document:
       fig_caption: true
       number_sections: true
-bibliography: models.bib
+#bibliography: models.bib
 ---
 
 \maketitle
@@ -198,7 +198,7 @@ plot(theta,binomial.likelihood(100,80,theta), xlab=expression(theta),
 ```{r}
 # Modelling prior knowledge "ignorance"
 
-par(mfrow = c(1, 2))
+par(mfrow = c(2, 2))
 ## simulated a uniform(0,1) distribution
 dens(runif(n=1e6,min=0, max=1), ylim = c(0,1.5), 
      xlab=expression(theta), main="Uniform(0,1)")
@@ -247,7 +247,7 @@ The number of success $k$ depends on the probability of a success $\theta$ as we
 
 Finally, the graphical structure together with the textual notation can be represented:
 
-![Graphical notation Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Binom.png)
+<!-- ![Graphical notation Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Binom.png) -->
 
 
 #Further examples
@@ -312,7 +312,7 @@ The *distributional assumptions*, according to the **second and third step**, ca
 
 ###Notation Beta-Binomial Model - Two Groups
 
-![Graphical notation Beta-Binomial Modell - Two groups](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Factorial.png)
+<!-- ![Graphical notation Beta-Binomial Modell - Two groups](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Factorial.png) -->
 
 
 
@@ -342,17 +342,17 @@ dens(cars$dist, col="blue", norm.comp = TRUE, main="Distribution of distance",
 ```
 
 Although the distribution of "distance" values is not identical to the corresponding normal distribution, it can be assumed that the values follow a *normal distribution*. The underlying consideration is that the distance values $y_i$ are distributed randomly according to a normal distribution around the predicted value $\hat{y}$ and with a standard deviation denoted with $\sigma$. This can be denoted as:
-$$y_i\sim Normal(\hat{y}, \sigma).$$
+$$y_i\sim Normal(\mu, \sigma).$$
 The index $i$ indicates each element (i.e. car) of the list $y$, which in turn is the list of distances. 
 
 #### Small excursos: "iid"
 
 The short model description above incorporates often already an assumption about the distribution of distance-values: \emph{identically and independently ditributed}. Often the abbreviation \emph{iid} can be found for this assumption:
-$$y_i\overset{\text{iid}}{\sim} Normal(\hat{y}, \sigma).$$
+$$y_i\overset{\text{iid}}{\sim} Normal(\mu, \sigma).$$
 
 The abbreviation \emph{iid} indicates that each value $y_i$ has the same probability function, independent of the other $y$ values and using the same parameters [@mcelreath2015].
 
-In the third step, a Bayesian perspective is taken the **prior knowlege** (before seeing the data) has to be defined. The parameters of the current model are the predicted value $\hat{y}$ and the standard deviation $\sigma$. For the parameter $\hat{y}$ a normal distribution can be assumend with parameters that reflect the estimated values from the sample.
+In the third step, a Bayesian perspective is taken the **prior knowlege** (before seeing the data) has to be defined. The parameters of the current model are the predicted value $\mu$ and the standard deviation $\sigma$. For the parameter $\mu$ a normal distribution can be assumend with parameters that reflect the estimated values from the sample.
 
 ```{r}
 #descriptive statistics from the sample
@@ -361,13 +361,82 @@ tibble(variables=c("speed", "distance"),
        sigma = c(sd(cars$speed), sd(cars$dist)))
 ```
 
-$$\hat{y}\sim Normal(43,26)$$
+$$\mu\sim Normal(43,26)$$
 
 For the standard deviation $\sigma$ a uniform distribution is assumed:
 $$\sigma\sim Uniform(0,40)$$
 
 ### Notation Simple Regression model
-![Graphical notation Simplre Regression model](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_SimpReg.png)
+<!-- ![Graphical notation Simplre Regression model](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_SimpReg.png) -->
+
+#Further elaboration on modeling (in anticipation of the topic "estimation")
+
+##Beta-Binomial model - one group (revisited)
+
+Sofar the existence of the underlying probability $\theta$ for observing head as outcome of a coin flip has been discussed. But the estimation of $\theta$ has been ignored until yet. Although "estimation" will be topic of next chapter, it is helpful at this point to discuss the introduced models further. In order to estimate $\theta$ \emph{parameter(s)} are needed. When it comes to estimation exactly this/these parameter(s) will be the result(s), therefore is is important to see already the connection to the models that were developed in this chapter.
+
+For the coin flip example the value of interest is the underlying probability, thus, only one parameter is needed:$\beta_0$. (Note: Latin letters are used when we refer to the sample, greek letters are used when we refer to the population.) 
+
+How is $\beta_0$ linked to the latent variable $\theta$?
+
+Considering for example the simplest case: a \emph{linear relationship} (see next plot left side). The problem which arises at this point is that $\theta$ represents a probability, and is therefore bounded to the range 0-1 (grey shaded area). 
+
+```{r}
+#Different relationships between the parameter and expected value 
+x <- seq(from=-4, to=4, length.out = 100)
+y <- x                 #linear relationship
+y.log <- logistic(x)   #logistic relationship
+
+par(mfrow = c(1, 2))   #set both plot beside each other
+plot(x,y,type="l", ylab=expression(theta), xlab=expression(beta[0]))
+rect(-5,0,5,1,col = rgb(0.5,0.5,0.5,1/4), border = NA)
+plot(x,y.log,type="l", ylab=expression(logit~(theta)), xlab=expression(beta[0]))
+rect(-5,0,5,1,col = rgb(0.5,0.5,0.5,1/4), border = NA)
+```
+
+A mathematical transformation is needed such that the parameter $\beta_0$ can take any value while $\theta$ is bounded to the range 0-1. One transformation that offers exactly this possibility is the \emph{logit link function} (see aboth plot right side)
+
+$$logit(\theta) = \beta_0.$$
+As the underlying assumption maps the parameter to the latent variable $\theta$ (and not the other way around) from a conceptional point of view the \emph{inverse link function} is more appropriate, which is the \emph{logistic link} in this case:
+
+$$\theta = logistic(\beta_0).$$
+It is defined as
+$$\theta=\frac{exp(\beta_0)}{1+exp(\beta_0)}.$$
+
+Both expression, \emph{logit} and \emph{logistic} link achieve mathematically the same result but it is conceptionally just a different matter of emphasis [@kruschke2015].
+
+###Notation of beta-binomial model - one group (revisited)
+The current descriptive model incorporates the idea that parameter $\beta_0$ is estimated from the given sample. It defines the latent variable $\theta$. The parameter is maped to $\theta$ by a logistic link function. The underlying probability $\theta$ designates the observed number of upcoming heads. The number of upcoming heads in turn, is assumed to be distributed as Binomial distribution.
+
+<!-- [here graphical notation including textual notation... but I don't know how to write it properly down... what is the right order????] -->
+
+##Beta-Binomial model - two groups (revisited)
+
+In the above model for two coins the latent variable $\delta$ was already introduced. It is defined by the difference between the underlying probabilities $\theta_1-\theta_2$.
+Which parameters should be used in order to estimate the difference between both groups? As we will see, it turns out that the same mathematical form can be used, as one would use for simple linear regression:
+
+$$\theta_j=\beta_0+\beta_1*X_{Group_j},$$
+$$\textrm{with } X_{Group_j}=\begin{cases}
+0, \textrm{if coin 2,}\\
+1, \textrm{if coin 1.}
+\end{cases}$$
+
+Considering *coin 2*, the above equation would result in
+$$\theta_2 = \beta_0,$$
+which is the \emph{intercept} and indicates the proportion of head coming up for coin 2.
+
+Considering by contrast coin 1, then the equation would result in:
+$$\theta_1 = \beta_0 + \beta_1.$$
+The proportion of coming up head for coin 1 has to be calcuated by summing up the \emph{intercept} $\beta_0$ and the \emph{slope} $\beta_1$.
+
+Taken togehter: *What is the interpretation of the slope $\beta_1$?*
+The difference $\delta=\theta_1-\theta2$ is
+$$\theta_1 - \theta_2 = (\beta_0+\beta_1)-\beta_0=\beta_1=\delta,$$
+the slope $\beta_1$, thus, we can see that this parameterization enables us to estimate the difference between two groups. When in comes to estimation and interpretation the results will be the intercept $b_0$ and the slope $b_1$.
+
+##Simple linear regression model (revisited)
+
+--
 
 #References
 
