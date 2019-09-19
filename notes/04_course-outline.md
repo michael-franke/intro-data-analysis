@@ -82,7 +82,7 @@ Overiew:
     - use beta-binomial example from BDA+CM 2018
     - mention the usefulness of reparameterization (of beta, in terms of kappa and omega)
   - show how to derive the prior predictive distribution (Bayesian) (has to be done - perhaps as outline in the "prior&likelihood"-section)
-(- included a part that should help to understand the link between parameters and model -- perhaps we should include it elsewhere, but when it comes to interpretation of R output (e.g. from tests) then the link between parameters and model has to be clear...)
+- (included a part that should help to understand the link between parameters and model -- perhaps we should include it elsewhere, but when it comes to interpretation of R output (e.g. from tests) then the link between parameters and model has to be clear...)
 
 5. **inference**
 
