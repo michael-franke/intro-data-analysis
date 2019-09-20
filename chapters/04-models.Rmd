@@ -1,39 +1,34 @@
----
-title: "Part 4: Models"
-author: "Lecture: Introduction to Statistics"
-date: "Winter term 2019/2020"
-output:
-  pdf_document:
-      fig_caption: true
-      number_sections: true
-#bibliography: models.bib
----
+# Part 4: Models
 
-\maketitle
+Lecture: Introduction to Statistics
 
-\tableofcontents
+Winter term 2019/2020
 
-\newpage
-#Overview
+## Overview
+
 In the first section we introduce the \emph{model chapter} based on the debate between \emph{Frequentists} and \emph{Bayesians}. After a short overview and background with the main ideas of each approach we formalize the conceptual ideas and the components of the presented model. We finish by discussing three models: \emph{binomial}, \emph{factorial-design} and \emph{simple linear regression} model.
 
-#Two notions of probability
+## Two notions of probability
+
 What are probabilities? We look at two viewpoints: probabilities exist "outside in the world" or they are "subjective beliefs" [@kruschke2015]. Although both notions imply different approaches how to deal with probabilities, the mathematical properties are quite similar [@kruschke2015].
 
-##Frequentism --- Probabilities as properties of the world
+### Frequentism --- Probabilities as properties of the world
+
 We now assume that probabilities are existent and properties of the world. When observing a particular object, then in the long run, we should be able to deduce from our observations the "inherent" probability of an outcome
 of this object. Frequentism is an approach that searches for relative frequencies in a large number of trials [@vallverdu2015]. 
 Tossing a coin results in head or tail (for simplicity we do not consider the possibility that it stands on its edge). A Frequentist would toss a coin many times, take a note on each observation and, finally, calculate the relative frequency of each outcome. That is, the observed outcome divided by the number of tosses. In the long run, the outcome "head" or "tail" will be observed around 50% (given the coin is fair, the toss is not manipulated, no external factors like wind etc. influences the outcome, ...).
 
 Therefore it is mandatory
 
-\begin{quotation} 
-	to obtain \emph{a large number of trials} from which emerged the relative frequency from an event. [@vallverdu2015, p.50] (emphasis is taken from the original)
-\end{quotation}
+>	to obtain _a large number of trials_ from which emerged the relative frequency from an event.
+> 
+> --- @vallverdu2015, p.50 (emphasis is taken from the original)
+
 
 In other words: For Frequentists probabilities (relative frequencies) describe \emph{objective properties of the world} rather than subjective beliefs. 
 
-##Bayesianism --- Probabilities as subjective beliefs
+### Bayesianism --- Probabilities as subjective beliefs
+
 Another notion of probabilities is to think of them as "beliefs" inside our head. For example considering again the coin flip example, we could have a relatively strong belief that a coin is fair or we actually believe that a coin is fair but we are not so certain about that or we "just do not know" (see Fig. \ref{fig:priorbeliefs} from left to right).
 
 
@@ -49,12 +44,11 @@ $$P(H|Data)=\frac{P(Data|H)*P(H)}{P(Data)}$$
 $$Posterior=\frac{Likelihood*Prior}{Marginal\textrm{ } Likelihood},$$
 
 where
-\begin{itemize}
-	\item $P(H|Data)$ is the conditional probability (\emph{posterior probability}) of the hypothesis H given a particular result (Data);  
-	\item $P(Data|H)$ is the conditional probability (\emph{likelihood}) of a result(data) given the hypothesis H;
-	\item $P(H)$ is the \emph{prior probability} of the hypothesis H;
-	\item $P(Data)$ is the \emph{marginal (or average) likelihood}\footnote[1]{Sometimes also referred to as "Evidence"} of the data irrespective of the truth of any hypothesis.
-\end{itemize}
+
+- $P(H|Data)$ is the conditional probability (\emph{posterior probability}) of the hypothesis H given a particular result (Data);  
+- $P(Data|H)$ is the conditional probability (\emph{likelihood}) of a result(data) given the hypothesis H;
+- $P(H)$ is the \emph{prior probability} of the hypothesis H;
+- $P(Data)$ is the \emph{marginal (or average) likelihood}\footnote[1]{Sometimes also referred to as "Evidence"} of the data irrespective of the truth of any hypothesis.
 
 The job of the "marginal Likelihood" in the denominator is to standardize the posterior, to ensure it sums up to one (integrates to one). Therefore, the key lesson of Bayes' theorem is [@mcelreath2015]:
 $$Posterior \propto Likelihood * Prior$$
@@ -66,18 +60,19 @@ At this point we see an important difference between Frequentist and Bayesian me
 A parameter in Bayesian methods is conceptualized as a random variable with its own distribution (the posterior) that summarizes the current state of knowledge. The expected value of the posterior is the best guess about the true value of the parameter and its variability reflects the amount of uncertainty [@kline2013]. 
 In Frequentist statistics, a parameter is seen as a constant that should be estimated with sample statistics [@kline2013].
 
-#Likelihood, Prior, \& Posterior
+## Likelihood, Prior, \& Posterior
+
 So far we wanted to clearly state the most important conceptual differences between Frequentism and Bayesianism and to introduce the core of Bayesian methods: Bayes' theorem. Before we go further into the topic of modelling, some conceptual notions are neccessary.
 
-##Probability density function vs. Likelihood function
+### Probability density function vs. Likelihood function
+
 As we already know from the "probability"-lecture, for a coin flip the probability of each outcome can be described with the \emph{Bernoulli distribution}\footnote[2]{we need here a distinction between Bernoulli and Binomial...}, as there exist two discrete outcomes (head or tail) and a constant probability $\theta$:
 $$p([X=x]|\theta)=\theta^{[x]}(1-\theta)^{(1-[x])}$$
 
 where
-\begin{itemize}
-	\item $\theta$ is the probability of "head" for the coin flip;
-	\item the bracket -[ ] indicates that we assume this parameter as unknown.
-\end{itemize}
+
+- $\theta$ is the probability of "head" for the coin flip;
+- the bracket -[ ] indicates that we assume this parameter as unknown.
 
 
 With the formula above we assume that we know the probability $\theta$ and derive from this the distribution of possible outcomes. 
@@ -86,29 +81,23 @@ $$p(X=x|[\theta])=[\theta]^x(1-[\theta])^{(1-x)}$$
 In the first case, we assume the outcome to be an unknown parameter (variable), whereas in the latter case the unknown parameter is $\theta$. Please be aware that through exchanging the roles of $x$ and $\theta$ in the second equation (likelihood function) this function is no longer a probability distribution and thus does not integrate to 1. 
 
 
-##Priors
+### Priors
+
 General introduction to priors...
 A prior is a initial probability assignment for each possible value of the parameter [@mcelreath2015].
 
-##Posterior
+### Posterior
 
 
-#Modeling
+## Modeling
 
-## Introductory example
+### Introductory example
+
 As introductory example a coin flip experiment is considered. The question is if a particular coin is \emph{biased}. In order to investigate this question a coin is flipped $x$ times (=trials) and the number of success (i.e. number of "head") $k$ is recorded. This is repeated $n$ times (=observations).
-
-```{r, warning=FALSE, message=FALSE}
-#load packages
-library(tidyverse)
-library(brms)
-library(rethinking)
-library(ggthemes)
-```
 
 ```{r}
 #simulate coin flip data set
-sample.space <- c(0,1)
+sample.space <- c(0, 1)
 theta <- 0.5              # probability of a success (here: head)
 X <- 30                   # number of trials in the experiment
 n <- 10                   # number of observations
@@ -130,7 +119,8 @@ coin.flip <- tibble("n" = seq(from=1, to=n, by=1),
 
 The above table shows the observed outcome, but how the underlying probability of coming up \emph{heads} can be derived from that data set? 
 
-## Steps of Data Analysis
+### Steps of Data Analysis
+
 The approach described here is based on [@mcelreath2015, @kruschke2015]. Although the approach is introduced in a Bayesian context, it can be used as a general guideline (with some caveats):
 
 * Identify the relevant variables according to the hypothesis. (Measurement scales, predicted vs. predictor variables).
@@ -156,19 +146,34 @@ $$Pr(Y|n,\theta)=\frac{n!}{y!(n-y)!}\theta^{y}(1-\theta)^{n-y}.$$
 This probability distribution is called the **Binomial distribution**. The fracture at the beginning  indicates how many ordered sequences of $n$ outcomes a count $y$ have, therefore the important conceptional part is the latter one. 
 
 ```{r}
-#Plot probability distribution: What would be the expected observed number 
-#of "head" given the underlying prob. theta?
+# Plot probability distribution: What would be the expected observed number 
+# of "head" given the underlying prob. theta?
  
-par(mfrow=c(2,2))
+par(mfrow = c(2, 2))
 ## theta=0.2
-hist(rbinom(n=1e6,size=30,prob=0.2), xlab="k", main="Binomial(1e6,0.2)", 
-     xlim = c(0,30), freq=FALSE)
+hist(
+  rbinom(n = 1e6, size = 30, prob = 0.2),
+  xlab = "k",
+  main = "Binomial(1e6,0.2)",
+  xlim = c(0, 30),
+  freq = FALSE
+)
 ## theta=0.5
-hist(rbinom(n=1e6,size=30,prob=0.5), xlab="k", main="Binomial(1e6,0.5)", 
-     xlim = c(0,30), freq=FALSE)
+hist(
+  rbinom(n = 1e6, size = 30, prob = 0.5),
+  xlab = "k",
+  main = "Binomial(1e6,0.5)",
+  xlim = c(0, 30),
+  freq = FALSE
+)
 ## theta=0.8
-hist(rbinom(n=1e6,size=30,prob=0.8), xlab="k", main="Binomial(1e6,0.8)", 
-     xlim = c(0,30), freq=FALSE)
+hist(
+  rbinom(n = 1e6, size = 30, prob = 0.8),
+  xlab = "k",
+  main = "Binomial(1e6,0.8)",
+  xlim = c(0, 30),
+  freq = FALSE
+)
 ```
 
 When the coin is flipped only once, then the probabilty can be written as:
@@ -179,13 +184,13 @@ Accordingly, for the introductory example it can be noted that the coin flip var
 
 ```{r}
 # calculate the Liklihood function
-binomial.likelihood <- function(n, k, theta){  theta^k*(1-theta)^(n-k)}
+binomial.likelihood <- function(n, k, theta){theta^k*(1-theta)^(n-k)}
 theta <- seq(from=0, to=1, by=0.01)
 
 # Plot likelihood: What would be the expected underlying prob. theta given 
 # observed number of "head" in 100 observations?
 par(mfrow=c(2,2))
-plot(theta,binomial.likelihood(100,20,theta), xlab=expression(theta), 
+plot(theta, binomial.likelihood(100,20,theta), xlab=expression(theta), 
      ylab="likelihood", type="l")
 plot(theta,binomial.likelihood(100,50,theta), xlab=expression(theta), 
      ylab="likelihood", type="l")
@@ -195,22 +200,24 @@ plot(theta,binomial.likelihood(100,80,theta), xlab=expression(theta),
 
 **The third step** is solely a \emph{Bayesian idea}, that is the *incorporation of prior knowledge*. What do we believe about the coin bias $\theta$ before seeing the data? Assuming that no expectation about $\theta$ exists a priori, indicating that all values of $\theta$ between 0 and 1 are equally probable. This can be modeld by a uniform distribution or a Beta distribution with parameters a=1 and b=1 (see following figure).
 
-```{r}
+```{r, eval=FALSE}
 # Modelling prior knowledge "ignorance"
 
 par(mfrow = c(2, 2))
 ## simulated a uniform(0,1) distribution
-dens(runif(n=1e6,min=0, max=1), ylim = c(0,1.5), 
+rethinking::dens(runif(n=1e6,min=0, max=1), ylim = c(0,1.5), 
      xlab=expression(theta), main="Uniform(0,1)")
 ## simulates a beta(1,1) distribution
-dens(rbeta(n=1e6,shape1=1,shape2=1), ylim = c(0,1.5), 
+rethinking::dens(rbeta(n=1e6,shape1=1,shape2=1), ylim = c(0,1.5), 
      xlab=expression(theta), main="Beta(1,1)")
 ```
 
 So far, the coin flip model is define conceptionally. In the following some notational considerations have to made. 
 
-#Notation
-##Textual notation
+## Notation
+
+### Textual notation
+
 In the textual notation, first the prior assumptions (if the Bayesian perspective is taken) are indicated. For the coin flip example this is:
 $$\theta \sim Beta(1,1).$$
 The symbol "$\sim$" means "is distributed as", thus, the above equation says before seeing the data all possible values of $\theta$ between 0 and 1 are assumed to be equally likely.
@@ -221,7 +228,8 @@ To summarize the current model (whereby the prior knowledge is only considered f
 $$\theta \sim Beta(1,1),$$
 $$k\sim Binomial(\theta|n).$$
 
-##Graphical notation
+### Graphical notation
+
 When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. In the following the convention described in Wagenmakers and Lee's \emph{Bayesian Cognitive Modelling} (2014) is used: The graph structure is used to indicate dependencies between the variables, with children
 depending on their parents [@leeWagen2014]. General conventions:
 
@@ -250,9 +258,10 @@ Finally, the graphical structure together with the textual notation can be repre
 <!-- ![Graphical notation Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Binom.png) -->
 
 
-#Further examples
+## Further examples
 
-##Difference between two groups
+### Difference between two groups
+
 In the introductory example we asked for the underlying probility $\theta$ of a single coin that was flipped repeatedley.
 Consider now, that a second coin $y_2$ is introduced. One question that arises might be for example: \emph{How different are the biases of the two coins?}
 
@@ -296,7 +305,8 @@ ggplot(data=coin.flip2,mapping = aes(x=k, fill=coin ))+
           geom_histogram()
 ```
 
-###Conceptual steps for modeling
+#### Conceptual steps for modeling
+
 We suppose that the underlying probabilities of the two coins correspond to *different* latent variables $\theta_1$ and $\theta_2$. 
 
 **First step** is again the *identification of the relevant variables* according to the research question. As already indicated for the "one coin" example we have:
@@ -310,13 +320,14 @@ $$\delta =\theta_1 - \theta_2.$$
 
 The *distributional assumptions*, according to the **second and third step**, can be adopted from the "one coin" example, such that the graphical notation (including the textual notation) can be denoted as follows:
 
-###Notation Beta-Binomial Model - Two Groups
+#### Notation Beta-Binomial Model - Two Groups
 
 <!-- ![Graphical notation Beta-Binomial Modell - Two groups](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Factorial.png) -->
 
 
 
-##Simple linear regression with one metric predictor
+### Simple linear regression with one metric predictor
+
 The following example originates from a data set in which speed of cars and the distance taken to stop was recorded. It is a simple data set good for introducing the basic ideas for simple linear regression. 
 ```{r}
 #The "cars" data set
@@ -326,15 +337,17 @@ str(cars)
 ```
 One possible question could be how much the stopping distance increases when the speed of a car increases.
 
-### Conceptual steps for modeling
+#### Conceptual steps for modeling
+
 First step is to **identify the relevant variables**. In this case these are "speed" measured in mph and "distance" measured in ft, thus, both variables are metric variables. As distance will be predicted from speed. The \emph{predicted variable} is "distance" and the \emph{predictor variable} is "speed". A scatter plot can visualize a possible relationship between both variables.
 ```{r}
 plot(x=cars$speed,y=cars$dist, type="p", main="scatter plot of cars data set", 
      ylab="distance in ft", xlab="speed in mph")
 ```
+
 Next step is to define a **descriptive model of the data**. According to the scatter plot it is not too absurd to think that distance might be proportional to speed. Therefore, a linear relationship between both variables can be assumed, where speed is used i order to predict distance. But how can the distribution of the predicted variable "distance" be described? The following plot shows in blue the density of the actual distance values.
 
-```{r}
+```{r, eval=FALSE}
 #density of distance values in blue 
 #(in black simulation of a normal distribution)
 dens(cars$dist, col="blue", norm.comp = TRUE, main="Distribution of distance", 
@@ -369,9 +382,9 @@ $$\sigma\sim Uniform(0,40)$$
 ### Notation Simple Regression model
 <!-- ![Graphical notation Simplre Regression model](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_SimpReg.png) -->
 
-#Further elaboration on modeling (in anticipation of the topic "estimation")
+## Further elaboration on modeling (in anticipation of the topic "estimation")
 
-##Beta-Binomial model - one group (revisited)
+### Beta-Binomial model - one group (revisited)
 
 Sofar the existence of the underlying probability $\theta$ for observing head as outcome of a coin flip has been discussed. But the estimation of $\theta$ has been ignored until yet. Although "estimation" will be topic of next chapter, it is helpful at this point to discuss the introduced models further. In order to estimate $\theta$ \emph{parameter(s)} are needed. When it comes to estimation exactly this/these parameter(s) will be the result(s), therefore is is important to see already the connection to the models that were developed in this chapter.
 
@@ -385,7 +398,7 @@ Considering for example the simplest case: a \emph{linear relationship} (see nex
 #Different relationships between the parameter and expected value 
 x <- seq(from=-4, to=4, length.out = 100)
 y <- x                 #linear relationship
-y.log <- logistic(x)   #logistic relationship
+y.log <- inv_logit_scaled(x)   #logistic relationship
 
 par(mfrow = c(1, 2))   #set both plot beside each other
 plot(x,y,type="l", ylab=expression(theta), xlab=expression(beta[0]))
@@ -405,12 +418,13 @@ $$\theta=\frac{exp(\beta_0)}{1+exp(\beta_0)}.$$
 
 Both expression, \emph{logit} and \emph{logistic} link achieve mathematically the same result but it is conceptionally just a different matter of emphasis [@kruschke2015].
 
-###Notation of beta-binomial model - one group (revisited)
+#### Notation of beta-binomial model - one group (revisited)
+
 The current descriptive model incorporates the idea that parameter $\beta_0$ is estimated from the given sample. It defines the latent variable $\theta$. The parameter is maped to $\theta$ by a logistic link function. The underlying probability $\theta$ designates the observed number of upcoming heads. The number of upcoming heads in turn, is assumed to be distributed as Binomial distribution.
 
 <!-- [here graphical notation including textual notation... but I don't know how to write it properly down... what is the right order????] -->
 
-##Beta-Binomial model - two groups (revisited)
+### Beta-Binomial model - two groups (revisited)
 
 In the above model for two coins the latent variable $\delta$ was already introduced. It is defined by the difference between the underlying probabilities $\theta_1-\theta_2$.
 Which parameters should be used in order to estimate the difference between both groups? As we will see, it turns out that the same mathematical form can be used, as one would use for simple linear regression:
@@ -434,14 +448,4 @@ The difference $\delta=\theta_1-\theta2$ is
 $$\theta_1 - \theta_2 = (\beta_0+\beta_1)-\beta_0=\beta_1=\delta,$$
 the slope $\beta_1$, thus, we can see that this parameterization enables us to estimate the difference between two groups. When in comes to estimation and interpretation the results will be the intercept $b_0$ and the slope $b_1$.
 
-##Simple linear regression model (revisited)
-
---
-
-#References
-
-
-
-
-
-
+### Simple linear regression model (revisited)
