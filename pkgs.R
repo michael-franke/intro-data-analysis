@@ -1,8 +1,9 @@
 ## load packages
-library(dplyr)
-library(ggplot2)
-library(brms)
-library(ggsignif)
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(brms))
+suppressPackageStartupMessages(library(ggsignif))
+# suppressPackageStartupMessages(library(rethinking))
 
 ## set defaults
 # hrbrthemes::import_public_sans()
