@@ -1,4 +1,3 @@
-
 ---
 title: "Chi.squared Model"
 author: "Florence Bockting"
@@ -33,47 +32,44 @@ You see a runaway trolley moving toward five tied-up (or otherwise incapacitated
 
 ## Experimental Design
 
+$$
 \begin{tabular}{|c|c|c|}
-	\hline 
-	&Trolley Problem & Fat Man Problem \\ 
-	\hline 
-	yes & & \\ 
-	\hline
-	no & & \\ 
-	\hline 
+  \hline 
+  &Trolley Problem & Fat Man Problem \\ 
+  \hline 
+  yes & & \\ 
+  \hline
+  no & & \\ 
+  \hline 
 \end{tabular} 
+$$
 
 # The Data
 
 ```{r, warning=FALSE, message=FALSE}
 #load packages
 library(tidyverse)
-library(MASS)
 library(brms)
-library(ggthemes)
 library(ggsignif)
-library(rethinking)
-library(bookdown)
-library(tinytex)
-library(rmarkdown)
 ```
 
 
 ```{r}
 ###Using dummy data as placeholder
 #load data set and inspect it
-data("survey")
-data <- survey
+
+data <- MASS::survey
 head(data)
 ```
 
 ```{r}
-#Transform factor "sex" into 1-0 variable and omit cases with NA
+# Transform factor "sex" into 1-0 variable and omit cases with NA
 data3 <- tibble(handedness = data$W.Hnd,
-                  sex = recode(data$Sex, "Female"=1, "Male"=0)) %>% 
+                sex = recode(data$Sex, "Female"=1, "Male"=0)) %>% 
   na.omit()
 data3
 ```
+
 ```{r}
 # rearrange data set for Bayesian parameter estimation
 data4 <- group_by(data3, handedness, sex) %>% 
@@ -81,9 +77,9 @@ data4 <- group_by(data3, handedness, sex) %>%
 data4
 ```
 
-#Building the model
+# Building the model
 
-##The data --- What do we observe?
+## The data --- What do we observe?
 The two dilemma were answered by N participants. The \emph{variable} "answer" has a dichotmous \emph{outcome} "1" and "0", where "1" indicates \emph{action} and "0" indicates \emph{no action}. In order to see how the group of participants answered on average per dilemma we can summarize the data.
 For example we can calculate the \emph{number of "action" answers} and the \emph{number of "no action" answers} per dilemma.
 
@@ -91,31 +87,32 @@ For example we can calculate the \emph{number of "action" answers} and the \emph
 #select relevant variables and show them as table()
 data2 <- tibble(Sex = data$Sex, 
                 Handedness = data$W.Hnd) %>% 
-table()
+  table()
 data2
 ```
+
 As we know the number of participants ($N$) it is sufficent to look, per dilemma, at the number of "yes" answers(=action), in the following referred to as $k$. The number of "no"(=no action) answers can be derived automatically from that ($N-k$). 
 
 In the next step we want to define a \emph{descriptive model of the data} that is meaningful for our research question. That is, we are interested in identifying if the probability for "action" ("yes") differentiates between the two "dilemma"-groups (Trolley vs. FatMan).
 
-##Identifying relevant variables
+## Identifying relevant variables
 We assume that for each group (dilemma) exists an underlying \emph{probability} variable that \emph{influences} the number of observed outcomes. We will call these variables $\theta_1$ (for the Trolley-dilemma) and $\theta_2$ (for the FatMan-dilemma). 
 
 ```{r}
 #Plot to illustrate conceptional background
-dummydata <- data.frame(x= c("theta1","theta2"),
-                        y= c(0.4,0.7))
- 
-ggplot(data = dummydata, mapping = aes(x=x,y=y))+
-  geom_col()+
-  ylim(0,1)+
-  ylab("Proportion for *Action* (X=k)")+
-  scale_x_discrete(labels=c("theta1"=expression(theta[1]), "theta2"=expression(theta[2])), name="Dilemmas")+
-  ggtitle("Two groups (dichotomous data)")+
-  theme_classic()
+dummydata <- data.frame(x = c("theta1", "theta2"),
+                        y = c(0.4, 0.7))
+
+ggplot(data = dummydata, mapping = aes(x=x, y=y)) +
+  geom_col() +
+  ylim(0,1) +
+  scale_x_discrete(labels = c("theta1" = expression(theta[1]),
+                              "theta2" = expression(theta[2]))) +
+  labs(title = "Two groups (dichotomous data)",
+       y = "Proportion for *Action* (X=k)", x = "Dilemmas")
 ```
 
-##Describing the random variation
+## Describing the random variation
 Similar to the modell for "one group" we can consider the following conditions modified for the "two group"-case:
 
 * a dependent variable with a dichotmous outcome (1 and 0), and
@@ -123,10 +120,10 @@ Similar to the modell for "one group" we can consider the following conditions m
 
 the distribution family with maximum entropy is the \emph{Bernoulli or Binomial distribution}. 
 
-##Priors --- Considerations about prior knowledge 
+## Priors --- Considerations about prior knowledge 
 Following the Bayesian idea we have to incorporate prior knowledge. Similar to the "one group"-model we are \emph{ignorant} about the outcome of both groups. Thus, for $\theta_1$ and $\theta_2$ the *Beta(1,1)*-prior is used.
 
-#Notation of the model
+# Notation of the model
 Sofar, we have make considerations about 
 
 * the dependet variable and the observed outcome $k$, 
@@ -134,11 +131,11 @@ Sofar, we have make considerations about
 * the appropriate distribution family which describes best the random variation of outcomes for each group ($Binomial(\theta_1)$ and $Binomial(\theta_2)$) and 
 * a distribution which describes our prior belief for each $\theta$ ($Beta(1,1)$).
 
-##Graphical notation
+## Graphical notation
 The graphical notation of the current model is:
 ![alt text](https://github.com/michael-franke/intro-data-analysis/tree/master/notes/Examples-complete/ChiSquareTest-Dilemma/Binom_two_groups.png "Beta Binomial model - two groups")
 
-##Textual notation 
+## Textual notation 
 The textual notation of the current model from a Frequentist perspective (without prior):
 $$k \sim Binomial(\theta_j),$$
 
@@ -156,15 +153,15 @@ dilemma_2,
 \end{cases}$$
 and
 $$\theta_j \sim Beta(1,1).$$
-#Modelling revisited(1)
+# Modelling revisited(1)
 
 ## Underlying parameters & link function
 Again we assume one parameter $\beta_0$ for each dilemma in order to estimate the respective $\theta$.
 As already discussed in the "one-group"-model example we need to consider a \emph{link function} that links the estimated parameter appropriately to the respective expected value $\theta$. This link function is the \emph{logit} link or, when using the inversed link, the \emph{logistic} link function.
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 #Simulation of two logistic link functions 
-x <- seq(from=-4, to=4, length.out = 100)
+x <- seq(from = -4, to = 4, length.out = 100)
 y.log1 <- logistic(x)       #logistic relationship for group 1
 y.log2 <- logistic(2*x)   #logistic relationship for group 2
 
@@ -175,7 +172,7 @@ plot(x,y.log2,type="l", ylab=expression(theta[2]), xlab=expression(logistic~(bet
 rect(-5,0,5,1,col = rgb(0.5,0.5,0.5,1/4), border = NA)
 ```
 
-##Notation of the model (revisited) - Two groups (1)
+## Notation of the model (revisited) - Two groups (1)
 The current descriptive model incorporates the idea that we estimate a parameter $\beta_0$ that defines the expected value $\theta$. The parameter is transformed by a logistic link, so it maps to $\theta$. The expected value $\theta$ is assumed to influence the observed number of "true" answers. While the variation of the outcome is assumed to follow a Bernoulli distribution.
 
 The Frequentist model is:
@@ -198,7 +195,7 @@ dilemma_2,
 $$k \sim Binomial(\theta_j),$$
 $$\theta_j \sim Beta(1,1).$$
 
-##Notation of the model (revisited) - Factorial design (2)
+## Notation of the model (revisited) - Factorial design (2)
 A different perspective on looking at the difference between two groups would be to estimate indeed the \emph{difference} between them. That is
 $$\theta_2 - \theta_1.$$
 If this value is near zero than we would assume that the answer for "action" or "no action" does not differ between both dilemmas. The question arises how the model can be reparameterized such that we can estimate the \emph{difference}. It turns out that we can use the same parameterization as we would use for linear regression:
@@ -221,17 +218,17 @@ The difference of $theta_2-\theta2$ is
 $$\theta_2 - \theta_1 = (\beta_0+\beta_1)-\beta_0=\beta_1,$$
 exactly the slope $\beta_1$, thus, we can see that indeed this reparameterization enables us to estimate the difference between the groups.
 
-#Estimation and Inference
+# Estimation and Inference
 
-##The Bayesian approach using brm - Beta-binomial model (two groups)
-```{r,results=FALSE,message= FALSE, warning=FALSE}
+## The Bayesian approach using brm - Beta-binomial model (two groups)
+```{r,results=FALSE,message= FALSE, warning=FALSE, cache=TRUE}
 # Bayesian model that estimates proportions for femaleRight and femaleLeft
 model1 <- brm(formula = sex|trials(trials) ~ 0 + factor(handedness), data= data4, 
               family = binomial(link = logit))
 model1
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 #extract coefficients
 estimates <- as.data.frame(fixef(model1)) %>% 
   mutate(estimate.log = logistic(Estimate), condition = c("theta1", "theta2"), 
@@ -244,22 +241,22 @@ ggplot(data=estimates, mapping=aes(x=condition, y=estimate.log))+
   ylab("Proportion for Action (k=1)")+
   scale_x_discrete(labels=c("theta1"=expression(Trolley~theta[1]),
                             "theta2"=expression(FatMan~theta[2])))+
-  theme_classic()+
   ggtitle("Two groups (dichotomous data)")
 #geom_errorbar(aes(ymin=lower.log, ymax=upper.log))
 ```
 
 
-##The Bayesian approach using brm - Beta-binomial model (Factorial-design) 
+## The Bayesian approach using brm - Beta-binomial model (Factorial-design) 
 
-```{r,results=FALSE,message= FALSE, warning=FALSE}
+```{r,results=FALSE,message= FALSE, warning=FALSE, cache=TRUE}
 # Bayesian model that estimates proportion for femaleRight (Intercept) and 
 # Diff (femaleRight-femaleLeft) (slope)
 model2 <- brm(formula = sex|trials(trials) ~ 1 + factor(handedness), data= data4, 
               family = binomial(link = logit))
 model2
 ```
-```{r}
+
+```{r eval=FALSE, include=FALSE}
 #extract coefficients
 estimates <- as.data.frame(fixef(model2)) %>% 
   mutate(estimate.log = logistic(Estimate), condition = c("theta1", "theta2"), 
@@ -268,9 +265,9 @@ estimates <- as.data.frame(fixef(model2)) %>%
                  logistic(estimates$Estimate[1]+estimates$Estimate[2])))
 ##annotation for the bracket
 anno <- data.frame(start=c("theta1"), 
-                            end=c("theta2"),
-                            y=c(0.045),
-                            label = "Diff[Slope]")
+                   end=c("theta2"),
+                   y=c(0.045),
+                   label = "Diff[Slope]")
 ##creating the plot
 ggplot(data=estimates, mapping=aes(x=condition, y=yaxis))+
   geom_col()+
@@ -279,14 +276,13 @@ ggplot(data=estimates, mapping=aes(x=condition, y=yaxis))+
   ylab("Proportion for Action (k=1)")+
   scale_x_discrete(labels=c("theta1"=expression(Trolley~theta[1]~(Intercept)),
                             "theta2"=expression(FatMan~theta[2])))+
-  theme_classic()+
   ggtitle("Two groups (dichotomous data)")+
   geom_signif(data=anno,aes(xmin=start, xmax=end, annotations=label, 
                             y_position=y), manual = TRUE)
 #geom_errorbar(aes(ymin=lower.log, ymax=upper.log))
 ```
 
-##The Frequentist approach: Chi-square Test
+## The Frequentist approach: Chi-square Test
 The equivalence of the Beta-Binomial model in the frequentist area is the chi-square test.
 
 ```{r}
