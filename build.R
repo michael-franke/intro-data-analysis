@@ -48,10 +48,10 @@ if (style == "git"){
 #### pdf
 cli_alert("Rendering PDF...")
 invisible(
-  bookdown::render_book("index.Rmd", 
-                        output_format = "bookdown::tufte_book2",
-                        # output_format = "hrbrthemes::ipsum_pdf",
-                        quiet = TRUE, clean_envir = FALSE)
+  # bookdown::render_book("index.Rmd", 
+  #                       output_format = "bookdown::tufte_book2",
+  #                       # output_format = "hrbrthemes::ipsum_pdf",
+  #                       quiet = TRUE, clean_envir = FALSE)
 )
 cli_alert_success("done")
 
