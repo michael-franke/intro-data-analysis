@@ -11,7 +11,7 @@ continuous, expected values & variance, examples.
 
 ### Outcomes, events, observations
 
-We are interested in the space $\Omega$ of all *elementary outcome* $\omega_1,
+We are interested in the space $\Omega$ of all **elementary outcome** $\omega_1,
 \omega_2, \dots$ of a process or event whose execution is (partially) random or
 unknown. Elementary outcomes are mutually exclusive. The set $\Omega$ exhausts all
 possibilities.^[For simplicity of exposure, we gloss over subtleties arising when
@@ -33,5 +33,126 @@ infinity that we will usually be concerned with in applied statistics.]
   currently do not care about.]
 </div>
   
-  
+An **event** $A$ is a subset of $\Omega$. Think of an event as a (possibly partial)
+observation. We might observe, for instance, not the full outcome of tossing a die, but only
+that there is a dot in the middle. This would correspond to the event
+$A = \{$  &#9856; , &#9858; ,  &#9860; $\}$,
+i.e., observing an odd numbered outcome. The *trivial observation* $A = \Omega$ and the
+*impossible observation* $A = \emptyset$ are counted as events, too. The latter is included for
+technical reasons.
+
+
+For any two events $A, B \subseteq \Omega$, standard set operations correspond to logical
+connections in the usual way. For example, the conjunction $A \cap B$ is the observation of
+both $A$ and $B$; the disjunction $A \cup B$ is the observation that it is either $A$ or $B$;
+the negation of $A$, $\overline{A} = \set{\omega \in \Omega \mid \omega \not \in A}$, is the
+observation that it is not $A$.
+
+### Probability distributions
+
+A **probability distribution** $P$ over $\Omega$ is a function
+$P \ \colon \ \mathfrak{P}(\Omega) \rightarrow \mathbb{R}$ that assigns to all events
+$A \subseteq \Omega$ a real number (from the unit interval, see A1 below), such that the following (so-called Kolmogorov axioms) are satisfied:
+
+A1. $0 \le P(A) \le 1$
+
+A2. $P(\Omega) = 1$
+
+A3. $P(A_1 \cup A_2 \cup A_3 \cup \dots) = P(A_1) + P(A_2) + P(A_3) + \dots $ whenever $A_1, A_2, A_3, \dots$ are mutually exclusive^[A3 is the axiom of *countable additivity*. Finite additivity may be enough for finite or countable sets $\Omega$, but infinite additivity is necessary for full generality in the uncountable case.]
+
+Occasionally we encounter notation $P \in \Delta(\Omega)$ to express that $P$ is a probability
+distribution over $\Omega$. (E.g., in physics, theoretical economics or game
+  theory. Less so in psychology or statistics.) If $\omega \in \Omega$ is an elementary event,
+we often write $P(\omega)$ as a shorthand for $P(\set{\omega})$. In fact, if $\Omega$ is
+finite, it suffices to assign probabilities to elementary outcomes.
+
+A number of rules follow immediately from of this definition (prove this!):
+
+C1. $P(\emptyset) = 0$
+
+C2. $P(\overline{A}) = 1 - P(A)$
+
+C3. $P(A \cup B) = P(A) + P(B) - P(A \cap B)$ for any $A, B \subseteq \Omega$
+
+### Interpretations of probability
+
+It is reasonably safe, at least preliminarily, to think of probability, as defined above, as a
+handy mathematical primitive which is useful for certain applications. There are at least three
+ways of thinking about where this primitive probability might come from, roughly paraphrasable
+like so:
+
+1. **Frequentist:** Probabilities are generalizations of intuitions/facts about frequencies of events in
+  repeated executions of a random event.
+2. **Subjectivist:** Probabilities are subjective beliefs by a rational agent who is
+  uncertain about the outcome of a random event.
+3. **Realist:** Probabilities are a property of an intrinsically random world.
+
+### Urns and frequencies
+
+Think of an urn as a container which contains a number of $N > 1$ balls. Balls can be of
+different color. For example, let us suppose that our urn has $k > 0$ black balls and $N-k$
+white balls. (There is at least one black and one white ball.) For a single random draw from
+our urn we have: $\Omega_{\text{our urn}} = \set{\text{white}, \text{black}}$. If we imagine an
+infinite sequence of single draws from our urn, putting whichever ball we drew back in after
+every draw, the limiting proportion with which we draw a black ball is
+$\frac{k}{N}$. (If in doubt, execute this experiment. By hand or by computer.) This
+statement about frequency is what motivates saying that the probability of drawing a black ball
+on a single trial is (or should be^[If probabilities are subjective beliefs, a rational
+  agent is, in a sense, normatively required to assign exactly this probability.])
+$P(\text{black}) = \frac{k}{N}$.
+
+## Structured events & marginal distributions
+
+### Probability table for a flip-&-draw scenario
+
+Suppose we have two urns. Both have $N=10$ balls. Urn 1 has $k_1=2$ black and $N-k_1 = 8$ white
+balls. Urn 2 has $k_2=4$ black and $N-k_2=6$ white balls. We sometimes draw from urn 1,
+sometimes from urn 2. To decide, we flip a fair coin. If it comes up heads, we draw from urn 1;
+if it comes up tails, we draw from urn 2.
+
+An elementary outcome of this two-step process of flip-&-draw is a pair
+$\tuple{\text{outcome-flip}, \text{outcome-draw}}$. The set of all possible such outcomes is
+$\Omega_{\text{flip-&-draw}} = \set{\tuple{\text{heads}, \text{black}}, \tuple{\text{heads},
+    \text{white}}, \tuple{\text{tails}, \text{black}}, \tuple{\text{tails},
+    \text{white}}}$. The probability of event $\tuple{\text{heads}, \text{black}}$ is given by
+multiplying the probability of seeing "heads" on the first flip, which happens with
+probability $0.5$, and then drawing a black ball, which happens with probability $0.2$, so that
+$P(\tuple{\text{heads}, \text{black}}) = 0.5 \cdot 0.2 = 0.1$. The probability distribution
+over $\Omega_{\text{flip-draw}}$ is consequently as in
+Table \@ref(tab:flipdrawprobabilities). (If in doubt, start flipping &
+  drawing and count your outcomes.)
+
+```{r flipdrawprobabilities, echo = F}
+knitr::kable(
+  tibble(
+    " " = c("heads", "tails"),
+    black = c("$0.5 \\mult 0.2 = 0.1$", "$0.5 \\mult 0.8 = 0.4$"),
+    white = c("$0.5 \\mult 0.4 = 0.2$", "$0.5 \\mult 0.6 = 0.3$"),
+  ),
+  booktabs = T,
+  caption = 'my first table',
+  escape = F
+)
+```
+
+
+### Structured events and joint-probability distributions
+
+Table \@ref(tab:flipdrawprobabilities) is an example of a **joint probability distribution** over a structured event space, which here has two dimensions. Since
+our space of outcomes is the Cartesian product of two simpler outcome spaces, namely
+$\Omega_{flip-\&-draw} = \Omega_{flip} \times \Omega_{draw}$,^[With
+  $\Omega_{\text{flip}} = \set{\text{heads}, \text{tails}}$ and
+  $\Omega_{\text{draw}} = \set{\text{black}, \text{white}}$.] we can use notation
+$P(\text{heads}, \text{black})$ as shorthand for $P(\tuple{\text{heads}, \text{black}})$. More
+generally, if $\Omega = \Omega_1 \times \dots \Omega_n$, we can think of $P \in \Delta(\Omega)$
+as a joint probability distribution over $n$ subspaces.
+
+### Marginalization
+
+If $P$ is a joint-probability distribution over event space $\Omega = \Omega_1 \times \dots \Omega_n$, the **marginal distribution** over subspace  $\Omega_i$, $1 \le i \le n$ is the probability distribution that assigns to all $A_i \subseteq \Omega_i$ the probability:^[This notation, using $\sum$, assumes that subspaces are countable. In other cases, a parallel definition with integrals can be used.]
+
+$$  P(A_i) = \sum_{A_1 \subseteq \Omega_{1}, \dots , A_{i-1} \subseteq \Omega_{i-1}, A_{i+1} \subseteq \Omega_{i+1}, \dots, A_n \subseteq \Omega_n} P(A_1, \dots, A_{i-1}, A_{i}, A_{i+1}, \dots A_n) $$
+
+For example, the marginal distribution over coin flips derivable from the joint probability distribution in Table \@ref(tab:flipdrawprobabilities) gives $P(\text{heads}) = P(\text{tails}) = 0.5$, since the sum of each row is exactly $0.5$. The marginal distribution over flips derivable from Table~\ref{tab:flip-and-draw:probabilities} has $P(\text{black}) = 0.3$ and $P(\text{black}) = 0.7$.^[The term ``marginal distribution'' derives from such   probability tables, where traditionally the sum of each row/column was written in the   margins.]
+
 
