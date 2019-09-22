@@ -75,7 +75,9 @@ ggplot(NULL, aes(x = c(-10, 10))) +
                 fill = "blue",
                 alpha = .6,
                 xlim = c(-2, 2)) +
-  xlim(-10, 10)
+  xlim(-10, 10)+
+  xlab("X")+
+  scale_x_continuous(breaks=c(-6,-4,-2,0,2,4,6), labels=c(expression(-3~sigma),expression(-2~sigma),expression(-sigma),"0",expression(sigma),expression(2~sigma),expression(3~sigma)))
 ```
 
 
@@ -90,8 +92,8 @@ muX = 1
 sigmaX = 2
 muY = 1.5
 sigmaY = 2.5
-a = 1.5
-b = 1
+a = 3
+b = 1.5
 n = 1e6
 
 #create random variables
@@ -113,23 +115,24 @@ rv.normal <- data.frame(Y=Y, Z=Z, V=V, A=A, B=B)
 #plot RVs
 linear.tranform <- ggplot(data=rv.normal)+
   stat_density(aes(Y), geom = "line", position = "identity", size=1)+
-  annotate("text", x=5, y=0.175, label=c(paste("Y~Normal(",muY,",",sigmaY,")")))+
+  annotate("text", x=5, y=0.175, label=c(paste("Y ~ N(",muY,",",sigmaY,")")))+
   stat_density(aes(Z), col="green", geom = "line", position = "identity", size=1)+
-  annotate("text", x=10, y=0.125, label=c(paste(a,"*Y+",b)), color="green")+
+  annotate("text", x=12, y=0.075, label=c(paste(a,"* Y +",b)), color="green")+
   stat_density(aes(V), col="red", linetype="dashed", geom = "line", position = "identity", size=1)+
   ggtitle("linear transformation")+
   xlim(-20,20)+
   ylim(0,0.21)+
+  xlab("RVs")+
   theme_classic()
 
 addition.transform <- ggplot(data=rv.normal)+
   stat_density(aes(X), col="blue", size=1, geom = "line", 
                              position = "identity")+
-  annotate("text", x=-10, y=0.175, label=c(paste("X~Normal(",muX,",",sigmaX,")")), 
+  annotate("text", x=-10, y=0.175, label=c(paste("X ~ N(",muX,",",sigmaX,")")), 
            color="blue")+
   stat_density(aes(Y), size=1, geom = "line", 
                              position = "identity")+
-  annotate("text", x=-12, y=0.125, label=c(paste("Y~N(",muY,",",sigmaY,")")))+
+  annotate("text", x=-12, y=0.125, label=c(paste("Y ~ N(",muY,",",sigmaY,")")))+
   stat_density(aes(A), col="green", size=1, geom = "line", 
                              position = "identity")+
   annotate("text", x=-12, y=0.075, label= "X + Y", color="green")+
@@ -137,6 +140,7 @@ addition.transform <- ggplot(data=rv.normal)+
                              position = "identity")+
   ggtitle("transformation by addition")+
   xlim(-20,20)+
+  xlab("RVs")+
   ylim(0,0.21)+
   theme_classic()
 
@@ -187,13 +191,14 @@ rv.chisquare <- data.frame(X=X, Y=Y, Z=Z, A=A, B=B)
 rv.trans.chi <- ggplot(data=rv.chisquare)+
   stat_density(aes(X), size=1, geom = "line", 
                        position = "identity")+       
-  annotate("text", x=10, y=0.25, label="std. normal")+
+  annotate("text", x=15, y=0.25, label="X,Y,Z ~ N(0,1)")+
   stat_density(aes(A), col="green", size=1, geom = "line", 
                        position = "identity")+
-  annotate("text", x=10, y=0.15, label="chi-square", color="green")+
+  annotate("text", x=15, y=0.15, label=expression(X^2+Y^2+Z^2), color="green")+
   xlim(-10,30)+
   ylim(0,0.42)+
-  ggtitle("Transform. of N(0,1)-RV")+
+  xlab("RVs")+
+  ggtitle("Transformation of RVs")+
   theme_classic()
 
 rv.chisquare <- ggplot(data=rv.chisquare)+
@@ -201,7 +206,9 @@ rv.chisquare <- ggplot(data=rv.chisquare)+
                        position = "identity")+
   stat_density(aes(B), col="red",linetype="dashed", size=1, geom = "line", 
                        position = "identity")+
+  annotate("text", x=10, y=0.15, label=expression("C ~"~chi^2~"(3)"), color="red")+
   xlim(0,30)+
+  xlab("RVs")+
   ylim(0,0.42)+
   ggtitle(expression(chi^2~"distribution"))+
   theme_classic()
@@ -252,16 +259,17 @@ data.studentt <- data.frame(X=X,C=C, B=B, A=A)
 rv.trans.t <- ggplot(data=data.studentt)+
   stat_density(aes(X), size=1, geom = "line", 
                      position = "identity")+
-  annotate("text", x=5, y=0.35, label="std. normal")+
+  annotate("text", x=-5, y=0.35, label="X,Y,Z ~ N(0,1)")+
   stat_density(aes(C), col="blue", size=1, geom = "line", 
                      position = "identity")+
-  annotate("text", x=5, y=0.4, label="chi-square", color="blue")+
+  annotate("text", x=5, y=0.4, label=expression(X^2+Y^2), color="blue")+
   stat_density(aes(B), col="green", size=1, geom = "line", 
                      position = "identity")+
-  annotate("text", x=5, y=0.3, label="stundent-t", color="green")+
+  annotate("text", x=5, y=0.3, label=expression(frac(Z,sqrt(X^2+Y^2/2))), color="green")+
   xlim(-10,10)+
   ylim(0,0.5)+
-  ggtitle(expression("transform"~chi^2~"and N(0,1)-RV"))+
+  xlab("RVs")+
+  ggtitle("Transformation of RVs")+
   theme_classic()
 
 rv.studentt <- ggplot(data=data.studentt)+
@@ -269,7 +277,9 @@ rv.studentt <- ggplot(data=data.studentt)+
                       position = "identity")+
   stat_density(aes(A), col="red", linetype="dashed", size=1, geom = "line", 
                       position = "identity")+
+  annotate("text", x=0, y=0.4, label="T ~ student-t(2)", color="red")+
   xlim(-10,10)+
+  xlab("RVs")+
   ylim(0,0.5)+
   ggtitle("student-t distribution")+
   theme_classic()
@@ -297,11 +307,11 @@ $Var(F)=\frac{2n^2(n+m-2)}{m(n-4)(n-2)^2}$ (for $n \geq 5$)
 ```{r, warning=FALSE}
 #initialize parameters
 n = 1e6
-df = 3 #number of RVs
+df1 = 2 #number of RVs
+df2 = 3
 
 # create RV 
 ## standard normal distributed RVs
-Q <- rnorm(n = n, mean = 0, sd = 1)
 V <- rnorm(n = n, mean = 0, sd = 1)
 W <- rnorm(n = n, mean = 0, sd = 1)
 X <- rnorm(n = n, mean = 0, sd = 1)
@@ -309,14 +319,14 @@ Y <- rnorm(n = n, mean = 0, sd = 1)
 Z <- rnorm(n = n, mean = 0, sd = 1)
 
 ## create new chisquare distributed RVs
-D <- (Q^2+V^2+W^2)
+D <- (V^2+W^2)
 C <- (X^2+Y^2+Z^2)
 
 ## create addition of chisquare RVs
-B <- (D/df)/(C/df)
+B <- (D/df1)/(C/df2)
 
 ## F distributed RV
-A <- rf(n=n, df1=df, df2=df)
+A <- rf(n=n, df1=df1, df2=df2)
 
 #create data frame
 data.F <- data.frame(X=X,Y=Y,Z=Z,W=W,D=D,C=C,B=B,A=A)
@@ -325,24 +335,30 @@ data.F <- data.frame(X=X,Y=Y,Z=Z,W=W,D=D,C=C,B=B,A=A)
 rv.trans.f <- ggplot(data=data.F)+
   stat_density(aes(X), size=1, geom = "line", 
                      position = "identity")+
-  annotate("text", x=5, y=0.3, label="std. normal")+
+  annotate("text", x=7, y=0.3, label="V,W,X,Y,Z ~ N(0,1)")+
   stat_density(aes(D), col="blue", size=1, geom = "line", 
                      position = "identity")+
-  annotate("text", x=6.5, y=0.15, label="chi-square",color="blue")+
+  annotate("text", x=6.5, y=0.4, label=expression(V^2+W^2),color="blue")+
+  stat_density(aes(C), col="orange", size=1, geom = "line", 
+                     position = "identity")+
+  annotate("text", x=6.5, y=0.2, label=expression(X^2+Y^2+Z^2),color="orange")+
   stat_density((aes(B)), col="green", size=1, geom = "line", 
                      position = "identity")+
-  annotate("text", x=5, y=0.5, label="F distribution", color="green")+
+  annotate("text", x=6.5, y=0.6, label=expression(frac((V^2+W^2/2),(X^2+Y^2+Z^2/3))), color="green")+
   xlim(-5,15)+
-  ggtitle(expression("transform"~chi^2~"RVs"))+
+  xlab("RVs")+
+  ggtitle("Transformation of RVs")+
   theme_classic()
   
 rv.f <- ggplot(data=data.F)+
   stat_density((aes(B)), col="green", size=1, geom = "line", position = "identity")+
-  stat_density(aes(A), col="red", linetype="dashed", size=1, geom = "line", position = "identity")+
+  stat_density(aes(A), col="red", linetype="dashed", size=1, geom = "line", 
+               position = "identity")+
+  annotate("text", x=6.5, y=0.15, label="F ~ F(2,3)",color="red")+
   xlim(0,15)+
+  xlab("RVs")+
   ggtitle("F distribution")+
   theme_classic()
   
 grid.arrange(rv.trans.f, rv.f, ncol=2)
 ```
-
