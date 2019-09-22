@@ -3,6 +3,7 @@ suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(brms))
 suppressPackageStartupMessages(library(ggsignif))
+suppressPackageStartupMessages(library(gridExtra))
 # suppressPackageStartupMessages(library(rethinking))
 
 ## set defaults
