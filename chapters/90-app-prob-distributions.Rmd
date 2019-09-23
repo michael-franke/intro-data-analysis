@@ -362,3 +362,189 @@ rv.f <- ggplot(data=data.F)+
   
 grid.arrange(rv.trans.f, rv.f, ncol=2)
 ```
+
+## Excursos: Maximum Entropy
+
+### Information Entropy
+
+If $X$ is a discrete random variable with distribution $P(X=x_i)=p_i$ then the entropy of $X$ is defined as
+$$H(X)=-\sum_{i} p_i \log p_i$$
+
+If $X$ is a continuous random variable with probability density $p(x)$ then the differential entropy of $X$ is defined as 
+$$H(X)=-\int_{-\infty}^{+\infty} p(x) \log p(x) dx$$
+
+
+### Entropy: Shannon's theorem
+
+according to [@jaynes2003]
+
+Conditions that a measure of the \emph{amount of uncertainty} $H_n$ have to satisfy:
+
+1. It is possible to set up some kind of association between \emph{amount of uncertainty} and real numbers
+2. $H_n$ is a continous function of the $p_i$. Otherwise, an arbitrarily small change in the probability distribution would lead to a big change in the amount of uncertainty.
+3. $H_n$ should correspond to common sense in that, when there are many possibilities, we are more uncertain than when there are few. This condition takes the form that in case the $p_i$ are all equal, the quantity $h(n)$ is a monotonic increasing function of $n$.
+4. $H_n$ is consistent in that, when there is more than one way of working out its value, we must get the same answer for few possible way.
+
+For the case that there are $n$ mutually exclusive propositions $(A_1,A_2,...,A_n)$, to which we assign probabilities $(p_1,p_2,...p_n)$
+
+Instead of giving the probabilities for the $(A_1,A_2,...,A_n)$ directly, we can group the first $k$ of them together as the proposition $(A_1+...+A_k)$ and assign probability $\omega_1=(p_1+...+p_k)$. This grouping can be made as well for the next $m$ propostions to wich we assign $\omega_2$ etc.
+
+The amount of uncertainty to the composite propositions is $H(\omega_1,\omega_2,...)$
+
+**conditional probabilities:** $(\frac{p_1}{\omega_1},...,\frac{p_k}{\omega_1})$ for the propositions $(A_1,...,A_k)$, given that $(A_1+...+A_k)$ is true.
+
+The additional uncertainty, encountered with probability $\omega_1$, is then $H(\frac{p_1}{\omega_1},...,\frac{p_k}{\omega_k})$.
+
+Carrying this out for the composite propositions $(A_{k+1}+...+A_{k+m})$ etc., we arrive ultimately at the same state of knowledge as if the $(p_1,p_2,...p_n)$ had been given directly; \emph{consistency} requires that these calculations yield the same ultimate uncertainty, no matter how choices were broken down.
+
+Thus we have:
+
+$$H(p_1,p_2,...p_n)=H(\omega_1,...,\omega_r)+ \omega_1H(\frac{p_1}{\omega_1},...,\frac{p_k}{\omega_1})+ \omega_2H(\frac{p_{k+1}}{\omega_2},...,\frac{p_{k+m}}{\omega_2})+ ...,$$
+Since $H(p_1,p_2,...p_n)$ is continuous, it will suffice to determine it for all rational values
+$$p_i=\frac{n_i}{\sum n_i}$$
+with $n_i$ integers. For a general choice of the $n_i$, we can reduce the above formula to:
+$$H\left(\sum n_i\right)=H(p_1,...,p_n)+\sum_{i} p_ih(n_i).$$
+Now, we can choose all $n_i=m$; whereupon the above formula collapses to
+
+$$h(mn)=h(m)+h(n).$$
+
+Evidently, this is solved by setting
+
+$$h(n)=K\log(n),$$
+where $K$ is a constant. But this solution is no longer unique. To get any unique solution for $h(n)$, we have to add our qualitative requirement that $h(n)$ be monotonic increasing in $n$. 
+
+Different choices of $K$ amount in the same thing as taking logarithms to different bases; so if we leave the base arbitrary for the moment, we can just as well write: $h(n)=log(n)$. Substituting this into 
+$$H\left(\sum n_i\right)=H(p_1,...,p_n)+\sum_{i} p_ih(n_i),$$
+
+we have Shannon's theorem 
+$$H(p_1,...,p_n)=-\sum_{i=1}^{n} p_i \log(p_i),$$
+
+the only function satisfying the conditions we have imposed on a reasonable measure of \emph{amount of uncertainty}.
+
+Accepting this interpretation, it follows that the distribution $(p_1,...,p_n)$ which maximizes the above equation, subject to constraints imposed by the available information, will represent the most \emph{honest} description of what the model \emph{knows} about the propositions $(A_1,...,A_n)$.
+
+The function $H$ is called the \emph{entropy}, or the \emph{information entropy} of the distribution $\{p_i\}$. (Note that the \emph{information entropy} has nothing to do with the \emph{experimental entropy} of thermodynamics)
+
+### The Wallis derivation
+
+We are given information $I$, which is to be used in assigning probabilities $\{p_1,...,p_m\}$ to $m$ different probabilities. We have a total amount of probability
+
+$$\sum_{i=1}^{m} p_i =1$$
+
+to allocate among them.
+
+The problem can be stated as follows. Choose some integer $n>>m$, and imagine that we have $n$ little \emph{quanta} of probabilities, each of magnitude $\delta=n^{-1}$, to distribute in an way we see fit. 
+
+Suppose we were to scatter these quanta at random among the $m$ choices (penny-pitch game into m equal boxes). If we simply toss these quanta of probability at random, so that each box has an equal probability of getting them, nobody can claim that any box is being unfairly favoured over any other. 
+
+if we do this and the first box receives exactly $n_1$ quanta, the second $n_2$ quanta etc. we will say the random experiment has generated the probability assignment
+
+$$p_i=n_i\delta=\frac{n_i}{n}, \textrm{ with } i=1,2,...,m.$$
+
+The probability that this will happen is the multinomial distribution 
+
+$$m^{-n} \frac{n!}{n_1!\cdot...\cdot n_m!}.$$
+
+Now imagine that we repeatedly scatter the $n$ quanta at random among the $m$ boxes. Each time we do this we examine the resulting probability assignment. If it happens to conform to the information $I$, we accept it; otherwise we reject it and try again. We continue until some probability assignment $\{p_1,...,p_m\}$ is accepted. 
+
+What is the most likely probability distribution to result from this game? It is the one which maximizes
+
+$$W=\frac{n!}{n_1! \cdot ... \cdot n_m!}$$
+
+subject whatever constraints are imposed by the information $I$.
+
+We can refine this procedure by using smaller quanta, i.e. large $n$. When $n \rightarrow \infty$, then $n_i \rightarrow \infty$ in such a way that $\frac{n_i}{n} \rightarrow p_i = \text{const.}$,
+
+$$\frac{1}{n} \log(W) \rightarrow -\sum_{i=1}^{m}p_i\log(p_i)=H(p_1,...,p_m),$$
+
+and, so, the most likely probability assignment to result from this game is just the one that has maximum entropy subject to the given information $I$.
+
+### Conclusion: Maximum Entropy Principle
+According to [@deMartino2018]
+
+If one is to infer a probability distribution given certain constraints, out of all distributions $\{p_i\}$ compatible with them, one should pick the distribution $\{p_i^*\}$ having the largest value of $H$.
+
+It is important to understand that, because they correspond to maximal underlying degeneracy, Maximum Entropy distributions are the least biased given the constraints: any other distribution compatible with the same constraints would have smaller degeneracy and therefore would artificially exclude some viable (i.e. constraint-satisfying) configurations of the underlying variables. In other terms, a Maximum Entropy distribution is completely undetermined by features that do not appear explicitly in the constraints subject to which it has been computed.
+
+## Deriving Probability Distributions using the Maximum Entropy Principle
+
+### Lagrangian multiplier technique
+
+So far we have introduced the value of maximum entropy principle. Now, we can use this principle in order to derive maximum entropy distributions. But how to get the critical values of a multivariable function with constraints? One technique that can help for soliving this problem is the \emph{Langrange multiplier technique}.
+
+Given a mutivariable function $f(x,y,...)$ and constraints of the form $g(x,y,...)=c$, where $g$ is another multivariable function with the same input space as $f$ and $c$ is a constant.
+
+In order to minimize (or maximize) the function $f$ consider the following steps, assuming $f$ to be $f(x)$:
+
+1. Introduce a new variable $\lambda$, called \emph{Lagrange multiplier}, and define a new function $\mathcal{L}$ with the form:
+
+$$\mathcal{L}(x,\lambda)=f(x)-\lambda (g(x)-c).$$
+
+2. Set the derivative of the function $\mathcal{L}$ equal to the zero:
+
+$$\mathcal{L'}(x,\lambda)=0,$$
+
+in order to find the critical points of $\mathcal{L}$.
+
+3. Consider each resulting solution and derive from them the resulting distribution $f$, which give the minimum (or maximum) one is searching for.
+
+For more details see [@khanAcademy2019]
+
+### Example 1: Derivation of maximum entropy pdf with no other constraints
+
+For more details see [@finlayson2017, @keng2017]
+
+Suppose a random variable for which we have absolutely no information on its probability distribution, beside the fact that it should be a pdf and thus, integrate to 1. We ask for the following: 
+
+\emph{What type of probability density distribution gives maximum entropy when the random variable is bounded by a finite interval, say $a\leq X \leq b$?}[@reza1994]
+
+We assume that the maximum ignorance distribution is the one with the maximum entropy. It minimizes the prior information in a distribution and is therefore the most conservative choice.
+
+For the continuous case entropy, the measure of uncertainty, is defined as
+
+$$H(x)=-\int_{a}^{b}p(x) \log(p(x))dx,$$
+
+with subject to the above mentioned constraint that the sum of all probabilities is one (as it is a pdf):
+
+$$\int_{a}^{b}p(x)dx =1.$$
+
+Rewrite this into the form of \emph{Lagrangian} equation gives
+
+$$\mathcal{L}=-\int_{a}^{b}p(x) \log(p(x))dx - \lambda \left(\int_{a}^{b}p(x)dx-1 \right).$$
+
+The next step is to \emph{minimize} the Lagrangian function. To solve this, we have to use the \emph{calculus of variations}[@keng2017].
+
+First differentiating $\mathcal{L}$ with respect to $p(x)$
+
+$$\frac{\partial \mathcal{L}}{\partial p(x)}=0,$$
+$$\log(p(x))=1-\lambda,$$
+$$p(x)=e^{(1-\lambda)}.$$
+
+Second differentiating $\mathcal{L}$ with respect to $\lambda$
+
+$$\frac{\partial \mathcal{L}}{\partial \lambda}=0,$$
+
+$$\int_{a}^{b} p(x)dx=1,$$
+$$\int_{a}^{b} e^{1-\lambda} dx=1,$$
+
+$$\lambda=1-\log\left(\frac{1}{b-a}\right).$$
+
+Taking both solutions together we get:
+
+$$p(x)=e^{(1-\lambda)}=e^{\left(1-\left(1-\log\left(\frac{1}{b-a}\right)\right)\right)},$$
+$$p(x)= \frac{1}{b-a}.$$
+
+And this is finally the \emph{uniform distribution} on the interval $[a,b]$. Such that, the answer of the above question is: 
+
+\emph{The maximum entropy is associated with a random variable with a uniform probability density distribution between $a$ and $b$.}
+
+
+### Example 2: Derivation of maximum entropy pdf with given mean $\mu$ and variance $\sigma^2$
+
+
+
+
+
+
+
+
