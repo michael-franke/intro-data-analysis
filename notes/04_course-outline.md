@@ -1,4 +1,6 @@
-**Course Outline (Sketch)**
+# Course Outline (Sketch)
+
+## Part One: Foundations
 
 Overiew:
 
@@ -42,6 +44,9 @@ Overiew:
     - Bravais-Pearson
     - Spearman/Kendall
     - ...
+  - multiple correlations
+    - show `pairs` plots
+    - find a good data set (also for later in simple linear regressions)
     
 3. **probability**
 
@@ -112,13 +117,35 @@ Overiew:
 - testing via Bayesian posterior inference
 - testing via model comparison
 
-9. **generalized regression modeling**
+9. model criticism
 
-- applications
+- posterior predictive checks (visual inspection)
+- (posterior) predictive $p$-values
+
+## Part Two: Applied (generalized) linear modeling
+
+1. **simple linear regression**
+
+- "multiple" = "more than one predictor"
+  - interactions
+  - collinearity
+- categorical predictors
+  - relation to t-test and ANOVA
+  - different coding shemes
+- robust regression
+
+2. **logistic regression**
+
+3. **multinomial regression**
+
+4. **ordinal regression**
  
+5. **hierarchical regression**
+
+- random effects
 
 **Snippets**
 
 - where to put correlation?
 - where to put model criticism?
-- use/mention Jasp/WebPPL?
+- use/mention Jasp/WebPPL/greta?
