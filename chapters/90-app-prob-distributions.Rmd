@@ -2,11 +2,270 @@
 
 # Appendix: Common probability distributions
 
+## Excursos: Maximum Entropy
+
+### Information Entropy
+
+If $X$ is a discrete random variable with distribution $P(X=x_i)=p_i$ then the entropy of $X$ is defined as
+$$H(X)=-\sum_{i} p_i \log p_i$$
+
+If $X$ is a continuous random variable with probability density $p(x)$ then the differential entropy of $X$ is defined as 
+$$H(X)=-\int_{-\infty}^{+\infty} p(x) \log p(x) dx$$
+
+
+### Entropy: Shannon's theorem
+
+according to [@jaynes2003]
+
+Conditions that a measure of the \emph{amount of uncertainty} $H_n$ have to satisfy:
+
+1. It is possible to set up some kind of association between \emph{amount of uncertainty} and real numbers
+2. $H_n$ is a continous function of the $p_i$. Otherwise, an arbitrarily small change in the probability distribution would lead to a big change in the amount of uncertainty.
+3. $H_n$ should correspond to common sense in that, when there are many possibilities, we are more uncertain than when there are few. This condition takes the form that in case the $p_i$ are all equal, the quantity $h(n)$ is a monotonic increasing function of $n$.
+4. $H_n$ is consistent in that, when there is more than one way of working out its value, we must get the same answer for few possible way.
+
+For the case that there are $n$ mutually exclusive propositions $(A_1,A_2,...,A_n)$, to which we assign probabilities $(p_1,p_2,...p_n)$
+
+Instead of giving the probabilities for the $(A_1,A_2,...,A_n)$ directly, we can group the first $k$ of them together as the proposition $(A_1+...+A_k)$ and assign probability $\omega_1=(p_1+...+p_k)$. This grouping can be made as well for the next $m$ propostions to wich we assign $\omega_2$ etc.
+
+The amount of uncertainty to the composite propositions is $H(\omega_1,\omega_2,...)$
+
+**conditional probabilities:** $(\frac{p_1}{\omega_1},...,\frac{p_k}{\omega_1})$ for the propositions $(A_1,...,A_k)$, given that $(A_1+...+A_k)$ is true.
+
+The additional uncertainty, encountered with probability $\omega_1$, is then $H(\frac{p_1}{\omega_1},...,\frac{p_k}{\omega_k})$.
+
+Carrying this out for the composite propositions $(A_{k+1}+...+A_{k+m})$ etc., we arrive ultimately at the same state of knowledge as if the $(p_1,p_2,...p_n)$ had been given directly; \emph{consistency} requires that these calculations yield the same ultimate uncertainty, no matter how choices were broken down.
+
+Thus we have:
+
+$$H(p_1,p_2,...p_n)=H(\omega_1,...,\omega_r)+ \omega_1H(\frac{p_1}{\omega_1},...,\frac{p_k}{\omega_1})+ \omega_2H(\frac{p_{k+1}}{\omega_2},...,\frac{p_{k+m}}{\omega_2})+ ...,$$
+Since $H(p_1,p_2,...p_n)$ is continuous, it will suffice to determine it for all rational values
+$$p_i=\frac{n_i}{\sum n_i}$$
+with $n_i$ integers. For a general choice of the $n_i$, we can reduce the above formula to:
+$$H\left(\sum n_i\right)=H(p_1,...,p_n)+\sum_{i} p_ih(n_i).$$
+Now, we can choose all $n_i=m$; whereupon the above formula collapses to
+
+$$h(mn)=h(m)+h(n).$$
+
+Evidently, this is solved by setting
+
+$$h(n)=K\log(n),$$
+where $K$ is a constant. But this solution is no longer unique. To get any unique solution for $h(n)$, we have to add our qualitative requirement that $h(n)$ be monotonic increasing in $n$. 
+
+Different choices of $K$ amount in the same thing as taking logarithms to different bases; so if we leave the base arbitrary for the moment, we can just as well write: $h(n)=log(n)$. Substituting this into 
+$$H\left(\sum n_i\right)=H(p_1,...,p_n)+\sum_{i} p_ih(n_i),$$
+
+we have Shannon's theorem 
+$$H(p_1,...,p_n)=-\sum_{i=1}^{n} p_i \log(p_i),$$
+
+the only function satisfying the conditions we have imposed on a reasonable measure of \emph{amount of uncertainty}.
+
+Accepting this interpretation, it follows that the distribution $(p_1,...,p_n)$ which maximizes the above equation, subject to constraints imposed by the available information, will represent the most \emph{honest} description of what the model \emph{knows} about the propositions $(A_1,...,A_n)$.
+
+The function $H$ is called the \emph{entropy}, or the \emph{information entropy} of the distribution $\{p_i\}$. (Note that the \emph{information entropy} has nothing to do with the \emph{experimental entropy} of thermodynamics)
+
+### The Wallis derivation
+
+We are given information $I$, which is to be used in assigning probabilities $\{p_1,...,p_m\}$ to $m$ different probabilities. We have a total amount of probability
+
+$$\sum_{i=1}^{m} p_i =1$$
+
+to allocate among them.
+
+The problem can be stated as follows. Choose some integer $n>>m$, and imagine that we have $n$ little \emph{quanta} of probabilities, each of magnitude $\delta=n^{-1}$, to distribute in an way we see fit. 
+
+Suppose we were to scatter these quanta at random among the $m$ choices (penny-pitch game into m equal boxes). If we simply toss these quanta of probability at random, so that each box has an equal probability of getting them, nobody can claim that any box is being unfairly favoured over any other. 
+
+if we do this and the first box receives exactly $n_1$ quanta, the second $n_2$ quanta etc. we will say the random experiment has generated the probability assignment
+
+$$p_i=n_i\delta=\frac{n_i}{n}, \textrm{ with } i=1,2,...,m.$$
+
+The probability that this will happen is the multinomial distribution 
+
+$$m^{-n} \frac{n!}{n_1!\cdot...\cdot n_m!}.$$
+
+Now imagine that we repeatedly scatter the $n$ quanta at random among the $m$ boxes. Each time we do this we examine the resulting probability assignment. If it happens to conform to the information $I$, we accept it; otherwise we reject it and try again. We continue until some probability assignment $\{p_1,...,p_m\}$ is accepted. 
+
+What is the most likely probability distribution to result from this game? It is the one which maximizes
+
+$$W=\frac{n!}{n_1! \cdot ... \cdot n_m!}$$
+
+subject whatever constraints are imposed by the information $I$.
+
+We can refine this procedure by using smaller quanta, i.e. large $n$. When $n \rightarrow \infty$, then $n_i \rightarrow \infty$ in such a way that $\frac{n_i}{n} \rightarrow p_i = \text{const.}$,
+
+$$\frac{1}{n} \log(W) \rightarrow -\sum_{i=1}^{m}p_i\log(p_i)=H(p_1,...,p_m),$$
+
+and, so, the most likely probability assignment to result from this game is just the one that has maximum entropy subject to the given information $I$.
+
+### Conclusion: Maximum Entropy Principle
+According to [@deMartino2018]
+
+If one is to infer a probability distribution given certain constraints, out of all distributions $\{p_i\}$ compatible with them, one should pick the distribution $\{p_i^*\}$ having the largest value of $H$.
+
+It is important to understand that, because they correspond to maximal underlying degeneracy, Maximum Entropy distributions are the least biased given the constraints: any other distribution compatible with the same constraints would have smaller degeneracy and therefore would artificially exclude some viable (i.e. constraint-satisfying) configurations of the underlying variables. In other terms, a Maximum Entropy distribution is completely undetermined by features that do not appear explicitly in the constraints subject to which it has been computed.
+
+## Deriving Probability Distributions using the Maximum Entropy Principle
+
+### Lagrangian multiplier technique
+
+So far we have introduced the value of maximum entropy principle. Now, we can use this principle in order to derive maximum entropy distributions. But how to get the critical values of a multivariable function with constraints? One technique that can help for soliving this problem is the \emph{Langrange multiplier technique}.
+
+Given a mutivariable function $f(x,y,...)$ and constraints of the form $g(x,y,...)=c$, where $g$ is another multivariable function with the same input space as $f$ and $c$ is a constant.
+
+In order to minimize (or maximize) the function $f$ consider the following steps, assuming $f$ to be $f(x)$:
+
+1. Introduce a new variable $\lambda$, called \emph{Lagrange multiplier}, and define a new function $\mathcal{L}$ with the form:
+
+$$\mathcal{L}(x,\lambda)=f(x)+\lambda (g(x)-c).$$
+
+2. Set the derivative of the function $\mathcal{L}$ equal to the zero:
+
+$$\mathcal{L'}(x,\lambda)=0,$$
+
+in order to find the critical points of $\mathcal{L}$.
+
+3. Consider each resulting solution and derive from them the resulting distribution $f$, which give the minimum (or maximum) one is searching for.
+
+For more details see [@khanAcademy2019]
+
+### Example 1: Derivation of maximum entropy pdf with no other constraints
+
+For more details see [@finlayson2017, @keng2017]
+
+Suppose a random variable for which we have absolutely no information on its probability distribution, beside the fact that it should be a pdf and thus, integrate to 1. We ask for the following: 
+
+\emph{What type of probability density distribution gives maximum entropy when the random variable is bounded by a finite interval, say $a\leq X \leq b$?}[@reza1994]
+
+We assume that the maximum ignorance distribution is the one with the maximum entropy. It minimizes the prior information in a distribution and is therefore the most conservative choice.
+
+For the continuous case entropy, the measure of uncertainty, is defined as
+
+$$H(x)=-\int_{a}^{b}p(x) \log(p(x))dx,$$
+
+with subject to the above mentioned constraint that the sum of all probabilities is one (as it is a pdf):
+
+$$\int_{a}^{b}p(x)dx =1.$$
+
+Rewrite this into the form of \emph{Lagrangian} equation gives
+
+$$\mathcal{L}=-\int_{a}^{b}p(x) \log(p(x))dx + \lambda \left(\int_{a}^{b}p(x)dx-1 \right).$$
+
+The next step is to \emph{minimize} the Lagrangian function. To solve this, we have to use the \emph{calculus of variations}[@keng2017].
+
+First differentiating $\mathcal{L}$ with respect to $p(x)$
+
+$$\frac{\partial \mathcal{L}}{\partial p(x)}=0,$$
+$$-1-\log(p(x))+\lambda=0,$$
+$$p(x)=e^{(\lambda-1)}.$$
+
+Second, $p(x)$ has to satisfy the constraint
+
+$$\int_{a}^{b} p(x)dx=1,$$
+
+$$\int_{a}^{b} e^{1-\lambda} dx=1.$$
+
+Solving this equation with respect to $\lambda$ gives:
+
+$$\lambda=1-\log\left(\frac{1}{b-a}\right).$$
+
+Taking both solutions together we get:
+
+$$p(x)=e^{(1-\lambda)}=e^{\left(1-\left(1-\log\left(\frac{1}{b-a}\right)\right)\right)},$$
+
+$$p(x)= \frac{1}{b-a}.$$
+
+And this is finally the \emph{uniform distribution} on the interval $[a,b]$. Such that, the answer of the above question is: 
+
+\emph{The maximum entropy is associated with a random variable with a uniform probability density distribution between $a$ and $b$.}
+
+
+### Example 2: Derivation of maximum entropy pdf with given mean $\mu$ and variance $\sigma^2$
+
+Suppose a random variable $X$ with a preassigned standard deviation $\sigma$ and mean $\mu$. Again the question is: \emph{Which function $p(x)$ gives the maximum of the entropy $H(x)$?}
+
+The Maximum Entropy is defined for the current cases as
+
+$$H(X)=-\int_{-\infty}^{\infty} p(x) \log p(x)dx,$$
+
+and is subject to the constraint that it should be a pdf 
+
+$$\int_{-\infty}^{\infty} p(x)dx = 1,$$
+ and that $\mu$ and $\sigma$ are given (whereby only one constrained is needed, as the $\mu$ is already included in the definition of $\sigma$):
+ 
+ $$\int_{-\infty}^{\infty}(x-\mu)^2 p(x) dx = \sigma^2.$$
+ 
+Accordingly to the above mentioned technique the formulas are summarized in form of the \emph{Lagrangian} equation:
+ 
+$$\mathcal{L}= -\int_{-\infty}^{\infty} p(x) \log p(x)dx + \lambda_0\left(\int_{-\infty}^{\infty} p(x)dx - 1 \right) + \lambda_1\left(\int_{-\infty}^{\infty}(x-\mu)^2 p(x) dx - \sigma^2 \right).$$
+
+Next, $\mathcal{L}$ will be partially differentiated with respect to $p(x)$:
+
+$$\frac{\partial \mathcal{L}}{\partial p(x)}=0,$$
+$$-(1+\log p(x))+\lambda_0+\lambda_1 (x-\mu)^2=0,$$
+
+$$p(x)=e^{\lambda_0+\lambda_1 (x-\mu)^2-1}.$$
+
+But this must hold for:
+
+$$\int_{-\infty}^{\infty} e^{\lambda_0+\lambda_1 (x-\mu)^2-1}-1 dx = 1,$$
+
+and 
+
+$$\int_{-\infty}^{\infty}(x-\mu)^2 e^{\lambda_0+\lambda_1 (x-\mu)^2-1} dx = \sigma^2.$$ 
+
+For the first constraint we get
+
+$$e^{\lambda_0-1} \sqrt{-\frac{\pi}{\lambda_1}} = 1,$$
+
+and for the second constraint
+
+$$e^{\lambda_0-1} = \sqrt{\frac{1}{2\pi}} \frac{1}{\sigma},$$
+
+Thus
+
+$$\lambda_1=\frac{-1}{2\sigma^2}$$
+
+Taking all together we can write:
+
+$$p(x)=e^{\lambda_0+\lambda_1 (x-\mu)^2-1}=e^{\lambda_0-1}e^{\lambda_1 (x-\mu)^2},$$
+
+substituting the solutions
+
+$$p(x)= \sqrt{\frac{1}{2\pi}} \frac{1}{\sigma} e^{\frac{-1}{2\sigma^2}(x-\mu)^2},$$
+
+finally we can rearrange the terms a bit and get:
+
+$$p(x)= \frac{1}{\sigma\sqrt{2\pi}}\exp{\left(\frac{-1}{2}\left(\frac{(x-\mu)^2}{\sigma^2}\right)\right)},$$
+
+the \emph{Gaussian probability density distribution}!
+
+An **overview of Maximum Entropy distributions** can be found on [Wikipedia](https://en.wikipedia.org/wiki/Maximum_entropy_probability_distribution), here are some further examples:
+
+ Domain         | Constraint(s)              | PDF or PMF                        |  Distribution Name
+ -----------------------------------------------------------------------------------------------------
+ {0,1}          | $E(x)=p$                   |  $f(x)=p^x(1-p)^{1-x}$            | Bernoulli 
+ [0,$\infty$)   | $E(x)=\frac{1}{\lambda}$   |  $f(x)=\lambda \exp(-\lambda x)$  | Exponential 
+ [0,1]                                                                           | Beta
+                                                                                 | Chi-squared
+                                                                                 | Poisson
+
+## Exponential family and Maximum Entropy
+
+Distributions belonging to the exponential family arise as solutions to the maximum entropy
+problem subject to linear constraints. Most common distributions used in statistical modeling are members of this family. The exponential family has a number of convenient theorems attached to it, and encompasses a wide class of distribution, this makes it a useful mathematical class in practice. Furthermore, distributions of this class have some usefull properties for Bayesian Analysis, e.g. they all have a conjugate prior and the posterior distribution has a simple form. 
+
+Common examples of non-exponential families arising from exponential ones are the Student's t-distribution, beta-binomial distribution
+
+![Alt](https://github.com/michael-franke/intro-data-analysis/tree/master/chapters/images/distributions.png "distributions")
+
 ## Continous distributions of random variables
 
 ### Normal distribution
 
 $$X\sim Normal(\mu,\sigma^2)$$
+
+[usage of Normal distribution -> normal by addition, multiplication, log-multiplication]
 
 ```{r}
 n <- 1e6
@@ -153,7 +412,9 @@ grid.arrange(linear.tranform, addition.transform, ncol=2)
 
 $$Y\sim \chi^2(n)$$
 
-Sum of $n$ independent and standard normal distributed random variables $X_1,X_2,...,X_n$.
+It is widely used in hypothesis testing in inferential statistics and less in modelling natural phenomena. The reason why it is used so often in inferential statistics is its relationsship to the standard normal distribution:
+
+The sum of $n$ independent and standard normal distributed random variables $X_1,X_2,...,X_n$ is distributed according to a $\chi^2$ distribution with $n$ \emph{degrees of freedom}. The degrees of freedom refers to the number of independent standard normal random variables.
 
 $$Y=X_1^2+X_2^2+...+X_n^2$$
 
@@ -218,82 +479,11 @@ rv.chisquare <- ggplot(data=rv.chisquare)+
 grid.arrange(rv.trans.chi, rv.chisquare, ncol=2)
 ```
 
-### Student t-distribution
-
-$$T \sim t(n)$$
-
-Consists of a standard normal distributed random variable $X\sim Normal(0,1)$ and a $chi^2$-distributed random variable $Y\sim \chi^2(n)$ (X and Y are independent):
-
-$$T=\frac{X}{\sqrt{\frac{Y}{n}}}$$
-
-#### Expected value
-
-$$E(T)=0$$
-
-#### Variance
-
-$Var(T)=\frac{n}{n-2}$ (for $n \geq 3$)
-
-```{r, warning=FALSE}
-#initialize parameters
-n = 1e6
-df = 2
-
-# create RV 
-## normal distributed RV
-X <- rnorm(n = n, mean = 0, sd = 1)
-Y <- rnorm(n = n, mean = 0, sd = 1)
-Z <- rnorm(n = n, mean = 0, sd = 1)
-
-## create chisquare distributed RV 
-C <- X^2+Y^2
-
-## create student-t distributed RV
-B <- Z/sqrt(C/df)
-
-## Student-t distributed RV
-A <- rt(n=n, df=df)
-
-# create data frame
-data.studentt <- data.frame(X=X,C=C, B=B, A=A)
-
-# plot RVs
-rv.trans.t <- ggplot(data=data.studentt)+
-  stat_density(aes(X), size=1, geom = "line", 
-                     position = "identity")+
-  annotate("text", x=-5, y=0.35, label="X,Y,Z ~ N(0,1)")+
-  stat_density(aes(C), col="blue", size=1, geom = "line", 
-                     position = "identity")+
-  annotate("text", x=5, y=0.4, label=expression(X^2+Y^2), color="blue")+
-  stat_density(aes(B), col="green", size=1, geom = "line", 
-                     position = "identity")+
-  annotate("text", x=5, y=0.3, label=expression(frac(Z,sqrt(X^2+Y^2/2))), color="green")+
-  xlim(-10,10)+
-  ylim(0,0.5)+
-  xlab("RVs")+
-  ggtitle("Transformation of RVs")+
-  theme_classic()
-
-rv.studentt <- ggplot(data=data.studentt)+
-  stat_density(aes(B), col="green", size=1, geom = "line", 
-                      position = "identity")+
-  stat_density(aes(A), col="red", linetype="dashed", size=1, geom = "line", 
-                      position = "identity")+
-  annotate("text", x=0, y=0.4, label="T ~ student-t(2)", color="red")+
-  xlim(-10,10)+
-  xlab("RVs")+
-  ylim(0,0.5)+
-  ggtitle("student-t distribution")+
-  theme_classic()
-
-grid.arrange(rv.trans.t, rv.studentt, ncol=2)
-```
-
 ### F distribution
 
 $$F \sim F(m,n)$$
 
-Consists of two $chi^2$-distributed random variables $X\sim \chi^2(m)$ and $Y\sim \chi^2(n)$:
+Used in particular in regression and variance analysis and consists of two $chi^2$-distributed random variables $X\sim \chi^2(m)$ and $Y\sim \chi^2(n)$:
 
 $$F=\frac{\frac{X}{m}}{\frac{Y}{n}}$$
 
@@ -365,187 +555,80 @@ rv.f <- ggplot(data=data.F)+
 grid.arrange(rv.trans.f, rv.f, ncol=2)
 ```
 
-## Excursos: Maximum Entropy
-
-### Information Entropy
-
-If $X$ is a discrete random variable with distribution $P(X=x_i)=p_i$ then the entropy of $X$ is defined as
-$$H(X)=-\sum_{i} p_i \log p_i$$
-
-If $X$ is a continuous random variable with probability density $p(x)$ then the differential entropy of $X$ is defined as 
-$$H(X)=-\int_{-\infty}^{+\infty} p(x) \log p(x) dx$$
-
-
-### Entropy: Shannon's theorem
-
-according to [@jaynes2003]
-
-Conditions that a measure of the \emph{amount of uncertainty} $H_n$ have to satisfy:
-
-1. It is possible to set up some kind of association between \emph{amount of uncertainty} and real numbers
-2. $H_n$ is a continous function of the $p_i$. Otherwise, an arbitrarily small change in the probability distribution would lead to a big change in the amount of uncertainty.
-3. $H_n$ should correspond to common sense in that, when there are many possibilities, we are more uncertain than when there are few. This condition takes the form that in case the $p_i$ are all equal, the quantity $h(n)$ is a monotonic increasing function of $n$.
-4. $H_n$ is consistent in that, when there is more than one way of working out its value, we must get the same answer for few possible way.
-
-For the case that there are $n$ mutually exclusive propositions $(A_1,A_2,...,A_n)$, to which we assign probabilities $(p_1,p_2,...p_n)$
-
-Instead of giving the probabilities for the $(A_1,A_2,...,A_n)$ directly, we can group the first $k$ of them together as the proposition $(A_1+...+A_k)$ and assign probability $\omega_1=(p_1+...+p_k)$. This grouping can be made as well for the next $m$ propostions to wich we assign $\omega_2$ etc.
-
-The amount of uncertainty to the composite propositions is $H(\omega_1,\omega_2,...)$
-
-**conditional probabilities:** $(\frac{p_1}{\omega_1},...,\frac{p_k}{\omega_1})$ for the propositions $(A_1,...,A_k)$, given that $(A_1+...+A_k)$ is true.
-
-The additional uncertainty, encountered with probability $\omega_1$, is then $H(\frac{p_1}{\omega_1},...,\frac{p_k}{\omega_k})$.
-
-Carrying this out for the composite propositions $(A_{k+1}+...+A_{k+m})$ etc., we arrive ultimately at the same state of knowledge as if the $(p_1,p_2,...p_n)$ had been given directly; \emph{consistency} requires that these calculations yield the same ultimate uncertainty, no matter how choices were broken down.
-
-Thus we have:
-
-$$H(p_1,p_2,...p_n)=H(\omega_1,...,\omega_r)+ \omega_1H(\frac{p_1}{\omega_1},...,\frac{p_k}{\omega_1})+ \omega_2H(\frac{p_{k+1}}{\omega_2},...,\frac{p_{k+m}}{\omega_2})+ ...,$$
-Since $H(p_1,p_2,...p_n)$ is continuous, it will suffice to determine it for all rational values
-$$p_i=\frac{n_i}{\sum n_i}$$
-with $n_i$ integers. For a general choice of the $n_i$, we can reduce the above formula to:
-$$H\left(\sum n_i\right)=H(p_1,...,p_n)+\sum_{i} p_ih(n_i).$$
-Now, we can choose all $n_i=m$; whereupon the above formula collapses to
-
-$$h(mn)=h(m)+h(n).$$
-
-Evidently, this is solved by setting
-
-$$h(n)=K\log(n),$$
-where $K$ is a constant. But this solution is no longer unique. To get any unique solution for $h(n)$, we have to add our qualitative requirement that $h(n)$ be monotonic increasing in $n$. 
-
-Different choices of $K$ amount in the same thing as taking logarithms to different bases; so if we leave the base arbitrary for the moment, we can just as well write: $h(n)=log(n)$. Substituting this into 
-$$H\left(\sum n_i\right)=H(p_1,...,p_n)+\sum_{i} p_ih(n_i),$$
-
-we have Shannon's theorem 
-$$H(p_1,...,p_n)=-\sum_{i=1}^{n} p_i \log(p_i),$$
-
-the only function satisfying the conditions we have imposed on a reasonable measure of \emph{amount of uncertainty}.
-
-Accepting this interpretation, it follows that the distribution $(p_1,...,p_n)$ which maximizes the above equation, subject to constraints imposed by the available information, will represent the most \emph{honest} description of what the model \emph{knows} about the propositions $(A_1,...,A_n)$.
-
-The function $H$ is called the \emph{entropy}, or the \emph{information entropy} of the distribution $\{p_i\}$. (Note that the \emph{information entropy} has nothing to do with the \emph{experimental entropy} of thermodynamics)
-
-### The Wallis derivation
-
-We are given information $I$, which is to be used in assigning probabilities $\{p_1,...,p_m\}$ to $m$ different probabilities. We have a total amount of probability
-
-$$\sum_{i=1}^{m} p_i =1$$
-
-to allocate among them.
-
-The problem can be stated as follows. Choose some integer $n>>m$, and imagine that we have $n$ little \emph{quanta} of probabilities, each of magnitude $\delta=n^{-1}$, to distribute in an way we see fit. 
-
-Suppose we were to scatter these quanta at random among the $m$ choices (penny-pitch game into m equal boxes). If we simply toss these quanta of probability at random, so that each box has an equal probability of getting them, nobody can claim that any box is being unfairly favoured over any other. 
-
-if we do this and the first box receives exactly $n_1$ quanta, the second $n_2$ quanta etc. we will say the random experiment has generated the probability assignment
-
-$$p_i=n_i\delta=\frac{n_i}{n}, \textrm{ with } i=1,2,...,m.$$
-
-The probability that this will happen is the multinomial distribution 
-
-$$m^{-n} \frac{n!}{n_1!\cdot...\cdot n_m!}.$$
-
-Now imagine that we repeatedly scatter the $n$ quanta at random among the $m$ boxes. Each time we do this we examine the resulting probability assignment. If it happens to conform to the information $I$, we accept it; otherwise we reject it and try again. We continue until some probability assignment $\{p_1,...,p_m\}$ is accepted. 
-
-What is the most likely probability distribution to result from this game? It is the one which maximizes
-
-$$W=\frac{n!}{n_1! \cdot ... \cdot n_m!}$$
-
-subject whatever constraints are imposed by the information $I$.
-
-We can refine this procedure by using smaller quanta, i.e. large $n$. When $n \rightarrow \infty$, then $n_i \rightarrow \infty$ in such a way that $\frac{n_i}{n} \rightarrow p_i = \text{const.}$,
-
-$$\frac{1}{n} \log(W) \rightarrow -\sum_{i=1}^{m}p_i\log(p_i)=H(p_1,...,p_m),$$
-
-and, so, the most likely probability assignment to result from this game is just the one that has maximum entropy subject to the given information $I$.
-
-### Conclusion: Maximum Entropy Principle
-According to [@deMartino2018]
-
-If one is to infer a probability distribution given certain constraints, out of all distributions $\{p_i\}$ compatible with them, one should pick the distribution $\{p_i^*\}$ having the largest value of $H$.
-
-It is important to understand that, because they correspond to maximal underlying degeneracy, Maximum Entropy distributions are the least biased given the constraints: any other distribution compatible with the same constraints would have smaller degeneracy and therefore would artificially exclude some viable (i.e. constraint-satisfying) configurations of the underlying variables. In other terms, a Maximum Entropy distribution is completely undetermined by features that do not appear explicitly in the constraints subject to which it has been computed.
-
-## Deriving Probability Distributions using the Maximum Entropy Principle
-
-### Lagrangian multiplier technique
-
-So far we have introduced the value of maximum entropy principle. Now, we can use this principle in order to derive maximum entropy distributions. But how to get the critical values of a multivariable function with constraints? One technique that can help for soliving this problem is the \emph{Langrange multiplier technique}.
-
-Given a mutivariable function $f(x,y,...)$ and constraints of the form $g(x,y,...)=c$, where $g$ is another multivariable function with the same input space as $f$ and $c$ is a constant.
-
-In order to minimize (or maximize) the function $f$ consider the following steps, assuming $f$ to be $f(x)$:
-
-1. Introduce a new variable $\lambda$, called \emph{Lagrange multiplier}, and define a new function $\mathcal{L}$ with the form:
-
-$$\mathcal{L}(x,\lambda)=f(x)-\lambda (g(x)-c).$$
-
-2. Set the derivative of the function $\mathcal{L}$ equal to the zero:
-
-$$\mathcal{L'}(x,\lambda)=0,$$
-
-in order to find the critical points of $\mathcal{L}$.
-
-3. Consider each resulting solution and derive from them the resulting distribution $f$, which give the minimum (or maximum) one is searching for.
-
-For more details see [@khanAcademy2019]
-
-### Example 1: Derivation of maximum entropy pdf with no other constraints
-
-For more details see [@finlayson2017, @keng2017]
-
-Suppose a random variable for which we have absolutely no information on its probability distribution, beside the fact that it should be a pdf and thus, integrate to 1. We ask for the following: 
-
-\emph{What type of probability density distribution gives maximum entropy when the random variable is bounded by a finite interval, say $a\leq X \leq b$?}[@reza1994]
-
-We assume that the maximum ignorance distribution is the one with the maximum entropy. It minimizes the prior information in a distribution and is therefore the most conservative choice.
-
-For the continuous case entropy, the measure of uncertainty, is defined as
-
-$$H(x)=-\int_{a}^{b}p(x) \log(p(x))dx,$$
-
-with subject to the above mentioned constraint that the sum of all probabilities is one (as it is a pdf):
-
-$$\int_{a}^{b}p(x)dx =1.$$
-
-Rewrite this into the form of \emph{Lagrangian} equation gives
-
-$$\mathcal{L}=-\int_{a}^{b}p(x) \log(p(x))dx - \lambda \left(\int_{a}^{b}p(x)dx-1 \right).$$
-
-The next step is to \emph{minimize} the Lagrangian function. To solve this, we have to use the \emph{calculus of variations}[@keng2017].
-
-First differentiating $\mathcal{L}$ with respect to $p(x)$
-
-$$\frac{\partial \mathcal{L}}{\partial p(x)}=0,$$
-$$\log(p(x))=1-\lambda,$$
-$$p(x)=e^{(1-\lambda)}.$$
-
-Second differentiating $\mathcal{L}$ with respect to $\lambda$
-
-$$\frac{\partial \mathcal{L}}{\partial \lambda}=0,$$
-
-$$\int_{a}^{b} p(x)dx=1,$$
-$$\int_{a}^{b} e^{1-\lambda} dx=1,$$
-
-$$\lambda=1-\log\left(\frac{1}{b-a}\right).$$
-
-Taking both solutions together we get:
-
-$$p(x)=e^{(1-\lambda)}=e^{\left(1-\left(1-\log\left(\frac{1}{b-a}\right)\right)\right)},$$
-$$p(x)= \frac{1}{b-a}.$$
-
-And this is finally the \emph{uniform distribution} on the interval $[a,b]$. Such that, the answer of the above question is: 
-
-\emph{The maximum entropy is associated with a random variable with a uniform probability density distribution between $a$ and $b$.}
-
-
-### Example 2: Derivation of maximum entropy pdf with given mean $\mu$ and variance $\sigma^2$
-
-
-
-
+### Student t-distribution (not part of exponential family)
+
+$$T \sim t(n)$$
+
+The student-t-distribution is not part of the exponential family but is directly related to the normal distribution. It is used in particular when the sample size is small and the variance is , which is often the case in reality. Its shape ressembles the normal bell shape, but the student distribution is a bit lower and wider (bigger tails). For a large ($n \geq 30$) sample size the student-t-distribution can be approximated by a standard normal distribution.  
+
+It consists of a standard normal distributed random variable $X\sim Normal(0,1)$ and a $chi^2$-distributed random variable $Y\sim \chi^2(n)$ (X and Y are independent):
+
+$$T=\frac{X}{\sqrt{\frac{Y}{n}}}$$
+
+#### Expected value
+
+$$E(T)=0$$
+
+#### Variance
+
+$Var(T)=\frac{n}{n-2}$ (for $n \geq 3$)
+
+```{r, warning=FALSE}
+#initialize parameters
+n = 1e6
+df = 2
+
+# create RV 
+## normal distributed RV
+X <- rnorm(n = n, mean = 0, sd = 1)
+Y <- rnorm(n = n, mean = 0, sd = 1)
+Z <- rnorm(n = n, mean = 0, sd = 1)
+
+## create chisquare distributed RV 
+C <- X^2+Y^2
+
+## create student-t distributed RV
+B <- Z/sqrt(C/df)
+
+## Student-t distributed RV
+A <- rt(n=n, df=df)
+
+# create data frame
+data.studentt <- data.frame(X=X,C=C, B=B, A=A)
+
+# plot RVs
+rv.trans.t <- ggplot(data=data.studentt)+
+  stat_density(aes(X), size=1, geom = "line", 
+                     position = "identity")+
+  annotate("text", x=-5, y=0.35, label="X,Y,Z ~ N(0,1)")+
+  stat_density(aes(C), col="blue", size=1, geom = "line", 
+                     position = "identity")+
+  annotate("text", x=5, y=0.4, label=expression(X^2+Y^2), color="blue")+
+  stat_density(aes(B), col="green", size=1, geom = "line", 
+                     position = "identity")+
+  annotate("text", x=5, y=0.3, label=expression(frac(Z,sqrt(X^2+Y^2/2))), color="green")+
+  xlim(-10,10)+
+  ylim(0,0.5)+
+  xlab("RVs")+
+  ggtitle("Transformation of RVs")+
+  theme_classic()
+
+rv.studentt <- ggplot(data=data.studentt)+
+  stat_density(aes(B), col="green", size=1, geom = "line", 
+                      position = "identity")+
+  stat_density(aes(A), col="red", linetype="dashed", size=1, geom = "line", 
+                      position = "identity")+
+  annotate("text", x=0, y=0.4, label="T ~ student-t(2)", color="red")+
+  xlim(-10,10)+
+  xlab("RVs")+
+  ylim(0,0.5)+
+  ggtitle("student-t distribution")+
+  theme_classic()
+
+grid.arrange(rv.trans.t, rv.studentt, ncol=2)
+```
+
+## Discrete distributions of random variables
 
 
 
