@@ -62,7 +62,7 @@ So far we wanted to clearly state the most important conceptual differences betw
 
 ### Probability density function vs. Likelihood function
 
-As we already know from the "probability"-lecture, for a coin flip the probability of each outcome can be described with the \emph{Bernoulli distribution}\footnote[2]{we need here a distinction between Bernoulli and Binomial...}, as there exist two discrete outcomes (head or tail) and a constant probability $\theta$:
+As we already know from the "probability"-lecture, for a coin flip the probability of each outcome can be described with the \emph{Bernoulli distribution}\, as there exist two discrete outcomes (head or tail) and a constant probability $\theta$:
 $$p([X=x]|\theta)=\theta^{[x]}(1-\theta)^{(1-[x])}$$
 
 where
@@ -79,8 +79,13 @@ In the first case, we assume the outcome to be an unknown parameter (variable), 
 
 ### Priors
 
-General introduction to priors...
-A prior is a initial probability assignment for each possible value of the parameter [@mcelreath2015].
+The clearest difference, as already discussed, between frequentist and Bayesian methods is the incorporation of prior information in the Bayesian framework. The posterior distribution results by combining the likelihood (observed data) with the prior information.
+
+When an uninformative (e.g. uniform) prior is used then the posterior is completely dependent on the data. The influence of the prior depends on their relative weighting. Considering for example the Beta distribution with the parameters a and b: $\beta \sim Beta(a,b)$. Assuming a coin flip experiment, the parameters of a Beta distribution can be interpreted as $a=$no. of heads and $b = $no. of tails, thus, $n=a+b$. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(10,10).
+
+A lot of effort has been done in the area of "Objective Baysian data analysis" in order to develop "uninformativ prior distributions", because a lot of people feel uncomfortable using informative priors --- seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this [@dobson2008].  
+
+Important is that the definition of prior distributions make sense at every level in the hierarchy. Some further notes 
 
 ### Posterior
 
@@ -210,9 +215,9 @@ rethinking::dens(rbeta(n=1e6,shape1=1,shape2=1), ylim = c(0,1.5),
 
 So far, the coin flip model is define conceptionally. In the following some notational considerations have to made. 
 
-## Notation
+### Notation
 
-### Textual notation
+#### Textual notation
 
 In the textual notation, first the prior assumptions (if the Bayesian perspective is taken) are indicated. For the coin flip example this is:
 $$\theta \sim Beta(1,1).$$
@@ -224,7 +229,7 @@ To summarize the current model (whereby the prior knowledge is only considered f
 $$\theta \sim Beta(1,1),$$
 $$k\sim Binomial(\theta|n).$$
 
-### Graphical notation
+#### Graphical notation
 
 When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. In the following the convention described in Wagenmakers and Lee's \emph{Bayesian Cognitive Modelling} (2014) is used: The graph structure is used to indicate dependencies between the variables, with children
 depending on their parents [@leeWagen2014]. General conventions:
@@ -253,6 +258,43 @@ Finally, the graphical structure together with the textual notation can be repre
 
 <!-- ![Graphical notation Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Binom.png) -->
 
+### An outlook: Hierarchical models
+
+Often data can be considered as part of an overall structure. Single observations can be modelled belonging into different groups. These groups in turn are part of a superordinate group etc. Such information are presented in a model in form of a hierarchy.
+
+For example, consider again the coin flip experiment. The outcome of \emph{head} is influenced by the probability $\theta$. Further, $\theta$ is assumed to be distributed as Beta(1,1). A further hierarchical level can be created by defining a distribution on the parameters of the Beta prior. Such that the model can be assumed as follows:
+
+<!-- ![Graphical notation hierarchical Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/binom-onelevel.png) -->
+
+[Reparameterization here]
+
+As such hierarchical models can be created with any degree of complexity: [can we use that?]
+
+<!-- ![Graphical notation hierarchical Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/hierarchical-model.png) -->
+
+## Exursos: Prior predictive distribution
+
+Accoring to [@leeWagen2014]:
+
+* the \emph{prior distribution} over parameters captures our initial assumptions or state of knowledge about the psychological variables they represent. 
+
+* the \emph{prior predictive distribution} tells us what data to expect, given our model and our current state of knowledge. The prior predictive is a distribution over data, and gives the relative probability of different observable outcomes before any data have been seen.
+
+The prior predictive distribution for the coin flip model (one group):
+
+```{r}
+# information on all parameters for which priors may be specified 
+get_prior(formula = k|trials(x)~1, family=binomial(link = "logit"), data=coin.flip)
+```
+```{r}
+# define prior according to the model
+beta.prior <- set_prior("beta(1,1)",class = "Intercept")
+
+# model and plot prior predictive 
+prior.predictive <- brm(formula = k|trials(x)~1, family=binomial(link = "logit"), data=coin.flip, sample_prior="only", prior = beta.prior)
+
+plot(prior.predictive)
+```
 
 ## Further examples
 
@@ -320,8 +362,6 @@ The *distributional assumptions*, according to the **second and third step**, ca
 
 <!-- ![Graphical notation Beta-Binomial Modell - Two groups](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Factorial.png) -->
 
-
-
 ### Simple linear regression with one metric predictor
 
 The following example originates from a data set in which speed of cars and the distance taken to stop was recorded. It is a simple data set good for introducing the basic ideas for simple linear regression. 
@@ -354,13 +394,6 @@ Although the distribution of "distance" values is not identical to the correspon
 $$y_i\sim Normal(\mu, \sigma).$$
 The index $i$ indicates each element (i.e. car) of the list $y$, which in turn is the list of distances. 
 
-#### Small excursos: "iid"
-
-The short model description above incorporates often already an assumption about the distribution of distance-values: \emph{identically and independently ditributed}. Often the abbreviation \emph{iid} can be found for this assumption:
-$$y_i\overset{\text{iid}}{\sim} Normal(\mu, \sigma).$$
-
-The abbreviation \emph{iid} indicates that each value $y_i$ has the same probability function, independent of the other $y$ values and using the same parameters [@mcelreath2015].
-
 In the third step, a Bayesian perspective is taken the **prior knowlege** (before seeing the data) has to be defined. The parameters of the current model are the predicted value $\mu$ and the standard deviation $\sigma$. For the parameter $\mu$ a normal distribution can be assumend with parameters that reflect the estimated values from the sample.
 
 ```{r}
@@ -374,6 +407,13 @@ $$\mu\sim Normal(43,26)$$
 
 For the standard deviation $\sigma$ a uniform distribution is assumed:
 $$\sigma\sim Uniform(0,40)$$
+
+#### Excursos: Identically and independently distributed (\emph{iid})
+
+The short model description $y_i\sim Normal(\mu, \sigma)$ incorporates often already an assumption about the distribution of distance-values: They are \emph{identically and independently ditributed}. Often the abbreviation \emph{iid} can be found for this assumption:
+$$y_i\overset{\text{iid}}{\sim} Normal(\mu, \sigma).$$
+
+The abbreviation \emph{iid} indicates that each value $y_i$ has the same probability function, independent of the other $y$ values and using the same parameters [@mcelreath2015]. This is hardly ever true. For example, thinking about the cars in the current example data set. Some cars may be of different types or even the same type but different batches. But the question is: Is this underlying dependency relevant for the model? If yes, this information has to be added in the model (e.g. in form of a hierachical model). Janyes states it as follows: \begin{quote} "*The onus is always on the user to make sure that all information, which his common sense tells him is relevant to the problem, is actually incorporated into the equations, (...).*"\end{quote}[@jaynes2003,p.339]. But if one do not know any relevant underlying relationships the most conservative distribution to use is \emph{iid}. Note, that the stated assumptions define how the model represents a problem and not how the world should be understood. For example, there might exist underlying correlations but on the overall distribution there influence tends towards zero. In such cases it remains usefull to assume iid [@mcelreath2015].
 
 ### Notation Simple Regression model
 <!-- ![Graphical notation Simplre Regression model](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_SimpReg.png) -->
@@ -445,3 +485,8 @@ $$\theta_1 - \theta_2 = (\beta_0+\beta_1)-\beta_0=\beta_1=\delta,$$
 the slope $\beta_1$, thus, we can see that this parameterization enables us to estimate the difference between two groups. When in comes to estimation and interpretation the results will be the intercept $b_0$ and the slope $b_1$.
 
 ### Simple linear regression model (revisited)
+
+
+
+
+
