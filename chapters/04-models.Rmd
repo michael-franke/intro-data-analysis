@@ -1,35 +1,37 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(brms)
+```
+
 # Models
 
 ## Overview
 
-In the first section we introduce the \emph{model chapter} based on the debate between \emph{Frequentists} and \emph{Bayesians}. After a short overview and background with the main ideas of each approach we formalize the conceptual ideas and the components of the presented model. We finish by discussing three models: \emph{binomial}, \emph{factorial-design} and \emph{simple linear regression} model.
+In the first section we introduce the \emph{model chapter} based on a short revision of the debate between \emph{Frequentists} and \emph{Bayesians}. After a short overview we formalize the conceptual ideas and the components of the presented model. We finish by discussing further example models.
 
-## Two notions of probability
+## Two notions of probability (revisited)
 
-What are probabilities? We look at two viewpoints: probabilities exist "outside in the world" or they are "subjective beliefs" [@kruschke2015]. Although both notions imply different approaches how to deal with probabilities, the mathematical properties are quite similar [@kruschke2015].
+What are probabilities? 
+Two viewpoints can be distinguished: Probabilities exist "outside in the world" or they are "subjective beliefs" [@kruschke2015]. Although both notions imply different approaches how to deal with probabilities, the mathematical properties are quite similar [@kruschke2015].
 
 ### Frequentism --- Probabilities as properties of the world
 
-We now assume that probabilities are existent and properties of the world. When observing a particular object, then in the long run, we should be able to deduce from our observations the "inherent" probability of an outcome
-of this object. Frequentism is an approach that searches for relative frequencies in a large number of trials [@vallverdu2015]. 
-Tossing a coin results in head or tail (for simplicity we do not consider the possibility that it stands on its edge). A Frequentist would toss a coin many times, take a note on each observation and, finally, calculate the relative frequency of each outcome. That is, the observed outcome divided by the number of tosses. In the long run, the outcome "head" or "tail" will be observed around 50% (given the coin is fair, the toss is not manipulated, no external factors like wind etc. influences the outcome, ...).
-
-Therefore it is mandatory
-
->	to obtain _a large number of trials_ from which emerged the relative frequency from an event.
-> 
-> --- @vallverdu2015, p.50 (emphasis is taken from the original)
-
-
-In other words: For Frequentists probabilities (relative frequencies) describe \emph{objective properties of the world} rather than subjective beliefs. 
+When thinking about probabilities as existing "outside in the world" one has to consider the random process that produces the observed data. A Frequentist imagine this random process beeing repeated a large number of times so that the probability of an outcome is the number of observed outcomes devided by the total number of observations $n$ [@dobson2008]. Frequentism is an approach that searches for relative frequencies in a large number of trials [@vallverdu2015]. 
+The parameter $\theta$, the probability of interest, is the value of the relative frequency when $n$ becomes infinitely large. Consequently, the parameter $\theta$ can be estimated from the observed data, $\hat{\theta}$, by maximizing the likelihood function (see section "Likelihood, Prior & Posterior") [@dobson2008]. 
 
 ### Bayesianism --- Probabilities as subjective beliefs
 
-Another notion of probabilities is to think of them as "beliefs" inside our head. For example considering again the coin flip example, we could have a relatively strong belief that a coin is fair or we actually believe that a coin is fair but we are not so certain about that or we "just do not know" (see Fig. \ref{fig:priorbeliefs} from left to right).
-
+Another notion of probabilities is to think of them as "beliefs" inside one's mind. 
 
 \paragraph{Bayes' Theorem} 
-The core of Bayesian methods is Bayes' theorem which tell us how prior belief is combined with observed data:
+The core of Bayesian methods is Bayes' theorem which describes how prior belief is combined with observed data:
 
 $$P(H|Data)=\frac{P(Data|H)*P(H)}{P(Data)}$$
 
@@ -39,56 +41,108 @@ $$P(H|Data)=\frac{P(Data|H)*P(H)}{P(Data)}$$
 
 $$Posterior=\frac{Likelihood*Prior}{Marginal\textrm{ } Likelihood},$$
 
-where
-
-- $P(H|Data)$ is the conditional probability (\emph{posterior probability}) of the hypothesis H given a particular result (Data);  
-- $P(Data|H)$ is the conditional probability (\emph{likelihood}) of a result(data) given the hypothesis H;
-- $P(H)$ is the \emph{prior probability} of the hypothesis H;
-- $P(Data)$ is the \emph{marginal (or average) likelihood}\footnote[1]{Sometimes also referred to as "Evidence"} of the data irrespective of the truth of any hypothesis.
-
-The job of the "marginal Likelihood" in the denominator is to standardize the posterior, to ensure it sums up to one (integrates to one). Therefore, the key lesson of Bayes' theorem is [@mcelreath2015]:
+The job of the "marginal Likelihood" in the denominator is to standardize the posterior and thus to ensure it sums up to one (integrates to one). Therefore, the key lesson of Bayes' theorem is [@mcelreath2015]:
 $$Posterior \propto Likelihood * Prior$$
 
-What does that mean? Consider again the coin flip experiment. We have observed a certain amount of coin flip trials, thus we can describe a probability distribution: a list of possible outcomes and their corresponding probabilities (Likelihood) [@kruschke2015]. Furthermore, as we have stated above, we express a prior belief about our hypothesis, for example we might belief, that the coin is a trick coin and therefore extremely biased. Again, the mathematical way of expressing our belief is by assigning numbers to a set of mutually exclusive events (the prior). From that, finally, the rules of probability theory define a uniquely logical posterior for the prior, likelihood and data (Posterior).
+\paragraph{To summarize up:}
+A parameter in *Bayesian methods* is conceptualized as a random variable with its own distribution (the posterior) that summarizes the current state of knowledge. The expected value of the posterior is the best guess about the true value of the parameter and its variability reflects the amount of uncertainty [@kline2013]. 
 
-
-At this point we see an important difference between Frequentist and Bayesian methods:
-A parameter in Bayesian methods is conceptualized as a random variable with its own distribution (the posterior) that summarizes the current state of knowledge. The expected value of the posterior is the best guess about the true value of the parameter and its variability reflects the amount of uncertainty [@kline2013]. 
-In Frequentist statistics, a parameter is seen as a constant that should be estimated with sample statistics [@kline2013].
+In *Frequentist statistics*, a parameter is seen as a constant that should be estimated with sample statistics [@kline2013].
 
 ## Likelihood, Prior, \& Posterior
 
-So far we wanted to clearly state the most important conceptual differences between Frequentism and Bayesianism and to introduce the core of Bayesian methods: Bayes' theorem. Before we go further into the topic of modelling, some conceptual notions are neccessary.
+Before the topic of  is introduced, some conceptual notions are neccessary.
 
 ### Probability density function vs. Likelihood function
 
-As we already know from the "probability"-lecture, for a coin flip the probability of each outcome can be described with the \emph{Bernoulli distribution}\, as there exist two discrete outcomes (head or tail) and a constant probability $\theta$:
+As already know from the "probability"-lecture, for a coin flip the probability of each outcome can be described with the \emph{Bernoulli distribution}\, as there exist two discrete outcomes (head or tail) and a constant probability $\theta$:
 $$p([X=x]|\theta)=\theta^{[x]}(1-\theta)^{(1-[x])}$$
 
 where
 
 - $\theta$ is the probability of "head" for the coin flip;
-- the bracket -[ ] indicates that we assume this parameter as unknown.
+- the bracket [ ] indicates that the particular parameter is treated as unknown.
 
+With the formula above the probability of $\theta$ is treated as "known". Accordingly, the distribution of possible outcomes can be derived. 
 
-With the formula above we assume that we know the probability $\theta$ and derive from this the distribution of possible outcomes. 
-But we might be interested in a different perspective, that is the assumption that we have the data fixed but $\theta$ is unknown: the \emph{likelihood function} --- a mathematical formula that specifies the plausibility of the data. It states the probability of any possible observation: 
+But, as already seen in the introductory part, one might be interested in the value of $\theta$ by a given data set. Then $\theta$ is unknown and the data are observed. Treating $\theta$ as parameters instead of $x$ leads to the \emph{likelihood function} --- a mathematical formula that specifies the plausibility of the data. It states the probability of any possible observation: 
 $$p(X=x|[\theta])=[\theta]^x(1-[\theta])^{(1-x)}$$
-In the first case, we assume the outcome to be an unknown parameter (variable), whereas in the latter case the unknown parameter is $\theta$. Please be aware that through exchanging the roles of $x$ and $\theta$ in the second equation (likelihood function) this function is no longer a probability distribution and thus does not integrate to 1. 
 
+Please be aware that through exchanging the roles of $x$ and $\theta$ in the second equation (likelihood function) this function is no longer a probability distribution and thus does not integrate to 1. 
 
 ### Priors
 
-The clearest difference, as already discussed, between frequentist and Bayesian methods is the incorporation of prior information in the Bayesian framework. The posterior distribution results by combining the likelihood (observed data) with the prior information.
+The clearest difference between frequentist and Bayesian methods is the incorporation of *prior information* in the Bayesian framework. The posterior distribution results by combining the likelihood with the prior information.
 
-When an uninformative (e.g. uniform) prior is used then the posterior is completely dependent on the data. The influence of the prior depends on their relative weighting. Considering for example the Beta distribution with the parameters a and b: $\beta \sim Beta(a,b)$. Assuming a coin flip experiment, the parameters of a Beta distribution can be interpreted as $a=$no. of heads and $b = $no. of tails, thus, $n=a+b$. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(10,10).
+When an uninformative (e.g. uniform) prior is used then the posterior is completely dependent on the data. The influence of the prior depends on their relative weighting. Considering for example a Beta distribution with the parameters a and b: $\beta \sim Beta(a,b)$. Assuming a coin flip experiment, the parameters of a Beta distribution can be interpreted as $a=$no. of heads and $b = $no. of tails, thus, $n=a+b$. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(5,5).
 
-A lot of effort has been done in the area of "Objective Baysian data analysis" in order to develop "uninformativ prior distributions", because a lot of people feel uncomfortable using informative priors --- seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this [@dobson2008].  
+```{r}
+#simulate coin flip data set
+sample.space <- c(0, 1)
+theta <- 0.3              # probability of a success (here: head)
+X <- 30                   # number of trials in the experiment
+n <- 10                   # number of observations
+k <- 0                    # number of heads [initialization]
 
-Important is that the definition of prior distributions make sense at every level in the hierarchy. Some further notes 
+## repeat experiment N-times
+for (i in 1: n) {
+  k[i] <- sum(sample(sample.space, size = X, replace = TRUE, 
+                     prob = c(theta, 1 - theta)))
+}
+
+## show results in a tibble
+coin.flip1 <- tibble("n" = seq(from=1, to=n, by=1),
+                    "k" = k,
+                    "x" = X )
+
+#show the different prior distributions 
+par(mfrow=c(1,2))
+Beta1 <- rbeta(n=1e5,shape1=1,shape2=1)
+Beta2 <- rbeta(n=1e5,shape1=10,shape2=10)
+plot(density(Beta1), ylim=c(0,4),main="Prior 1: Beta(1,1)", xlab=expression(theta))
+plot(density(Beta2), ylim=c(0,4),main="Prior 2: Beta(10,10)",xlab=expression(theta))
+```
+
+```{r}
+#show posterior distributions weighted by priors
+
+prior1 <- set_prior("beta(1,1)", class = "Intercept")
+prior2 <- set_prior("beta(5,5)", class = "Intercept")
+
+model1 <- brm(data=coin.flip1, formula= k|trials(x) ~ 1, prior=prior1, family = binomial(link = "logit"))
+samples.model1 <- posterior_samples(model1)
+
+model2 <- brm(data=coin.flip1, formula= k|trials(x) ~ 1, prior=prior2, family = binomial(link = "logit"))
+samples.model2 <- posterior_samples(model2)
+
+
+par(mfrow=c(2,2))
+Beta1 <- rbeta(n=1e5,shape1=1,shape2=1)
+Beta2 <- rbeta(n=1e5,shape1=5,shape2=5)
+plot(density(Beta1), ylim=c(0,3),main="Prior 1: Beta(1,1)", xlab=expression(theta),xlim=c(0,1))
+plot(density(Beta2), ylim=c(0,3),main="Prior 2: Beta(10,10)",xlab=expression(theta),xlim=c(0,1))
+plot(density(inv_logit_scaled(samples.model1$b_Intercept)),main="Posterior 1 with Prior Beta(1,1)", xlab=expression(theta), xlim=c(0.6,0.75))
+plot(density(inv_logit_scaled(samples.model2$b_Intercept)),main="Posterior 1 with Prior Beta(10,10)", xlab=expression(theta),xlim=c(0.6,0.75))
+```
+
+A lot of effort has been done in the area of "Objective Baysian data analysis" in order to develop "uninformativ prior distributions", because a lot of people feel uncomfortable using informative priors --- seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this [@dobson2008]. It is "just" important that the definition of the prior distributions make sense (at every stage) in the model.
+
+#### Exursos: Prior predictive distribution
+
+So far we have seen that the \emph{prior distribution} over parameters captures the initial assumptions or state of knowledge about the psychological variables they represent [@leeWagen2014], in the above example $\theta$.
+
+Considering these initial assumptions in terms of prior distributions allow to make predictions about what data we would expect given the model and current state of knowledge. This distribution is called \emph{prior predictive distribution}. It is a distribution over data, and gives the relative probability of different observable outcomes before any data have been seen [@leeWagen2014].
+
+For the coin flip model we consider a flat prior distribution: Beta(1,1). The prior predictive distribution would thus look like:
+
+```{r}
+## show here prior predictive of coin flip..
+
+```
 
 ### Posterior
 
+[...]
 
 ## Modeling
 
@@ -97,6 +151,7 @@ Important is that the definition of prior distributions make sense at every leve
 As introductory example a coin flip experiment is considered. The question is if a particular coin is \emph{biased}. In order to investigate this question a coin is flipped $x$ times (=trials) and the number of success (i.e. number of "head") $k$ is recorded. This is repeated $n$ times (=observations).
 
 ```{r}
+#this code is just copy&paste from above [it is included again for better comprehension]
 #simulate coin flip data set
 sample.space <- c(0, 1)
 theta <- 0.5              # probability of a success (here: head)
@@ -124,23 +179,22 @@ The above table shows the observed outcome, but how the underlying probability o
 
 The approach described here is based on [@mcelreath2015, @kruschke2015]. Although the approach is introduced in a Bayesian context, it can be used as a general guideline (with some caveats):
 
-* Identify the relevant variables according to the hypothesis. (Measurement scales, predicted vs. predictor variables).
+* Identify the relevant variables according to the hypothesis (Measurement scales, predicted vs. predictor variables).
 * Define the descriptive model for the relevant variables.
   + likelihood distribution (distribution of each outcome variable that defines the plausibility of individual observations)
   + parameters (define and name all parameters of the model in order to relate the likelihood to the predictor variable(s))
-* Bayesian context: Specify a prior distribution.
+* Bayesian context: Specify prior distribution(s).
 
 Further steps that will be subject of later chapters:
 
-* Inference and interpretion of the results.
+* Inference and interpretation of the results.
 * Model checking (Is the defined model adequate?)
 
-The hypothesis for the introductory example:
-\emph{The coin is fair, thus, the underlying probability of heads coming up is 0.50}.
+*In the following we are interested in the question if a certain coin is biased.*
 
-**First step** is to *identify the relevant variables*. For the coin flip experiment a coin is flipped $n$ times, wherby each observation consists of $x$ trials. The variable \emph{coin flip} $Y$ is dichotomous with the possible outcomes "head" and "tail". For each observation the outcome is recorded: "0" for coming up tail and "1" for coming up head. The data are summarized for each observation. The variable $k$ indicates the number of heads coming up in $x$ trials. 
+**First step** is to *identify the relevant variables*. For the coin flip experiment a coin is flipped $n$ times, whereby each observation consists of $x$ trials. The variable \emph{coin flip} $Y$ is dichotomous with the possible outcomes "head" and "tail". For each observation the outcome is recorded: "0" for coming up tail and "1" for coming up head. The data are summarized for each observation. The variable $k$ indicates the number of heads coming up in $x$ trials. 
 
-In **the second step** a *descriptive model for the described variables* has to be defined. An underlying probability $\theta$ is assumed, indicating the probability of heads coming up $p(y=1)$. The probability that the outcome is head, given a value of parameter $\theta$, is the value of $\theta$ [@kruschke2015, p.109]. Formally, this can be written as
+In **the second step** a *descriptive model for the identified variables* has to be defined. An underlying probability $\theta$ is assumed, indicating the probability of heads coming up $p(y=1)$. The probability that the outcome is head, given a value of parameter $\theta$, is the value of $\theta$ [@kruschke2015, p.109]. Formally, this can be written as
 $$p(y=1|\theta)=\theta$$
 As only two outcomes of $Y$ exists, the probability that the outcome is tail is the complementary probability $1-\theta$. Both probabilities can be combined in one probability expression:
 $$Pr(Y|n,\theta)=\frac{n!}{y!(n-y)!}\theta^{y}(1-\theta)^{n-y}.$$
@@ -181,7 +235,7 @@ When the coin is flipped only once, then the probabilty can be written as:
 $$Pr(Y|\theta)=\theta^{y}(1-\theta)^{1-y}.$$
 This special variant of the Binomial distribution is the so-called **Bernoulli distribution**. To see the connection to the first considerations: When the outcome "head" is observed the equation reduces to $Pr(y=1|\theta)=\theta$ and when the outcome "tail" is observed the equation results in $Pr(y=0|\theta)=(1-\theta).$
 
-Accordingly, for the introductory example it can be noted that the coin flip variable $Y$ \emph{is distributed as} Binomial distribution. (Note: For Bayes' rule the \emph{likelihood function} is needed. Remember, the likelihood function treats $\theta$ as unknow and the data as known, while this role of parameter is exchanged in a probability distribution.)
+Accordingly, for the introductory example it can be noted that the coin flip variable $Y$ \emph{is distributed as} Binomial distribution. (Note: For Bayes' rule the \emph{likelihood function} is needed. Remember, the likelihood function treats $\theta$ as unknow and the data as known. This role of parameter is exchanged in a probability distribution.)
 
 ```{r}
 # calculate the Liklihood function
@@ -199,12 +253,12 @@ plot(theta,binomial.likelihood(100,80,theta), xlab=expression(theta),
      ylab="likelihood", type="l")
 ```
 
-**The third step** is solely a \emph{Bayesian idea}, that is the *incorporation of prior knowledge*. What do we believe about the coin bias $\theta$ before seeing the data? Assuming that no expectation about $\theta$ exists a priori, indicating that all values of $\theta$ between 0 and 1 are equally probable. This can be modeld by a uniform distribution or a Beta distribution with parameters a=1 and b=1 (see following figure).
+**The third step** is solely a \emph{Bayesian idea}, that is the *incorporation of prior knowledge*. What do we believe about the coin bias $\theta$ before seeing the data? Assuming that no expectation about $\theta$ exists a priori, indicating that all values of $\theta$ between 0 and 1 are equally probable. This can be modeled by a uniform distribution or as already visualized as Beta distribution with parameters a=1 and b=1 (see following figure).
 
 ```{r, eval=FALSE}
 # Modelling prior knowledge "ignorance"
 
-par(mfrow = c(2, 2))
+par(mfrow = c(1, 2))
 ## simulated a uniform(0,1) distribution
 rethinking::dens(runif(n=1e6,min=0, max=1), ylim = c(0,1.5), 
      xlab=expression(theta), main="Uniform(0,1)")
@@ -213,13 +267,13 @@ rethinking::dens(rbeta(n=1e6,shape1=1,shape2=1), ylim = c(0,1.5),
      xlab=expression(theta), main="Beta(1,1)")
 ```
 
-So far, the coin flip model is define conceptionally. In the following some notational considerations have to made. 
+So far, the coin flip model is define conceptionally. In the following some notational considerations have to be made. 
 
 ### Notation
 
 #### Textual notation
 
-In the textual notation, first the prior assumptions (if the Bayesian perspective is taken) are indicated. For the coin flip example this is:
+In the textual notation, first the prior assumptions (if the Bayesian perspective is taken) are described. For the coin flip example this is:
 $$\theta \sim Beta(1,1).$$
 The symbol "$\sim$" means "is distributed as", thus, the above equation says before seeing the data all possible values of $\theta$ between 0 and 1 are assumed to be equally likely.
 
@@ -231,8 +285,7 @@ $$k\sim Binomial(\theta|n).$$
 
 #### Graphical notation
 
-When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. In the following the convention described in Wagenmakers and Lee's \emph{Bayesian Cognitive Modelling} (2014) is used: The graph structure is used to indicate dependencies between the variables, with children
-depending on their parents [@leeWagen2014]. General conventions:
+When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. In the following the convention described in Wagenmakers and Lee's \emph{Bayesian Cognitive Modelling} (2014) is used: The graph structure is used to indicate dependencies between the variables, with children depending on their parents [@leeWagen2014]. General conventions:
 
 * Nodes - problem relevant variables,
 * shaded nodes - observed variables,
@@ -256,45 +309,42 @@ The number of success $k$ depends on the probability of a success $\theta$ as we
 
 Finally, the graphical structure together with the textual notation can be represented:
 
-<!-- ![Graphical notation Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Binom.png) -->
+![Graphical notation Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Binom.png)
 
 ### An outlook: Hierarchical models
 
 Often data can be considered as part of an overall structure. Single observations can be modelled belonging into different groups. These groups in turn are part of a superordinate group etc. Such information are presented in a model in form of a hierarchy.
 
-For example, consider again the coin flip experiment. The outcome of \emph{head} is influenced by the probability $\theta$. Further, $\theta$ is assumed to be distributed as Beta(1,1). A further hierarchical level can be created by defining a distribution on the parameters of the Beta prior. Such that the model can be assumed as follows:
+For example, consider again the coin flip experiment. The outcome of \emph{head} is influenced by the probability $\theta$. Further, $\theta$ is assumed to be distributed as Beta(1,1). Remember that the parameter a and b of a Beta-distribution can be considered in this context as: $a=$number of heads and $b=$ number of tails, consequently, $n=a+b$.
 
-<!-- ![Graphical notation hierarchical Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/binom-onelevel.png) -->
+#### Reparameterization of a Beta distribution
 
-[Reparameterization here]
+Probability distributions can be described by their \emph{central tendency} and \emph{spread} (or dispersion). The \emph{mode} of a Beta distribution is defined as:
 
-As such hierarchical models can be created with any degree of complexity: [can we use that?]
+$\omega=\frac{a-1}{a+b-2}$,
 
-<!-- ![Graphical notation hierarchical Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/hierarchical-model.png) -->
+and the concentration as:
 
-## Exursos: Prior predictive distribution
+$\kappa=a+b.$
 
-Accoring to [@leeWagen2014]:
+The nice thing is, that the definition of the \emph{mode} as well as of the \emph{concentration} consists solely of the parameters a and b. Therefore, it is possible to re-express the parameters of a Beta density in terms of $\omega$ and $\kappa$, such that:
 
-* the \emph{prior distribution} over parameters captures our initial assumptions or state of knowledge about the psychological variables they represent. 
+$$Beta(a,b)=Beta\left(\omega(\kappa -2)+1, (1-\omega)(\kappa -2)+1\right).$$
 
-* the \emph{prior predictive distribution} tells us what data to expect, given our model and our current state of knowledge. The prior predictive is a distribution over data, and gives the relative probability of different observable outcomes before any data have been seen.
+*Why this is useful? And what is its value in connection with hierarchical modeling?*
 
-The prior predictive distribution for the coin flip model (one group):
+Return back to the coin flip experiment. So far, the parameters of the prior on $\theta$ are fixed: $a=1$ and $b=1$. Assume that we get further information: The manifacturing process of the coins has a bias near $\omega$ (example taken from [@kruschke2015]). But how to incorporate this additional knowledge in the model?
 
-```{r}
-# information on all parameters for which priors may be specified 
-get_prior(formula = k|trials(x)~1, family=binomial(link = "logit"), data=coin.flip)
-```
-```{r}
-# define prior according to the model
-beta.prior <- set_prior("beta(1,1)",class = "Intercept")
+At this point, the hierarchy and the reparameterization come into play. Hierarchy because a further assumption is placed on top of the existing model and reparameterization, because we want to express the prior in terms of the mode $\omega$.
 
-# model and plot prior predictive 
-prior.predictive <- brm(formula = k|trials(x)~1, family=binomial(link = "logit"), data=coin.flip, sample_prior="only", prior = beta.prior)
+Such that the model can be assumed as follows:
 
-plot(prior.predictive)
-```
+![Graphical notation hierarchical Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/binom-onelevel.png)
+
+
+Now, the parameters of the hyperpriors (Gamma and Beta) are fixed, but they can be treated as parameters as well..as such hierarchical models can be created with any degree of complexity: 
+
+![Graphical notation hierarchical Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/hierarchical-model.png)
 
 ## Further examples
 
@@ -360,7 +410,7 @@ The *distributional assumptions*, according to the **second and third step**, ca
 
 #### Notation Beta-Binomial Model - Two Groups
 
-<!-- ![Graphical notation Beta-Binomial Modell - Two groups](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Factorial.png) -->
+![Graphical notation Beta-Binomial Modell - Two groups](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Factorial.png)
 
 ### Simple linear regression with one metric predictor
 
@@ -413,10 +463,10 @@ $$\sigma\sim Uniform(0,40)$$
 The short model description $y_i\sim Normal(\mu, \sigma)$ incorporates often already an assumption about the distribution of distance-values: They are \emph{identically and independently ditributed}. Often the abbreviation \emph{iid} can be found for this assumption:
 $$y_i\overset{\text{iid}}{\sim} Normal(\mu, \sigma).$$
 
-The abbreviation \emph{iid} indicates that each value $y_i$ has the same probability function, independent of the other $y$ values and using the same parameters [@mcelreath2015]. This is hardly ever true. For example, thinking about the cars in the current example data set. Some cars may be of different types or even the same type but different batches. But the question is: Is this underlying dependency relevant for the model? If yes, this information has to be added in the model (e.g. in form of a hierachical model). Janyes states it as follows: \begin{quote} "*The onus is always on the user to make sure that all information, which his common sense tells him is relevant to the problem, is actually incorporated into the equations, (...).*"\end{quote}[@jaynes2003,p.339]. But if one do not know any relevant underlying relationships the most conservative distribution to use is \emph{iid}. Note, that the stated assumptions define how the model represents a problem and not how the world should be understood. For example, there might exist underlying correlations but on the overall distribution there influence tends towards zero. In such cases it remains usefull to assume iid [@mcelreath2015].
+The abbreviation \emph{iid} indicates that each value $y_i$ has the same probability function, independent of the other $y$ values and using the same parameters [@mcelreath2015]. This is hardly ever true (why hierarchical modeling is very attractive). For example, thinking about the cars in the current example data set. Some cars may be of different types or even the same type but different batches. But the question is: Is this underlying dependency relevant for the model? If yes, this information has to be added in the model (e.g. in form of a hierachical model). Janyes states it as follows: \begin{quote} "*The onus is always on the user to make sure that all information, which his common sense tells him is relevant to the problem, is actually incorporated into the equations, (...).*"\end{quote}[@jaynes2003,p.339]. But if one do not know any relevant underlying relationships the most conservative distribution to use is \emph{iid}. Note, that the stated assumptions define how the model represents a problem and not how the world should be understood. For example, there might exist underlying correlations but on the overall distribution there influence tends towards zero. In such cases it remains usefull to assume iid [@mcelreath2015].
 
 ### Notation Simple Regression model
-<!-- ![Graphical notation Simplre Regression model](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_SimpReg.png) -->
+![Graphical notation Simplre Regression model](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_SimpReg.png)
 
 ## Further elaboration on modeling (in anticipation of the topic "estimation")
 
