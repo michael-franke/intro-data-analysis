@@ -1,15 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
-
-```{r}
-library(tidyverse)
-library(ggplot2)
-library(brms)
-```
-
 # Models
 
 ## Overview
@@ -70,16 +58,18 @@ $$p(X=x|[\theta])=[\theta]^x(1-[\theta])^{(1-x)}$$
 
 Please be aware that through exchanging the roles of $x$ and $\theta$ in the second equation (likelihood function) this function is no longer a probability distribution and thus does not integrate to 1. 
 
-### Priors
+### Prior & Posterior
 
 The clearest difference between frequentist and Bayesian methods is the incorporation of *prior information* in the Bayesian framework. The posterior distribution results by combining the likelihood with the prior information.
 
-When an uninformative (e.g. uniform) prior is used then the posterior is completely dependent on the data. The influence of the prior depends on their relative weighting. Considering for example a Beta distribution with the parameters a and b: $\beta \sim Beta(a,b)$. Assuming a coin flip experiment, the parameters of a Beta distribution can be interpreted as $a=$no. of heads and $b = $no. of tails, thus, $n=a+b$. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(5,5).
+When an uninformative (e.g. uniform) prior is used then the posterior is completely dependent on the data. The influence of the prior on the posterior depends on their relative weighting. Remember that the posterior is the conditional distribution of the parameter given the data. The mathematical procedure behind it depicts \emph{Bayes' Theorem}.
+
+Consider for example a Beta distribution with the parameters a and b: $\beta \sim Beta(a,b)$. Assuming a coin flip experiment, the parameters of a Beta distribution can be interpreted as $a=$no. of heads and $b = $no. of tails, thus, $n=a+b$. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(5,5).
 
 ```{r}
 #simulate coin flip data set
-sample.space <- c(0, 1)
-theta <- 0.3              # probability of a success (here: head)
+sample.space <- c(1, 0)
+theta <- 0.5              # probability of a success (here: head)
 X <- 30                   # number of trials in the experiment
 n <- 10                   # number of observations
 k <- 0                    # number of heads [initialization]
@@ -107,7 +97,7 @@ plot(density(Beta2), ylim=c(0,4),main="Prior 2: Beta(10,10)",xlab=expression(the
 #show posterior distributions weighted by priors
 
 prior1 <- set_prior("beta(1,1)", class = "Intercept")
-prior2 <- set_prior("beta(5,5)", class = "Intercept")
+prior2 <- set_prior("beta(10,10)", class = "Intercept")
 
 model1 <- brm(data=coin.flip1, formula= k|trials(x) ~ 1, prior=prior1, family = binomial(link = "logit"))
 samples.model1 <- posterior_samples(model1)
@@ -118,31 +108,34 @@ samples.model2 <- posterior_samples(model2)
 
 par(mfrow=c(2,2))
 Beta1 <- rbeta(n=1e5,shape1=1,shape2=1)
-Beta2 <- rbeta(n=1e5,shape1=5,shape2=5)
-plot(density(Beta1), ylim=c(0,3),main="Prior 1: Beta(1,1)", xlab=expression(theta),xlim=c(0,1))
-plot(density(Beta2), ylim=c(0,3),main="Prior 2: Beta(10,10)",xlab=expression(theta),xlim=c(0,1))
-plot(density(inv_logit_scaled(samples.model1$b_Intercept)),main="Posterior 1 with Prior Beta(1,1)", xlab=expression(theta), xlim=c(0.6,0.75))
-plot(density(inv_logit_scaled(samples.model2$b_Intercept)),main="Posterior 1 with Prior Beta(10,10)", xlab=expression(theta),xlim=c(0.6,0.75))
+Beta2 <- rbeta(n=1e5,shape1=10,shape2=10)
+plot(density(Beta1), ylim=c(0,4),main="Prior 1: Beta(1,1)", xlab=expression(theta),xlim=c(0,1))
+plot(density(Beta2), ylim=c(0,4),main="Prior 2: Beta(10,10)",xlab=expression(theta),xlim=c(0,1))
+plot(density(inv_logit_scaled(samples.model1$b_Intercept)),main="Posterior with prior Beta(1,1)", xlab=expression(theta), xlim=c(0.48,0.60))
+plot(density(inv_logit_scaled(samples.model2$b_Intercept)),main="Posterior with prior Beta(10,10)", xlab=expression(theta),xlim=c(0.48,0.60))
 ```
 
 A lot of effort has been done in the area of "Objective Baysian data analysis" in order to develop "uninformativ prior distributions", because a lot of people feel uncomfortable using informative priors --- seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this [@dobson2008]. It is "just" important that the definition of the prior distributions make sense (at every stage) in the model.
 
 #### Exursos: Prior predictive distribution
 
-So far we have seen that the \emph{prior distribution} over parameters captures the initial assumptions or state of knowledge about the psychological variables they represent [@leeWagen2014], in the above example $\theta$.
+So far we have seen that the \emph{prior distribution} over parameters captures the initial assumptions or state of knowledge about the psychological variables they represent [@leeWagen2014], in the above example this variable is $\theta$.
 
 Considering these initial assumptions in terms of prior distributions allow to make predictions about what data we would expect given the model and current state of knowledge. This distribution is called \emph{prior predictive distribution}. It is a distribution over data, and gives the relative probability of different observable outcomes before any data have been seen [@leeWagen2014].
 
-For the coin flip model we consider a flat prior distribution: Beta(1,1). The prior predictive distribution would thus look like:
+For the coin flip model we consider a flat prior distribution: Beta(1,1). The prior predictive distribution would therefore look like:
 
 ```{r}
-## show here prior predictive of coin flip..
+## prior predictive distribution
+##coin flip example with prior: Beta(1,1) 
+
+n <- 1e5
+p <- rbeta(n=n,shape1 = 1,shape2 = 1)
+x <- rbinom(n=n,size=30, prob=p)
+
+hist(x, freq = FALSE, main="Prior predictive distribution", ylim=c(0,0.15), xlab="k - number of heads")
 
 ```
-
-### Posterior
-
-[...]
 
 ## Modeling
 

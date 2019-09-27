@@ -341,72 +341,10 @@ ggplot(NULL, aes(x = c(-10, 10))) +
   scale_x_continuous(breaks=c(-6,-4,-2,0,2,4,6), labels=c(expression(-3~sigma),expression(-2~sigma),expression(-sigma),"0",expression(sigma),expression(2~sigma),expression(3~sigma)))
 ```
 
-
 #### Linear transformations
 
 1. If $X\sim Normal(\mu, \sigma^2)$ is linear transformed by $Y=a*X+b$, then the new random variable is again normal distributed with $Y \sim Normal(a\mu+b,a^2\sigma^2)$. See plot left side.
 2. Are $X\sim Normal(\mu_x, \sigma^2)$ and $Y\sim Normal(\mu_y, \sigma^2)$ normal distributed and independent, then their sum is again normal distributed with $X+Y \sim Normal(\mu_x+\mu_y, \sigma_x^2+\sigma_y^2)$. See plot right side.
-
-```{r}
-#initialize parameters
-muX = 1
-sigmaX = 2
-muY = 1.5
-sigmaY = 2.5
-a = 3
-b = 1.5
-n = 1e6
-
-#create random variables
-## normal distributed RV X
-X <- rnorm(n = n, mean = muX, sd = sigmaX)
-Y <- rnorm(n = n, mean = muY, sd = sigmaY)
-## create linear transformation of X
-Z <- a*X+b
-## normal distributed RV V (equal to linear transformation: a*X+b)
-V <- rnorm(n = n, mean = a*muX+b, sd = (a*sigmaX))
-## create RV A as addition of X + Y
-A <- X + Y
-## normal ditributed RV B (equal to addition: X+Y)
-B <- rnorm(n = n, mean = muX + muY, sd = sqrt(sigmaX^2 + sigmaY^2))
-
-#create dataset
-rv.normal <- data.frame(Y=Y, Z=Z, V=V, A=A, B=B)
-
-#plot RVs
-linear.tranform <- ggplot(data=rv.normal)+
-  stat_density(aes(Y), geom = "line", position = "identity", size=1)+
-  annotate("text", x=5, y=0.175, label=c(paste("Y ~ N(",muY,",",sigmaY,")")))+
-  stat_density(aes(Z), col="green", geom = "line", position = "identity", size=1)+
-  annotate("text", x=12, y=0.075, label=c(paste(a,"* Y +",b)), color="green")+
-  stat_density(aes(V), col="red", linetype="dashed", geom = "line", position = "identity", size=1)+
-  ggtitle("linear transformation")+
-  xlim(-20,20)+
-  ylim(0,0.21)+
-  xlab("RVs")+
-  theme_classic()
-
-addition.transform <- ggplot(data=rv.normal)+
-  stat_density(aes(X), col="blue", size=1, geom = "line", 
-                             position = "identity")+
-  annotate("text", x=-10, y=0.175, label=c(paste("X ~ N(",muX,",",sigmaX,")")), 
-           color="blue")+
-  stat_density(aes(Y), size=1, geom = "line", 
-                             position = "identity")+
-  annotate("text", x=-12, y=0.125, label=c(paste("Y ~ N(",muY,",",sigmaY,")")))+
-  stat_density(aes(A), col="green", size=1, geom = "line", 
-                             position = "identity")+
-  annotate("text", x=-12, y=0.075, label= "X + Y", color="green")+
-  stat_density(aes(B), col="red", linetype="dashed", size=1, geom = "line", 
-                             position = "identity")+
-  ggtitle("transformation by addition")+
-  xlim(-20,20)+
-  xlab("RVs")+
-  ylim(0,0.21)+
-  theme_classic()
-
-grid.arrange(linear.tranform, addition.transform, ncol=2)
-```
 
 ### Chi-square distribution
 
@@ -417,6 +355,13 @@ It is widely used in hypothesis testing in inferential statistics and less in mo
 The sum of $n$ independent and standard normal distributed random variables $X_1,X_2,...,X_n$ is distributed according to a $\chi^2$ distribution with $n$ \emph{degrees of freedom}. The degrees of freedom refers to the number of independent standard normal random variables.
 
 $$Y=X_1^2+X_2^2+...+X_n^2$$
+
+```{r}
+plot(density(rchisq(1e6,3)),col="green", main=expression(chi^2~"distribution"), xlab="RVs")+
+  points(density(rchisq(1e6,10)),col="blue", type="l")+
+  points(density(rchisq(1e6,20)),col="red", type="l")
+```
+
 
 #### Expected value
 
@@ -430,55 +375,6 @@ $$Var(Y)=2n$$
 
 Sum of two $\chi^2$-distributed random variables $X \sim \chi^2(m)$ and $Y \sim \chi^2(n)$ is again a $chi^2$-distributed random variable $X+Y=\chi^2(m+n)$.
 
-```{r, warning=FALSE}
-#initialize parameters
-n = 1e6
-df = 3 #number of RVs
-
-#create RV 
-## standard normal distributed RV X
-X <- rnorm(n = n, mean = 0, sd = 1)
-Y <- rnorm(n = n, mean = 0, sd = 1)
-Z <- rnorm(n = n, mean = 0, sd = 1)
-
-## create chi-square distributed RV
-A <- X^2+Y^2+Z^2
-
-## chi-square distributed RV
-B <- rchisq(n=n, df=df)
-
-#create data frame
-rv.chisquare <- data.frame(X=X, Y=Y, Z=Z, A=A, B=B)
-
-#plot RVs
-rv.trans.chi <- ggplot(data=rv.chisquare)+
-  stat_density(aes(X), size=1, geom = "line", 
-                       position = "identity")+       
-  annotate("text", x=15, y=0.25, label="X,Y,Z ~ N(0,1)")+
-  stat_density(aes(A), col="green", size=1, geom = "line", 
-                       position = "identity")+
-  annotate("text", x=15, y=0.15, label=expression(X^2+Y^2+Z^2), color="green")+
-  xlim(-10,30)+
-  ylim(0,0.42)+
-  xlab("RVs")+
-  ggtitle("Transformation of RVs")+
-  theme_classic()
-
-rv.chisquare <- ggplot(data=rv.chisquare)+
-  stat_density(aes(A), col="green", size=1, geom = "line", 
-                       position = "identity")+
-  stat_density(aes(B), col="red",linetype="dashed", size=1, geom = "line", 
-                       position = "identity")+
-  annotate("text", x=10, y=0.15, label=expression("C ~"~chi^2~"(3)"), color="red")+
-  xlim(0,30)+
-  xlab("RVs")+
-  ylim(0,0.42)+
-  ggtitle(expression(chi^2~"distribution"))+
-  theme_classic()
-
-grid.arrange(rv.trans.chi, rv.chisquare, ncol=2)
-```
-
 ### F distribution
 
 $$F \sim F(m,n)$$
@@ -487,6 +383,12 @@ Used in particular in regression and variance analysis and consists of two $chi^
 
 $$F=\frac{\frac{X}{m}}{\frac{Y}{n}}$$
 
+```{r}
+plot(density(rf(1e6,10,10)),col="green", main="F distribution",ylim=c(0,2),xlim=c(0,5), xlab="RVs")+
+  points(density(rf(1e6,20,20)),col="blue", type="l")+
+  points(density(rf(1e6,100,100)),col="red", type="l")
+```
+
 #### Expected value
 
 $E(F)=\frac{n}{n-2}$ (for $n \geq 3$)
@@ -494,66 +396,6 @@ $E(F)=\frac{n}{n-2}$ (for $n \geq 3$)
 #### Variance
 
 $Var(F)=\frac{2n^2(n+m-2)}{m(n-4)(n-2)^2}$ (for $n \geq 5$)
-
-
-```{r, warning=FALSE}
-#initialize parameters
-n = 1e6
-df1 = 2 #number of RVs
-df2 = 3
-
-# create RV 
-## standard normal distributed RVs
-V <- rnorm(n = n, mean = 0, sd = 1)
-W <- rnorm(n = n, mean = 0, sd = 1)
-X <- rnorm(n = n, mean = 0, sd = 1)
-Y <- rnorm(n = n, mean = 0, sd = 1)
-Z <- rnorm(n = n, mean = 0, sd = 1)
-
-## create new chisquare distributed RVs
-D <- (V^2+W^2)
-C <- (X^2+Y^2+Z^2)
-
-## create addition of chisquare RVs
-B <- (D/df1)/(C/df2)
-
-## F distributed RV
-A <- rf(n=n, df1=df1, df2=df2)
-
-#create data frame
-data.F <- data.frame(X=X,Y=Y,Z=Z,W=W,D=D,C=C,B=B,A=A)
-
-#plot RVs
-rv.trans.f <- ggplot(data=data.F)+
-  stat_density(aes(X), size=1, geom = "line", 
-                     position = "identity")+
-  annotate("text", x=7, y=0.3, label="V,W,X,Y,Z ~ N(0,1)")+
-  stat_density(aes(D), col="blue", size=1, geom = "line", 
-                     position = "identity")+
-  annotate("text", x=6.5, y=0.4, label=expression(V^2+W^2),color="blue")+
-  stat_density(aes(C), col="orange", size=1, geom = "line", 
-                     position = "identity")+
-  annotate("text", x=6.5, y=0.2, label=expression(X^2+Y^2+Z^2),color="orange")+
-  stat_density((aes(B)), col="green", size=1, geom = "line", 
-                     position = "identity")+
-  annotate("text", x=6.5, y=0.6, label=expression(frac((V^2+W^2/2),(X^2+Y^2+Z^2/3))), color="green")+
-  xlim(-5,15)+
-  xlab("RVs")+
-  ggtitle("Transformation of RVs")+
-  theme_classic()
-  
-rv.f <- ggplot(data=data.F)+
-  stat_density((aes(B)), col="green", size=1, geom = "line", position = "identity")+
-  stat_density(aes(A), col="red", linetype="dashed", size=1, geom = "line", 
-               position = "identity")+
-  annotate("text", x=6.5, y=0.15, label="F ~ F(2,3)",color="red")+
-  xlim(0,15)+
-  xlab("RVs")+
-  ggtitle("F distribution")+
-  theme_classic()
-  
-grid.arrange(rv.trans.f, rv.f, ncol=2)
-```
 
 ### Student t-distribution (not part of exponential family)
 
@@ -565,6 +407,14 @@ It consists of a standard normal distributed random variable $X\sim Normal(0,1)$
 
 $$T=\frac{X}{\sqrt{\frac{Y}{n}}}$$
 
+
+```{r}
+plot(density(rt(1e6,3)),col="green", main="Student-t distribution",xlim=c(-10,10), xlab="RVs")+
+  points(density(rt(1e6,3.5)),col="blue", type="l")+
+  points(density(rt(1e6,15)),col="red", type="l")+
+  points(density(rnorm(1e6)), type="l")
+```
+
 #### Expected value
 
 $$E(T)=0$$
@@ -573,63 +423,131 @@ $$E(T)=0$$
 
 $Var(T)=\frac{n}{n-2}$ (for $n \geq 3$)
 
-```{r, warning=FALSE}
-#initialize parameters
-n = 1e6
-df = 2
-
-# create RV 
-## normal distributed RV
-X <- rnorm(n = n, mean = 0, sd = 1)
-Y <- rnorm(n = n, mean = 0, sd = 1)
-Z <- rnorm(n = n, mean = 0, sd = 1)
-
-## create chisquare distributed RV 
-C <- X^2+Y^2
-
-## create student-t distributed RV
-B <- Z/sqrt(C/df)
-
-## Student-t distributed RV
-A <- rt(n=n, df=df)
-
-# create data frame
-data.studentt <- data.frame(X=X,C=C, B=B, A=A)
-
-# plot RVs
-rv.trans.t <- ggplot(data=data.studentt)+
-  stat_density(aes(X), size=1, geom = "line", 
-                     position = "identity")+
-  annotate("text", x=-5, y=0.35, label="X,Y,Z ~ N(0,1)")+
-  stat_density(aes(C), col="blue", size=1, geom = "line", 
-                     position = "identity")+
-  annotate("text", x=5, y=0.4, label=expression(X^2+Y^2), color="blue")+
-  stat_density(aes(B), col="green", size=1, geom = "line", 
-                     position = "identity")+
-  annotate("text", x=5, y=0.3, label=expression(frac(Z,sqrt(X^2+Y^2/2))), color="green")+
-  xlim(-10,10)+
-  ylim(0,0.5)+
-  xlab("RVs")+
-  ggtitle("Transformation of RVs")+
-  theme_classic()
-
-rv.studentt <- ggplot(data=data.studentt)+
-  stat_density(aes(B), col="green", size=1, geom = "line", 
-                      position = "identity")+
-  stat_density(aes(A), col="red", linetype="dashed", size=1, geom = "line", 
-                      position = "identity")+
-  annotate("text", x=0, y=0.4, label="T ~ student-t(2)", color="red")+
-  xlim(-10,10)+
-  xlab("RVs")+
-  ylim(0,0.5)+
-  ggtitle("student-t distribution")+
-  theme_classic()
-
-grid.arrange(rv.trans.t, rv.studentt, ncol=2)
-```
-
 ## Discrete distributions of random variables
 
+### Binomial distribution
+
+$$X \sim Binomial(n,p)$$
 
 
+```{r}
+par(mfrow=c(2,2))
+hist(rbinom(1e6,15,0.1),col="blue", freq = FALSE,xlim=c(0,15),xlab="RV", main="Binomial(n,0.1)")
+hist(rbinom(1e6,15,0.5),col="green", freq = FALSE,xlim=c(0,15),xlab="RV", main="Binomial(n,0.5)")
+hist(rbinom(1e6,15,0.8),col="red", freq = FALSE,xlim=c(0,15),xlab="RV", main="Binomial(n,0.8)")
+```
 
+#### Probability mass function
+
+$$f(x)=\binom{n}{x}p^x(1-p)^{n-x}$$
+#### Cumulative function
+
+$$F(x)=\sum_{k=0}^{x}\binom{n}{k}p^k(1-p)^{n-k}$$
+
+#### Expected value
+
+$$E(X)=n \cdot p$$
+
+#### Variance
+
+$$Var(X)=n \cdot p \cdot (1-p)$$
+
+### Poisson distribution
+
+$$X \sim Po(\lambda)$$
+
+```{r}
+par(mfrow=c(2,2))
+hist(rpois(1e6,3.5),col="blue", freq = FALSE,xlim=c(0,40),xlab="RV", main="Poisson(3.5)")
+hist(rpois(1e6,6),col="green", freq = FALSE,xlim=c(0,40),xlab="RV", main="Poisson(6)")
+hist(rpois(1e6,20),col="red", freq = FALSE,xlim=c(0,40),xlab="RV", main="Poisson(20)")
+```
+
+#### Probability mass function
+
+$$f(x)=\frac{\lambda^x}{x!}e^{-\lambda}$$
+
+#### Cumulative function
+
+$$F(x)=\sum_{k=0}^{x}\frac{\lambda^k}{k!}e^{-\lambda}$$
+
+#### Expected value
+
+$$E(X)= \lambda$$
+
+#### Variance
+
+$$Var(X)=\lambda$$
+
+## Understanding distributions as random variables
+
+```{r}
+#initialize parameters
+a = 3
+b = 1.5
+n = 1e6
+
+#create random variables
+## normal distributed RVs 
+X_norm <- rnorm(n = n, mean = 1, sd = 2)
+Y_norm <- rnorm(n = n, mean = 1.5, sd = 2.5)
+## standard normal distributed RVs
+stdNormal1 <- rnorm(n = n, mean = 0, sd = 1)
+stdNormal2 <- rnorm(n = n, mean = 0, sd = 1)
+stdNormal3 <- rnorm(n = n, mean = 0, sd = 1)
+## chi-square distributed RV
+C <- rchisq(n=n, df=3)
+## student-t distributed RV
+student <- rt(n=20, df=3)
+## F distributed RV
+fisher <- rf(n=n, df1=1, df2=3)
+
+## create linear transformation of X
+X_lin <- a*X_norm+b
+## create RV A as addition of X + Y
+sum_xy <- X_norm + Y_norm
+## create chisquare distributed RV 
+C2 <- stdNormal2^2+stdNormal3^2
+C3 <- stdNormal1^2+stdNormal2^2+stdNormal3^2
+## create student-t distributed RV
+T1 <- stdNormal1/sqrt(C2/1)
+## create F distributed RV
+F1 <- (C2/2)/(C3/1)
+
+## normal ditributed RV B (equal to addition: X+Y)
+N_add <- rnorm(n = n, mean = 1 + 1.5, sd = sqrt(2^2 + 2.5^2))
+## normal distributed RV V (equal to linear transformation: a*X+b)
+N_lin <- rnorm(n = n, mean = a*1+b, sd = (a*2))
+```
+```{r}
+par(mfrow=c(2,2))
+plot(density(X_norm), main="Normal RV: a*X+b", xlim=c(-20,20),xlab="RVs")+
+  points(density(N_lin), type = "l", col="blue")+
+plot(density(X_norm), main="Normal RV: X+Y", xlim=c(-20,20),xlab="RVs")+
+  points(density(Y_norm), type = "l", lty="dotted")+
+  points(density(N_add), type = "l", col="blue")
+plot(density(stdNormal1), main=expression("X,Y,Z ~N(0,1);"~X^2+Y^2+Z^2),   
+     xlim=c(-10,10),ylim=c(0,0.4),xlab="RVs")+
+  points(density(C3), type = "l", col="blue")
+plot(density(C), main="Chi-square distribution", xlim=c(0,15),ylim=c(0,0.4),
+     xlab="RVs", col="red", lwd=2, lty="dashed")+
+  points(density(C3), type = "l", col="blue")
+```
+```{r}
+par(mfrow=c(2,2))
+plot(density(stdNormal1), main="Normal devided by Chi-square RVs",   
+     xlim=c(-10,10),ylim=c(0,0.4),xlab="RVs")+
+  points(density(C), type = "l")+
+  points(density(T1),type="l", col="blue")
+plot(density(T1), main="Student-t distribution",   
+     xlim=c(-10,10),ylim=c(0,0.4),xlab="RVs")+
+  points(density(student),type="l", col="red")
+plot(density(stdNormal1), main=expression("X~N(0,1),"~Y~"~"~chi^2~(2)~";"~X/sqrt(Y/n)),   
+     xlim=c(-10,10),ylim=c(0,0.4),xlab="RVs")+
+  points(density(C2), type = "l")+
+  points(density(T1), type = "l", col="blue")
+plot(density(stdNormal1), main="Student-t distribution",   
+     xlim=c(-10,10),ylim=c(0,0.4),xlab="RVs")+
+  points(density(student), type = "l", col="red")
+
+```
