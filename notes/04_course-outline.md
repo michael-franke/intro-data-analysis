@@ -23,6 +23,11 @@ Overiew:
 
 *learning goal:* how to arrange, summarize and visualize (aspects of data) to address a question of interest ("hypothesis-driven data poking")
 
+- basics of R
+  - data types
+  - functions
+  - pipes
+  - map
 - different kinds of data
   - discrete/continuous
   - nominal/orginal/metric/count/...
@@ -34,7 +39,7 @@ Overiew:
   - nested tibbles
   - `group_by`, `summarize`, ...
 - summary statistics (theory)
-  - mean/mode/median/quantiles
+  - mean/mode/median/quantiles/bootstraped CI of mean
   - variance, standard deviation
   - ...
 - data plotting
