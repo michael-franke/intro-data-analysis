@@ -67,7 +67,7 @@ When an uninformative (e.g. uniform) prior is used then the posterior is complet
 Consider for example a Beta distribution with the parameters a and b: $\beta \sim Beta(a,b)$. Assuming a coin flip experiment, the parameters of a Beta distribution can be interpreted as $a=$no. of heads and $b = $no. of tails, thus, $n=a+b$. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(5,5).
 
 ```{r}
-#simulate coin flip data set
+# simulate coin flip data set
 sample.space <- c(1, 0)
 theta <- 0.5              # probability of a success (here: head)
 X <- 30                   # number of trials in the experiment
@@ -82,18 +82,18 @@ for (i in 1: n) {
 
 ## show results in a tibble
 coin.flip1 <- tibble("n" = seq(from=1, to=n, by=1),
-                    "k" = k,
-                    "x" = X )
+                     "k" = k,
+                     "x" = X )
 
 #show the different prior distributions 
 par(mfrow=c(1,2))
-Beta1 <- rbeta(n=1e5,shape1=1,shape2=1)
-Beta2 <- rbeta(n=1e5,shape1=10,shape2=10)
-plot(density(Beta1), ylim=c(0,4),main="Prior 1: Beta(1,1)", xlab=expression(theta))
-plot(density(Beta2), ylim=c(0,4),main="Prior 2: Beta(10,10)",xlab=expression(theta))
+Beta1 <- rbeta(n=1e5, shape1=1, shape2=1)
+Beta2 <- rbeta(n=1e5, shape1=10, shape2=10)
+plot(density(Beta1), ylim=c(0,4), main="Prior 1: Beta(1,1)", xlab=expression(theta))
+plot(density(Beta2), ylim=c(0,4), main="Prior 2: Beta(10,10)", xlab=expression(theta))
 ```
 
-```{r}
+```{r, cache=TRUE}
 #show posterior distributions weighted by priors
 
 prior1 <- set_prior("beta(1,1)", class = "Intercept")
@@ -107,12 +107,18 @@ samples.model2 <- posterior_samples(model2)
 
 
 par(mfrow=c(2,2))
-Beta1 <- rbeta(n=1e5,shape1=1,shape2=1)
-Beta2 <- rbeta(n=1e5,shape1=10,shape2=10)
-plot(density(Beta1), ylim=c(0,4),main="Prior 1: Beta(1,1)", xlab=expression(theta),xlim=c(0,1))
-plot(density(Beta2), ylim=c(0,4),main="Prior 2: Beta(10,10)",xlab=expression(theta),xlim=c(0,1))
-plot(density(inv_logit_scaled(samples.model1$b_Intercept)),main="Posterior with prior Beta(1,1)", xlab=expression(theta), xlim=c(0.48,0.60))
-plot(density(inv_logit_scaled(samples.model2$b_Intercept)),main="Posterior with prior Beta(10,10)", xlab=expression(theta),xlim=c(0.48,0.60))
+Beta1 <- rbeta(n=1e5, shape1=1, shape2=1)
+Beta2 <- rbeta(n=1e5, shape1=10, shape2=10)
+plot(density(Beta1), ylim=c(0,4), main="Prior 1: Beta(1,1)",
+     xlab=expression(theta), xlim=c(0,1))
+plot(density(Beta2), ylim=c(0,4), main="Prior 2: Beta(10,10)", 
+     xlab=expression(theta), xlim=c(0,1))
+plot(density(inv_logit_scaled(samples.model1$b_Intercept)), 
+     main="Posterior with prior Beta(1,1)", 
+     xlab=expression(theta), xlim=c(0.48,0.60))
+plot(density(inv_logit_scaled(samples.model2$b_Intercept)), 
+     main="Posterior with prior Beta(10,10)", 
+     xlab=expression(theta), xlim=c(0.48,0.60))
 ```
 
 A lot of effort has been done in the area of "Objective Baysian data analysis" in order to develop "uninformativ prior distributions", because a lot of people feel uncomfortable using informative priors --- seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this [@dobson2008]. It is "just" important that the definition of the prior distributions make sense (at every stage) in the model.
@@ -134,7 +140,6 @@ p <- rbeta(n=n,shape1 = 1,shape2 = 1)
 x <- rbinom(n=n,size=30, prob=p)
 
 hist(x, freq = FALSE, main="Prior predictive distribution", ylim=c(0,0.15), xlab="k - number of heads")
-
 ```
 
 ## Modeling
@@ -372,10 +377,10 @@ for (i in 1: n2) {
 }
 
 ## show results in a tibble
-coin.flip2 <- tibble("coin" = c(replicate(n1,"coin1"),replicate(n2,"coin2")),
-                    "n" = c(seq(from=1, to=n1, by=1),seq(from=1, to=n2, by=1)),
-                    "k" = c(k1,k2),
-                    "x" = c(replicate(n1,X1),replicate(n2,X2))
+coin.flip2 <- tibble("coin" = c(replicate(n1,"coin1"), replicate(n2,"coin2")),
+                     "n" = c(seq(from=1, to=n1, by=1), seq(from=1, to=n2, by=1)),
+                     "k" = c(k1,k2),
+                     "x" = c(replicate(n1,X1), replicate(n2,X2))
 ) %>% 
   print()
 ```
@@ -480,10 +485,10 @@ y <- x                 #linear relationship
 y.log <- inv_logit_scaled(x)   #logistic relationship
 
 par(mfrow = c(1, 2))   #set both plot beside each other
-plot(x,y,type="l", ylab=expression(theta), xlab=expression(beta[0]))
-rect(-5,0,5,1,col = rgb(0.5,0.5,0.5,1/4), border = NA)
-plot(x,y.log,type="l", ylab=expression(logit~(theta)), xlab=expression(beta[0]))
-rect(-5,0,5,1,col = rgb(0.5,0.5,0.5,1/4), border = NA)
+plot(x, y, type="l", ylab=expression(theta), xlab=expression(beta[0]))
+rect(-5, 0, 5, 1, col = rgb(0.5, 0.5, 0.5, 1/4), border = NA)
+plot(x, y.log, type="l", ylab=expression(logit~(theta)), xlab=expression(beta[0]))
+rect(-5, 0, 5, 1, col = rgb(0.5, 0.5, 0.5, 1/4), border = NA)
 ```
 
 A mathematical transformation is needed such that the parameter $\beta_0$ can take any value while $\theta$ is bounded to the range 0-1. One transformation that offers exactly this possibility is the \emph{logit link function} (see aboth plot right side)
