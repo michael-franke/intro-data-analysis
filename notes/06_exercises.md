@@ -1,3 +1,9 @@
+# Ideas for exercises
+
+- use built-in data set `anscombe` to tidy up (wrangle) (use new `pivot` features with reg-expressions)
+
+# Sources of inspiration
+
 ### 1. Collection of solved exercises
 http://aprendeconalf.es/statistics/exercises/ 
 * Descriptive Statistics for one variable
@@ -42,3 +48,6 @@ https://www.r-exercises.com/tag/statistics/
 * [Introduction to Statistical Testing and Sampling 1](https://www.r-exercises.com/2017/12/08/statistical-theory-exercises1/)
 * [Introduction to Statistical Testing and Sampling 2](https://www.r-exercises.com/2017/12/15/statistical-theory-solutions2/)
 * ... further exercises
+
+
+
