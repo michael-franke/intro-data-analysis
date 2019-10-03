@@ -36,10 +36,16 @@ source("pkgs.R")
 
 options(tinytex.engine_args = '-shell-escape') # to appease the warning spirits
 
+# global color scheme
 # overwrite ggplot2's color choice for discrete vars
+project_colors = carto_pal(11, "Safe") # https://github.com/Nowosad/rcartocolor & https://carto.com/carto-colors/
+# color blind friendly
+# project_colors = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+# project_colors =RColorBrewer::brewer.pal(8, "Set2")
 scale_colour_discrete <- function(...) {
-  scale_colour_manual(..., values = carto_pal(11, "Vivid"))
+  scale_colour_manual(..., values = project_colors)
 }
+
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
                       cache = TRUE, fig.align = 'center')
 
@@ -124,8 +130,8 @@ tibble(
   y = c(anscombe$y1, anscombe$y2, anscombe$y3, anscombe$y4)
 ) %>% 
   ggplot(aes(x, y)) +
-    geom_smooth(method = lm, se = F) +
-    geom_point(color = "orange", size = 2) +
+    geom_smooth(method = lm, se = F, color = "black") +
+    geom_point(color = project_colors[3], size = 2) +
     scale_y_continuous(breaks = scales::pretty_breaks()) +
     scale_x_continuous(breaks = scales::pretty_breaks()) +
     labs(title = "Anscombe's Quartet", x = NULL, y = NULL,
@@ -137,5 +143,5 @@ tibble(
 Here's a plot showcasing our custom palellet for discrete factors:
 
 ```{r}
-ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = factor(Species))) + geom_point()
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + geom_point(size=3)
 ```
