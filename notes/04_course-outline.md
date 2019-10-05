@@ -4,7 +4,7 @@
 
 Overiew:
 
-1. **general introduction**
+0. **general introduction**
 
 - what stats is about
 - different practices
@@ -19,15 +19,17 @@ Overiew:
       - "At the end of the course, students are to be able to independently evaluate statistical analyses based on their adequacy for a given research question and data set, and to critically assess the adequacy of analyses commonly found in the literature. The course seeks to convey the competence to understand complex data sets, and to manipulate the data and plot aspects of it in ways that are useful for answering a given research question."
     - Notice that this is modest! It doesn't actually say that we aim at the competence to /do it/ or even to /do it flawlessly/! We are aiming at understanding, because that is the foundation of practical success /and/ the foundation of an ability to learn more in the future. We do not teach tricks! We do not share recipes! [Hilfe zur Selbsthilfe]
 
+1. **basics of R**
+
+- data types
+- functions
+- pipes
+- map
+  
 2. **data**
 
 *learning goal:* how to arrange, summarize and visualize (aspects of data) to address a question of interest ("hypothesis-driven data poking")
 
-- basics of R
-  - data types
-  - functions
-  - pipes
-  - map
 - different kinds of data
   - discrete/continuous
   - nominal/orginal/metric/count/...
@@ -38,12 +40,12 @@ Overiew:
     - check `vignette("pivot")`
   - nested tibbles
   - `group_by`, `summarize`, ...
-- summary statistics (theory)
+- data plotting
+- simple summary statistics (theory)
   - mean/mode/median/quantiles/bootstraped CI of mean
   - variance, standard deviation
   - ...
-- data plotting
-- dependencies in data
+- exploring dependencies in data
   - plotting schemes
   - correlation
     - Bravais-Pearson
@@ -52,6 +54,7 @@ Overiew:
   - multiple correlations
     - show `pairs` plots
     - find a good data set (also for later in simple linear regressions)
+- data cleaning
     
 3. **probability**
 
