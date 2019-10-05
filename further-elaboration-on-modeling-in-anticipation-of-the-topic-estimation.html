@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>1 General Introduction | Introduction to Data Analysis</title>
+  <title>5.6 Further elaboration on modeling (in anticipation of the topic “estimation”) | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.14.1 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="1 General Introduction | Introduction to Data Analysis" />
+  <meta property="og:title" content="5.6 Further elaboration on modeling (in anticipation of the topic “estimation”) | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="1 General Introduction | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="5.6 Further elaboration on modeling (in anticipation of the topic “estimation”) | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="testing-showcasing.html"/>
-<link rel="next" href="basics-of-r.html"/>
+<link rel="prev" href="further-examples.html"/>
+<link rel="next" href="inference.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -253,22 +253,77 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="general-introduction" class="section level1">
-<h1><span class="header-section-number">1</span> General Introduction</h1>
-<ul>
-<li>what stats is about</li>
-<li>different practices</li>
-<li>learning goals</li>
-</ul>
+<div id="further-elaboration-on-modeling-in-anticipation-of-the-topic-estimation" class="section level2">
+<h2><span class="header-section-number">5.6</span> Further elaboration on modeling (in anticipation of the topic “estimation”)</h2>
+<div id="beta-binomial-model---one-group-revisited" class="section level3">
+<h3><span class="header-section-number">5.6.1</span> Beta-Binomial model - one group (revisited)</h3>
+<p>Sofar the existence of the underlying probability <span class="math inline">\(\theta\)</span> for observing head as outcome of a coin flip has been discussed. But the estimation of <span class="math inline">\(\theta\)</span> has been ignored until yet. Although “estimation” will be topic of next chapter, it is helpful at this point to discuss the introduced models further. In order to estimate <span class="math inline">\(\theta\)</span>  are needed. When it comes to estimation exactly this/these parameter(s) will be the result(s), therefore is is important to see already the connection to the models that were developed in this chapter.</p>
+<p>For the coin flip example the value of interest is the underlying probability, thus, only one parameter is needed:<span class="math inline">\(\beta_0\)</span>. (Note: Latin letters are used when we refer to the sample, greek letters are used when we refer to the population.)</p>
+<p>How is <span class="math inline">\(\beta_0\)</span> linked to the latent variable <span class="math inline">\(\theta\)</span>?</p>
+<p>Considering for example the simplest case: a  (see next plot left side). The problem which arises at this point is that <span class="math inline">\(\theta\)</span> represents a probability, and is therefore bounded to the range 0-1 (grey shaded area).</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" data-line-number="1"><span class="co">#Different relationships between the parameter and expected value </span></a>
+<a class="sourceLine" id="cb50-2" data-line-number="2">x &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from=</span><span class="op">-</span><span class="dv">4</span>, <span class="dt">to=</span><span class="dv">4</span>, <span class="dt">length.out =</span> <span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb50-3" data-line-number="3">y &lt;-<span class="st"> </span>x                 <span class="co">#linear relationship</span></a>
+<a class="sourceLine" id="cb50-4" data-line-number="4">y.log &lt;-<span class="st"> </span><span class="kw">inv_logit_scaled</span>(x)   <span class="co">#logistic relationship</span></a>
+<a class="sourceLine" id="cb50-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb50-6" data-line-number="6"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))   <span class="co">#set both plot beside each other</span></a>
+<a class="sourceLine" id="cb50-7" data-line-number="7"><span class="kw">plot</span>(x, y, <span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">ylab=</span><span class="kw">expression</span>(theta), <span class="dt">xlab=</span><span class="kw">expression</span>(beta[<span class="dv">0</span>]))</a>
+<a class="sourceLine" id="cb50-8" data-line-number="8"><span class="kw">rect</span>(<span class="op">-</span><span class="dv">5</span>, <span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">1</span>, <span class="dt">col =</span> <span class="kw">rgb</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">4</span>), <span class="dt">border =</span> <span class="ot">NA</span>)</a>
+<a class="sourceLine" id="cb50-9" data-line-number="9"><span class="kw">plot</span>(x, y.log, <span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">ylab=</span><span class="kw">expression</span>(logit<span class="op">~</span>(theta)), <span class="dt">xlab=</span><span class="kw">expression</span>(beta[<span class="dv">0</span>]))</a>
+<a class="sourceLine" id="cb50-10" data-line-number="10"><span class="kw">rect</span>(<span class="op">-</span><span class="dv">5</span>, <span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">1</span>, <span class="dt">col =</span> <span class="kw">rgb</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">4</span>), <span class="dt">border =</span> <span class="ot">NA</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-36-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>A mathematical transformation is needed such that the parameter <span class="math inline">\(\beta_0\)</span> can take any value while <span class="math inline">\(\theta\)</span> is bounded to the range 0-1. One transformation that offers exactly this possibility is the  (see aboth plot right side)</p>
+<p><span class="math display">\[logit(\theta) = \beta_0.\]</span>
+As the underlying assumption maps the parameter to the latent variable <span class="math inline">\(\theta\)</span> (and not the other way around) from a conceptional point of view the  is more appropriate, which is the  in this case:</p>
+<p><span class="math display">\[\theta = logistic(\beta_0).\]</span>
+It is defined as
+<span class="math display">\[\theta=\frac{exp(\beta_0)}{1+exp(\beta_0)}.\]</span></p>
+<p>Both expression,  and  link achieve mathematically the same result but it is conceptionally just a different matter of emphasis <span class="citation">(Kruschke <a href="#ref-kruschke2015">2015</a>)</span>.</p>
+<div id="notation-of-beta-binomial-model---one-group-revisited" class="section level4">
+<h4><span class="header-section-number">5.6.1.1</span> Notation of beta-binomial model - one group (revisited)</h4>
+<p>The current descriptive model incorporates the idea that parameter <span class="math inline">\(\beta_0\)</span> is estimated from the given sample. It defines the latent variable <span class="math inline">\(\theta\)</span>. The parameter is maped to <span class="math inline">\(\theta\)</span> by a logistic link function. The underlying probability <span class="math inline">\(\theta\)</span> designates the observed number of upcoming heads. The number of upcoming heads in turn, is assumed to be distributed as Binomial distribution.</p>
+<!-- [here graphical notation including textual notation... but I don't know how to write it properly down... what is the right order????] -->
+</div>
+</div>
+<div id="beta-binomial-model---two-groups-revisited" class="section level3">
+<h3><span class="header-section-number">5.6.2</span> Beta-Binomial model - two groups (revisited)</h3>
+<p>In the above model for two coins the latent variable <span class="math inline">\(\delta\)</span> was already introduced. It is defined by the difference between the underlying probabilities <span class="math inline">\(\theta_1-\theta_2\)</span>.
+Which parameters should be used in order to estimate the difference between both groups? As we will see, it turns out that the same mathematical form can be used, as one would use for simple linear regression:</p>
+<p><span class="math display">\[\theta_j=\beta_0+\beta_1*X_{Group_j},\]</span>
+<span class="math display">\[\textrm{with } X_{Group_j}=\begin{cases}
+0, \textrm{if coin 2,}\\
+1, \textrm{if coin 1.}
+\end{cases}\]</span></p>
+<p>Considering <em>coin 2</em>, the above equation would result in
+<span class="math display">\[\theta_2 = \beta_0,\]</span>
+which is the  and indicates the proportion of head coming up for coin 2.</p>
+<p>Considering by contrast coin 1, then the equation would result in:
+<span class="math display">\[\theta_1 = \beta_0 + \beta_1.\]</span>
+The proportion of coming up head for coin 1 has to be calcuated by summing up the  <span class="math inline">\(\beta_0\)</span> and the  <span class="math inline">\(\beta_1\)</span>.</p>
+<p>Taken togehter: <em>What is the interpretation of the slope <span class="math inline">\(\beta_1\)</span>?</em>
+The difference <span class="math inline">\(\delta=\theta_1-\theta2\)</span> is
+<span class="math display">\[\theta_1 - \theta_2 = (\beta_0+\beta_1)-\beta_0=\beta_1=\delta,\]</span>
+the slope <span class="math inline">\(\beta_1\)</span>, thus, we can see that this parameterization enables us to estimate the difference between two groups. When in comes to estimation and interpretation the results will be the intercept <span class="math inline">\(b_0\)</span> and the slope <span class="math inline">\(b_1\)</span>.</p>
+</div>
+<div id="simple-linear-regression-model-revisited" class="section level3">
+<h3><span class="header-section-number">5.6.3</span> Simple linear regression model (revisited)</h3>
 
+</div>
+</div>
+<!-- </div> -->
+<h3>References</h3>
+<div id="refs" class="references">
+<div id="ref-kruschke2015">
+<p>Kruschke, John. 2015. <em>Doing Bayesian data analysis: A tutorial with R, JAGS, and Stan</em>. Academic Press.</p>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="testing-showcasing.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="basics-of-r.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="further-examples.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="inference.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
