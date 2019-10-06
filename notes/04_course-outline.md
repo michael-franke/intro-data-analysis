@@ -176,7 +176,12 @@ Overiew:
   - Chi-squared distribution
   - F distribution
   - Student-t distribution
+  - Beta distribution
+  - Uniform distribution
+  - 
 - Selected discrete distributions of random variables
   - Binomial distribution
+  - Bernoulli distribution
+  - Beta binomial distribution
   - Poisson distribution
 - Understanding distributions as random variables
