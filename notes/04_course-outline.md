@@ -162,15 +162,6 @@ Overiew:
 
 1.  Common probability distributions
 
-- An important family: The Exponential Family
-- Excursos: "Information Entropy" and "Maximum Entropy Principal"
-  - Information Entropy
-    - Shannon's theorem
-    - Wallis derivation
-  - Deriving Probability Distributions using the Maximum Entropy Principle
-    - Lagrangian multiplier technique
-    - Example 1: Derivation of maximum entropy pdf with no other constraints
-    - Example 2: Derivation of maximum entropy pdf with given mean $\mu$ and variance $\sigma^2$
 - Selected continous distributions of random variables
   - Normal distribution
   - Chi-squared distribution
@@ -185,3 +176,15 @@ Overiew:
   - Beta binomial distribution
   - Poisson distribution
 - Understanding distributions as random variables
+
+2. Exponential Family and Maximum Entropy
+
+- An important family: The Exponential Family
+- Excursos: "Information Entropy" and "Maximum Entropy Principal"
+  - Information Entropy
+    - Shannon's theorem
+    - Wallis derivation
+  - Deriving Probability Distributions using the Maximum Entropy Principle
+    - Lagrangian multiplier technique
+    - Example 1: Derivation of maximum entropy pdf with no other constraints
+    - Example 2: Derivation of maximum entropy pdf with given mean $\mu$ and variance $\sigma^2$
