@@ -257,22 +257,27 @@ $$X\sim Normal(\mu,\sigma^2)$$
 
 [usage of Normal distribution -> normal by addition, multiplication, log-multiplication]
 
-```{r}
+```{r ch-app-1-normal-distribution, fig.cap = "Examples of the cumulative normal distribution corresponding to the previous probability density functions."}
+# how many samples to use
 n <- 1e6
 
-rv.normal.intro <- data.frame(
-  X = rnorm(n, mean=-2, sd=3),
-  Y = rnorm(n, mean=0, sd=1),
-  Z = rnorm(n, mean=2, sd=2)
-)
+rv_normal_intro <- tibble(
+  X = rnorm(n, mean= -2, sd=3),
+  Y = rnorm(n, mean=  0, sd=1),
+  Z = rnorm(n, mean=  2, sd=2)
+) %>% 
+  pivot_longer(cols = c("X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
 
-ggplot(data=rv.normal.intro, size=1)+
-  stat_density(aes(X), geom = "line", position="identity", color="green")+
-  annotate("text", x=-10, y=0.1, label="X~Normal(-2,3)", color="green")+
-  stat_density(aes(Y), geom = "line", position="identity", color="red")+
-  annotate("text", x=8.5, y=0.3, label="Y~Normal(0,1) = standard normal", color="red")+
-  stat_density(aes(Z), geom = "line", position="identity", color="blue")+
-  annotate("text", x=8, y=0.15, label="Y~Normal(2,2)", color="blue")
+ggplot(rv_normal_intro, aes(x = x, color = parameter_set)) +
+  # draw density lines
+  stat_density(geom = "line", position="identity", size = 2) +
+  # add text annotations to lines
+  annotate("text", x=-10, y=0.1,  label="X~Normal(-2,3)", color=project_colors[1], size = 6) +
+  annotate("text", x=-6 , y=0.3,  label="X~Normal(0,1)",  color=project_colors[2], size = 6) +
+  annotate("text", x=8,   y=0.15, label="X~Normal(2,2)",  color=project_colors[3], size = 6) +
+  # suppress legend
+  theme(legend.position = "none")
+
 ```
 
 Special case of normal distributed random variables is the *standard normal* distributed variable with $\mu=0$ and $\sigma=1$: $Y\sim Normal(0,1)$ 
