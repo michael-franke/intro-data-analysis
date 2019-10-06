@@ -10,7 +10,7 @@ One of the most important distribution families is the *gaussian* or *normal fam
 
 $$X\sim Normal(\mu,\sigma^2)$$
 
-```{r ch-app-01-normal-distribution, fig.cap = "Examples of the cumulative normal distribution corresponding to the previous probability density functions."}
+```{r ch-app-01-normal-distribution-density, fig.cap = "Examples of density normal distributions."}
 # how many samples to use
 n <- 1e6
 
@@ -30,9 +30,19 @@ ggplot(rv_normal_intro, aes(x = x, color = parameter_set)) +
   annotate("text", x=8,   y=0.15, label="X~Normal(2,2)",  color=project_colors[3], size = 6) +
   # suppress legend
   theme(legend.position = "none")
-
 ```
 
+```{r ch-app-01-normal-distribution-cumulative, fig.cap = "Examples of the cumulative normal distribution corresponding to the previous probability density functions."}
+ggplot(rv_normal_intro, aes(x =x, color = parameter_set)) +
+  # draw cumulative lines
+  stat_ecdf(geom = "step", size = 2) +
+  # add text annotations to lines
+  annotate("text", x=-8, y=0.50,  label="X~Normal(-2,3)", color=project_colors[1], size = 6) +
+  annotate("text", x=-8 , y=0.75,  label="X~Normal(0,1)",  color=project_colors[2], size = 6) +
+  annotate("text", x=8,   y=0.25, label="X~Normal(2,2)",  color=project_colors[3], size = 6) +
+  # suppress legend
+  theme(legend.position = "none")
+```
 Special case of normal distributed random variables is the *standard normal* distributed variable with $\mu=0$ and $\sigma=1$: $Y\sim Normal(0,1)$. Each normal distribution can be converted into a standard normal distribution by *z-standardization* (see equation below). The advantage of standardization is that values from different scales can be compared. This is because they become *scale independent* by z-transformation. 
 
 **Probability density function**
@@ -61,23 +71,21 @@ The normal distribution is often associated with the \emph{68-95-99.7 rule}. It 
 
 ggplot(NULL, aes(x = c(-10, 10))) +
   stat_function(fun = dnorm, args = list(mean = 0, sd = 2),
-                geom = "line",
-                xlim = c(-10, 10)) +
-  stat_function(fun = dnorm, args = list(mean = 0, sd = 2),
                 geom = "area",
-                fill = "blue",
-                alpha = .2,
+                fill = project_colors[1],
                 xlim = c(-6, 6)) +
   stat_function(fun = dnorm, args = list(mean = 0, sd = 2),
                 geom = "area",
-                fill = "blue",
-                alpha = .4,
+                fill = project_colors[2],
                 xlim = c(-4, 4)) +
   stat_function(fun = dnorm, args = list(mean = 0, sd = 2),
                 geom = "area",
-                fill = "blue",
-                alpha = .6,
+                fill = project_colors[3],
                 xlim = c(-2, 2)) +
+  stat_function(fun = dnorm, args = list(mean = 0, sd = 2),
+                geom = "line",
+                xlim = c(-10, 10),
+                size = 2) +
   xlim(-10, 10)+
   xlab("X")+
   scale_x_continuous(breaks=c(-6,-4,-2,0,2,4,6), 
@@ -101,10 +109,26 @@ The sum of $n$ independent and standard normal distributed random variables $X_1
 
 $$Y=X_1^2+X_2^2+...+X_n^2$$
 
-```{r}
-plot(density(rchisq(1e6,3)),col="green", main=expression(chi^2~"distribution"), xlab="RVs")+
-  points(density(rchisq(1e6,10)),col="blue", type="l")+
-  points(density(rchisq(1e6,20)),col="red", type="l")
+```{r ch-app-01-chi-squared-distribution-density, fig.cap = "Examples of chi-squared probability density distributions."}
+# how many samples to use
+n <- 1e6
+
+rv_chisq_intro <- tibble(
+  X = rchisq(n, df = 3),
+  Y = rchisq(n, df = 10),
+  Z = rchisq(n, df = 20)
+) %>% 
+  pivot_longer(cols = c("X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+
+ggplot(rv_chisq_intro, aes(x = x, color = parameter_set)) +
+  # draw density lines
+  stat_density(geom = "line", position="identity", size = 2) +
+  # add text annotations to lines
+  annotate("text", x=17, y=0.15,  label="X~Chi-Squared(3)", color=project_colors[1], size = 6) +
+  annotate("text", x=30 , y=0.09,  label="X~Chi-Squared(10)",  color=project_colors[2], size = 6) +
+  annotate("text", x=40,   y=0.05, label="X~Chi-Squared(20)",  color=project_colors[3], size = 6) +
+  # suppress legend
+  theme(legend.position = "none")
 ```
 
 
@@ -123,11 +147,26 @@ Used in particular in regression and variance analysis and consists of two $chi^
 
 $$F=\frac{\frac{X}{m}}{\frac{Y}{n}}$$
 
-```{r}
-plot(density(rf(1e6,10,10)),col="green", main="F distribution",ylim=c(0,2),xlim=c(0,5), 
-     xlab="RVs")+
-  points(density(rf(1e6,20,20)),col="blue", type="l")+
-  points(density(rf(1e6,100,100)),col="red", type="l")
+```{r vch-app-01-F-distribution-density, fig.cap = "Examples of F probability density distributions."}
+# how many samples to use
+n <- 1e6
+
+rv_F_intro <- tibble(
+  X = rf(n, df1 = 10, df2 = 10),
+  Y = rf(n, df1 = 20, df2 = 20),
+  Z = rf(n, df1 = 30, df2 = 30)
+) %>% 
+  pivot_longer(cols = c("X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+
+ggplot(rv_F_intro, aes(x = x, color = parameter_set)) +
+  # draw density lines
+  stat_density(geom = "line", position="identity", size = 2) +
+  # add text annotations to lines
+  annotate("text", x=10, y=1.25,  label="X~F(10,10)", color=project_colors[1], size = 6) +
+  annotate("text", x=10 , y=1,  label="X~F(20,20)",  color=project_colors[2], size = 6) +
+  annotate("text", x=10,   y=0.75, label="X~F(30,30)",  color=project_colors[3], size = 6) +
+  # suppress legend
+  theme(legend.position = "none")
 ```
 
 **Expected value** $E(F)=\frac{n}{n-2}$ (for $n \geq 3$)
@@ -146,11 +185,26 @@ $$T=\frac{X}{\sqrt{\frac{Y}{n}}}$$
 
 
 ```{r}
-plot(density(rt(1e6,3)),col="green", main="Student-t distribution",xlim=c(-10,10), 
-     xlab="RVs")+
-  points(density(rt(1e6,3.5)),col="blue", type="l")+
-  points(density(rt(1e6,15)),col="red", type="l")+
-  points(density(rnorm(1e6)), type="l")
+# how many samples to use
+n <- 1e6
+
+rv_student_intro <- tibble(
+  X = rt(n, df = 3),
+  Y = rt(n, df = 15),
+  Z = rt(n, df = 5)
+) %>% 
+  pivot_longer(cols = c("X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+
+ggplot(rv_student_intro, aes(x = x, color = parameter_set)) +
+  # draw density lines
+  stat_density(geom = "line", position="identity", size = 2) +
+  # add text annotations to lines
+  annotate("text", x=10, y=0.15,  label="X~t(3)", color=project_colors[1], size = 6) +
+  annotate("text", x=10 , y=0.09,  label="X~t(15)",  color=project_colors[2], size = 6) +
+  annotate("text", x=10,   y=0.05, label="X~t(30)",  color=project_colors[3], size = 6) +
+  # suppress legend
+  theme(legend.position = "none") 
+ 
 ```
 
 **Expected value** $E(T)=0
