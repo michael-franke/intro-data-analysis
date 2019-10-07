@@ -16,7 +16,7 @@ Fig.~\ref{fig:ch-app-01-normal-distribution-density} shows the probability densi
 
 ```{r ch-app-01-normal-distribution-density, fig.cap = "Examples of probability density function of normal distributions."}
 # how many samples to use
-n <- 1e6
+n <- 1e5
 
 rv_normal_intro <- tibble(
   X = rnorm(n, mean = -2, sd = 3),
@@ -72,7 +72,6 @@ The normal distribution is often associated with the \emph{68-95-99.7 rule}. It 
 * $P(\mu-3\sigma \leq X \leq \mu+3\sigma)=0.9973$ 
 
 ```{r ch-app-01-normal-distribution-coverage, fig.cap = "Coverage of normal distribution"}
-
 # plot normal distribution with intervals
 ggplot(NULL, aes(x = c(-10, 10))) +
   # plot area under the curve
@@ -125,9 +124,6 @@ $$Y\sim \chi^2(n)$$
 Fig.~\ref{fig:ch-app-01-chi-squared-distribution-density} shows the probability density function of three chi-squared distributed random variables with different parameters. Note, that with increasing degrees of freedom the chi-squared distribution approximates the normal distribution. For $n \geq 30$ the chi-squared distribution can be approximated by a normal distribution. Fig.~\ref{fig:ch-app-01-chi-squared-distribution-cumulative} shows the corresponding cumulative function of the three chi-squared density distributions.
 
 ```{r ch-app-01-chi-squared-distribution-density, fig.cap = "Examples of probability density function of chi-squared distributions."}
-# how many samples to use
-n <- 1e6
-
 rv_chisq_intro <- tibble(
   X = rchisq(n, df = 2),
   Y = rchisq(n, df = 4),
@@ -178,9 +174,6 @@ $$F \sim F(m,n).$$
 Fig.~\ref{fig:ch-app-01-F-distribution-density} shows the probability density function of three F distributed random variables with different parameters. For a small number of degrees of freedom the density distribution is skewed to the left side. When the number increases, the density distribution gets more and more symmetric. Fig.~\ref{fig:ch-app-01-F-distribution-cumulative} shows the corresponding cumulative function of the three F density distributions.
  
 ```{r ch-app-01-F-distribution-density, fig.cap = "Examples of probability density function of F distributions."}
-# how many samples to use
-n <- 1e6
-
 rv_F_intro <- tibble(
   X = rf(n, df1 = 2, df2 = 4),
   Y = rf(n, df1 = 4, df2 = 6),
@@ -202,7 +195,6 @@ ggplot(rv_F_intro, aes(x = x, color = parameter_set)) +
 ```
 
 ```{r ch-app-01-F-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of F distributions corresponding to the previous probability density functions."}
-
 ggplot(rv_F_intro, aes(x = x, color = parameter_set)) +
   # draw cumulative lines
   stat_ecdf(geom = "step", size = 2) +
@@ -233,9 +225,6 @@ $$T \sim t(n).$$
 Fig.~\ref{fig:ch-app-01-t-distribution-density} shows the probability density function of three t distributed random variables with different parameters. Notice that for small degrees of freedom $n$, the t-distribution has fatter tails. This is because the t distribution was specially designed to provide more conservative test results when analyzing small samples. When the degrees of freedom increases, the t distribution approaches a normal distribution. For $n \geq 30$ this approximatio is quite good. Fig.~\ref{fig:ch-app-01-t-distribution-cumulative} shows the corresponding cumulative function of the three t density distributions.
  
 ```{r ch-app-01-t-distribution-density, fig.cap = "Examples of probability density function of t distributions."}
-# how many samples to use
-n <- 1e6
-
 rv_t_intro <- tibble(
   X = rt(n, df = 1),
   Y = rt(n, df = 2),
@@ -258,7 +247,6 @@ ggplot(rv_t_intro, aes(x = x, color = parameter_set)) +
 ```
 
 ```{r ch-app-01-t-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of t distributions corresponding to the previous probability density functions."}
-
 ggplot(rv_t_intro, aes(x = x, color = parameter_set)) +
   # draw cumulative lines
   stat_ecdf(geom = "step", size = 2) +
@@ -289,8 +277,6 @@ ggplot(rv_t_intro, aes(x = x, color = parameter_set)) +
 $$X \sim Binomial(n,p)$$
 
 ```{r ch-app-01-binomial-distribution-mass, fig.cap = "Examples of probability mass function of Binomial distributions."}
-# how many samples to use
-n <- 1e6
 # how many trials
 size <- 30
 
@@ -317,7 +303,6 @@ ggplot(rv_binomial_intro, aes(x = x, y = (..count..)/sum(..count..), fill = para
 
 
 ```{r ch-app-01-binomial-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of Binomial distributions corresponding to the previous probability mass functions."}
-
 ggplot(rv_binomial_intro, aes(x = x, color = parameter_set)) +
   # draw cumulative lines
   stat_ecdf(geom = "step", size = 2) +
@@ -345,15 +330,14 @@ $$F(x)=\sum_{k=0}^{x}\binom{n}{k}p^k(1-p)^{n-k}$$
 $$X \sim Po(\lambda)$$
 
 ```{r ch-app-01-poisson-distribution-mass, fig.cap = "Examples of probability mass function of Poisson distributions."}
-# how many samples to use
-n <- 1e6
-
-rv_binomial_intro <- tibble(
-  X = rpois(n, prob = 5),
-  Y = rpois(n, prob = 15),
-  Z = rpois(n, prob = 25)
+rv_poisson_intro <- tibble(
+  X = rpois(n, lambda = 5),
+  Y = rpois(n, lambda = 15),
+  Z = rpois(n, lambda = 25)
 ) %>% 
-  pivot_longer(cols = c("X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+  pivot_longer(cols = c("X", "Y", "Z"), 
+               names_to  = "parameter_set", 
+               values_to = "x")
 
 ggplot(rv_poisson_intro, aes(x = x, color = parameter_set)) +
   # draw density lines
@@ -369,7 +353,6 @@ ggplot(rv_poisson_intro, aes(x = x, color = parameter_set)) +
 
 
 ```{r ch-app-01-poisson-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of Poisson distributions corresponding to the previous probability mass functions."}
-
 ggplot(rv_poisson_intro, aes(x = x, color = parameter_set)) +
   # draw cumulative lines
   stat_ecdf(geom = "step", size = 2) +
