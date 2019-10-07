@@ -266,6 +266,77 @@ ggplot(rv_t_intro, aes(x = x, color = parameter_set)) +
 **Variance** $Var(T) = \frac{n}{n-2}$ (for $n \geq 3$)
 
 ### Beta distribution
+The beta distribution creates a continuous distribution of numbers between 0 and 1, therefore this distribution is useful if the uncertain quantity is bounded by 0 and 1 (or 100%), is continuous, and has a single mode. In Bayesian Data Analysis the beta distribution has a special standing as prior distribution for a bernoulli or binomial (see discrete distributions) likelihood. The reason is, that if a beta prior and a bernoulli (or binomial) liklihood are combined the resulting posterior distribution has the same form as the beta distribution. Such priors are referred to as *conjugate priors*.
+
+A beta distribution has two parameters: $a$ and $b$, they can be interpreted as the number of observations made, such that: $n=a+b$. If $a$ and $b$ get bigger, the beta distribution gets narrower. If only $a$ gets bigger the distribution moves rightward and if only $b$ gets bigger the distribution moves leftward. Thus, the parameters define the shape of the distribution, therefore they are also called *shape parameters*. A Beta(1,1) is equivalent to a uniform. Fig.~\ref{fig:ch-app-01-beta-distribution-density} shows the probability density function of four beta distributed random variables with different parameters. Fig.~\ref{fig:ch-app-01-beta-distribution-cumulative} shows the corresponding cumulative function of the four beta density distributions.
+
+```{r ch-app-01-beta-distribution-density, fig.cap = "Examples of probability density function of beta distributions."}
+rv_beta_intro <- tibble(
+  Q = rbeta(n, shape1 = 1, shape2 = 1),
+  X = rbeta(n, shape1 = 4, shape2 = 4),
+  Y = rbeta(n, shape1 = 4, shape2 = 2),
+  Z = rbeta(n, shape1 = 2, shape2 = 4)
+) %>% 
+  pivot_longer(cols = c("Q","X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+
+ggplot(rv_beta_intro, aes(x = x, color = parameter_set)) +
+  # draw density lines
+  stat_density(geom = "line", position = "identity", size = 2) +
+  # add text annotations to lines
+  annotate("text", x = 0.5, y = 0.5, label = "X~beta(1,1)", color = project_colors[1], size = 6) +
+  annotate("text", x = 0.5, y = 2.50, label = "X~beta(4,4)", color = project_colors[2], size = 6) +
+  annotate("text", x = 0.25, y = 2.5, label = "X~beta(4,2)", color = project_colors[3], size = 6) +
+  annotate("text", x = 0.75, y = 2.5, label = "X~beta(2,4)", color = project_colors[4], size = 6) +
+  # suppress legend
+  theme(legend.position = "none") 
+ 
+```
+
+```{r ch-app-01-beta-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of beta distributions corresponding to the previous probability density functions."}
+ggplot(rv_beta_intro, aes(x = x, color = parameter_set)) +
+  # draw cumulative lines
+  stat_ecdf(geom = "step", size = 2) +
+  # scale axes
+  ylim(0,1) +
+  # add text annotations to lines
+  annotate("text", x = 0.8, y = 0.75, label = "X~beta(1,1)", color = project_colors[1], size = 6) +
+  annotate("text", x = 0.51, y = 0.50, label = "X~beta(4,4)", color = project_colors[2], size = 6) +
+  annotate("text", x = 0.25, y = 0.75, label = "X~beta(4,2)", color = project_colors[3], size = 6) +
+  annotate("text", x = 0.75, y = 0.30, label = "X~beta(2,4)", color = project_colors[4], size = 6) +
+  # suppress legend
+  theme(legend.position = "none")
+```
+
+**Probability density function**
+
+$$f(x)=\frac{\theta^{(a-1)} (1-\theta)^{(b-1)}}{B(a,b)},$$
+where $B(a,b)$ is the beta *function*:
+
+$$B(a,b)=\int^1_0 \theta^{(a-1)} (1-\theta)^{(b-1)}d\theta.$$
+
+**Cumulative distribution function**
+
+$$F(x)=\frac{B(x;a,b)}{B(a,b)},$$
+where $B(x;a,b)$ is the *incomplete beta function*:
+
+$$B(x;a,b)=\int^x_0 t^{(a-1)} (1-t)^{(b-1)} dt,$$
+
+and $B(a,b)$ the (complete) *beta function*
+
+$$B(a,b)=\int^1_0 \theta^{(a-1)} (1-\theta)^{(b-1)}d\theta.$$
+
+**Expected value** 
+Mean: $E(X)=\frac{a}{a+b}$
+Mode: $\omega=\frac{(a-1)}{a+b-2}$
+
+**Variance** 
+Variance: $Var(X)=\frac{ab}{(a+b)^2(a+b+1)}$
+Concentration: $\kappa=a+b$ (related to variance such that, the bigger $a$ and $b$ are, the narrower the distribution)
+
+**Reparameterization of the beta distribution**
+Sometimes it is helpful (and more intuitive) to write the beta distribution in terms of its mode $\omega$ and concentration $\kappa$ instead of $a$ and $b$:
+
+$$Beta(a,b)=Beta(\omega(\kappa-2)+1, (1-\omega)(\kappa-2)+1), \textrm{ for } \kappa > 2.$$
 
 ### Uniform distribution
 
