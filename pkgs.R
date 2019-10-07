@@ -1,6 +1,5 @@
 ## load packages
-suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(brms))
 suppressPackageStartupMessages(library(ggsignif))
 suppressPackageStartupMessages(library(gridExtra))
