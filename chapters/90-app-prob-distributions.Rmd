@@ -15,37 +15,36 @@ $$X\sim Normal(\mu,\sigma^2)$$
 Fig.~\ref{fig:ch-app-01-normal-distribution-density} shows the probability density function of three normal distributed random variables with different parameters. Fig.~\ref{fig:ch-app-01-normal-distribution-cumulative} shows the corresponding cumulative function of the three normal distributions.
 
 ```{r ch-app-01-normal-distribution-density, fig.cap = "Examples of probability density function of normal distributions."}
-# how many samples to use
-n <- 1e6
-
-rv_normal_intro <- tibble(
-  X = rnorm(n, mean = -2, sd = 3),
-  Y = rnorm(n, mean =  0, sd = 1),
-  Z = rnorm(n, mean =  2, sd = 2)
+rv_normal <- tibble(
+  x = seq(-15, 15, .01),
+  y1 = dnorm(x),
+  y2 = dnorm(x, 2, 2),
+  y3 = dnorm(x, -2, 3)
 ) %>% 
-  pivot_longer(cols = c("X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(0,1)",
+                          parameter == "y2" ~ "(2,2)",
+                          parameter == "y3" ~ "(-2,3)")
+  )
 
-ggplot(rv_normal_intro, aes(x = x, color = parameter_set)) +
-  # draw density lines
-  stat_density(geom = "line", position = "identity", size = 2) +
-  # add text annotations to lines
-  annotate("text", x = -10, y = 0.1, label = "X~Normal(-2,3)", color = project_colors[1], size = 6) +
-  annotate("text", x = -6, y = 0.30, label = "X~Normal(0,1)", color = project_colors[2], size = 6) +
-  annotate("text", x =  8, y = 0.15, label = "X~Normal(2,2)", color = project_colors[3], size = 6) +
-  # suppress legend
-  theme(legend.position = "none")
+ggplot(rv_normal, aes(x, y, color = parameter)) +
+  geom_line(size = 2) +
+  labs(color = "X~Normal", y = "Density")
 ```
 
 ```{r ch-app-01-normal-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of normal distributions corresponding to the previous probability density functions."}
-ggplot(rv_normal_intro, aes(x = x, color = parameter_set)) +
-  # draw cumulative lines
-  stat_ecdf(geom = "step", size = 2) +
-  # add text annotations to lines
-  annotate("text", x = -8, y = 0.50, label = "X~Normal(-2,3)", color = project_colors[1], size = 6) +
-  annotate("text", x = -8, y = 0.75, label = "X~Normal(0,1)", color = project_colors[2], size = 6) +
-  annotate("text", x =  8, y = 0.25, label = "X~Normal(2,2)", color = project_colors[3], size = 6) +
-  # suppress legend
-  theme(legend.position = "none")
+rv_normal %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_line(size = 2) +
+    labs(color = "X~Normal", y = "y")
 ```
 
 A special case of normal distributed random variables is the *standard normal* distributed variable with $\mu=0$ and $\sigma=1$: $Y\sim Normal(0,1)$. Each normal distribution can be converted into a standard normal distribution by *z-standardization* (see equation below). The advantage of standardization is that values from different scales can be compared. This is because they become *scale independent* by z-transformation. 
@@ -124,35 +123,37 @@ $$X\sim \chi^2(n)$$
 Fig.~\ref{fig:ch-app-01-chi-squared-distribution-density} shows the probability density function of three chi-squared distributed random variables with different parameters. Note, that with increasing degrees of freedom the chi-squared distribution approximates the normal distribution. For $n \geq 30$ the chi-squared distribution can be approximated by a normal distribution. Fig.~\ref{fig:ch-app-01-chi-squared-distribution-cumulative} shows the corresponding cumulative function of the three chi-squared density distributions.
 
 ```{r ch-app-01-chi-squared-distribution-density, fig.cap = "Examples of probability density function of chi-squared distributions."}
-rv_chisq_intro <- tibble(
-  X = rchisq(n, df = 2),
-  Y = rchisq(n, df = 4),
-  Z = rchisq(n, df = 9)
+rv_chisq <- tibble(
+  x = seq(0, 30, .01),
+  y1 = dchisq(x, 2),
+  y2 = dchisq(x, 4),
+  y3 = dchisq(x, 9)
 ) %>% 
-  pivot_longer(cols = c("X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(2)",
+                          parameter == "y2" ~ "(4)",
+                          parameter == "y3" ~ "(9)")
+  )
 
-ggplot(rv_chisq_intro, aes(x = x, color = parameter_set)) +
-  # draw density lines
-  stat_density(geom = "line", position = "identity", size = 2) +
-  # add text annotations to lines
-  annotate("text", x = 10, y = 0.25, label = "X~Chi-Squared(2)", color = project_colors[1], size = 6) +
-  annotate("text", x = 12, y = 0.15, label = "X~Chi-Squared(4)", color = project_colors[2], size = 6) +
-  annotate("text", x = 20, y = 0.07, label = "X~Chi-Squared(9)", color = project_colors[3], size = 6) +
-  # suppress legend
-  theme(legend.position = "none")
+# dist plot
+ggplot(rv_chisq, aes(x, y, color = parameter)) +
+  geom_line(size = 2) +
+  labs(color = "X~Chi-Square", y = "Density")
 ```
+
 ```{r ch-app-01-chi-squared-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of chi-squared distributions corresponding to the previous probability density functions."}
-
-ggplot(rv_chisq_intro, aes(x = x, color = parameter_set)) +
-  # draw cumulative lines
-  stat_ecdf(geom = "step", size = 2) +
-  # add text annotations to lines
-  annotate("text", x = 20, y = 0.75, label = "X~Chi-Squared(2)", color = project_colors[1], size = 6) +
-  annotate("text", x = 18, y = 0.50, label = "X~Chi-Squared(4)", color = project_colors[2], size = 6) +
-  annotate("text", x = 15, y = 0.25, label = "X~Chi-Squared(9)", color = project_colors[3], size = 6) +
-  # suppress legend
-  theme(legend.position = "none")
-
+rv_chisq %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_line(size = 2) +
+    labs(color = "X~Chi-Square", y = "y")
 ```
 
 **Probability density function**
@@ -182,39 +183,37 @@ $$X \sim F(m,n).$$
 Fig.~\ref{fig:ch-app-01-F-distribution-density} shows the probability density function of three F distributed random variables with different parameters. For a small number of degrees of freedom the density distribution is skewed to the left side. When the number increases, the density distribution gets more and more symmetric. Fig.~\ref{fig:ch-app-01-F-distribution-cumulative} shows the corresponding cumulative function of the three F density distributions.
  
 ```{r ch-app-01-F-distribution-density, fig.cap = "Examples of probability density function of F distributions."}
-rv_F_intro <- tibble(
-  X = rf(n, df1 = 2, df2 = 4),
-  Y = rf(n, df1 = 4, df2 = 6),
-  Z = rf(n, df1 = 12, df2 = 12)
+rv_F <- tibble(
+  x = seq(-.5, 7, .01),
+  y1 = df(x, 2, 4),
+  y2 = df(x, 4, 6),
+  y3 = df(x, 12, 12)
 ) %>% 
-  pivot_longer(cols = c("X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(2,4)",
+                          parameter == "y2" ~ "(4,6)",
+                          parameter == "y3" ~ "(12,12)")
+  )
 
-ggplot(rv_F_intro, aes(x = x, color = parameter_set)) +
-  # draw density lines
-  stat_density(geom = "line", position = "identity", size = 2) +
-  # scale x-axis
-  xlim(0,7) +
-  # add text annotations to lines
-  annotate("text", x = 3, y = 0.75, label = "X~F(2,4)", color = project_colors[1], size = 6) +
-  annotate("text", x = 3, y = 0.45, label = "X~F(4,6)", color = project_colors[2], size = 6) +
-  annotate("text", x = 3, y = 0.60, label = "X~F(12,12)", color = project_colors[3], size = 6) +
-  # suppress legend
-  theme(legend.position = "none")
+# dist plot
+ggplot(rv_F, aes(x, y, color = parameter)) +
+  geom_line(size = 2) +
+  labs(color = "X~F", y = "Density")
 ```
 
 ```{r ch-app-01-F-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of F distributions corresponding to the previous probability density functions."}
-ggplot(rv_F_intro, aes(x = x, color = parameter_set)) +
-  # draw cumulative lines
-  stat_ecdf(geom = "step", size = 2) +
-  # scale axes
-  xlim(0,7) +
-  ylim(0,1) +
-  # add text annotations to lines
-  annotate("text", x = 3, y = 0.4, label = "X~F(2,4)", color = project_colors[1], size = 6) +
-  annotate("text", x = 3, y = 0.5, label = "X~F(4,6)", color = project_colors[2], size = 6) +
-  annotate("text", x = 3, y = 0.6, label = "X~F(12,12)", color = project_colors[3], size = 6) +
-  # suppress legend
-  theme(legend.position = "none")
+rv_F %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_line(size = 2) +
+    labs(color = "X~F", y = "y")
 ```
 
 **Probability density function**
@@ -242,40 +241,37 @@ $$X \sim t(n).$$
 Fig.~\ref{fig:ch-app-01-t-distribution-density} shows the probability density function of three t distributed random variables with different parameters. Notice that for small degrees of freedom $n$, the t-distribution has fatter tails. This is because the t distribution was specially designed to provide more conservative test results when analyzing small samples. When the degrees of freedom increases, the t distribution approaches a normal distribution. For $n \geq 30$ this approximatio is quite good. Fig.~\ref{fig:ch-app-01-t-distribution-cumulative} shows the corresponding cumulative function of the three t density distributions.
  
 ```{r ch-app-01-t-distribution-density, fig.cap = "Examples of probability density function of t distributions."}
-rv_t_intro <- tibble(
-  X = rt(n, df = 1),
-  Y = rt(n, df = 2),
-  Z = rt(n, df = 10)
+rv_student <- tibble(
+  x = seq(-6, 6, .01),
+  y1 = dt(x, 1),
+  y2 = dt(x, 2),
+  y3 = dt(x, 10)
 ) %>% 
-  pivot_longer(cols = c("X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(1)",
+                          parameter == "y2" ~ "(2)",
+                          parameter == "y3" ~ "(10)")
+  )
 
-ggplot(rv_t_intro, aes(x = x, color = parameter_set)) +
-  # draw density lines
-  stat_density(geom = "line", position = "identity", size = 2) +
-  # scale x-axis
-  xlim(-7,7) +
-  # add text annotations to lines
-  annotate("text", x = 4, y = 0.32, label = "X~t(1)", color = project_colors[1], size = 6) +
-  annotate("text", x = 4, y = 0.35, label = "X~t(2)", color = project_colors[2], size = 6) +
-  annotate("text", x = 4, y = 0.38, label = "X~t(10)", color = project_colors[3], size = 6) +
-  # suppress legend
-  theme(legend.position = "none") 
- 
+# dist plot
+ggplot(rv_student, aes(x, y, color = parameter)) +
+  geom_line(size = 2) +
+  labs(color = "X~t", y = "Density")
 ```
 
 ```{r ch-app-01-t-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of t distributions corresponding to the previous probability density functions."}
-ggplot(rv_t_intro, aes(x = x, color = parameter_set)) +
-  # draw cumulative lines
-  stat_ecdf(geom = "step", size = 2) +
-  # scale axes
-  xlim(-7,7) +
-  ylim(0,1) +
-  # add text annotations to lines
-  annotate("text", x = 4, y = 0.40, label = "X~t(1)", color = project_colors[1], size = 6) +
-  annotate("text", x = 4, y = 0.50, label = "X~t(2)", color = project_colors[2], size = 6) +
-  annotate("text", x = 4, y = 0.60, label = "X~t(10)", color = project_colors[3], size = 6) +
-  # suppress legend
-  theme(legend.position = "none")
+rv_student %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_line(size = 2) +
+    labs(color = "X~t", y = "y")
 ```
 
 **Probability density function**
@@ -299,40 +295,39 @@ $$X \sim Beta(a,b).$$
 The two parameters can be interpreted as the number of observations made, such that: $n=a+b$. If $a$ and $b$ get bigger, the beta distribution gets narrower. If only $a$ gets bigger the distribution moves rightward and if only $b$ gets bigger the distribution moves leftward. Thus, the parameters define the shape of the distribution, therefore they are also called *shape parameters*. A Beta(1,1) is equivalent to a uniform. Fig.~\ref{fig:ch-app-01-beta-distribution-density} shows the probability density function of four beta distributed random variables with different parameters. Fig.~\ref{fig:ch-app-01-beta-distribution-cumulative} shows the corresponding cumulative function of the four beta density distributions.
 
 ```{r ch-app-01-beta-distribution-density, fig.cap = "Examples of probability density function of beta distributions."}
-rv_beta_intro <- tibble(
-  Q = rbeta(n, shape1 = 1, shape2 = 1),
-  X = rbeta(n, shape1 = 4, shape2 = 4),
-  Y = rbeta(n, shape1 = 4, shape2 = 2),
-  Z = rbeta(n, shape1 = 2, shape2 = 4)
+rv_beta <- tibble(
+  x = seq(-.1, 1.1, .01),
+  y1 = dbeta(x, 1, 1),
+  y2 = dbeta(x, 4, 4),
+  y3 = dbeta(x, 4, 2),
+  y4 = dbeta(x, 2, 4)
 ) %>% 
-  pivot_longer(cols = c("Q","X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(1,1)",
+                          parameter == "y2" ~ "(4,4)",
+                          parameter == "y3" ~ "(4,2)",
+                          parameter == "y4" ~ "(2,4)")
+  )
 
-ggplot(rv_beta_intro, aes(x = x, color = parameter_set)) +
-  # draw density lines
-  stat_density(geom = "line", position = "identity", size = 2) +
-  # add text annotations to lines
-  annotate("text", x = 0.5, y = 0.5, label = "X~beta(1,1)", color = project_colors[1], size = 6) +
-  annotate("text", x = 0.5, y = 2.50, label = "X~beta(4,4)", color = project_colors[2], size = 6) +
-  annotate("text", x = 0.25, y = 2.5, label = "X~beta(4,2)", color = project_colors[3], size = 6) +
-  annotate("text", x = 0.75, y = 2.5, label = "X~beta(2,4)", color = project_colors[4], size = 6) +
-  # suppress legend
-  theme(legend.position = "none") 
- 
+# dist plot
+ggplot(rv_beta, aes(x, y, color = parameter)) +
+  geom_line(size = 2) +
+  labs(color = "X~beta", y = "Density")
 ```
 
 ```{r ch-app-01-beta-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of beta distributions corresponding to the previous probability density functions."}
-ggplot(rv_beta_intro, aes(x = x, color = parameter_set)) +
-  # draw cumulative lines
-  stat_ecdf(geom = "step", size = 2) +
-  # scale axes
-  ylim(0,1) +
-  # add text annotations to lines
-  annotate("text", x = 0.80, y = 0.60, label = "X~beta(1,1)", color = project_colors[1], size = 6) +
-  annotate("text", x = 0.10, y = 0.25, label = "X~beta(4,4)", color = project_colors[2], size = 6) +
-  annotate("text", x = 0.25, y = 0.75, label = "X~beta(4,2)", color = project_colors[3], size = 6) +
-  annotate("text", x = 0.75, y = 0.30, label = "X~beta(2,4)", color = project_colors[4], size = 6) +
-  # suppress legend
-  theme(legend.position = "none")
+rv_beta %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_line(size = 2) +
+    labs(color = "X~beta", y = "y")
 ```
 
 **Probability density function**
@@ -374,34 +369,35 @@ $$X \sim Unif(a,b).$$
 When $a=0$ and $b=1$ the distribution is referred to as *standard* uniform distribution. Fig.~\ref{fig:ch-app-01-uniform-distribution-density} shows the probability density function of two uniform distributed random variables with different parameters. Fig.~\ref{fig:ch-app-01-uniform-distribution-cumulative} shows the corresponding cumulative function of the two uniform density distributions.
 
 ```{r ch-app-01-uniform-distribution-density, fig.cap = "Examples of probability density function of uniform distributions."}
-rv_uniform_intro <- tibble(
-  X = runif(n),
-  Y = runif(n, min = 2, max = 4)
+rv_unif <- tibble(
+  x = seq(-.1, 4.1, .01),
+  y1 = dunif(x),
+  y2 = dunif(x, 2, 4)
 ) %>% 
-  pivot_longer(cols = c("X", "Y"), names_to = "parameter_set", values_to = "x")
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = ifelse(parameter == "y1",
+                       "(0,1)", "(2,4)")
+  )
 
-ggplot(rv_uniform_intro, aes(x = x, color = parameter_set)) +
-  # draw density lines
-  stat_density(geom = "line", position = "identity", size = 2) +
-  # add text annotations to lines
-  annotate("text", x = 0.5, y = 1.25, label = "X~uniform(0,1)", color = project_colors[1], size = 6) +
-  annotate("text", x = 3.0, y = 1.25, label = "X~uniform(2,4)", color = project_colors[2], size = 6) +
-  # suppress legend
-  theme(legend.position = "none") 
- 
+# dist plot
+ggplot(rv_unif, aes(x, y, color = parameter)) +
+  geom_line(size = 2) +
+  labs(color = "X~uniform", y = "Density")
 ```
 
 ```{r ch-app-01-uniform-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of uniform distributions corresponding to the previous probability density functions."}
-ggplot(rv_uniform_intro, aes(x = x, color = parameter_set)) +
-  # draw cumulative lines
-  stat_ecdf(geom = "step", size = 2) +
-  # scale axes
-  ylim(0,1) +
-  # add text annotations to lines
-  annotate("text", x = 1.0, y = 0.40, label = "X~uniform(0,1)", color = project_colors[1], size = 6) +
-  annotate("text", x = 2.5, y = 0.60, label = "X~uniform(2,4)", color = project_colors[2], size = 6) +
-  # suppress legend
-  theme(legend.position = "none")
+rv_unif %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_line(size = 2) +
+    labs(color = "X~uniform", y = "y")
 ```
 
 **Probability density function**
@@ -424,40 +420,40 @@ $$X \sim Binomial(n,p)$$
 
 ```{r ch-app-01-binomial-distribution-mass, fig.cap = "Examples of probability mass function of Binomial distributions."}
 # how many trials
-size <- 30
+trials = 30
 
-rv_binomial_intro <- tibble(
-  X = rbinom(n, size = size, prob = 0.2),
-  Y = rbinom(n, size = size, prob = 0.5),
-  Z = rbinom(n, size = size, prob = 0.8)
+rv_binom <- tibble(
+  x = seq(0, trials),
+  y1 = dbinom(x, trials, .2),
+  y2 = dbinom(x, trials, .5),
+  y3 = dbinom(x, trials, .8)
 ) %>% 
-  pivot_longer(cols = c("X", "Y", "Z"), names_to = "parameter_set", values_to = "x")
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(n,0.2)",
+                          parameter == "y2" ~ "(n,0.5)",
+                          parameter == "y3" ~ "(n,0.8)")
+  )
 
-ggplot(rv_binomial_intro, aes(x = x, y = (..count..)/sum(..count..), fill = parameter_set)) +
-  # draw bars
-  stat_bin(geom = "bar", position="dodge", binwidth = 1) +
-  # add text annotations to lines
-  annotate("text", x = 5, y = 0.07, label = "X~Binomial(n,0.2)", color = project_colors[1], size = 6) +
-  annotate("text", x = 15, y = 0.07, label = "X~Binomial(n,0.5)", color = project_colors[2], size = 6) +
-  annotate("text", x = 25, y = 0.07, label = "X~Binomial(n,0.8)", color = project_colors[3], size = 6) +
-  # add title for y-axis
-  ylab("Probability") +
-  # suppress legend
-  theme(legend.position = "none") 
- 
+# dist plot; needs some love... :/
+ggplot(rv_binom, aes(x, y, fill = parameter)) +
+  geom_col(position = "dodge", color = "white") +
+  labs(fill = "X~Binomial", y = "Probability")
 ```
 
 
 ```{r ch-app-01-binomial-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of Binomial distributions corresponding to the previous probability mass functions."}
-ggplot(rv_binomial_intro, aes(x = x, color = parameter_set)) +
-  # draw cumulative lines
-  stat_ecdf(geom = "step", size = 2) +
-  # add text annotations to lines
-  annotate("text", x = 10, y = 0.5, label = "X~Binomial(n,0.2)", color = project_colors[1], size = 5) +
-  annotate("text", x = 19, y = 0.5, label = "X~Binomial(n,0.5)", color = project_colors[2], size = 5) +
-  annotate("text", x =28, y = 0.5, label = "X~Binomial(n,0.8)", color = project_colors[3], size = 5) +
-  # suppress legend
-  theme(legend.position = "none")
+rv_binom %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_line(size = 2) +
+    labs(color = "X~Binomial", y = "y")
 ```
 
 **Probability mass function**
@@ -476,38 +472,60 @@ $$F(x)=\sum_{k=0}^{x}\binom{n}{k}p^k(1-p)^{n-k}$$
 $$X \sim Po(\lambda)$$
 
 ```{r ch-app-01-poisson-distribution-mass, fig.cap = "Examples of probability mass function of Poisson distributions."}
-rv_poisson_intro <- tibble(
-  X = rpois(n, lambda = 5),
-  Y = rpois(n, lambda = 15),
-  Z = rpois(n, lambda = 25)
-) %>% 
-  pivot_longer(cols = c("X", "Y", "Z"), 
-               names_to  = "parameter_set", 
-               values_to = "x")
+# rv_poisson_intro <- tibble(
+#   X = rpois(n, lambda = 5),
+#   Y = rpois(n, lambda = 15),
+#   Z = rpois(n, lambda = 25)
+# ) %>% 
+#   pivot_longer(cols = c("X", "Y", "Z"), 
+#                names_to  = "parameter_set", 
+#                values_to = "x")
+# 
+# ggplot(rv_poisson_intro, aes(x = x, color = parameter_set)) +
+#   # draw density lines
+#   stat_density(geom = "line", position="identity", size = 2) +
+#   # add text annotations to lines
+#   annotate("text", x = 10, y = 0.15, label = "X~Poisson(5)", color = project_colors[1], size = 6) +
+#   annotate("text", x = 10, y = 0.09, label = "X~Poisson(15)", color = project_colors[2], size = 6) +
+#   annotate("text", x = 10, y = 0.05, label = "X~Poisson(25)", color = project_colors[3], size = 6) +
+#   # suppress legend
+#   theme(legend.position = "none") 
 
-ggplot(rv_poisson_intro, aes(x = x, color = parameter_set)) +
-  # draw density lines
-  stat_density(geom = "line", position="identity", size = 2) +
-  # add text annotations to lines
-  annotate("text", x = 10, y = 0.15, label = "X~Poisson(5)", color = project_colors[1], size = 6) +
-  annotate("text", x = 10, y = 0.09, label = "X~Poisson(15)", color = project_colors[2], size = 6) +
-  annotate("text", x = 10, y = 0.05, label = "X~Poisson(25)", color = project_colors[3], size = 6) +
-  # suppress legend
-  theme(legend.position = "none") 
- 
+
+### this isn't quite right...
+rv_pois <- tibble(
+  x = seq(0, 50, .1),
+  y1 = dpois(x, 5),
+  y2 = dpois(x, 15),
+  y3 = dpois(x, 25)
+) %>% 
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(5)",
+                          parameter == "y2" ~ "(15)",
+                          parameter == "y3" ~ "(25)")
+  )
+
+# dist plot
+ggplot(rv_pois, aes(x, y, color = parameter)) +
+  geom_line(size = 2) +
+  labs(color = "X~Poisson", y = "Density") 
 ```
 
 
 ```{r ch-app-01-poisson-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of Poisson distributions corresponding to the previous probability mass functions."}
-ggplot(rv_poisson_intro, aes(x = x, color = parameter_set)) +
-  # draw cumulative lines
-  stat_ecdf(geom = "step", size = 2) +
-  # add text annotations to lines
-  annotate("text", x=10, y=0.15,  label="X~Binomial(n,0.2)", color=project_colors[1], size = 6) +
-  annotate("text", x=10 , y=0.09,  label="X~Binomial(n,0.5)",  color=project_colors[2], size = 6) +
-  annotate("text", x=10,   y=0.05, label="X~Binomial(n,0.8)",  color=project_colors[3], size = 6) +
-  # suppress legend
-  theme(legend.position = "none")
+# cumdist plot
+rv_pois %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_line(size = 2) +
+    labs(color = "X~Poisson", y = "y")
 ```
 
 **Probability mass function**
