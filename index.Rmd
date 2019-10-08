@@ -5,7 +5,7 @@ date: "last rendered at: `r format(Sys.time(), tz = 'Europe/Berlin')`"
 site: bookdown::bookdown_site
 output:
   bookdown::gitbook:
-    css: styles.css
+    css: [styles.css, webppl-editor.css]
     highlight: kate
     fig_caption: TRUE
     split_by: "section"
@@ -75,9 +75,31 @@ The book introduces key concepts of data analysis from a frequentist and a Bayes
 
 Don't pay too much attention to what is written here.
 
-<pre>
-flip();
-</pre>
+<prem>
+var xs = [0, 1, 2, 3];
+var ys = [0, 1, 4, 6];
+
+var model = function() {
+  var m = gaussian(0, 2);
+  var b = gaussian(0, 2);
+  var sigma = gamma(1, 1);
+
+  var f = function(x) {
+    return m * x + b;
+  };
+
+  map2(
+    function(x, y) {
+      factor(Gaussian({mu: f(x), sigma: sigma}).score(y));
+    },
+    xs,
+    ys);
+
+  return f(4);
+}
+
+viz.auto(Infer({method: 'MCMC', samples: 10000}, model));
+</prem>
 
 ### Quotes
 
@@ -157,7 +179,7 @@ ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + geom_poi
 
 <script>
 // find all <pre> elements and set up the editor on them
-var preEls = Array.prototype.slice.call(document.querySelectorAll("pre"));
+var preEls = Array.prototype.slice.call(document.querySelectorAll("prem"));
 preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}); });
 </script>
 
