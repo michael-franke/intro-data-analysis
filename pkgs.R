@@ -8,4 +8,7 @@ suppressPackageStartupMessages(library(rcartocolor)) # color-blind friendly pale
 
 ## set defaults
 # hrbrthemes::import_public_sans()
-theme_set(hrbrthemes::theme_ipsum(plot_margin = margin(10, 10, 10, 10)))
+theme_set(
+  hrbrthemes::theme_ipsum(plot_margin = margin(10, 10, 10, 10)) +
+    theme(legend.position = "top")
+)
