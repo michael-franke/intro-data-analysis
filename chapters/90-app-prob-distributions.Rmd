@@ -441,9 +441,9 @@ rv_binom <- tibble(
                           parameter == "y3" ~ "(n,0.8)")
   )
 
-# dist plot; needs some love... :/
+# dist plot
 ggplot(rv_binom, aes(x, y, fill = parameter)) +
-  geom_col(position = "dodge", color = "white") +
+  geom_col(position = "identity", alpha = 0.8) +
   labs(fill = "X~Binomial", y = "Probability")
 ```
 
@@ -496,23 +496,32 @@ rv_bern <- tibble(
                           parameter == "y3" ~ "(0.8)")
   )
 
-# dist plot; needs some love... :/
+# dist plot
 ggplot(rv_bern, aes(x, y, fill = parameter)) +
   geom_col(position = "dodge", color = "white") +
-  labs(fill = "X~Bernoulli", y = "Probability")
+  labs(fill = "X~Bernoulli", y = "Probability") +
+  scale_x_continuous(breaks = c(0.0,1.0), labels = c("0","1"), limits = c(-0.5,1.5))
 ```
 
 ```{r ch-app-01-bernoulli-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of Bernoulli distributions corresponding to the previous probability mass functions."}
+
 rv_bern %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y)
+    cum_y = cumsum(y),
+    cum_y2 = cumsum(y)
   ) %>% 
+  add_column(
+    x2 = c(1,1,1,1.5,1.5,1.5)
+  ) %>%  
   ungroup() %>% 
-  ggplot(aes(x, cum_y, color = parameter)) +
-    geom_point(size = 2) +
-    labs(color = "X~Binomial", y = "y") +
-  xlim(-0.5,1.5)
+  ggplot(aes(color = parameter)) +
+    geom_segment(x = rv_bern2$x, y = rv_bern2$cum_y, xend = rv_bern2$x2, yend = rv_bern2$cum_y2, 
+                 size = 1, linetype = "dashed") +
+    geom_segment(x = -0.5, y = 0,xend = 0.0, yend = 0, size = 1, linetype = "dashed") +
+    geom_point(x = rv_bern2$x, y = rv_bern2$cum_y, size = 3) +
+    labs(color = "X~Bernoulli", y = "y") +
+     scale_x_continuous(breaks = c(0.0,1.0), labels = c("0","1"), limits = c(-0.5,1.5))
 ```
 
 **Probability mass function**
@@ -527,53 +536,96 @@ $$F(x)=\begin{cases} 0 &\textrm{ if } x < 0, \\ 1-p &\textrm{ if } 0 \leq x <1,\
 
 **Variance** $Var(X)=p \cdot (1-p)$
 
-### Beta Binomial distribution
+### Beta-Binomial distribution
+The beta-binomial distribution, as the name already indicates, is a mixture of a binomial and beta distribution. Remember, a binomial distribution is useful to model a binary choice with outcomes "0" and "1". The binomial distribution has two parameters $p$, the probability of success ("1"), and $n$, the number of trials. Where we assume that the successive trials are independent and $p$ is constant. In a beta-binomial distribution $p$ is not anymore assumed to be constant but changes from trial to trial. That is, a further assumption about the distribution of $p$ is made and here the Beta distribution comes into play: the probability $p$ is assumed to be randomly drawn from a beta distribution with parameters $a$ and $b$. 
+Therefore, the beta-binomial distribution has three parameters $n$, $a$ and $b$:
+$$X \sim BetaBinom(n,a,b).$$
+For large values of a and b the distribution approaches a binomial distribution. When $a=1$ and $b=1$ the distribution equals a discrete uniform distribution from 0 to $n$. When $n = 1$, the distribution is the same as a Bernoulli distribution.
 
-### Poisson distribution
+Fig.~\ref{fig:ch-app-01-betabinom-distribution-mass} shows the probability mass function of three beta-binomial distributed random variables with different parameters. Fig.~\ref{fig:ch-app-01-betabinom-distribution-cumulative} shows the corresponding cumulative distributions.
 
-$$X \sim Po(\lambda)$$
+```{r ch-app-01-betabinom-distribution-mass, fig.cap = "Examples of probability mass function of Beta-Binomial distributions."}
+# how many trials
+trials = 30
 
-```{r ch-app-01-poisson-distribution-mass, fig.cap = "Examples of probability mass function of Poisson distributions."}
-# rv_poisson_intro <- tibble(
-#   X = rpois(n, lambda = 5),
-#   Y = rpois(n, lambda = 15),
-#   Z = rpois(n, lambda = 25)
-# ) %>% 
-#   pivot_longer(cols = c("X", "Y", "Z"), 
-#                names_to  = "parameter_set", 
-#                values_to = "x")
-# 
-# ggplot(rv_poisson_intro, aes(x = x, color = parameter_set)) +
-#   # draw density lines
-#   stat_density(geom = "line", position="identity", size = 2) +
-#   # add text annotations to lines
-#   annotate("text", x = 10, y = 0.15, label = "X~Poisson(5)", color = project_colors[1], size = 6) +
-#   annotate("text", x = 10, y = 0.09, label = "X~Poisson(15)", color = project_colors[2], size = 6) +
-#   annotate("text", x = 10, y = 0.05, label = "X~Poisson(25)", color = project_colors[3], size = 6) +
-#   # suppress legend
-#   theme(legend.position = "none") 
-
-
-### this isn't quite right...
-rv_pois <- tibble(
-  x = seq(0, 50, .1),
-  y1 = dpois(x, 5),
-  y2 = dpois(x, 15),
-  y3 = dpois(x, 25)
+rv_betabinom <- tibble(
+  x = seq(0, trials),
+  y1 = dbbinom(x, size = trials, alpha = 4, beta = 4),
+  y2 = dbbinom(x, size = trials, alpha = 2, beta = 4),
+  y3 = dbbinom(x, size = trials, alpha = 1, beta = 1)
 ) %>% 
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
                values_to = "y") %>% 
   mutate(
-    parameter = case_when(parameter == "y1" ~ "(5)",
-                          parameter == "y2" ~ "(15)",
-                          parameter == "y3" ~ "(25)")
+    parameter = case_when(parameter == "y1" ~ "(n,4,4)",
+                          parameter == "y2" ~ "(n,2,4)",
+                          parameter == "y3" ~ "(n,1,1)")
+  )
+
+# dist plot; needs some love... :/
+ggplot(rv_betabinom, aes(x, y, fill = parameter)) +
+  geom_col(position = "identity", alpha = 0.7) +
+  labs(fill = "X~Beta-Binomial", y = "Probability")
+```
+
+```{r ch-app-01-betabinom-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of Beta-Binomial distributions corresponding to the previous probability mass functions."}
+rv_betabinom %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_step(size = 2) +
+    labs(color = "X~Beta-Binomial", y = "y") 
+```
+
+**Probability mass function**
+
+$$f(x)=\binom{n}{x} \frac{B(a+x,b+n-x)}{B(a,b)},$$
+
+where $\binom{n}{x}$ is the binomial coefficient and $B(x)$ the Beta *function* (see Beta distribution).
+
+**Cumulative function**
+
+$$F(x)=\begin{cases} 0 &\textrm{ if } x<0,\\ \binom{n}{x} \frac{B(a+x,b+n-x)}{B(a,b)} {}_3F_2(n,a,b) &\textrm{ if } 0 \leq x < n,\\ 1 &\textrm{ if } x \geq n. \end{cases}$$
+Where ${}_3F_2(n,a,b)$ is the generalized hypergeometric function. 
+
+**Expected value** $E(X)=n \frac{a}{a+b}$
+
+**Variance** $Var(X)=n \frac{ab}{(a+b)^2} \frac{a+b+n}{a+b+1}$
+
+### Poisson distribution
+A poisson distributed random variable represents the number of successes occurring in a given *time interval*. It gives the probability of a given number of events happening in a fixed interval of time. The Poisson distribution is a limiting case of the Binomial distribution when the number of trials becomes very large and the probability of success is small. For example the number of car accidents in OS in the next month, the number of typing errors on a page, the number of interruptions generated by a CPU during T seconds, etc. 
+Events described by a poisson distribution must fullfill the following conditions: they occur in non-overlapping intervals, they can not occur simultaneously and each event occurs at a constant rate. 
+
+The poisson distribution has one rate parameter $\lambda$, sometimes also referred to as *intensity*:
+$$X \sim Po(\lambda).$$
+ 
+The parameter $\lambda$ can be thought of as the expected number of events in the interval. Consequently, changing the rate parameter changes the probability of seeing different numbers of events in one interval. See Fig.~\ref{fig:ch-app-01-poisson-distribution-mass} for the probability mass function of three poisson distributed random variables with different rate parameter. Note, that the higher  $\lambda$ the more symmetrical gets the distribution. In fact, the poisson distribution can be approximated by a normal distribution for a rate paramter $\geq$ 10. Fig.~\ref{fig:ch-app-01-poisson-distribution-cumulative} shows the corresponding cumulative distributions.
+
+```{r ch-app-01-poisson-distribution-mass, fig.cap = "Examples of probability mass function of Poisson distributions."}
+
+rv_pois <- tibble(
+  x = seq(0, 30, 1),
+  y1 = dpois(x, 2),
+  y2 = dpois(x, 8),
+  y3 = dpois(x, 15)
+) %>% 
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(2)",
+                          parameter == "y2" ~ "(8)",
+                          parameter == "y3" ~ "(15)")
   )
 
 # dist plot
-ggplot(rv_pois, aes(x, y, color = parameter)) +
-  geom_line(size = 2) +
-  labs(color = "X~Poisson", y = "Density") 
+ggplot(rv_pois, aes(x, y, fill = parameter)) +
+  geom_col(alpha = 0.7, position = "identity") +
+  labs(fill = "X~Poisson", y = "Density") 
 ```
 
 
@@ -586,7 +638,7 @@ rv_pois %>%
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
-    geom_line(size = 2) +
+    geom_step(size = 2) +
     labs(color = "X~Poisson", y = "y")
 ```
 
