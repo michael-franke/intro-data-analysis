@@ -415,8 +415,12 @@ $$F(x)=\begin{cases}0 & \textrm{ for } x<a,\\\frac{x-a}{b-a} &\textrm{ for } a\l
 ## Selected discrete distributions of random variables
 
 ### Binomial distribution
+The binomial distribution is a useful model for binary decisions where the outcome is a choice between two alternatives (e.g. Yes/No, Left/Right, Present/Absent, Head/Tail, ...). The two outcomes are often referred to as $0$ (failure) and $1$ (success). Consequently, let the probability of occurence of the outcome "success" be $p$, then the probability of occurence of "failure" is $1-p$. 
+Considering a coin-flip experiment, if we flip a coin repeatedly, e.g. $30$ times, the successive trials are independent of each other and the probability $p$ is constant, then the resulting binomial distribution is a discrete random variable with outcomes $\{0,1,2,...,30\}$.  
+The Binomial distribution has two parameters "size" and "prob", often denoted as $n$ and $p$, respectively. The "size" refers to the number of trials and "prob" to the probability of success:
+$$X \sim Binomial(n,p).$$
 
-$$X \sim Binomial(n,p)$$
+Fig.~\ref{fig:ch-app-01-binomial-distribution-mass} shows the probability mass function of three binomial distributed random variables with different parameters. As stated above, $p$ refers to the probability of success. The higher this probability the more often we will observe the outcome coded with "1". Therefore the distribution tends toward the right side and vice-versa. The distribution gets more symmetrical if the parameter $p$ approximates 0.5. Fig.~\ref{fig:ch-app-01-binomial-distribution-cumulative} shows the corresponding cumulative function of the three binomial distributions.
 
 ```{r ch-app-01-binomial-distribution-mass, fig.cap = "Examples of probability mass function of Binomial distributions."}
 # how many trials
@@ -452,13 +456,15 @@ rv_binom %>%
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
-    geom_line(size = 2) +
+    geom_step(size = 2) +
     labs(color = "X~Binomial", y = "y")
 ```
 
 **Probability mass function**
 
-$$f(x)=\binom{n}{x}p^x(1-p)^{n-x}$$
+$$f(x)=\binom{n}{x}p^x(1-p)^{n-x},$$
+where $\binom{n}{x}$ is the binomial coefficient.
+
 **Cumulative function**
 
 $$F(x)=\sum_{k=0}^{x}\binom{n}{k}p^k(1-p)^{n-k}$$
@@ -466,6 +472,62 @@ $$F(x)=\sum_{k=0}^{x}\binom{n}{k}p^k(1-p)^{n-k}$$
 **Expected value** $E(X)=n \cdot p$
 
 **Variance** $Var(X)=n \cdot p \cdot (1-p)$
+
+### Bernoulli distribution
+The Bernoulli distribution is a special case of the Binomial distribution with "size" = 1, therefore the outcome of a bernoulli random variable is either 0 or 1. Apart from that the same information holds as with the binomial distribution.
+As the "size" parameter is now negligible, the bernoulli distribution has only one parameter $p$:
+$$X \sim Bern(p).$$
+Fig.~\ref{fig:ch-app-01-bernoulli-distribution-mass} shows the probability mass function of three bernoulli distributed random variables with different parameters. 
+
+```{r ch-app-01-bernoulli-distribution-mass, fig.cap = "Examples of probability mass function of Bernoulli distributions."}
+
+rv_bern <- tibble(
+  x = seq(0, 1),
+  y1 = dbern(x, .2),
+  y2 = dbern(x, .5),
+  y3 = dbern(x, .8)
+) %>% 
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(0.2)",
+                          parameter == "y2" ~ "(0.5)",
+                          parameter == "y3" ~ "(0.8)")
+  )
+
+# dist plot; needs some love... :/
+ggplot(rv_bern, aes(x, y, fill = parameter)) +
+  geom_col(position = "dodge", color = "white") +
+  labs(fill = "X~Bernoulli", y = "Probability")
+```
+
+```{r ch-app-01-bernoulli-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of Bernoulli distributions corresponding to the previous probability mass functions."}
+rv_bern %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_point(size = 2) +
+    labs(color = "X~Binomial", y = "y") +
+  xlim(-0.5,1.5)
+```
+
+**Probability mass function**
+
+$$f(x)=\begin{cases} p &\textrm{ if } x=1,\\ 1-p &\textrm{ if } x=0.\end{cases}$$
+
+**Cumulative function**
+
+$$F(x)=\begin{cases} 0 &\textrm{ if } x < 0, \\ 1-p &\textrm{ if } 0 \leq x <1,\\1 &\textrm{ if } x \geq 1.\end{cases}$$
+
+**Expected value** $E(X)=p$
+
+**Variance** $Var(X)=p \cdot (1-p)$
+
+### Beta Binomial distribution
 
 ### Poisson distribution
 
