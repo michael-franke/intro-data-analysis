@@ -3,12 +3,12 @@
 
 # Common probability distributions
 
-## Selected continous distributions of random variables
+## Selected continuous distributions of random variables
 
 ### Normal distribution
 One of the most important distribution families is the *gaussian* or *normal family* because it fits many natural phenomena. Furthermore the sampling distributions of many estimators depend on the normal distribution. On the one hand because they are derived from normally distributed random variables or on the other hand because they can be asymptotically approximated by a normal distribution for large samples (*Central limit theorem*). 
 
-Distributions of the normal family are symmetric with range $(-\infty,+\infty)$, depending on two parameters $\mu$ and $\sigma$ that are referred to, respectively, as the *mean* and the *standard deviation* of the normal random variable. These parameters are examples of *location* and *scale* parameters. The normal distribution is located at $\mu$ and its width is scaled by choice of $\sigma$. The distribution is symmetric with most observations lying aroung the central peak $\mu$ and more extreme values are further away depending on $\sigma$. 
+Distributions of the normal family are symmetric with range $(-\infty,+\infty)$ and have two parameters $\mu$ and $\sigma$ that are referred to, respectively, as the *mean* and the *standard deviation* of the normal random variable. These parameters are examples of *location* and *scale* parameters. The normal distribution is located at $\mu$ and its width is scaled by choice of $\sigma$. The distribution is symmetric with most observations lying aroung the central peak $\mu$ and more extreme values are further away depending on $\sigma$. 
 
 $$X\sim Normal(\mu,\sigma^2)$$
 
@@ -16,10 +16,10 @@ Fig.~\ref{fig:ch-app-01-normal-distribution-density} shows the probability densi
 
 ```{r ch-app-01-normal-distribution-density, fig.cap = "Examples of probability density function of normal distributions."}
 rv_normal <- tibble(
-  x = seq(-15, 15, .01),
+  x = seq(from = -15, to = 15, by = .01),
   y1 = dnorm(x),
-  y2 = dnorm(x, 2, 2),
-  y3 = dnorm(x, -2, 3)
+  y2 = dnorm(x, mean = 2, sd = 2),
+  y3 = dnorm(x, mean = -2, sd = 3)
 ) %>% 
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
@@ -32,22 +32,22 @@ rv_normal <- tibble(
 
 ggplot(rv_normal, aes(x, y, color = parameter)) +
   geom_line(size = 2) +
-  labs(color = "X~Normal", y = "Density")
+  labs(color = "X ~ Normal", y = "Density")
 ```
 
 ```{r ch-app-01-normal-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of normal distributions corresponding to the previous probability density functions."}
 rv_normal %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y)
+    cum_y = cumsum(y)/sum(y)
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
     geom_line(size = 2) +
-    labs(color = "X~Normal", y = "y")
+    labs(color = "X ~ Normal", y = "y")
 ```
 
-A special case of normal distributed random variables is the *standard normal* distributed variable with $\mu=0$ and $\sigma=1$: $Y\sim Normal(0,1)$. Each normal distribution can be converted into a standard normal distribution by *z-standardization* (see equation below). The advantage of standardization is that values from different scales can be compared. This is because they become *scale independent* by z-transformation. 
+A special case of normal distributed random variables is the *standard normal* distributed variable with $\mu=0$ and $\sigma=1$: $Y\sim Normal(0,1)$. Each normal distribution can be converted into a standard normal distribution by *z-standardization* (see equation below). The advantage of standardization is that values from different scales can be compared, because they become *scale independent* by z-transformation. 
 
 **Probability density function**
 
@@ -64,11 +64,11 @@ $$F(x)=\int_{-\inf}^{x}f(t)dt$$
 **Z-transformation** $Z=\frac{X-\mu}{\sigma}$
 
 **Deviation and *Coverage**
-The normal distribution is often associated with the \emph{68-95-99.7 rule}. It is associated with the probability of a random data point landing within \emph{one}, \emph{two} or \emph{three} standard deviations of the mean (Fig.~\ref{fig:ch-app-01-normal-distribution-coverage} depicts this three intervals). For example, about 68% of values drawn from a normal distribution are within one standard deviation $\sigma$ away from the mean $\mu$.
+The normal distribution is often associated with the \emph{68-95-99.7 rule}. The values refer to the probability of a random data point landing within \emph{one}, \emph{two} or \emph{three} standard deviations of the mean (Fig.~\ref{fig:ch-app-01-normal-distribution-coverage} depicts these three intervals). For example, about 68% of values drawn from a normal distribution are within one standard deviation $\sigma$ away from the mean $\mu$.
 
-* $P(\mu-\sigma \leq X \leq \mu+\sigma)=0.6827$ 
-* $P(\mu-2\sigma \leq X \leq \mu+2\sigma)=0.9545$ 
-* $P(\mu-3\sigma \leq X \leq \mu+3\sigma)=0.9973$ 
+* $P(\mu-\sigma \leq X \leq \mu+\sigma) = 0.6827$ 
+* $P(\mu-2\sigma \leq X \leq \mu+2\sigma) = 0.9545$ 
+* $P(\mu-3\sigma \leq X \leq \mu+3\sigma) = 0.9973$ 
 
 ```{r ch-app-01-normal-distribution-coverage, fig.cap = "Coverage of normal distribution"}
 # plot normal distribution with intervals
@@ -104,8 +104,8 @@ ggplot(NULL, aes(x = c(-10, 10))) +
 
 **Linear transformations**
 
-1. If $X\sim Normal(\mu, \sigma^2)$ is linear transformed by $Y=a*X+b$, then the new random variable is again normal distributed with $Y \sim Normal(a\mu+b,a^2\sigma^2)$. See Fig.~\ref{} left side.
-2. Are $X\sim Normal(\mu_x, \sigma^2)$ and $Y\sim Normal(\mu_y, \sigma^2)$ normal distributed and independent, then their sum is again normal distributed with $X+Y \sim Normal(\mu_x+\mu_y, \sigma_x^2+\sigma_y^2)$. See plot right side.
+1. If $X\sim Normal(\mu, \sigma^2)$ is linear transformed by $Y=a*X+b$, then the new random variable is again normal distributed with $Y \sim Normal(a\mu+b,a^2\sigma^2)$. 
+2. Are $X\sim Normal(\mu_x, \sigma^2)$ and $Y\sim Normal(\mu_y, \sigma^2)$ normal distributed and independent, then their sum is again normal distributed with $X+Y \sim Normal(\mu_x+\mu_y, \sigma_x^2+\sigma_y^2)$. 
 
 ### Chi-squared distribution
 The $\chi^2$-distribution is widely used in hypothesis testing in inferential statistics, because many test statistics are approximately distributed as $\chi^2$-distribution. 
@@ -114,20 +114,18 @@ The $\chi^2$-distribution is directly related to the standard normal distributio
 
 $$Y=X_1^2+X_2^2+...+X_n^2.$$
 
-The $\chi^2$ distribution is a skew probability distribution with range $[0,+\infty)$, depending on only one parameter: $n$, the *degrees of freedom*. (If $n=1$, then $(0,+\infty)$.) 
+The $\chi^2$ distribution is a skew probability distribution with range $[0,+\infty)$ and only one parameter: $n$, the *degrees of freedom*: (If $n=1$, then $(0,+\infty)$.) 
 
-$$X\sim \chi^2(n)$$
+$$X\sim \chi^2(n).$$
 
-(Note, there exists also a generalization of the $\chi^2$ distribution: the *non-central* $\chi^2$ distribution, where a second parameter $\lambda$ is introduced.)
-
-Fig.~\ref{fig:ch-app-01-chi-squared-distribution-density} shows the probability density function of three chi-squared distributed random variables with different parameters. Note, that with increasing degrees of freedom the chi-squared distribution approximates the normal distribution. For $n \geq 30$ the chi-squared distribution can be approximated by a normal distribution. Fig.~\ref{fig:ch-app-01-chi-squared-distribution-cumulative} shows the corresponding cumulative function of the three chi-squared density distributions.
+Fig.~\ref{fig:ch-app-01-chi-squared-distribution-density} shows the probability density function of three chi-squared distributed random variables with different values for the parameter. Notice, that with increasing degrees of freedom the chi-squared distribution approximates the normal distribution. For $n \geq 30$ the chi-squared distribution can be approximated by a normal distribution. Fig.~\ref{fig:ch-app-01-chi-squared-distribution-cumulative} shows the corresponding cumulative function of the three chi-squared density distributions.
 
 ```{r ch-app-01-chi-squared-distribution-density, fig.cap = "Examples of probability density function of chi-squared distributions."}
 rv_chisq <- tibble(
-  x = seq(0, 30, .01),
-  y1 = dchisq(x, 2),
-  y2 = dchisq(x, 4),
-  y3 = dchisq(x, 9)
+  x = seq(from = 0, to = 20, by = .01),
+  y1 = dchisq(x, df = 2),
+  y2 = dchisq(x, df = 4),
+  y3 = dchisq(x, df = 9)
 ) %>% 
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
@@ -141,23 +139,23 @@ rv_chisq <- tibble(
 # dist plot
 ggplot(rv_chisq, aes(x, y, color = parameter)) +
   geom_line(size = 2) +
-  labs(color = "X~Chi-Square", y = "Density")
+  labs(color = "X ~ Chi-Squared", y = "Density")
 ```
 
 ```{r ch-app-01-chi-squared-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of chi-squared distributions corresponding to the previous probability density functions."}
 rv_chisq %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y)
+    cum_y = cumsum(y)/sum(y)
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
     geom_line(size = 2) +
-    labs(color = "X~Chi-Square", y = "y")
+    labs(color = "X ~ Chi-Squared", y = "y")
 ```
 
 **Probability density function**
-$$f(x)=\begin{cases}\frac{x^{\frac{n}{2}-1}e^{-\frac{x}{2}}}{2^{\frac{n}{2}}\Gamma (\frac{n}{2})} &\textrm{, for }x>0,\\ 0 &\textrm{, otherwise.}\end{cases}$$
+$$f(x)=\begin{cases}\frac{x^{\frac{n}{2}-1}e^{-\frac{x}{2}}}{2^{\frac{n}{2}}\Gamma (\frac{n}{2})} &\textrm{ for }x>0,\\ 0 &\textrm{ otherwise.}\end{cases}$$
 Where $\Gamma (\frac{n}{2})$ denotes the Gamma function.
 
 **Cumulative distribution function**
@@ -170,24 +168,24 @@ $$\gamma(s,t)=\int_0^t t^{s-1}e^{-t} dt.$$
 **Variance** $Var(X)=2n$
 
 **Transformations**
-Sum of two $\chi^2$-distributed random variables $X \sim \chi^2(m)$ and $Y \sim \chi^2(n)$ is again a $chi^2$-distributed random variable $X+Y=\chi^2(m+n)$.
+The sum of two $\chi^2$-distributed random variables $X \sim \chi^2(m)$ and $Y \sim \chi^2(n)$ is again a $chi^2$-distributed random variable $X+Y=\chi^2(m+n)$.
 
 ### F distribution
 The F distribution, named after R.A. Fisher, is used in particular in regression and variance analysis. It is defined by the ratio of two $chi^2$-distributed random variables $X\sim \chi^2(m)$ and $Y\sim \chi^2(n)$, each divided by its degree of freedom:
 
 $$F=\frac{\frac{X}{m}}{\frac{Y}{n}}.$$
-The F distribution is a continous skew probability distribution with range $[0,+\infty]$, depending on two parameters $m$ and $n$, corresponding to the degrees of freedom of the two $chi^2$-distributed random variables:
+The F distribution is a continuous skew probability distribution with range $(0,+\infty)$ and two parameters $m$ and $n$, corresponding to the degrees of freedom of the two $chi^2$-distributed random variables:
 
 $$X \sim F(m,n).$$
 
-Fig.~\ref{fig:ch-app-01-F-distribution-density} shows the probability density function of three F distributed random variables with different parameters. For a small number of degrees of freedom the density distribution is skewed to the left side. When the number increases, the density distribution gets more and more symmetric. Fig.~\ref{fig:ch-app-01-F-distribution-cumulative} shows the corresponding cumulative function of the three F density distributions.
+Fig.~\ref{fig:ch-app-01-F-distribution-density} shows the probability density function of three F distributed random variables with different parameter values. For a small number of degrees of freedom the density distribution is skewed to the left side. When the number increases, the density distribution gets more and more symmetric. Fig.~\ref{fig:ch-app-01-F-distribution-cumulative} shows the corresponding cumulative function of the three F density distributions.
  
 ```{r ch-app-01-F-distribution-density, fig.cap = "Examples of probability density function of F distributions."}
 rv_F <- tibble(
-  x = seq(-.5, 7, .01),
-  y1 = df(x, 2, 4),
-  y2 = df(x, 4, 6),
-  y3 = df(x, 12, 12)
+  x = seq(from = 0, to = 7, by = .01),
+  y1 = df(x, df1 = 2, df2 = 4),
+  y2 = df(x, df1 = 4, df2 = 6),
+  y3 = df(x, df1 = 12, df2 = 12)
 ) %>% 
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
@@ -201,28 +199,28 @@ rv_F <- tibble(
 # dist plot
 ggplot(rv_F, aes(x, y, color = parameter)) +
   geom_line(size = 2) +
-  labs(color = "X~F", y = "Density")
+  labs(color = "X ~ F", y = "Density")
 ```
 
 ```{r ch-app-01-F-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of F distributions corresponding to the previous probability density functions."}
 rv_F %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y)
+    cum_y = cumsum(y)/sum(y)
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
     geom_line(size = 2) +
-    labs(color = "X~F", y = "y")
+    labs(color = "X ~ F", y = "y")
 ```
 
 **Probability density function**
-$$F(x)=m^{\frac{m}{2}}n^{\frac{n}{2}} \cdot \frac{\Gamma (\frac{m+n}{2})}{\Gamma (\frac{m}{2})\Gamma (\frac{n}{2})} \cdot \frac{x^{\frac{m}{2}-1}}{(mx+n)^{\frac{m+n}{2}}} \textrm{, for } x>0.$$ 
+$$F(x)=m^{\frac{m}{2}}n^{\frac{n}{2}} \cdot \frac{\Gamma (\frac{m+n}{2})}{\Gamma (\frac{m}{2})\Gamma (\frac{n}{2})} \cdot \frac{x^{\frac{m}{2}-1}}{(mx+n)^{\frac{m+n}{2}}} \textrm{ for } x>0.$$
 Where $\Gamma(x)$ denotes the gamma function.
 
 **Cumulative distribution function**
 $$F(x)=I\left(\frac{m \cdot x}{m \cdot x+n},\frac{m}{2},\frac{n}{2}\right),$$
-with $I(z,a,b)$ being the regularized incomplete Beta function:
+with $I(z,a,b)$ being the regularized incomplete beta function:
 $$I(z,a,b)=\frac{1}{B(a,b)} \cdot \int_0^z t^{a-1}(1-t)^{b-1} dt.$$
 
 **Expected value** $E(X) = \frac{n}{n-2}$ (for $n \geq 3$)
@@ -235,17 +233,17 @@ The t or student-t distribution was discovered by William S. Gosset in 1908 [@va
 The t distribution consists of a standard normal distributed random variable $X\sim Normal(0,1)$ and a $\chi^2$-distributed random variable $Y\sim \chi^2(n)$ (X and Y are independent):
 
 $$T = \frac{X}{\sqrt{\frac{Y}{n}}}.$$
-The t distribution has range $(-\infty,+\infty)$, depending on one parameter $n$, the degrees of freedom. The degrees of freedom can be calculated by the sample size $n$ minus one:
+The t distribution has range $(-\infty,+\infty)$ and one parameter $n$, the degrees of freedom. The degrees of freedom can be calculated by the sample size $n$ minus one:
 $$X \sim t(n).$$
 
-Fig.~\ref{fig:ch-app-01-t-distribution-density} shows the probability density function of three t distributed random variables with different parameters. Notice that for small degrees of freedom $n$, the t-distribution has fatter tails. This is because the t distribution was specially designed to provide more conservative test results when analyzing small samples. When the degrees of freedom increases, the t distribution approaches a normal distribution. For $n \geq 30$ this approximatio is quite good. Fig.~\ref{fig:ch-app-01-t-distribution-cumulative} shows the corresponding cumulative function of the three t density distributions.
+Fig.~\ref{fig:ch-app-01-t-distribution-density} shows the probability density function of three t distributed random variables with different parameters. Notice that for small degrees of freedom $n$, the t-distribution has bigger tails. This is because the t distribution was specially designed to provide more conservative test results when analyzing small samples. When the degrees of freedom increases, the t distribution approaches a normal distribution. For $n \geq 30$ this approximation is quite good. Fig.~\ref{fig:ch-app-01-t-distribution-cumulative} shows the corresponding cumulative function of the three t density distributions.
  
 ```{r ch-app-01-t-distribution-density, fig.cap = "Examples of probability density function of t distributions."}
 rv_student <- tibble(
-  x = seq(-6, 6, .01),
-  y1 = dt(x, 1),
-  y2 = dt(x, 2),
-  y3 = dt(x, 10)
+  x = seq(from = -6, to = 6, by = .01),
+  y1 = dt(x, df = 1),
+  y2 = dt(x, df = 2),
+  y3 = dt(x, df = 10)
 ) %>% 
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
@@ -259,19 +257,19 @@ rv_student <- tibble(
 # dist plot
 ggplot(rv_student, aes(x, y, color = parameter)) +
   geom_line(size = 2) +
-  labs(color = "X~t", y = "Density")
+  labs(color = "X ~ t", y = "Density")
 ```
 
 ```{r ch-app-01-t-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of t distributions corresponding to the previous probability density functions."}
 rv_student %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y)
+    cum_y = cumsum(y)/sum(y)
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
     geom_line(size = 2) +
-    labs(color = "X~t", y = "y")
+    labs(color = "X ~ t", y = "y")
 ```
 
 **Probability density function**
@@ -285,22 +283,22 @@ $$I(z,a,b)=\frac{1}{B(a,b)} \cdot \int_0^z t^{a-1}(1-t)^{b-1} dt.$$
 
 **Expected value** $E(X) = 0$
 
-**Variance** $Var(X) = \frac{n}{n-2}$ (for $n \geq 3$)
+**Variance** $Var(X) = \frac{n}{n-2}$ (for $n \geq 30$)
 
 ### Beta distribution
-The beta distribution creates a continuous distribution of numbers between 0 and 1, therefore this distribution is useful if the uncertain quantity is bounded by 0 and 1 (or 100%), is continuous, and has a single mode. In Bayesian Data Analysis the beta distribution has a special standing as prior distribution for a bernoulli or binomial (see discrete distributions) likelihood. The reason is, that if a beta prior and a bernoulli (or binomial) liklihood are combined the resulting posterior distribution has the same form as the beta distribution. Such priors are referred to as *conjugate priors*.
+The beta distribution creates a continuous distribution of numbers between 0 and 1, therefore this distribution is useful if the uncertain quantity is bounded by 0 and 1 (or 100%), is continuous, and has a single mode. In Bayesian Data Analysis the beta distribution has a special standing as prior distribution for a bernoulli or binomial (see discrete distributions) likelihood. The reason for this is that a combination of a beta prior and a bernoulli (or binomial) liklihood results in a posterior distribution with the same form as the beta distribution. Such priors are referred to as *conjugate priors*.
 
 A beta distribution has two parameters $a$ and $b$:
 $$X \sim Beta(a,b).$$
-The two parameters can be interpreted as the number of observations made, such that: $n=a+b$. If $a$ and $b$ get bigger, the beta distribution gets narrower. If only $a$ gets bigger the distribution moves rightward and if only $b$ gets bigger the distribution moves leftward. Thus, the parameters define the shape of the distribution, therefore they are also called *shape parameters*. A Beta(1,1) is equivalent to a uniform. Fig.~\ref{fig:ch-app-01-beta-distribution-density} shows the probability density function of four beta distributed random variables with different parameters. Fig.~\ref{fig:ch-app-01-beta-distribution-cumulative} shows the corresponding cumulative function of the four beta density distributions.
+The two parameters can be interpreted as the number of observations made, such that: $n=a+b$. If $a$ and $b$ get bigger, the beta distribution gets narrower. If only $a$ gets bigger the distribution moves rightward and if only $b$ gets bigger the distribution moves leftward. Thus, the parameters define the shape of the distribution, therefore they are also called *shape parameters*. A Beta(1,1) is equivalent to a uniform distribution. Fig.~\ref{fig:ch-app-01-beta-distribution-density} shows the probability density function of four beta distributed random variables with different parameter values. Fig.~\ref{fig:ch-app-01-beta-distribution-cumulative} shows the corresponding cumulative functions.
 
 ```{r ch-app-01-beta-distribution-density, fig.cap = "Examples of probability density function of beta distributions."}
 rv_beta <- tibble(
-  x = seq(-.1, 1.1, .01),
-  y1 = dbeta(x, 1, 1),
-  y2 = dbeta(x, 4, 4),
-  y3 = dbeta(x, 4, 2),
-  y4 = dbeta(x, 2, 4)
+  x = seq(from = 0, to = 1, by = .01),
+  y1 = dbeta(x, shape1 = 1, shape2 = 1),
+  y2 = dbeta(x, shape1 = 4, shape2 = 4),
+  y3 = dbeta(x, shape1 = 4, shape2 = 2),
+  y4 = dbeta(x, shape1 = 2, shape2 = 4)
 ) %>% 
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
@@ -315,19 +313,19 @@ rv_beta <- tibble(
 # dist plot
 ggplot(rv_beta, aes(x, y, color = parameter)) +
   geom_line(size = 2) +
-  labs(color = "X~beta", y = "Density")
+  labs(color = "X ~ Beta", y = "Density")
 ```
 
 ```{r ch-app-01-beta-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of beta distributions corresponding to the previous probability density functions."}
 rv_beta %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y)
+    cum_y = cumsum(y)/sum(y)
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
     geom_line(size = 2) +
-    labs(color = "X~beta", y = "y")
+    labs(color = "X ~ Beta", y = "y")
 ```
 
 **Probability density function**
@@ -362,17 +360,17 @@ Sometimes it is helpful (and more intuitive) to write the beta distribution in t
 $$Beta(a,b)=Beta(\omega(\kappa-2)+1, (1-\omega)(\kappa-2)+1), \textrm{ for } \kappa > 2.$$
 
 ### Uniform distribution
-The (continous) uniform distribution takes values within a specified range $a$ and $b$ that have constant probability.  Sometimes the distribution is also called rectangular distribution, due to its shape of a rectangle. The uniform distribution is in particular common for random number generation. In Bayesian Data Analysis it is often used as prior distribution to express *ignorance*. This can be thought in the following way: When different events are possible but no (reliable) information exists about their probabilty of occurence, the most conservative (and also intuitive) choice would be to assign probability such that all events are equally likely to occur. The uniform distribution model this intuition, it generates a completely random number in some interval [a,b).
+The (continuous) uniform distribution takes values within a specified range $a$ and $b$ that have constant probability.  Sometimes the distribution is also called rectangular distribution, due to its shape of a rectangle. The uniform distribution is in particular common for random number generation. In Bayesian Data Analysis it is often used as prior distribution to express *ignorance*. This can be thought in the following way: When different events are possible but no (reliable) information exists about their probability of occurence, the most conservative (and also intuitive) choice would be to assign probability such that all events are equally likely to occur. The uniform distribution model this intuition, it generates a completely random number in some interval $[a,b)$.
 
 The distribution is specified by two parameters: the end points $a$ (minimum) and $b$ (maximum): 
 $$X \sim Unif(a,b).$$
-When $a=0$ and $b=1$ the distribution is referred to as *standard* uniform distribution. Fig.~\ref{fig:ch-app-01-uniform-distribution-density} shows the probability density function of two uniform distributed random variables with different parameters. Fig.~\ref{fig:ch-app-01-uniform-distribution-cumulative} shows the corresponding cumulative function of the two uniform density distributions.
+When $a=0$ and $b=1$ the distribution is referred to as *standard* uniform distribution. Fig.~\ref{fig:ch-app-01-uniform-distribution-density} shows the probability density function of two uniform distributed random variables with different parameter values. Fig.~\ref{fig:ch-app-01-uniform-distribution-cumulative} shows the corresponding cumulative functions.
 
 ```{r ch-app-01-uniform-distribution-density, fig.cap = "Examples of probability density function of uniform distributions."}
 rv_unif <- tibble(
-  x = seq(-.1, 4.1, .01),
+  x = seq(from = -.1, to = 4.2, by = .01),
   y1 = dunif(x),
-  y2 = dunif(x, 2, 4)
+  y2 = dunif(x, min = 2, max = 4)
 ) %>% 
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
@@ -385,19 +383,19 @@ rv_unif <- tibble(
 # dist plot
 ggplot(rv_unif, aes(x, y, color = parameter)) +
   geom_line(size = 2) +
-  labs(color = "X~uniform", y = "Density")
+  labs(color = "X ~ Uniform", y = "Density")
 ```
 
 ```{r ch-app-01-uniform-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of uniform distributions corresponding to the previous probability density functions."}
 rv_unif %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y)
+    cum_y = cumsum(y)/sum(y)
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
     geom_line(size = 2) +
-    labs(color = "X~uniform", y = "y")
+    labs(color = "X ~ Uniform", y = "y")
 ```
 
 **Probability density function**
@@ -415,12 +413,12 @@ $$F(x)=\begin{cases}0 & \textrm{ for } x<a,\\\frac{x-a}{b-a} &\textrm{ for } a\l
 ## Selected discrete distributions of random variables
 
 ### Binomial distribution
-The binomial distribution is a useful model for binary decisions where the outcome is a choice between two alternatives (e.g. Yes/No, Left/Right, Present/Absent, Head/Tail, ...). The two outcomes are often referred to as $0$ (failure) and $1$ (success). Consequently, let the probability of occurence of the outcome "success" be $p$, then the probability of occurence of "failure" is $1-p$. 
-Considering a coin-flip experiment, if we flip a coin repeatedly, e.g. $30$ times, the successive trials are independent of each other and the probability $p$ is constant, then the resulting binomial distribution is a discrete random variable with outcomes $\{0,1,2,...,30\}$.  
-The Binomial distribution has two parameters "size" and "prob", often denoted as $n$ and $p$, respectively. The "size" refers to the number of trials and "prob" to the probability of success:
+The binomial distribution is a useful model for binary decisions where the outcome is a choice between two alternatives (e.g. Yes/No, Left/Right, Present/Absent, Head/Tail, ...). The two outcomes are coded as $0$ (failure) and $1$ (success). Consequently, let the probability of occurence of the outcome "success" be $p$, then the probability of occurence of "failure" is $1-p$. 
+Consider a coin-flip experiment, with the outcomes "head" and "tail". If we flip a coin repeatedly, e.g. $30$ times, the successive trials are independent of each other and the probability $p$ is constant, then the resulting binomial distribution is a discrete random variable with outcomes $\{0,1,2,...,30\}$.  
+The binomial distribution has two parameters "size" and "prob", often denoted as $n$ and $p$, respectively. The "size" refers to the number of trials and "prob" to the probability of success:
 $$X \sim Binomial(n,p).$$
 
-Fig.~\ref{fig:ch-app-01-binomial-distribution-mass} shows the probability mass function of three binomial distributed random variables with different parameters. As stated above, $p$ refers to the probability of success. The higher this probability the more often we will observe the outcome coded with "1". Therefore the distribution tends toward the right side and vice-versa. The distribution gets more symmetrical if the parameter $p$ approximates 0.5. Fig.~\ref{fig:ch-app-01-binomial-distribution-cumulative} shows the corresponding cumulative function of the three binomial distributions.
+Fig.~\ref{fig:ch-app-01-binomial-distribution-mass} shows the probability mass function of three binomial distributed random variables with different parameter values. As stated above, $p$ refers to the probability of success. The higher this probability the more often we will observe the outcome coded with "1". Therefore the distribution tends toward the right side and vice-versa. The distribution gets more symmetrical if the parameter $p$ approximates 0.5. Fig.~\ref{fig:ch-app-01-binomial-distribution-cumulative} shows the corresponding cumulative functions.
 
 ```{r ch-app-01-binomial-distribution-mass, fig.cap = "Examples of probability mass function of Binomial distributions."}
 # how many trials
@@ -428,9 +426,9 @@ trials = 30
 
 rv_binom <- tibble(
   x = seq(0, trials),
-  y1 = dbinom(x, trials, .2),
-  y2 = dbinom(x, trials, .5),
-  y3 = dbinom(x, trials, .8)
+  y1 = dbinom(x, size = trials, p = 0.2),
+  y2 = dbinom(x, size = trials, p = 0.5),
+  y3 = dbinom(x, size = trials, p = 0.8)
 ) %>% 
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
@@ -444,7 +442,7 @@ rv_binom <- tibble(
 # dist plot
 ggplot(rv_binom, aes(x, y, fill = parameter)) +
   geom_col(position = "identity", alpha = 0.8) +
-  labs(fill = "X~Binomial", y = "Probability")
+  labs(fill = "X ~ Binomial", y = "Probability")
 ```
 
 
@@ -452,12 +450,12 @@ ggplot(rv_binom, aes(x, y, fill = parameter)) +
 rv_binom %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y)
+    cum_y = cumsum(y)/sum(y)
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
     geom_step(size = 2) +
-    labs(color = "X~Binomial", y = "y")
+    labs(color = "X ~ Binomial", y = "y")
 ```
 
 **Probability mass function**
@@ -474,15 +472,15 @@ $$F(x)=\sum_{k=0}^{x}\binom{n}{k}p^k(1-p)^{n-k}$$
 **Variance** $Var(X)=n \cdot p \cdot (1-p)$
 
 ### Bernoulli distribution
-The Bernoulli distribution is a special case of the Binomial distribution with "size" = 1, therefore the outcome of a bernoulli random variable is either 0 or 1. Apart from that the same information holds as with the binomial distribution.
-As the "size" parameter is now negligible, the bernoulli distribution has only one parameter $p$:
+The Bernoulli distribution is a special case of the binomial distribution with $size = 1$, therefore the outcome of a bernoulli random variable is either 0 or 1. Apart from that the same information holds as for the binomial distribution.
+As the "size" parameter is now negligible, the bernoulli distribution has only one parameter, the probability of success $p$:
 $$X \sim Bern(p).$$
-Fig.~\ref{fig:ch-app-01-bernoulli-distribution-mass} shows the probability mass function of three bernoulli distributed random variables with different parameters. 
+Fig.~\ref{fig:ch-app-01-bernoulli-distribution-mass} shows the probability mass function of three bernoulli distributed random variables with different parameters. Fig.~\ref{fig:ch-app-01-bernoulli-distribution-cumulative} shows the corresponding cumulative distributions.
 
 ```{r ch-app-01-bernoulli-distribution-mass, fig.cap = "Examples of probability mass function of Bernoulli distributions."}
 
 rv_bern <- tibble(
-  x = seq(0, 1),
+  x = seq(from = 0, to = 1),
   y1 = dbern(x, prob = 0.2),
   y2 = dbern(x, prob = 0.5),
   y3 = dbern(x, prob = 0.8)
@@ -499,7 +497,7 @@ rv_bern <- tibble(
 # dist plot
 ggplot(rv_bern, aes(x, y, fill = parameter)) +
   geom_col(position = "dodge", color = "white") +
-  labs(fill = "X~Bernoulli", y = "Probability") +
+  labs(fill = "X ~ Bernoulli", y = "Probability") +
   scale_x_continuous(breaks = c(0.0,1.0), labels = c("0","1"), limits = c(-0.5,1.5))
 ```
 
@@ -508,20 +506,20 @@ ggplot(rv_bern, aes(x, y, fill = parameter)) +
 rv_bern %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y),
-    cum_y2 = cumsum(y)
+    cum_y = cumsum(y)/sum(y),
+    cum_y2 = cumsum(y)/sum(y)
   ) %>% 
   add_column(
     x2 = c(1,1,1,1.5,1.5,1.5)
   ) %>%  
   ungroup() %>% 
-  ggplot(aes(color = parameter)) +
-    geom_segment(x = rv_bern2$x, y = rv_bern2$cum_y, xend = rv_bern2$x2, yend = rv_bern2$cum_y2, 
-                 size = 1, linetype = "dashed") +
-    geom_segment(x = -0.5, y = 0,xend = 0.0, yend = 0, size = 1, linetype = "dashed") +
-    geom_point(x = rv_bern2$x, y = rv_bern2$cum_y, size = 3) +
-    labs(color = "X~Bernoulli", y = "y") +
-     scale_x_continuous(breaks = c(0.0,1.0), labels = c("0","1"), limits = c(-0.5,1.5))
+
+ggplot(aes(x, cum_y, color = parameter)) +
+  geom_segment(aes(xend = x2, yend = cum_y2), size = 1.5, linetype = "dashed") +
+  geom_segment(aes(x = -0.5, y = 0,xend = 0.0, yend = 0), size = 1.5, linetype = "dashed") +
+  geom_point(aes(x, cum_y), size = 4) +
+  labs(color = "X ~ Bernoulli", y = "y") +
+   scale_x_continuous(breaks = c(0.0,1.0), labels = c("0","1"), limits = c(-0.5,1.5))
 ```
 
 **Probability mass function**
@@ -537,19 +535,19 @@ $$F(x)=\begin{cases} 0 &\textrm{ if } x < 0, \\ 1-p &\textrm{ if } 0 \leq x <1,\
 **Variance** $Var(X)=p \cdot (1-p)$
 
 ### Beta-Binomial distribution
-The beta-binomial distribution, as the name already indicates, is a mixture of a binomial and beta distribution. Remember, a binomial distribution is useful to model a binary choice with outcomes "0" and "1". The binomial distribution has two parameters $p$, the probability of success ("1"), and $n$, the number of trials. Where we assume that the successive trials are independent and $p$ is constant. In a beta-binomial distribution $p$ is not anymore assumed to be constant but changes from trial to trial. That is, a further assumption about the distribution of $p$ is made and here the Beta distribution comes into play: the probability $p$ is assumed to be randomly drawn from a beta distribution with parameters $a$ and $b$. 
+The beta-binomial distribution, as the name already indicates, is a mixture of a binomial and beta distribution. Remember, a binomial distribution is useful to model a binary choice with outcomes "0" and "1". The binomial distribution has two parameters $p$, the probability of success ("1"), and $n$, the number of trials. Furthermore we assume that the successive trials are independent and $p$ is constant. In a beta-binomial distribution $p$ is not anymore assumed to be constant (or fixed) but changes from trial to trial. Thus, a further assumption about the distribution of $p$ is made and here the beta distribution comes into play: the probability $p$ is assumed to be randomly drawn from a beta distribution with parameters $a$ and $b$. 
 Therefore, the beta-binomial distribution has three parameters $n$, $a$ and $b$:
 $$X \sim BetaBinom(n,a,b).$$
-For large values of a and b the distribution approaches a binomial distribution. When $a=1$ and $b=1$ the distribution equals a discrete uniform distribution from 0 to $n$. When $n = 1$, the distribution is the same as a Bernoulli distribution.
+For large values of a and b the distribution approaches a binomial distribution. When $a=1$ and $b=1$ the distribution equals a discrete uniform distribution from 0 to $n$. When $n = 1$, the distribution equals a bernoulli distribution.
 
-Fig.~\ref{fig:ch-app-01-betabinom-distribution-mass} shows the probability mass function of three beta-binomial distributed random variables with different parameters. Fig.~\ref{fig:ch-app-01-betabinom-distribution-cumulative} shows the corresponding cumulative distributions.
+Fig.~\ref{fig:ch-app-01-betabinom-distribution-mass} shows the probability mass function of three beta-binomial distributed random variables with different parameter values. Fig.~\ref{fig:ch-app-01-betabinom-distribution-cumulative} shows the corresponding cumulative distributions.
 
 ```{r ch-app-01-betabinom-distribution-mass, fig.cap = "Examples of probability mass function of Beta-Binomial distributions."}
 # how many trials
 trials = 30
 
 rv_betabinom <- tibble(
-  x = seq(0, trials),
+  x = seq(from = 0, to = trials),
   y1 = dbbinom(x, size = trials, alpha = 4, beta = 4),
   y2 = dbbinom(x, size = trials, alpha = 2, beta = 4),
   y3 = dbbinom(x, size = trials, alpha = 1, beta = 1)
@@ -566,26 +564,26 @@ rv_betabinom <- tibble(
 # dist plot
 ggplot(rv_betabinom, aes(x, y, fill = parameter)) +
   geom_col(position = "identity", alpha = 0.7) +
-  labs(fill = "X~Beta-Binomial", y = "Probability")
+  labs(fill = "X ~ Beta-Binomial", y = "Probability")
 ```
 
 ```{r ch-app-01-betabinom-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of Beta-Binomial distributions corresponding to the previous probability mass functions."}
 rv_betabinom %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y)
+    cum_y = cumsum(y)/sum(y)
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
     geom_step(size = 2) +
-    labs(color = "X~Beta-Binomial", y = "y") 
+    labs(color = "X ~ Beta-Binomial", y = "y") 
 ```
 
 **Probability mass function**
 
 $$f(x)=\binom{n}{x} \frac{B(a+x,b+n-x)}{B(a,b)},$$
 
-where $\binom{n}{x}$ is the binomial coefficient and $B(x)$ the Beta *function* (see Beta distribution).
+where $\binom{n}{x}$ is the binomial coefficient and $B(x)$ the beta *function* (see beta distribution).
 
 **Cumulative function**
 
@@ -597,21 +595,21 @@ Where ${}_3F_2(n,a,b)$ is the generalized hypergeometric function.
 **Variance** $Var(X)=n \frac{ab}{(a+b)^2} \frac{a+b+n}{a+b+1}$
 
 ### Poisson distribution
-A poisson distributed random variable represents the number of successes occurring in a given *time interval*. It gives the probability of a given number of events happening in a fixed interval of time. The Poisson distribution is a limiting case of the Binomial distribution when the number of trials becomes very large and the probability of success is small. For example the number of car accidents in OS in the next month, the number of typing errors on a page, the number of interruptions generated by a CPU during T seconds, etc. 
+A poisson distributed random variable represents the number of successes occurring in a given *time interval*. It gives the probability of a given number of events happening in a fixed interval of time. The poisson distribution is a limiting case of the binomial distribution when the number of trials becomes very large and the probability of success is small. For example the number of car accidents in Osnabrueck in the next month, the number of typing errors on a page, the number of interruptions generated by a CPU during T seconds, etc. 
 Events described by a poisson distribution must fullfill the following conditions: they occur in non-overlapping intervals, they can not occur simultaneously and each event occurs at a constant rate. 
 
-The poisson distribution has one rate parameter $\lambda$, sometimes also referred to as *intensity*:
+The poisson distribution has one parameter, the rate $\lambda$, sometimes also referred to as *intensity*:
 $$X \sim Po(\lambda).$$
  
-The parameter $\lambda$ can be thought of as the expected number of events in the interval. Consequently, changing the rate parameter changes the probability of seeing different numbers of events in one interval. See Fig.~\ref{fig:ch-app-01-poisson-distribution-mass} for the probability mass function of three poisson distributed random variables with different rate parameter. Note, that the higher  $\lambda$ the more symmetrical gets the distribution. In fact, the poisson distribution can be approximated by a normal distribution for a rate paramter $\geq$ 10. Fig.~\ref{fig:ch-app-01-poisson-distribution-cumulative} shows the corresponding cumulative distributions.
+The parameter $\lambda$ can be thought of as the expected number of events in the time interval. Consequently, changing the rate parameter changes the probability of seeing different numbers of events in one interval. See Fig.~\ref{fig:ch-app-01-poisson-distribution-mass} for the probability mass function of three poisson distributed random variables with different parameter values. Notice, that the higher  $\lambda$ the more symmetrical gets the distribution. In fact, the poisson distribution can be approximated by a normal distribution for a rate paramter $\geq$ 10. Fig.~\ref{fig:ch-app-01-poisson-distribution-cumulative} shows the corresponding cumulative distributions.
 
 ```{r ch-app-01-poisson-distribution-mass, fig.cap = "Examples of probability mass function of Poisson distributions."}
 
 rv_pois <- tibble(
-  x = seq(0, 30, 1),
-  y1 = dpois(x, 2),
-  y2 = dpois(x, 8),
-  y3 = dpois(x, 15)
+  x = seq(from = 0, to = 30, by = 1),
+  y1 = dpois(x, lambda = 2),
+  y2 = dpois(x, lambda = 8),
+  y3 = dpois(x, lambda = 15)
 ) %>% 
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
@@ -625,7 +623,7 @@ rv_pois <- tibble(
 # dist plot
 ggplot(rv_pois, aes(x, y, fill = parameter)) +
   geom_col(alpha = 0.7, position = "identity") +
-  labs(fill = "X~Poisson", y = "Density") 
+  labs(fill = "X ~ Poisson", y = "Density") 
 ```
 
 
@@ -634,12 +632,12 @@ ggplot(rv_pois, aes(x, y, fill = parameter)) +
 rv_pois %>% 
   group_by(parameter) %>% 
   mutate(
-    cum_y = cumsum(y)
+    cum_y = cumsum(y)/sum(y)
   ) %>% 
   ungroup() %>% 
   ggplot(aes(x, cum_y, color = parameter)) +
     geom_step(size = 2) +
-    labs(color = "X~Poisson", y = "y")
+    labs(color = "X ~ Poisson", y = "y")
 ```
 
 **Probability mass function**
