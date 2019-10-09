@@ -44,10 +44,11 @@ There are four pairs of $x$ and $y$ coordinates. Unfortunately, these are stored
 ```{r}
 tidy_anscombe = anscombe %>% as_tibble %>% 
   pivot_longer(
-    1:8,                          # columns to pivot
-    names_sep = 1,                 # position indicating where to split each column name
-    names_to = c("axis", "group")  # names for new columns
-    ) 
+    everything(),
+    names_to = c(".value", "grp"),
+    names_pattern = "(.)(.)"
+  ) %>% 
+  mutate(grp = paste0("Group ", grp))
 tidy_anscombe
 ```
 
@@ -55,20 +56,22 @@ Here are some summary statistics for each of the four pairs:
 
 ```{r}
 tidy_anscombe %>% 
-  group_by("group") %>% 
-  summarise()
+  group_by(grp) %>% 
+  summarise(
+    mean_x    = mean(x),
+    mean_y    = mean(y),
+    min_x     = min(x),
+    min_y     = min(y),
+    max_x     = max(x),
+    max_y     = max(y),
+    r_squared = cor(x,y)^2
+  )
 ```
 
-
-
-This is a plot of quite a famous dataset [@anscombe1973]:
+These numeric indicators suggest that each pair of $x$ and $y$ values is very similar. Only the ranges seem to differ. A brilliant example of how misleading numeric statistics can be, as compared to a plot of the data:
 
 ```{r ch-02-anscombe, fig.cap="Anscombe's Quartet: four different data sets all of which receive the same correlation score."}
-tibble(
-  grp = rep(c("I", "II", "III", "IV"), each = 11),
-  x = c(anscombe$x1, anscombe$x2, anscombe$x3, anscombe$x4),
-  y = c(anscombe$y1, anscombe$y2, anscombe$y3, anscombe$y4)
-) %>% 
+tidy_anscombe %>% 
   ggplot(aes(x, y)) +
     geom_smooth(method = lm, se = F, color = "black") +
     geom_point(color = project_colors[3], size = 2) +
@@ -79,3 +82,6 @@ tibble(
     facet_wrap(~grp, ncol = 2, scales = "free_x") +
     theme(strip.background = element_rect(fill = "#f2f2f2", colour = "white"))
 ```
+
+<!-- for exercise check out the work of Jan Verhove: -->
+<!-- https://janhove.github.io/teaching/2016/11/21/what-correlations-look-like -->
