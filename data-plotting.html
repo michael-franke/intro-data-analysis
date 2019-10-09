@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>A Common probability distributions | Introduction to Data Analysis</title>
+  <title>3.4 Data Plotting | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.14.1 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="A Common probability distributions | Introduction to Data Analysis" />
+  <meta property="og:title" content="3.4 Data Plotting | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="A Common probability distributions | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="3.4 Data Plotting | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="hierarchical-regression.html"/>
-<link rel="next" href="selected-continuous-distributions-of-random-variables.html"/>
+<link rel="prev" href="data-wrangling.html"/>
+<link rel="next" href="basics-of-probability-theory.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -266,16 +266,98 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="common-probability-distributions" class="section level1">
-<h1><span class="header-section-number">A</span> Common probability distributions</h1> 
+<div id="data-plotting" class="section level2">
+<h2><span class="header-section-number">3.4</span> Data Plotting</h2>
+<p>Numerical summaries of complex data always incur information loss. Still lossy, but less so is visualization. Any serious data analysis should start with a process in which the analyst becomes intimate with the data at hand. Visualization is an integral part of data-intimacy.</p>
+<p>Consider a famous dataset available in R <span class="citation">(Anscombe <a href="#ref-anscombe1973">1973</a>)</span>:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw">glimpse</span>(anscombe <span class="op">%&gt;%</span><span class="st"> </span>as_tibble)</a></code></pre></div>
+<pre><code>## Observations: 11
+## Variables: 8
+## $ x1 &lt;dbl&gt; 10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5
+## $ x2 &lt;dbl&gt; 10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5
+## $ x3 &lt;dbl&gt; 10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5
+## $ x4 &lt;dbl&gt; 8, 8, 8, 8, 8, 8, 8, 19, 8, 8, 8
+## $ y1 &lt;dbl&gt; 8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, …
+## $ y2 &lt;dbl&gt; 9.14, 8.14, 8.74, 8.77, 9.26, 8.10, 6.13, 3.10, 9.13, 7.26, 4…
+## $ y3 &lt;dbl&gt; 7.46, 6.77, 12.74, 7.11, 7.81, 8.84, 6.08, 5.39, 8.15, 6.42, …
+## $ y4 &lt;dbl&gt; 6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.50, 5.56, 7.91, …</code></pre>
+<p>There are four pairs of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> coordinates. Unfortunately, these are stored in long format with two pieces of information buried inside of the column name: <span class="math inline">\(x3\)</span> contains the information that this column contains the <span class="math inline">\(x\)</span> coordinates for the 3rd pair. This is rather untidy. But, after the last section on data wrangling, we can tidy up quickly:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1">tidy_anscombe =<span class="st"> </span>anscombe <span class="op">%&gt;%</span><span class="st"> </span>as_tibble <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
+<a class="sourceLine" id="cb33-3" data-line-number="3">    <span class="kw">everything</span>(),</a>
+<a class="sourceLine" id="cb33-4" data-line-number="4">    <span class="dt">names_to =</span> <span class="kw">c</span>(<span class="st">&quot;.value&quot;</span>, <span class="st">&quot;grp&quot;</span>),</a>
+<a class="sourceLine" id="cb33-5" data-line-number="5">    <span class="dt">names_pattern =</span> <span class="st">&quot;(.)(.)&quot;</span></a>
+<a class="sourceLine" id="cb33-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-7" data-line-number="7"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">grp =</span> <span class="kw">paste0</span>(<span class="st">&quot;Group &quot;</span>, grp))</a>
+<a class="sourceLine" id="cb33-8" data-line-number="8">tidy_anscombe</a></code></pre></div>
+<pre><code>## # A tibble: 44 x 3
+##    grp         x     y
+##    &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt;
+##  1 Group 1    10  8.04
+##  2 Group 2    10  9.14
+##  3 Group 3    10  7.46
+##  4 Group 4     8  6.58
+##  5 Group 1     8  6.95
+##  6 Group 2     8  8.14
+##  7 Group 3     8  6.77
+##  8 Group 4     8  5.76
+##  9 Group 1    13  7.58
+## 10 Group 2    13  8.74
+## # … with 34 more rows</code></pre>
+<p>Here are some summary statistics for each of the four pairs:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1">tidy_anscombe <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb35-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(grp) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb35-3" data-line-number="3"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb35-4" data-line-number="4">    <span class="dt">mean_x    =</span> <span class="kw">mean</span>(x),</a>
+<a class="sourceLine" id="cb35-5" data-line-number="5">    <span class="dt">mean_y    =</span> <span class="kw">mean</span>(y),</a>
+<a class="sourceLine" id="cb35-6" data-line-number="6">    <span class="dt">min_x     =</span> <span class="kw">min</span>(x),</a>
+<a class="sourceLine" id="cb35-7" data-line-number="7">    <span class="dt">min_y     =</span> <span class="kw">min</span>(y),</a>
+<a class="sourceLine" id="cb35-8" data-line-number="8">    <span class="dt">max_x     =</span> <span class="kw">max</span>(x),</a>
+<a class="sourceLine" id="cb35-9" data-line-number="9">    <span class="dt">max_y     =</span> <span class="kw">max</span>(y),</a>
+<a class="sourceLine" id="cb35-10" data-line-number="10">    <span class="dt">r_squared =</span> <span class="kw">cor</span>(x,y)<span class="op">^</span><span class="dv">2</span></a>
+<a class="sourceLine" id="cb35-11" data-line-number="11">  )</a></code></pre></div>
+<pre><code>## # A tibble: 4 x 8
+##   grp     mean_x mean_y min_x min_y max_x max_y r_squared
+##   &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;
+## 1 Group 1      9   7.50     4  4.26    14 10.8      0.667
+## 2 Group 2      9   7.50     4  3.1     14  9.26     0.666
+## 3 Group 3      9   7.5      4  5.39    14 12.7      0.666
+## 4 Group 4      9   7.50     8  5.25    19 12.5      0.667</code></pre>
+<p>These numeric indicators suggest that each pair of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> values is very similar. Only the ranges seem to differ. A brilliant example of how misleading numeric statistics can be, as compared to a plot of the data:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1">tidy_anscombe <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb37-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, y)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-3" data-line-number="3"><span class="st">    </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> lm, <span class="dt">se =</span> F, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-4" data-line-number="4"><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">color =</span> project_colors[<span class="dv">3</span>], <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-5" data-line-number="5"><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>()) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-6" data-line-number="6"><span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>()) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-7" data-line-number="7"><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Anscombe&#39;s Quartet&quot;</span>, <span class="dt">x =</span> <span class="ot">NULL</span>, <span class="dt">y =</span> <span class="ot">NULL</span>,</a>
+<a class="sourceLine" id="cb37-8" data-line-number="8">         <span class="dt">subtitle =</span> <span class="kw">bquote</span>(y <span class="op">==</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">3</span> <span class="op">~</span><span class="st"> </span>(R<span class="op">^</span><span class="dv">2</span> <span class="op">%~~%</span><span class="st"> </span><span class="fl">.667</span>) <span class="op">~</span><span class="st"> &quot;for all datasets&quot;</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-9" data-line-number="9"><span class="st">    </span><span class="kw">facet_wrap</span>(<span class="op">~</span>grp, <span class="dt">ncol =</span> <span class="dv">2</span>, <span class="dt">scales =</span> <span class="st">&quot;free_x&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb37-10" data-line-number="10"><span class="st">    </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="st">&quot;#f2f2f2&quot;</span>, <span class="dt">colour =</span> <span class="st">&quot;white&quot;</span>))</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:ch-02-anscombe"></span>
+<img src="I2DA_files/figure-html/ch-02-anscombe-1.png" alt="Anscombe's Quartet: four different data sets all of which receive the same correlation score." width="672" />
+<p class="caption">
+Figure 3.1: Anscombe’s Quartet: four different data sets all of which receive the same correlation score.
+</p>
+</div>
+<!-- for exercise check out the work of Jan Verhove: -->
+<!-- https://janhove.github.io/teaching/2016/11/21/what-correlations-look-like -->
+
+</div>
+<!-- </div> -->
+<h3>References</h3>
+<div id="refs" class="references">
+<div id="ref-anscombe1973">
+<p>Anscombe, F. J. 1973. “Graphs in Statistical Analysis.” <em>The American Statistician</em> 27 (1). [American Statistical Association, Taylor &amp; Francis, Ltd.]: 17–21. <a href="https://doi.org/10.2307/2682899" class="uri">https://doi.org/10.2307/2682899</a>.</p>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="hierarchical-regression.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="selected-continuous-distributions-of-random-variables.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="data-wrangling.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="basics-of-probability-theory.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
