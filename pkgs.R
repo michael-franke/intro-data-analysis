@@ -4,6 +4,7 @@ suppressPackageStartupMessages(library(brms))
 suppressPackageStartupMessages(library(ggsignif))
 suppressPackageStartupMessages(library(gridExtra))
 suppressPackageStartupMessages(library(rcartocolor)) # color-blind friendly palettes: https://github.com/Nowosad/rcartocolor
+suppressPackageStartupMessages(library(extraDistr))  # create beta-binomial and bernoulli rvs
 # suppressPackageStartupMessages(library(rethinking))
 
 ## set defaults
