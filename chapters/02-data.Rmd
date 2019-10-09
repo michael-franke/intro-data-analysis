@@ -9,7 +9,13 @@
 - data wrangling
 - data plotting
 
-## Exploring numerical data in a vector
+## Kinds of data
+
+
+## Summary statistics
+
+
+### Exploring numerical data in a vector
 
 The first part of the Mental Chronometry experiment is a simple reaction time task.
 
@@ -21,3 +27,55 @@ RTs <- read_csv("https://tinyurl.com/y4jo8mox")
 glimpse(RTs)
 ```
 
+## Data Wrangling
+
+## Data Plotting
+
+Numerical summaries of complex data always incur information loss. Still lossy, but less so is visualization. Any serious data analysis should start with a process in which the analyst becomes intimate with the data at hand. Visualization is an integral part of data-intimacy.
+
+Consider a famous dataset available in R [@anscombe1973]: 
+
+```{r}
+glimpse(anscombe %>% as_tibble)
+```
+
+There are four pairs of $x$ and $y$ coordinates. Unfortunately, these are stored in long format with two pieces of information buried inside of the column name: $x3$ contains the information that this column contains the $x$ coordinates for the 3rd pair. This is rather untidy. But, after the last section on data wrangling, we can tidy up quickly:
+
+```{r}
+tidy_anscombe = anscombe %>% as_tibble %>% 
+  pivot_longer(
+    1:8,                          # columns to pivot
+    names_sep = 1,                 # position indicating where to split each column name
+    names_to = c("axis", "group")  # names for new columns
+    ) 
+tidy_anscombe
+```
+
+Here are some summary statistics for each of the four pairs:
+
+```{r}
+tidy_anscombe %>% 
+  group_by("group") %>% 
+  summarise()
+```
+
+
+
+This is a plot of quite a famous dataset [@anscombe1973]:
+
+```{r ch-02-anscombe, fig.cap="Anscombe's Quartet: four different data sets all of which receive the same correlation score."}
+tibble(
+  grp = rep(c("I", "II", "III", "IV"), each = 11),
+  x = c(anscombe$x1, anscombe$x2, anscombe$x3, anscombe$x4),
+  y = c(anscombe$y1, anscombe$y2, anscombe$y3, anscombe$y4)
+) %>% 
+  ggplot(aes(x, y)) +
+    geom_smooth(method = lm, se = F, color = "black") +
+    geom_point(color = project_colors[3], size = 2) +
+    scale_y_continuous(breaks = scales::pretty_breaks()) +
+    scale_x_continuous(breaks = scales::pretty_breaks()) +
+    labs(title = "Anscombe's Quartet", x = NULL, y = NULL,
+         subtitle = bquote(y == 0.5 * x + 3 ~ (R^2 %~~% .667) ~ "for all datasets")) +
+    facet_wrap(~grp, ncol = 2, scales = "free_x") +
+    theme(strip.background = element_rect(fill = "#f2f2f2", colour = "white"))
+```
