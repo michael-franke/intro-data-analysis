@@ -5,6 +5,7 @@ suppressPackageStartupMessages(library(ggsignif))
 suppressPackageStartupMessages(library(gridExtra))
 suppressPackageStartupMessages(library(Rlab)) # for dbern (used in appendix; maybe solve differently?)
 suppressPackageStartupMessages(library(rcartocolor)) # color-blind friendly palettes: https://github.com/Nowosad/rcartocolor
+suppressPackageStartupMessages(library(extraDistr))  # create beta-binomial and bernoulli rvs
 # suppressPackageStartupMessages(library(rethinking))
 
 ## set defaults
