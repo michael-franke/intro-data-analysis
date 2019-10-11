@@ -6,6 +6,9 @@ Overiew:
 
 0. **general introduction**
 
+- goals of this course
+  - 
+
 - what stats is about
 - different practices
   - frequentist:
