@@ -1,6 +1,6 @@
 # Ideas for exercises
 
-- use built-in data set `anscombe` to tidy up (wrangle) (use new `pivot` features with reg-expressions)
+- try to tidy up the data set `anscombe` in R or whatever other programming language in a way that is more or at least as elegant and extensible as the solution given in the book (for bonus)
 
 # Sources of inspiration
 
