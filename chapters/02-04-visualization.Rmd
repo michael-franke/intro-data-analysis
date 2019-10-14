@@ -1,40 +1,8 @@
-# (PART) Data {-}
+# Data Plotting
 
-# Data
+## Motivating example: Anscombe's quartet
 
-*learning goal:* how to arrange, summarize and visualize (aspects of data) to address a question of interest ("hypothesis-driven data poking")
-
-
-
-- different kinds of data
-- summary statistics
-- data wrangling
-- data plotting
-
-## Kinds of data
-
-
-## Summary statistics
-
-
-### Exploring numerical data in a vector
-
-The first part of the Mental Chronometry experiment is a simple reaction time task.
-
-```{r}
-# read a data set of reaction times (as a tibble)
-# RTs <- read_csv("https://tinyurl.com/y4jo8mox")
-RTs <- read_csv("data_sets/ch-03-set-01-MC-RTs.csv")
-
-# check its content
-glimpse(RTs)
-```
-
-## Data Wrangling
-
-## Data Plotting
-
-Numerical summaries of complex data always incur information loss. Still lossy, but less so is visualization. Any serious data analysis should start with a process in which the analyst becomes intimate with the data at hand. Visualization is an integral part of data-intimacy.
+Numerical summaries of complex data always incur information loss. Still lossy, but less so (if done well), is visualization. Any serious data analysis should start with a process in which the analyst becomes intimate with the data at hand. Visualization is an integral part of data-intimacy.
 
 Consider a famous dataset available in R [@anscombe1973]: 
 
@@ -42,14 +10,15 @@ Consider a famous dataset available in R [@anscombe1973]:
 glimpse(anscombe %>% as_tibble)
 ```
 
-There are four pairs of $x$ and $y$ coordinates. Unfortunately, these are stored in long format with two pieces of information buried inside of the column name: $x3$ contains the information that this column contains the $x$ coordinates for the 3rd pair. This is rather untidy. But, after the last section on data wrangling, we can tidy up quickly:
+There are four pairs of $x$ and $y$ coordinates. Unfortunately, these are stored in long format with two pieces of information buried inside of the column name: for instance, the name `x3` contains the information that this column contains the $x$ coordinates for the 3rd pair. This is rather untidy. But, after the last section on data wrangling, we can tidy up quickly:
 
 ```{r}
 tidy_anscombe = anscombe %>% as_tibble %>% 
   pivot_longer(
-    everything(),
-    names_to = c(".value", "grp"),
-    names_pattern = "(.)(.)"
+    everything(),                  ## we want o pivot every column
+    names_pattern = "(.)(.)",      ## use reg-exps to capture 1st and 2nd character
+    names_to = c(".value", "grp")  ## assign names to new cols, using 1st part of
+                                   ##   what reg-exp captures as new column names
   ) %>% 
   mutate(grp = paste0("Group ", grp))
 tidy_anscombe
@@ -71,6 +40,8 @@ tidy_anscombe %>%
   )
 ```
 
+<!-- EXERCISE: make the index the new column names instead -->
+
 These numeric indicators suggest that each pair of $x$ and $y$ values is very similar. Only the ranges seem to differ. A brilliant example of how misleading numeric statistics can be, as compared to a plot of the data:
 
 ```{r ch-02-anscombe, fig.cap="Anscombe's Quartet: four different data sets all of which receive the same correlation score."}
@@ -88,3 +59,14 @@ tidy_anscombe %>%
 
 <!-- for exercise check out the work of Jan Verhove: -->
 <!-- https://janhove.github.io/teaching/2016/11/21/what-correlations-look-like -->
+
+## Plotting for 'Mental Chronometry'
+
+```{r}
+# read a data set of reaction times (as a tibble)
+# RTs <- read_csv("https://tinyurl.com/y4jo8mox")
+RTs <- read_csv("data_sets/ch-03-set-01-MC-RTs.csv")
+
+# check its content
+glimpse(RTs)
+```
