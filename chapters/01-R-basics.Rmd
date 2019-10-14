@@ -1,63 +1,153 @@
 # Basics of R
 
-```{block2, type='overview'}
-**Content covered:** TBF
+R is a specialized programming language for data science. Though old, it is heavily supported by an active community. New tools for data handling, visualization, and statistical analysis are provided in the form of packages. Packages live in the official package repository CRAN [insert link], or are supplied in less standardized forms, e.g., via open repositories, such as GitHub.
 
-**Learning goal:** familiarize yourself with the basic of R and the tidyverse
-```
+We will make heavy use of R packages in this course. We will distinguish **base R** from the **tidyverse**. Base R is what you have when you do not load any packages. We enter the tidyverse by loading the package `tidyverse` (see below). The tidyverse consists of several components (which are actually stand-alone packages that can be loaded separately if needed) all of which supply extra functionality for data analysis, based on a unifying philosophy and representation format. While eventually interchangable, the look-and-feel of base R and the tidyverse is quite different. We will learn about this in this chapter.
 
-## General remarks
+Make sure to have completely installed everything of relevance for this course, as described in Section \@ref(intro-installation). 
 
-- R is specialized programming language for statistics/data science
-- base R vs tidyverse
-- packages, CRAN, github
-- resources:
-  - official (base) R intro: [An Introduction to R](https://colinfay.me/intro-to-r/)
-  - book on DS with tidyverse: [R for Data Science (R4DS)](https://r4ds.had.co.nz)
+The official documentation for base R is [An Introduction to R](https://colinfay.me/intro-to-r/). The standard reference for using the tidyvers is [R for Data Science (R4DS)](https://r4ds.had.co.nz).
 
-## Installation and use
+At the end of this chapter you will be able to:
 
-- installation of R itself
-- RStudio
-- how to install packages
-- which packages to install for this course
-  - tidyverse, brms, ...
+- understand the basics of R
+- understand simple R scripts
+- write simple R scripts from scratch
 
-## First steps
+[IMPROVE LEARNING GOALS]
 
-- scripts and sessions
-  - interpreted language
-- using RStudio
-- calculations, variable assignments 
-  - good naming conventions
-- comments
-  - sectioning in RStudio
-  - good practices for literate programming
-- everything is vector/matrix based
-  - declare vector with `c()`
-  - indexing starting from 1
-  - matrices in "column-major mode" (unlike NumPy!) -> first index moves fastest
+
+## First steps {#ch1-first-steps}
+
+R is an interpreted language. This means that you do not have to compile it. You can just evaluate it line by line, in a so-called **session**. The session stores the current values all variables. If you do not want to retype, you can store your code in a script. You can execute selected parts of a script or run the whole script. All the last values of all variables used in the script are then available to you in your currect session.
+
+Try this out by either typing `r` to open an R session in a terminal or load RStudio. You can immediately calculate stuff:
+
 ```{r}
-(m = matrix(1:6, ncol = 3))
+6 * 7
 ```
-  - matrix indexing starts with row
+
+### Variables
+
+You can assign values to variables using three assignement operators: `->`, `<-` and `=`, like so:
+
 ```{r}
-m[1,]
+x <- 6
+7 -> y
+z = 3
+x * y / z
 ```
-  - vectors, therefore, are column vectors:
+
+Use of `=` is discouraged. You can produce `<-` is RStudio with Option-`-` (on Mac) [FILL ME: how on other machines]
+
+It is good practice to use a consistent naming scheme for variables. This book uses `snake_case_variable_names` and tends towards using long and informative names for important variables, and short variable names for local variables, indeces etc.
+
+
+### Literate coding
+
+It is good practice to document code with short but informative comments. Comments in R are demarkated with `#`.
+
 ```{r}
-x = c(1,0,1)
-m %*% x
+x <- 4711 # a nice number from Cologne
 ```
+
+[MORE ON HOW/WHERE TO COMMENT FUNCTIONS ETC?]
+
+In RStudio, you can use comments to structure your scripts. Any comment followed by `----` [CHECK THIS!] is treated as a section. [HOW TO DO DIFFERENT LEVELS OF SECTIONING?]
+
+```{r}
+# SECTION: totally boring code ----
+## SUBSECTION: declaring variables ----
+### SUBSUBSECTION: variable x ----
+x <- 6
+### SUBSUBSECTION: variable x ----
+y <- 7
+## SUBSECTION: some calculations ----
+x * y
+```
+
+### Objects
+
+Everything in R is an object [CHECK THIS, EXPLAIN WHAT THAT MEANS].
+
+### Getting help
+
 - getting help / information about function / vignettes
-- 
 
 
-## Data types
+
+## Data types {#ch1-data-types}
 
 ### Numbers
 
 - standard number precision is double
+
+As a generally useful heuristic, expect every numerical information to be treated as a vector (or higher-order: matrix, array, ... ; see below), and to expect any (basic, mathematical) operation in R to (most likely) apply to the whole vector, matrix, array, collection.^[If you are familiar with Python's *scipy* and *numpy* packages, this is R's default mode of treating numerical information.] This makes it possible to ask for the length of a variable to which we assing a single number, for instance:
+
+```{r}
+x <- 7
+length(x)
+```
+
+We can even index such a variable:
+
+```{r}
+x <- 7
+x[1]     ## what is the entry in position 1 of the vector x?
+```
+
+Or assign a new value to a hitherto unused index:
+
+```{r}
+x[3] <- 6   ## assign the value 6 to the 3rd entry of vector x
+x           ## notice that the 2nd entry is undefined, or "NA", not available
+```
+
+Vectors can be declared with the built-in function `c()`. To memorize this, think of *concatenation* or *combination*.
+
+```{r}
+x <- c(4, 7, 1, 1)   # this is now a 4-place vector
+x
+```
+
+Indexing in R starts with 1, not 0!
+
+```{r}
+x[2]
+```
+
+And now we see what it meant above when we said that (almost) every mathematical operation can be expected to apply to a vector:
+
+```{r}
+x <- c(4, 7, 1, 1)   # 4-placed vector as before
+x + 1
+```
+
+Matrices are declared with the function `matrix`. This function takes, for instance, a vector as an argument.
+
+```{r}
+x <- c(4, 7, 1, 1)     # 4-placed vector as before
+(m <- matrix(x))       # cast x into matrix format
+```
+
+Notice that the result is a matrix with a single colum. This is important. R uses so-called *column-major mode*.^[Python, on the other hand, uses the reverse *row-major mode*.] This means that it will fill columns first. For example, a matrix with three columns based on a six-placed vector $1, 2, \dots, 6$ will be built by filling the first column from top to bottom, then the second column top to bottom, and so on.^[It is in this sense that the "first index moves fastest" in column-major mode, which is another frequently given explanation of column-major mode.]
+
+```{r}
+(m = matrix(1:6, ncol = 3))
+```
+  
+In line with column-major mode, vectors are treated as column vectors in matrix operations:
+
+```{r}
+x = c(1,0,1)   ## 3-place vector
+m %*% x        ## dot product with previous matrix 'm'
+```
+
+As usual, and independently of column- or row-major mode, matrix indexing starts with the row index:
+
+```{r}
+m[1,]   ## produces first row of matrix 'm'    
+```
 
 ### Booleans
 
@@ -144,11 +234,11 @@ my_tibble    = tibble(x = 1:10, y = x^2)      ## dynamic construction possible
 my_dataframe = data.frame(x = 1:10, y = x^2)  ## ERROR :/
 ```
 
-## Functions
+## Functions {#ch1-functions}
 
 - named and anonymous
 
-## Loops and maps
+## Loops and maps {#ch1-loops-and-maps}
 
 - `for` loops
 - functional programming with `apply` `purrr`
