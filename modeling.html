@@ -286,40 +286,20 @@ code span.wa { color: #bf0303; } /* Warning */
 <h2><span class="header-section-number">9.2</span> Modeling</h2>
 <div id="introductory-example" class="section level3">
 <h3><span class="header-section-number">9.2.1</span> Introductory example</h3>
-<p>As introductory example a coin flip experiment is considered. The question is if a particular coin is . In order to investigate this question a coin is flipped <span class="math inline">\(x\)</span> times (=trials) and the number of success (i.e. number of “head”) <span class="math inline">\(k\)</span> is recorded. This is repeated <span class="math inline">\(n\)</span> times (=observations).</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" data-line-number="1"><span class="co">#this code is just copy&amp;paste from above [it is included again for better comprehension]</span></a>
-<a class="sourceLine" id="cb69-2" data-line-number="2"><span class="co">#simulate coin flip data set</span></a>
-<a class="sourceLine" id="cb69-3" data-line-number="3">sample.space &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb69-4" data-line-number="4">theta &lt;-<span class="st"> </span><span class="fl">0.5</span>              <span class="co"># probability of a success (here: head)</span></a>
-<a class="sourceLine" id="cb69-5" data-line-number="5">X &lt;-<span class="st"> </span><span class="dv">30</span>                   <span class="co"># number of trials in the experiment</span></a>
-<a class="sourceLine" id="cb69-6" data-line-number="6">n &lt;-<span class="st"> </span><span class="dv">10</span>                   <span class="co"># number of observations</span></a>
-<a class="sourceLine" id="cb69-7" data-line-number="7">k &lt;-<span class="st"> </span><span class="dv">0</span>                    <span class="co"># number of heads [initialization]</span></a>
-<a class="sourceLine" id="cb69-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb69-9" data-line-number="9">## repeat experiment N-times</a>
-<a class="sourceLine" id="cb69-10" data-line-number="10"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="st"> </span>n) {</a>
-<a class="sourceLine" id="cb69-11" data-line-number="11">  k[i] &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="kw">sample</span>(sample.space, <span class="dt">size =</span> X, <span class="dt">replace =</span> <span class="ot">TRUE</span>, </a>
-<a class="sourceLine" id="cb69-12" data-line-number="12">                     <span class="dt">prob =</span> <span class="kw">c</span>(theta, <span class="dv">1</span> <span class="op">-</span><span class="st"> </span>theta)))</a>
-<a class="sourceLine" id="cb69-13" data-line-number="13">}</a>
-<a class="sourceLine" id="cb69-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb69-15" data-line-number="15">## show results in a tibble</a>
-<a class="sourceLine" id="cb69-16" data-line-number="16">coin.flip &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="st">&quot;n&quot;</span> =<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from=</span><span class="dv">1</span>, <span class="dt">to=</span>n, <span class="dt">by=</span><span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb69-17" data-line-number="17">                    <span class="st">&quot;k&quot;</span> =<span class="st"> </span>k,</a>
-<a class="sourceLine" id="cb69-18" data-line-number="18">                    <span class="st">&quot;x&quot;</span> =<span class="st"> </span>X</a>
-<a class="sourceLine" id="cb69-19" data-line-number="19">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb69-20" data-line-number="20"><span class="st">  </span><span class="kw">print</span>()</a></code></pre></div>
+<p>As introductory example we considered a coin flip experiment and asked if a particular coin is . In order to investigate this question a coin is flipped <span class="math inline">\(x\)</span> times (= trials) and the number of success (i.e. numbers of “head”) <span class="math inline">\(k\)</span> is recorded. This is repeated <span class="math inline">\(n\)</span> times (=observations).</p>
 <pre><code>## # A tibble: 10 x 3
 ##        n     k     x
 ##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ##  1     1    16    30
-##  2     2    14    30
-##  3     3    16    30
-##  4     4    11    30
+##  2     2    16    30
+##  3     3    12    30
+##  4     4    17    30
 ##  5     5    17    30
-##  6     6    13    30
-##  7     7    18    30
-##  8     8    15    30
-##  9     9     9    30
-## 10    10    16    30</code></pre>
+##  6     6    14    30
+##  7     7    14    30
+##  8     8    16    30
+##  9     9    19    30
+## 10    10    17    30</code></pre>
 <p>The above table shows the observed outcome, but how the underlying probability of coming up  can be derived from that data set?</p>
 </div>
 <div id="steps-of-data-analysis" class="section level3">
@@ -345,64 +325,30 @@ code span.wa { color: #bf0303; } /* Warning */
 <span class="math display">\[p(y=1|\theta)=\theta\]</span>
 As only two outcomes of <span class="math inline">\(Y\)</span> exists, the probability that the outcome is tail is the complementary probability <span class="math inline">\(1-\theta\)</span>. Both probabilities can be combined in one probability expression:
 <span class="math display">\[Pr(Y|n,\theta)=\frac{n!}{y!(n-y)!}\theta^{y}(1-\theta)^{n-y}.\]</span>
-This probability distribution is called the <strong>Binomial distribution</strong>. The fracture at the beginning indicates how many ordered sequences of <span class="math inline">\(n\)</span> outcomes a count <span class="math inline">\(y\)</span> have, therefore the important conceptional part is the latter one.</p>
-<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb71-1" data-line-number="1"><span class="co"># Plot probability distribution: What would be the expected observed number </span></a>
-<a class="sourceLine" id="cb71-2" data-line-number="2"><span class="co"># of &quot;head&quot; given the underlying prob. theta?</span></a>
-<a class="sourceLine" id="cb71-3" data-line-number="3"> </a>
-<a class="sourceLine" id="cb71-4" data-line-number="4"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb71-5" data-line-number="5">## theta=0.2</a>
-<a class="sourceLine" id="cb71-6" data-line-number="6"><span class="kw">hist</span>(</a>
-<a class="sourceLine" id="cb71-7" data-line-number="7">  <span class="kw">rbinom</span>(<span class="dt">n =</span> <span class="fl">1e6</span>, <span class="dt">size =</span> <span class="dv">30</span>, <span class="dt">prob =</span> <span class="fl">0.2</span>),</a>
-<a class="sourceLine" id="cb71-8" data-line-number="8">  <span class="dt">xlab =</span> <span class="st">&quot;k&quot;</span>,</a>
-<a class="sourceLine" id="cb71-9" data-line-number="9">  <span class="dt">main =</span> <span class="st">&quot;Binomial(1e6,0.2)&quot;</span>,</a>
-<a class="sourceLine" id="cb71-10" data-line-number="10">  <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">30</span>),</a>
-<a class="sourceLine" id="cb71-11" data-line-number="11">  <span class="dt">freq =</span> <span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb71-12" data-line-number="12">)</a>
-<a class="sourceLine" id="cb71-13" data-line-number="13">## theta=0.5</a>
-<a class="sourceLine" id="cb71-14" data-line-number="14"><span class="kw">hist</span>(</a>
-<a class="sourceLine" id="cb71-15" data-line-number="15">  <span class="kw">rbinom</span>(<span class="dt">n =</span> <span class="fl">1e6</span>, <span class="dt">size =</span> <span class="dv">30</span>, <span class="dt">prob =</span> <span class="fl">0.5</span>),</a>
-<a class="sourceLine" id="cb71-16" data-line-number="16">  <span class="dt">xlab =</span> <span class="st">&quot;k&quot;</span>,</a>
-<a class="sourceLine" id="cb71-17" data-line-number="17">  <span class="dt">main =</span> <span class="st">&quot;Binomial(1e6,0.5)&quot;</span>,</a>
-<a class="sourceLine" id="cb71-18" data-line-number="18">  <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">30</span>),</a>
-<a class="sourceLine" id="cb71-19" data-line-number="19">  <span class="dt">freq =</span> <span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb71-20" data-line-number="20">)</a>
-<a class="sourceLine" id="cb71-21" data-line-number="21">## theta=0.8</a>
-<a class="sourceLine" id="cb71-22" data-line-number="22"><span class="kw">hist</span>(</a>
-<a class="sourceLine" id="cb71-23" data-line-number="23">  <span class="kw">rbinom</span>(<span class="dt">n =</span> <span class="fl">1e6</span>, <span class="dt">size =</span> <span class="dv">30</span>, <span class="dt">prob =</span> <span class="fl">0.8</span>),</a>
-<a class="sourceLine" id="cb71-24" data-line-number="24">  <span class="dt">xlab =</span> <span class="st">&quot;k&quot;</span>,</a>
-<a class="sourceLine" id="cb71-25" data-line-number="25">  <span class="dt">main =</span> <span class="st">&quot;Binomial(1e6,0.8)&quot;</span>,</a>
-<a class="sourceLine" id="cb71-26" data-line-number="26">  <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">30</span>),</a>
-<a class="sourceLine" id="cb71-27" data-line-number="27">  <span class="dt">freq =</span> <span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb71-28" data-line-number="28">)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-41-1.png" width="672" style="display: block; margin: auto;" /></p>
+This probability distribution is called the <strong>Binomial distribution</strong>. The fracture at the beginning indicates how many ordered sequences of <span class="math inline">\(n\)</span> outcomes a count <span class="math inline">\(y\)</span> have.</p>
+<div class="figure" style="text-align: center">
+<img src="I2DA_files/figure-html/ch-03-03-binomial%20distribution-coin%20flip%20example-1.png" alt="Binomial distribution for different coin biases" width="672" />
+<p class="caption">
+(#fig:ch-03-03-binomial distribution-coin flip example)Binomial distribution for different coin biases
+</p>
+</div>
 <p>When the coin is flipped only once, then the probabilty can be written as:
 <span class="math display">\[Pr(Y|\theta)=\theta^{y}(1-\theta)^{1-y}.\]</span>
 This special variant of the Binomial distribution is the so-called <strong>Bernoulli distribution</strong>. To see the connection to the first considerations: When the outcome “head” is observed the equation reduces to <span class="math inline">\(Pr(y=1|\theta)=\theta\)</span> and when the outcome “tail” is observed the equation results in <span class="math inline">\(Pr(y=0|\theta)=(1-\theta).\)</span></p>
 <p>Accordingly, for the introductory example it can be noted that the coin flip variable <span class="math inline">\(Y\)</span>  Binomial distribution. (Note: For Bayes’ rule the  is needed. Remember, the likelihood function treats <span class="math inline">\(\theta\)</span> as unknow and the data as known. This role of parameter is exchanged in a probability distribution.)</p>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" data-line-number="1"><span class="co"># calculate the Liklihood function</span></a>
-<a class="sourceLine" id="cb72-2" data-line-number="2">binomial.likelihood &lt;-<span class="st"> </span><span class="cf">function</span>(n, k, theta){theta<span class="op">^</span>k<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>theta)<span class="op">^</span>(n<span class="op">-</span>k)}</a>
-<a class="sourceLine" id="cb72-3" data-line-number="3">theta &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from=</span><span class="dv">0</span>, <span class="dt">to=</span><span class="dv">1</span>, <span class="dt">by=</span><span class="fl">0.01</span>)</a>
-<a class="sourceLine" id="cb72-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb72-5" data-line-number="5"><span class="co"># Plot likelihood: What would be the expected underlying prob. theta given </span></a>
-<a class="sourceLine" id="cb72-6" data-line-number="6"><span class="co"># observed number of &quot;head&quot; in 100 observations?</span></a>
-<a class="sourceLine" id="cb72-7" data-line-number="7"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb72-8" data-line-number="8"><span class="kw">plot</span>(theta, <span class="kw">binomial.likelihood</span>(<span class="dv">100</span>,<span class="dv">20</span>,theta), <span class="dt">xlab=</span><span class="kw">expression</span>(theta), </a>
-<a class="sourceLine" id="cb72-9" data-line-number="9">     <span class="dt">ylab=</span><span class="st">&quot;likelihood&quot;</span>, <span class="dt">type=</span><span class="st">&quot;l&quot;</span>)</a>
-<a class="sourceLine" id="cb72-10" data-line-number="10"><span class="kw">plot</span>(theta,<span class="kw">binomial.likelihood</span>(<span class="dv">100</span>,<span class="dv">50</span>,theta), <span class="dt">xlab=</span><span class="kw">expression</span>(theta), </a>
-<a class="sourceLine" id="cb72-11" data-line-number="11">     <span class="dt">ylab=</span><span class="st">&quot;likelihood&quot;</span>, <span class="dt">type=</span><span class="st">&quot;l&quot;</span>)</a>
-<a class="sourceLine" id="cb72-12" data-line-number="12"><span class="kw">plot</span>(theta,<span class="kw">binomial.likelihood</span>(<span class="dv">100</span>,<span class="dv">80</span>,theta), <span class="dt">xlab=</span><span class="kw">expression</span>(theta), </a>
-<a class="sourceLine" id="cb72-13" data-line-number="13">     <span class="dt">ylab=</span><span class="st">&quot;likelihood&quot;</span>, <span class="dt">type=</span><span class="st">&quot;l&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-42-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="I2DA_files/figure-html/ch-03-03-binomial%20likelihood-coin%20flip%20example-1.png" alt="Binomial likelihoods for different observed coin flip outcomes." width="672" />
+<p class="caption">
+(#fig:ch-03-03-binomial likelihood-coin flip example)Binomial likelihoods for different observed coin flip outcomes.
+</p>
+</div>
 <p><strong>The third step</strong> is solely a , that is the <em>incorporation of prior knowledge</em>. What do we believe about the coin bias <span class="math inline">\(\theta\)</span> before seeing the data? Assuming that no expectation about <span class="math inline">\(\theta\)</span> exists a priori, indicating that all values of <span class="math inline">\(\theta\)</span> between 0 and 1 are equally probable. This can be modeled by a uniform distribution or as already visualized as Beta distribution with parameters a=1 and b=1 (see following figure).</p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" data-line-number="1"><span class="co"># Modelling prior knowledge &quot;ignorance&quot;</span></a>
-<a class="sourceLine" id="cb73-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb73-3" data-line-number="3"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb73-4" data-line-number="4">## simulated a uniform(0,1) distribution</a>
-<a class="sourceLine" id="cb73-5" data-line-number="5">rethinking<span class="op">::</span><span class="kw">dens</span>(<span class="kw">runif</span>(<span class="dt">n=</span><span class="fl">1e6</span>,<span class="dt">min=</span><span class="dv">0</span>, <span class="dt">max=</span><span class="dv">1</span>), <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="fl">1.5</span>), </a>
-<a class="sourceLine" id="cb73-6" data-line-number="6">     <span class="dt">xlab=</span><span class="kw">expression</span>(theta), <span class="dt">main=</span><span class="st">&quot;Uniform(0,1)&quot;</span>)</a>
-<a class="sourceLine" id="cb73-7" data-line-number="7">## simulates a beta(1,1) distribution</a>
-<a class="sourceLine" id="cb73-8" data-line-number="8">rethinking<span class="op">::</span><span class="kw">dens</span>(<span class="kw">rbeta</span>(<span class="dt">n=</span><span class="fl">1e6</span>,<span class="dt">shape1=</span><span class="dv">1</span>,<span class="dt">shape2=</span><span class="dv">1</span>), <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="fl">1.5</span>), </a>
-<a class="sourceLine" id="cb73-9" data-line-number="9">     <span class="dt">xlab=</span><span class="kw">expression</span>(theta), <span class="dt">main=</span><span class="st">&quot;Beta(1,1)&quot;</span>)</a></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="I2DA_files/figure-html/ch-03-03-prior%20distribution-coin%20flip%20example-1.png" alt="Using uniformative prior distributions: The Uniform(0,1) and Beta(1,1) prior." width="672" />
+<p class="caption">
+(#fig:ch-03-03-prior distribution-coin flip example)Using uniformative prior distributions: The Uniform(0,1) and Beta(1,1) prior.
+</p>
+</div>
 <p>So far, the coin flip model is define conceptionally. In the following some notational considerations have to be made.</p>
 </div>
 <div id="notation" class="section level3">

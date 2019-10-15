@@ -284,406 +284,59 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="likelihood-prior-posterior" class="section level2">
 <h2><span class="header-section-number">9.1</span> Likelihood, Prior, &amp; Posterior</h2>
-<p>Before the topic of is introduced, some conceptual notions are neccessary.</p>
+<p>Before the topic of is introduced, some conceptual notions regarding likelihood, prior and posterior are neccessary.</p>
 <div id="probability-density-function-vs.likelihood-function" class="section level3">
 <h3><span class="header-section-number">9.1.1</span> Probability density function vs. Likelihood function</h3>
-<p>As already know from the “probability”-lecture, for a coin flip the probability of each outcome can be described with the , as there exist two discrete outcomes (head or tail) and a constant probability <span class="math inline">\(\theta\)</span>:
+<p>As already introduced, for a coin flip the probability of each outcome can be modeled with the , because two discrete outcomes (head or tail) and a constant probability <span class="math inline">\(\theta\)</span> exist:
 <span class="math display">\[p([X=x]|\theta)=\theta^{[x]}(1-\theta)^{(1-[x])}\]</span></p>
 <p>where</p>
 <ul>
-<li><span class="math inline">\(\theta\)</span> is the probability of “head” for the coin flip;</li>
+<li><span class="math inline">\(\theta\)</span> is the probability of coin-flip-outcome “head”, and</li>
 <li>the bracket [ ] indicates that the particular parameter is treated as unknown.</li>
 </ul>
 <p>With the formula above the probability of <span class="math inline">\(\theta\)</span> is treated as “known”. Accordingly, the distribution of possible outcomes can be derived.</p>
-<p>But, as already seen in the introductory part, one might be interested in the value of <span class="math inline">\(\theta\)</span> by a given data set. Then <span class="math inline">\(\theta\)</span> is unknown and the data are observed. Treating <span class="math inline">\(\theta\)</span> as parameters instead of <span class="math inline">\(x\)</span> leads to the  — a mathematical formula that specifies the plausibility of the data. It states the probability of any possible observation:
-<span class="math display">\[p(X=x|[\theta])=[\theta]^x(1-[\theta])^{(1-x)}\]</span></p>
+But often the contrary is the case, that is one is interested in the value of <span class="math inline">\(\theta\)</span> by a given data set. Then <span class="math inline">\(\theta\)</span> is unknown and the data are observed. Treating <span class="math inline">\(\theta\)</span> as parameter instead of <span class="math inline">\(x\)</span> leads to the  — a mathematical formula that specifies the plausibility of the data. It states the probability of any possible observation:
+<span class="math display">\[p(X=x|[\theta])=[\theta]^x(1-[\theta])^{(1-x)}\]</span>
+<div class="figure" style="text-align: center">
+<img src="I2DA_files/figure-html/ch-03-03-likelihood%20distribution-1.png" alt="Bernoulli likelihood for simulated observed coin-flip data." width="672" />
+<p class="caption">
+(#fig:ch-03-03-likelihood distribution)Bernoulli likelihood for simulated observed coin-flip data.
+</p>
+</div>
 <p>Please be aware that through exchanging the roles of <span class="math inline">\(x\)</span> and <span class="math inline">\(\theta\)</span> in the second equation (likelihood function) this function is no longer a probability distribution and thus does not integrate to 1.</p>
 </div>
 <div id="prior-posterior" class="section level3">
 <h3><span class="header-section-number">9.1.2</span> Prior &amp; Posterior</h3>
-<p>The clearest difference between frequentist and Bayesian methods is the incorporation of <em>prior information</em> in the Bayesian framework. The posterior distribution results by combining the likelihood with the prior information.</p>
-<p>When an uninformative (e.g. uniform) prior is used then the posterior is completely dependent on the data. The influence of the prior on the posterior depends on their relative weighting. Remember that the posterior is the conditional distribution of the parameter given the data. The mathematical procedure behind it depicts .</p>
-<p>Consider for example a Beta distribution with the parameters a and b: <span class="math inline">\(\beta \sim Beta(a,b)\)</span>. Assuming a coin flip experiment, the parameters of a Beta distribution can be interpreted as <span class="math inline">\(a=\)</span>no. of heads and $b = $no. of tails, thus, <span class="math inline">\(n=a+b\)</span>. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(5,5).</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" data-line-number="1"><span class="co"># simulate coin flip data set</span></a>
-<a class="sourceLine" id="cb62-2" data-line-number="2">sample.space &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb62-3" data-line-number="3">theta &lt;-<span class="st"> </span><span class="fl">0.5</span>              <span class="co"># probability of a success (here: head)</span></a>
-<a class="sourceLine" id="cb62-4" data-line-number="4">X &lt;-<span class="st"> </span><span class="dv">30</span>                   <span class="co"># number of trials in the experiment</span></a>
-<a class="sourceLine" id="cb62-5" data-line-number="5">n &lt;-<span class="st"> </span><span class="dv">10</span>                   <span class="co"># number of observations</span></a>
-<a class="sourceLine" id="cb62-6" data-line-number="6">k &lt;-<span class="st"> </span><span class="dv">0</span>                    <span class="co"># number of heads [initialization]</span></a>
-<a class="sourceLine" id="cb62-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb62-8" data-line-number="8">## repeat experiment N-times</a>
-<a class="sourceLine" id="cb62-9" data-line-number="9"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="st"> </span>n) {</a>
-<a class="sourceLine" id="cb62-10" data-line-number="10">  k[i] &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="kw">sample</span>(sample.space, <span class="dt">size =</span> X, <span class="dt">replace =</span> <span class="ot">TRUE</span>, </a>
-<a class="sourceLine" id="cb62-11" data-line-number="11">                     <span class="dt">prob =</span> <span class="kw">c</span>(theta, <span class="dv">1</span> <span class="op">-</span><span class="st"> </span>theta)))</a>
-<a class="sourceLine" id="cb62-12" data-line-number="12">}</a>
-<a class="sourceLine" id="cb62-13" data-line-number="13"></a>
-<a class="sourceLine" id="cb62-14" data-line-number="14">## show results in a tibble</a>
-<a class="sourceLine" id="cb62-15" data-line-number="15">coin.flip1 &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="st">&quot;n&quot;</span> =<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from=</span><span class="dv">1</span>, <span class="dt">to=</span>n, <span class="dt">by=</span><span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb62-16" data-line-number="16">                     <span class="st">&quot;k&quot;</span> =<span class="st"> </span>k,</a>
-<a class="sourceLine" id="cb62-17" data-line-number="17">                     <span class="st">&quot;x&quot;</span> =<span class="st"> </span>X )</a>
-<a class="sourceLine" id="cb62-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb62-19" data-line-number="19"><span class="co">#show the different prior distributions </span></a>
-<a class="sourceLine" id="cb62-20" data-line-number="20"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb62-21" data-line-number="21">Beta1 &lt;-<span class="st"> </span><span class="kw">rbeta</span>(<span class="dt">n=</span><span class="fl">1e5</span>, <span class="dt">shape1=</span><span class="dv">1</span>, <span class="dt">shape2=</span><span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb62-22" data-line-number="22">Beta2 &lt;-<span class="st"> </span><span class="kw">rbeta</span>(<span class="dt">n=</span><span class="fl">1e5</span>, <span class="dt">shape1=</span><span class="dv">10</span>, <span class="dt">shape2=</span><span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb62-23" data-line-number="23"><span class="kw">plot</span>(<span class="kw">density</span>(Beta1), <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">4</span>), <span class="dt">main=</span><span class="st">&quot;Prior 1: Beta(1,1)&quot;</span>, <span class="dt">xlab=</span><span class="kw">expression</span>(theta))</a>
-<a class="sourceLine" id="cb62-24" data-line-number="24"><span class="kw">plot</span>(<span class="kw">density</span>(Beta2), <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">4</span>), <span class="dt">main=</span><span class="st">&quot;Prior 2: Beta(10,10)&quot;</span>, <span class="dt">xlab=</span><span class="kw">expression</span>(theta))</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-38-1.png" width="672" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" data-line-number="1"><span class="co">#show posterior distributions weighted by priors</span></a>
-<a class="sourceLine" id="cb63-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb63-3" data-line-number="3">prior1 &lt;-<span class="st"> </span><span class="kw">set_prior</span>(<span class="st">&quot;beta(1,1)&quot;</span>, <span class="dt">class =</span> <span class="st">&quot;Intercept&quot;</span>)</a>
-<a class="sourceLine" id="cb63-4" data-line-number="4">prior2 &lt;-<span class="st"> </span><span class="kw">set_prior</span>(<span class="st">&quot;beta(10,10)&quot;</span>, <span class="dt">class =</span> <span class="st">&quot;Intercept&quot;</span>)</a>
-<a class="sourceLine" id="cb63-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb63-6" data-line-number="6">model1 &lt;-<span class="st"> </span><span class="kw">brm</span>(<span class="dt">data=</span>coin.flip1, <span class="dt">formula=</span> k<span class="op">|</span><span class="kw">trials</span>(x) <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">prior=</span>prior1, </a>
-<a class="sourceLine" id="cb63-7" data-line-number="7">              <span class="dt">family =</span> <span class="kw">binomial</span>(<span class="dt">link =</span> <span class="st">&quot;logit&quot;</span>))</a></code></pre></div>
-<pre><code>## 
-## SAMPLING FOR MODEL &#39;d233e2cb513249af99cc8901673a6dea&#39; NOW (CHAIN 1).
-## Chain 1: 
-## Chain 1: Gradient evaluation took 1.1e-05 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.11 seconds.
-## Chain 1: Adjust your expectations accordingly!
-## Chain 1: 
-## Chain 1: 
-## Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 1: 
-## Chain 1:  Elapsed Time: 0.049922 seconds (Warm-up)
-## Chain 1:                0.036333 seconds (Sampling)
-## Chain 1:                0.086255 seconds (Total)
-## Chain 1: 
-## 
-## SAMPLING FOR MODEL &#39;d233e2cb513249af99cc8901673a6dea&#39; NOW (CHAIN 2).
-## Chain 2: Rejecting initial value:
-## Chain 2:   Error evaluating the log probability at the initial value.
-## Chain 2: Exception: beta_lpdf: Random variable is -1.78361, but must be &gt;= 0!  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 2: Rejecting initial value:
-## Chain 2:   Error evaluating the log probability at the initial value.
-## Chain 2: Exception: beta_lpdf: Random variable is -1.38296, but must be &gt;= 0!  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 2: Rejecting initial value:
-## Chain 2:   Error evaluating the log probability at the initial value.
-## Chain 2: Exception: beta_lpdf: Random variable is 1.14578, but must be less than or equal to 1  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 2: Rejecting initial value:
-## Chain 2:   Error evaluating the log probability at the initial value.
-## Chain 2: Exception: beta_lpdf: Random variable is -0.525057, but must be &gt;= 0!  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 2: Rejecting initial value:
-## Chain 2:   Error evaluating the log probability at the initial value.
-## Chain 2: Exception: beta_lpdf: Random variable is -0.37572, but must be &gt;= 0!  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 2: Rejecting initial value:
-## Chain 2:   Error evaluating the log probability at the initial value.
-## Chain 2: Exception: beta_lpdf: Random variable is -1.65038, but must be &gt;= 0!  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 2: Rejecting initial value:
-## Chain 2:   Error evaluating the log probability at the initial value.
-## Chain 2: Exception: beta_lpdf: Random variable is -1.41666, but must be &gt;= 0!  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 2: Rejecting initial value:
-## Chain 2:   Error evaluating the log probability at the initial value.
-## Chain 2: Exception: beta_lpdf: Random variable is -0.462395, but must be &gt;= 0!  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 2: 
-## Chain 2: Gradient evaluation took 9e-06 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.09 seconds.
-## Chain 2: Adjust your expectations accordingly!
-## Chain 2: 
-## Chain 2: 
-## Chain 2: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 2: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 2: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 2: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 2: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 2: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 2: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 2: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 2: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 2: 
-## Chain 2:  Elapsed Time: 0.045808 seconds (Warm-up)
-## Chain 2:                0.035148 seconds (Sampling)
-## Chain 2:                0.080956 seconds (Total)
-## Chain 2: 
-## 
-## SAMPLING FOR MODEL &#39;d233e2cb513249af99cc8901673a6dea&#39; NOW (CHAIN 3).
-## Chain 3: 
-## Chain 3: Gradient evaluation took 1e-05 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.1 seconds.
-## Chain 3: Adjust your expectations accordingly!
-## Chain 3: 
-## Chain 3: 
-## Chain 3: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 3: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 3: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 3: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 3: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 3: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 3: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 3: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 3: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 3: 
-## Chain 3:  Elapsed Time: 0.048245 seconds (Warm-up)
-## Chain 3:                0.045826 seconds (Sampling)
-## Chain 3:                0.094071 seconds (Total)
-## Chain 3: 
-## 
-## SAMPLING FOR MODEL &#39;d233e2cb513249af99cc8901673a6dea&#39; NOW (CHAIN 4).
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is 1.18946, but must be less than or equal to 1  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -0.695631, but must be &gt;= 0!  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -1.64067, but must be &gt;= 0!  (in &#39;model2911d3c0c82_d233e2cb513249af99cc8901673a6dea&#39; at line 22)
-## 
-## Chain 4: 
-## Chain 4: Gradient evaluation took 7e-06 seconds
-## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.07 seconds.
-## Chain 4: Adjust your expectations accordingly!
-## Chain 4: 
-## Chain 4: 
-## Chain 4: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 4: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 4: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 4: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 4: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 4: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 4: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 4: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 4: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 4: 
-## Chain 4:  Elapsed Time: 0.045763 seconds (Warm-up)
-## Chain 4:                0.037102 seconds (Sampling)
-## Chain 4:                0.082865 seconds (Total)
-## Chain 4:</code></pre>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" data-line-number="1">samples.model1 &lt;-<span class="st"> </span><span class="kw">posterior_samples</span>(model1)</a>
-<a class="sourceLine" id="cb65-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb65-3" data-line-number="3">model2 &lt;-<span class="st"> </span><span class="kw">brm</span>(<span class="dt">data=</span>coin.flip1, <span class="dt">formula=</span> k<span class="op">|</span><span class="kw">trials</span>(x) <span class="op">~</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">prior=</span>prior2, </a>
-<a class="sourceLine" id="cb65-4" data-line-number="4">              <span class="dt">family =</span> <span class="kw">binomial</span>(<span class="dt">link =</span> <span class="st">&quot;logit&quot;</span>))</a></code></pre></div>
-<pre><code>## 
-## SAMPLING FOR MODEL &#39;4d8687896c7ea933ac28802adabeca38&#39; NOW (CHAIN 1).
-## Chain 1: 
-## Chain 1: Gradient evaluation took 1.2e-05 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.12 seconds.
-## Chain 1: Adjust your expectations accordingly!
-## Chain 1: 
-## Chain 1: 
-## Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 1: 
-## Chain 1:  Elapsed Time: 0.02091 seconds (Warm-up)
-## Chain 1:                0.020807 seconds (Sampling)
-## Chain 1:                0.041717 seconds (Total)
-## Chain 1: 
-## 
-## SAMPLING FOR MODEL &#39;4d8687896c7ea933ac28802adabeca38&#39; NOW (CHAIN 2).
-## Chain 2: 
-## Chain 2: Gradient evaluation took 1e-05 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.1 seconds.
-## Chain 2: Adjust your expectations accordingly!
-## Chain 2: 
-## Chain 2: 
-## Chain 2: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 2: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 2: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 2: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 2: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 2: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 2: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 2: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 2: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 2: 
-## Chain 2:  Elapsed Time: 0.021439 seconds (Warm-up)
-## Chain 2:                0.016553 seconds (Sampling)
-## Chain 2:                0.037992 seconds (Total)
-## Chain 2: 
-## 
-## SAMPLING FOR MODEL &#39;4d8687896c7ea933ac28802adabeca38&#39; NOW (CHAIN 3).
-## Chain 3: 
-## Chain 3: Gradient evaluation took 9e-06 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.09 seconds.
-## Chain 3: Adjust your expectations accordingly!
-## Chain 3: 
-## Chain 3: 
-## Chain 3: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 3: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 3: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 3: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 3: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 3: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 3: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 3: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 3: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 3: 
-## Chain 3:  Elapsed Time: 0.020459 seconds (Warm-up)
-## Chain 3:                0.018279 seconds (Sampling)
-## Chain 3:                0.038738 seconds (Total)
-## Chain 3: 
-## 
-## SAMPLING FOR MODEL &#39;4d8687896c7ea933ac28802adabeca38&#39; NOW (CHAIN 4).
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -1.76164, but must be &gt;= 0!  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -0.364528, but must be &gt;= 0!  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is 1.55601, but must be less than or equal to 1  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -0.194437, but must be &gt;= 0!  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is 1.18849, but must be less than or equal to 1  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -1.44503, but must be &gt;= 0!  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -1.81423, but must be &gt;= 0!  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is 1.98941, but must be less than or equal to 1  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -1.03061, but must be &gt;= 0!  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -0.283189, but must be &gt;= 0!  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is 1.98797, but must be less than or equal to 1  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is 1.17998, but must be less than or equal to 1  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is 1.06648, but must be less than or equal to 1  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -1.07607, but must be &gt;= 0!  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -1.41104, but must be &gt;= 0!  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is -1.84034, but must be &gt;= 0!  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: Rejecting initial value:
-## Chain 4:   Error evaluating the log probability at the initial value.
-## Chain 4: Exception: beta_lpdf: Random variable is 1.93085, but must be less than or equal to 1  (in &#39;model2911688f2652_4d8687896c7ea933ac28802adabeca38&#39; at line 22)
-## 
-## Chain 4: 
-## Chain 4: Gradient evaluation took 9e-06 seconds
-## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.09 seconds.
-## Chain 4: Adjust your expectations accordingly!
-## Chain 4: 
-## Chain 4: 
-## Chain 4: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 4: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 4: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 4: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 4: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 4: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 4: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 4: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 4: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 4: 
-## Chain 4:  Elapsed Time: 0.020199 seconds (Warm-up)
-## Chain 4:                0.017566 seconds (Sampling)
-## Chain 4:                0.037765 seconds (Total)
-## Chain 4:</code></pre>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" data-line-number="1">samples.model2 &lt;-<span class="st"> </span><span class="kw">posterior_samples</span>(model2)</a>
-<a class="sourceLine" id="cb67-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb67-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb67-4" data-line-number="4"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</a>
-<a class="sourceLine" id="cb67-5" data-line-number="5">Beta1 &lt;-<span class="st"> </span><span class="kw">rbeta</span>(<span class="dt">n=</span><span class="fl">1e5</span>, <span class="dt">shape1=</span><span class="dv">1</span>, <span class="dt">shape2=</span><span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb67-6" data-line-number="6">Beta2 &lt;-<span class="st"> </span><span class="kw">rbeta</span>(<span class="dt">n=</span><span class="fl">1e5</span>, <span class="dt">shape1=</span><span class="dv">10</span>, <span class="dt">shape2=</span><span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb67-7" data-line-number="7"><span class="kw">plot</span>(<span class="kw">density</span>(Beta1), <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">4</span>), <span class="dt">main=</span><span class="st">&quot;Prior 1: Beta(1,1)&quot;</span>,</a>
-<a class="sourceLine" id="cb67-8" data-line-number="8">     <span class="dt">xlab=</span><span class="kw">expression</span>(theta), <span class="dt">xlim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb67-9" data-line-number="9"><span class="kw">plot</span>(<span class="kw">density</span>(Beta2), <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">4</span>), <span class="dt">main=</span><span class="st">&quot;Prior 2: Beta(10,10)&quot;</span>, </a>
-<a class="sourceLine" id="cb67-10" data-line-number="10">     <span class="dt">xlab=</span><span class="kw">expression</span>(theta), <span class="dt">xlim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb67-11" data-line-number="11"><span class="kw">plot</span>(<span class="kw">density</span>(<span class="kw">inv_logit_scaled</span>(samples.model1<span class="op">$</span>b_Intercept)), </a>
-<a class="sourceLine" id="cb67-12" data-line-number="12">     <span class="dt">main=</span><span class="st">&quot;Posterior with prior Beta(1,1)&quot;</span>, </a>
-<a class="sourceLine" id="cb67-13" data-line-number="13">     <span class="dt">xlab=</span><span class="kw">expression</span>(theta), <span class="dt">xlim=</span><span class="kw">c</span>(<span class="fl">0.48</span>,<span class="fl">0.60</span>))</a>
-<a class="sourceLine" id="cb67-14" data-line-number="14"><span class="kw">plot</span>(<span class="kw">density</span>(<span class="kw">inv_logit_scaled</span>(samples.model2<span class="op">$</span>b_Intercept)), </a>
-<a class="sourceLine" id="cb67-15" data-line-number="15">     <span class="dt">main=</span><span class="st">&quot;Posterior with prior Beta(10,10)&quot;</span>, </a>
-<a class="sourceLine" id="cb67-16" data-line-number="16">     <span class="dt">xlab=</span><span class="kw">expression</span>(theta), <span class="dt">xlim=</span><span class="kw">c</span>(<span class="fl">0.48</span>,<span class="fl">0.60</span>))</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/04-brms-models-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The clearest difference between frequentist and Bayesian methods is the incorporation of <em>prior information</em> in the Bayesian framework. The posterior distribution results by combining the likelihood with the prior information:</p>
+<p><span class="math display">\[Posterior \propto Prior \cdot Likelihood,\]</span>
+or
+<span class="math display">\[P(B|A) \propto P(B) \cdot P(A|B).\]</span></p>
+<p>When an uninformative (e.g. uniform) prior <span class="math inline">\(P(B)\)</span> is used then the posterior <span class="math inline">\(P(B|A)\)</span> is completely dependent on the data (likelihood) <span class="math inline">\(P(A|B)\)</span>. The influence of the prior on the posterior depends on their relative weighting. Remember, the posterior is the conditional distribution of the parameter given the data. The mathematical procedure behind it is depicted by .</p>
+<p>Consider for example a beta distribution with the parameters a and b: <span class="math inline">\(\theta \sim Beta(a,b)\)</span> for expressing prior knowledge. Assume further that the observed data are derived from a coin flip experiment, thus, the likelihood function is a bernoulli likelihood. The parameters of a beta distribution can be interpreted as <span class="math inline">\(a=\)</span>no. of heads and $b = $no. of tails, or in other words: <span class="math inline">\(n=a+b\)</span>. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(5,5).</p>
+<div class="figure" style="text-align: center">
+<img src="I2DA_files/figure-html/ch-03-03-prior%20distributions-1.png" alt="Uninformative vs. informative beta prior distribution." width="672" />
+<p class="caption">
+(#fig:ch-03-03-prior distributions)Uninformative vs. informative beta prior distribution.
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="I2DA_files/figure-html/ch-03-03-posterior%20distributions-1.png" alt="Beta posterior distributions for different beta prior distributions and bernoulli likelihood." width="672" />
+<p class="caption">
+(#fig:ch-03-03-posterior distributions)Beta posterior distributions for different beta prior distributions and bernoulli likelihood.
+</p>
+</div>
 <p>A lot of effort has been done in the area of “Objective Baysian data analysis” in order to develop “uninformativ prior distributions”, because a lot of people feel uncomfortable using informative priors — seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this <span class="citation">(Dobson and Barnett <a href="#ref-dobson2008">2008</a>)</span>. It is “just” important that the definition of the prior distributions make sense (at every stage) in the model.</p>
 <div id="exursos-prior-predictive-distribution" class="section level4">
 <h4><span class="header-section-number">9.1.2.1</span> Exursos: Prior predictive distribution</h4>
 <p>So far we have seen that the  over parameters captures the initial assumptions or state of knowledge about the psychological variables they represent <span class="citation">(Lee and Wagenmakers <a href="#ref-leeWagen2014">2014</a>)</span>, in the above example this variable is <span class="math inline">\(\theta\)</span>.</p>
 <p>Considering these initial assumptions in terms of prior distributions allow to make predictions about what data we would expect given the model and current state of knowledge. This distribution is called . It is a distribution over data, and gives the relative probability of different observable outcomes before any data have been seen <span class="citation">(Lee and Wagenmakers <a href="#ref-leeWagen2014">2014</a>)</span>.</p>
 <p>For the coin flip model we consider a flat prior distribution: Beta(1,1). The prior predictive distribution would therefore look like:</p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" data-line-number="1">## prior predictive distribution</a>
-<a class="sourceLine" id="cb68-2" data-line-number="2">##coin flip example with prior: Beta(1,1) </a>
-<a class="sourceLine" id="cb68-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb68-4" data-line-number="4">n &lt;-<span class="st"> </span><span class="fl">1e5</span></a>
-<a class="sourceLine" id="cb68-5" data-line-number="5">p &lt;-<span class="st"> </span><span class="kw">rbeta</span>(<span class="dt">n=</span>n,<span class="dt">shape1 =</span> <span class="dv">1</span>,<span class="dt">shape2 =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb68-6" data-line-number="6">x &lt;-<span class="st"> </span><span class="kw">rbinom</span>(<span class="dt">n=</span>n,<span class="dt">size=</span><span class="dv">30</span>, <span class="dt">prob=</span>p)</a>
-<a class="sourceLine" id="cb68-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb68-8" data-line-number="8"><span class="kw">hist</span>(x, <span class="dt">freq =</span> <span class="ot">FALSE</span>, <span class="dt">main=</span><span class="st">&quot;Prior predictive distribution&quot;</span>, <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="fl">0.15</span>), <span class="dt">xlab=</span><span class="st">&quot;k - number of heads&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-39-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center">
+<img src="I2DA_files/figure-html/ch-03-03-prior%20predictive%20distribution-1.png" alt="Prior predictive distribution with Beta(1,1) prior for coin flip model" width="672" />
+<p class="caption">
+(#fig:ch-03-03-prior predictive distribution)Prior predictive distribution with Beta(1,1) prior for coin flip model
+</p>
+</div>
 </div>
 </div>
 </div>
