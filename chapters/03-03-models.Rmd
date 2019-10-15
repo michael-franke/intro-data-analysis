@@ -2,88 +2,102 @@
 
 ## Likelihood, Prior, \& Posterior
 
-Before the topic of  is introduced, some conceptual notions are neccessary.
+Before the topic of is introduced, some conceptual notions regarding likelihood, prior and posterior are neccessary.
 
 ### Probability density function vs. Likelihood function
 
-As already know from the "probability"-lecture, for a coin flip the probability of each outcome can be described with the \emph{Bernoulli distribution}\, as there exist two discrete outcomes (head or tail) and a constant probability $\theta$:
+As already introduced, for a coin flip the probability of each outcome can be modeled with the \emph{Bernoulli distribution}\, because two discrete outcomes (head or tail) and a constant probability $\theta$ exist:
 $$p([X=x]|\theta)=\theta^{[x]}(1-\theta)^{(1-[x])}$$
 
 where
 
-- $\theta$ is the probability of "head" for the coin flip;
+- $\theta$ is the probability of coin-flip-outcome "head", and
 - the bracket [ ] indicates that the particular parameter is treated as unknown.
 
 With the formula above the probability of $\theta$ is treated as "known". Accordingly, the distribution of possible outcomes can be derived. 
 
-But, as already seen in the introductory part, one might be interested in the value of $\theta$ by a given data set. Then $\theta$ is unknown and the data are observed. Treating $\theta$ as parameters instead of $x$ leads to the \emph{likelihood function} --- a mathematical formula that specifies the plausibility of the data. It states the probability of any possible observation: 
+But often the contrary is the case, that is one is interested in the value of $\theta$ by a given data set. Then $\theta$ is unknown and the data are observed. Treating $\theta$ as parameter instead of $x$ leads to the \emph{likelihood function} --- a mathematical formula that specifies the plausibility of the data. It states the probability of any possible observation: 
 $$p(X=x|[\theta])=[\theta]^x(1-[\theta])^{(1-x)}$$
+```{r ch-03-03-likelihood distribution, echo = FALSE, fig.cap = "Bernoulli likelihood for simulated observed coin-flip data."}
+# x-axis
+stepsize <- 100
+theta = seq(from = 0, to = 1, by = 1/stepsize)
+
+# beroulli likelihood
+likelihood_bern <- tibble(
+  theta = theta,
+  n = 30,                                    # number of observations 
+  k = 18,                                    # number of heads 
+  likelihood = (theta^k)*(1-theta)^(n-k)     # bernoulli likelihood
+) %>% 
+mutate(likelihood_norm = (likelihood / sum(likelihood)*stepsize)
+           )  
+# plot likelihood
+ggplot(likelihood_bern, aes(x = theta, y = likelihood_norm)) +
+  geom_line(size = 2) +
+  labs(x = expression(theta), y = "Likelihood")
+```
 
 Please be aware that through exchanging the roles of $x$ and $\theta$ in the second equation (likelihood function) this function is no longer a probability distribution and thus does not integrate to 1. 
 
 ### Prior & Posterior
 
-The clearest difference between frequentist and Bayesian methods is the incorporation of *prior information* in the Bayesian framework. The posterior distribution results by combining the likelihood with the prior information.
+The clearest difference between frequentist and Bayesian methods is the incorporation of *prior information* in the Bayesian framework. The posterior distribution results by combining the likelihood with the prior information:
 
-When an uninformative (e.g. uniform) prior is used then the posterior is completely dependent on the data. The influence of the prior on the posterior depends on their relative weighting. Remember that the posterior is the conditional distribution of the parameter given the data. The mathematical procedure behind it depicts \emph{Bayes' Theorem}.
+$$Posterior \propto Prior \cdot Likelihood,$$
+or
+$$P(B|A) \propto P(B) \cdot P(A|B).$$
 
-Consider for example a Beta distribution with the parameters a and b: $\beta \sim Beta(a,b)$. Assuming a coin flip experiment, the parameters of a Beta distribution can be interpreted as $a=$no. of heads and $b = $no. of tails, thus, $n=a+b$. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(5,5).
+When an uninformative (e.g. uniform) prior $P(B)$ is used then the posterior $P(B|A)$ is completely dependent on the data (likelihood) $P(A|B)$. The influence of the prior on the posterior depends on their relative weighting. Remember, the posterior is the conditional distribution of the parameter given the data. The mathematical procedure behind it is depicted by \emph{Bayes' Theorem}.
 
-```{r}
-# simulate coin flip data set
-sample.space <- c(1, 0)
-theta <- 0.5              # probability of a success (here: head)
-X <- 30                   # number of trials in the experiment
-n <- 10                   # number of observations
-k <- 0                    # number of heads [initialization]
+Consider for example a beta distribution with the parameters a and b: $\theta \sim Beta(a,b)$ for expressing prior knowledge. Assume further that the observed data are derived from a coin flip experiment, thus, the likelihood function is a bernoulli likelihood. The parameters of a beta distribution can be interpreted as $a=$no. of heads and $b = $no. of tails, or in other words: $n=a+b$. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(5,5).
 
-## repeat experiment N-times
-for (i in 1: n) {
-  k[i] <- sum(sample(sample.space, size = X, replace = TRUE, 
-                     prob = c(theta, 1 - theta)))
-}
+```{r ch-03-03-prior distributions, echo = FALSE, fig.cap = "Uninformative vs. informative beta prior distribution."}
+tibble(
+  theta = theta,
+  y1 = dbeta(theta, shape1 = 1, shape2 = 1),
+  y2 = dbeta(theta, shape1 = 10, shape2 = 10)
+) %>% 
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(1,1)",
+                          parameter == "y2" ~ "(10,10)")
+  ) %>% 
 
-## show results in a tibble
-coin.flip1 <- tibble("n" = seq(from=1, to=n, by=1),
-                     "k" = k,
-                     "x" = X )
-
-#show the different prior distributions 
-par(mfrow=c(1,2))
-Beta1 <- rbeta(n=1e5, shape1=1, shape2=1)
-Beta2 <- rbeta(n=1e5, shape1=10, shape2=10)
-plot(density(Beta1), ylim=c(0,4), main="Prior 1: Beta(1,1)", xlab=expression(theta))
-plot(density(Beta2), ylim=c(0,4), main="Prior 2: Beta(10,10)", xlab=expression(theta))
+ggplot(aes(theta, y, color = parameter)) +
+  geom_line(size = 2) +
+  labs(color = "X ~ Beta distribution", y = "Density", x = expression(theta))
 ```
 
-```{r 04-brms-models, cache=TRUE}
-#show posterior distributions weighted by priors
+```{r ch-03-03-posterior distributions, echo = FALSE, fig.cap = "Beta posterior distributions for different beta prior distributions and bernoulli likelihood."}
 
-prior1 <- set_prior("beta(1,1)", class = "Intercept")
-prior2 <- set_prior("beta(10,10)", class = "Intercept")
+tibble(
+  theta = theta,
+  y_prior1 = dbeta(theta, shape1 = 1, shape2 = 1),
+  y_prior2 = dbeta(theta, shape1 = 10, shape2 = 10),
+  likelihood = likelihood_bern$likelihood_norm,
+  y_likelihood = likelihood_bern$likelihood_norm, # only for legend
+  y_posterior1 = dbeta(theta, shape1 = likelihood_bern$k+1, shape2 = likelihood_bern$n-likelihood_bern$k+1),
+  y_posterior2 = dbeta(theta, shape1 = likelihood_bern$k+10, shape2 = likelihood_bern$n-likelihood_bern$k+10)
+) %>% 
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y_prior1" ~ "Beta(1,1) - prior1",
+                          parameter == "y_prior2" ~ "Beta(10,10) - prior2",
+                          parameter == "y_likelihood" ~ "Bernoulli(18) - likelihood", 
+                          parameter == "y_posterior1" ~ "Beta(19,13) - posterior1",
+                          parameter == "y_posterior2" ~ "Beta(28,22) - posterior2")
+  ) %>% 
 
-model1 <- brm(data=coin.flip1, formula= k|trials(x) ~ 1, prior=prior1, 
-              family = binomial(link = "logit"))
-samples.model1 <- posterior_samples(model1)
+ggplot() +
+  geom_line(aes(theta, y, color = parameter), size = 2) +
+  geom_line(aes(theta, likelihood), linetype = "dashed", size = 2, color = project_colors[2]) +
+  labs(x = expression(theta), y = "Density")
 
-model2 <- brm(data=coin.flip1, formula= k|trials(x) ~ 1, prior=prior2, 
-              family = binomial(link = "logit"))
-samples.model2 <- posterior_samples(model2)
-
-
-par(mfrow=c(2,2))
-Beta1 <- rbeta(n=1e5, shape1=1, shape2=1)
-Beta2 <- rbeta(n=1e5, shape1=10, shape2=10)
-plot(density(Beta1), ylim=c(0,4), main="Prior 1: Beta(1,1)",
-     xlab=expression(theta), xlim=c(0,1))
-plot(density(Beta2), ylim=c(0,4), main="Prior 2: Beta(10,10)", 
-     xlab=expression(theta), xlim=c(0,1))
-plot(density(inv_logit_scaled(samples.model1$b_Intercept)), 
-     main="Posterior with prior Beta(1,1)", 
-     xlab=expression(theta), xlim=c(0.48,0.60))
-plot(density(inv_logit_scaled(samples.model2$b_Intercept)), 
-     main="Posterior with prior Beta(10,10)", 
-     xlab=expression(theta), xlim=c(0.48,0.60))
 ```
 
 A lot of effort has been done in the area of "Objective Baysian data analysis" in order to develop "uninformativ prior distributions", because a lot of people feel uncomfortable using informative priors --- seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this [@dobson2008]. It is "just" important that the definition of the prior distributions make sense (at every stage) in the model.
@@ -96,28 +110,29 @@ Considering these initial assumptions in terms of prior distributions allow to m
 
 For the coin flip model we consider a flat prior distribution: Beta(1,1). The prior predictive distribution would therefore look like:
 
-```{r}
-## prior predictive distribution
-##coin flip example with prior: Beta(1,1) 
+```{r ch-03-03-prior predictive distribution, echo = FALSE, fig.cap = "Prior predictive distribution with Beta(1,1) prior for coin flip model"}
 
-n <- 1e5
-p <- rbeta(n=n,shape1 = 1,shape2 = 1)
-x <- rbinom(n=n,size=30, prob=p)
-
-hist(x, freq = FALSE, main="Prior predictive distribution", ylim=c(0,0.15), xlab="k - number of heads")
+tibble(
+  n = 1e5,
+  p = rbeta(n = n, shape1 = 1, shape2 = 1),
+  x = rbern(n = n, prob = p)
+) %>% 
+  ggplot() +
+  geom_histogram(aes(x, y = (..count..)/sum(..count..))) +
+  scale_x_continuous(name = "number of heads", breaks = c(0.0,1.0), labels = c("0","1"), limits = c(-0.5,1.5)) +
+  scale_y_continuous(name = "Probability", limits = c(0,1)) 
 ```
 
 ## Modeling
 
 ### Introductory example
 
-As introductory example a coin flip experiment is considered. The question is if a particular coin is \emph{biased}. In order to investigate this question a coin is flipped $x$ times (=trials) and the number of success (i.e. number of "head") $k$ is recorded. This is repeated $n$ times (=observations).
+As introductory example we considered a coin flip experiment and asked if a particular coin is \emph{biased}. In order to investigate this question a coin is flipped $x$ times (= trials) and the number of success (i.e. numbers of "head") $k$ is recorded. This is repeated $n$ times (=observations).
 
-```{r}
-#this code is just copy&paste from above [it is included again for better comprehension]
+```{r ch-03-03-coin-flip data set, echo = FALSE, fig.cap = "Simulating a coin flip experiment with n observations, x trials and k number of heads."}
 #simulate coin flip data set
 sample.space <- c(0, 1)
-theta <- 0.5              # probability of a success (here: head)
+theta <- 0.5              # "true" probability of a success (here: head)
 X <- 30                   # number of trials in the experiment
 n <- 10                   # number of observations
 k <- 0                    # number of heads [initialization]
@@ -161,37 +176,32 @@ In **the second step** a *descriptive model for the identified variables* has to
 $$p(y=1|\theta)=\theta$$
 As only two outcomes of $Y$ exists, the probability that the outcome is tail is the complementary probability $1-\theta$. Both probabilities can be combined in one probability expression:
 $$Pr(Y|n,\theta)=\frac{n!}{y!(n-y)!}\theta^{y}(1-\theta)^{n-y}.$$
-This probability distribution is called the **Binomial distribution**. The fracture at the beginning  indicates how many ordered sequences of $n$ outcomes a count $y$ have, therefore the important conceptional part is the latter one. 
+This probability distribution is called the **Binomial distribution**. The fracture at the beginning indicates how many ordered sequences of $n$ outcomes a count $y$ have. 
 
-```{r}
-# Plot probability distribution: What would be the expected observed number 
-# of "head" given the underlying prob. theta?
- 
-par(mfrow = c(2, 2))
-## theta=0.2
-hist(
-  rbinom(n = 1e6, size = 30, prob = 0.2),
-  xlab = "k",
-  main = "Binomial(1e6,0.2)",
-  xlim = c(0, 30),
-  freq = FALSE
-)
-## theta=0.5
-hist(
-  rbinom(n = 1e6, size = 30, prob = 0.5),
-  xlab = "k",
-  main = "Binomial(1e6,0.5)",
-  xlim = c(0, 30),
-  freq = FALSE
-)
-## theta=0.8
-hist(
-  rbinom(n = 1e6, size = 30, prob = 0.8),
-  xlab = "k",
-  main = "Binomial(1e6,0.8)",
-  xlim = c(0, 30),
-  freq = FALSE
-)
+```{r ch-03-03-binomial distribution-coin flip example, echo = FALSE, fig.cap = "Binomial distribution for different coin biases"}
+# how many trials
+trials = 30
+
+rv_binom <- tibble(
+  x = seq(0, trials),
+  y1 = dbinom(x, size = trials, p = 0.2),
+  y2 = dbinom(x, size = trials, p = 0.5),
+  y3 = dbinom(x, size = trials, p = 0.8)
+) %>% 
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(n,0.2)",
+                          parameter == "y2" ~ "(n,0.5)",
+                          parameter == "y3" ~ "(n,0.8)")
+  )
+
+# dist plot
+ggplot(rv_binom, aes(x, y, fill = parameter)) +
+  geom_col(position = "identity", alpha = 0.8) +
+  labs(fill = "X ~ Binomial", y = "Probability")
+
 ```
 
 When the coin is flipped only once, then the probabilty can be written as:
@@ -200,34 +210,52 @@ This special variant of the Binomial distribution is the so-called **Bernoulli d
 
 Accordingly, for the introductory example it can be noted that the coin flip variable $Y$ \emph{is distributed as} Binomial distribution. (Note: For Bayes' rule the \emph{likelihood function} is needed. Remember, the likelihood function treats $\theta$ as unknow and the data as known. This role of parameter is exchanged in a probability distribution.)
 
-```{r}
-# calculate the Liklihood function
-binomial.likelihood <- function(n, k, theta){theta^k*(1-theta)^(n-k)}
-theta <- seq(from=0, to=1, by=0.01)
+```{r ch-03-03-binomial likelihood-coin flip example, echo = FALSE, fig.cap = "Binomial likelihoods for different observed coin flip outcomes."}
 
-# Plot likelihood: What would be the expected underlying prob. theta given 
-# observed number of "head" in 100 observations?
-par(mfrow=c(2,2))
-plot(theta, binomial.likelihood(100,20,theta), xlab=expression(theta), 
-     ylab="likelihood", type="l")
-plot(theta,binomial.likelihood(100,50,theta), xlab=expression(theta), 
-     ylab="likelihood", type="l")
-plot(theta,binomial.likelihood(100,80,theta), xlab=expression(theta), 
-     ylab="likelihood", type="l")
+binomial.likelihood <- function(n, k, theta){theta^k*(1-theta)^(n-k)}
+
+tibble(
+  n = 10,
+  theta = seq(from=0, to=1, by=0.01),
+  y_1 = binomial.likelihood(n,2,theta),
+  y_2 = binomial.likelihood(n,5,theta),
+  y_3 = binomial.likelihood(n,8,theta)
+) %>% 
+pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y_1" ~ "(n=10,x=20,p)",
+                          parameter == "y_2" ~ "(n=10,x=50,p)",
+                          parameter == "y_3" ~ "(n=10,x=80,p)")
+  ) %>% 
+ggplot(aes(theta, y, color = parameter)) +
+  geom_line(size = 2) +
+  labs(color = "X ~ Binomial", y = "Likelihood", x = expression(theta))
 ```
 
 **The third step** is solely a \emph{Bayesian idea}, that is the *incorporation of prior knowledge*. What do we believe about the coin bias $\theta$ before seeing the data? Assuming that no expectation about $\theta$ exists a priori, indicating that all values of $\theta$ between 0 and 1 are equally probable. This can be modeled by a uniform distribution or as already visualized as Beta distribution with parameters a=1 and b=1 (see following figure).
 
-```{r, eval=FALSE}
-# Modelling prior knowledge "ignorance"
+```{r ch-03-03-prior distribution-coin flip example, echo = FALSE, fig.cap = "Using uniformative prior distributions: The Uniform(0,1) and Beta(1,1) prior."}
 
-par(mfrow = c(1, 2))
-## simulated a uniform(0,1) distribution
-rethinking::dens(runif(n=1e6,min=0, max=1), ylim = c(0,1.5), 
-     xlab=expression(theta), main="Uniform(0,1)")
-## simulates a beta(1,1) distribution
-rethinking::dens(rbeta(n=1e6,shape1=1,shape2=1), ylim = c(0,1.5), 
-     xlab=expression(theta), main="Beta(1,1)")
+tibble(
+  x = seq(from = -0.01, to = 1.01, by = 0.01),
+  y_1 = dunif(x, min = 0, max = 1),
+  y_2 = dbeta(x, shape1 = 1, shape2 = 1), # only for legend
+  beta = dbeta(x, shape1 = 1, shape2 = 1)
+) %>% 
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "prior",
+               values_to = "y") %>% 
+  mutate(
+    prior = case_when(prior == "y_1" ~ "Uniform(0,1)",
+                      prior == "y_2" ~ "Beta(1,1)")
+  ) %>% 
+ggplot() +
+  geom_line(aes(x, y, color = prior), size = 2) +
+  geom_line(aes(x, beta), color = project_colors[2], size = 2, linetype = "dashed") +
+  labs(y = "Density", x = expression(theta)) +
+  ylim(0,1.5)
 ```
 
 So far, the coin flip model is define conceptionally. In the following some notational considerations have to be made. 
