@@ -1,5 +1,10 @@
 **Other resources**
 
+# Infomaterial for Script
+
+## Keyboard Shortcuts RStudio (for Windows and Mac)
+  - https://support.rstudio.com/hc/en-us/articles/200711853-Keyboard-Shortcuts 
+
 # Webbooks on Stats and R
 
 ## Learning Statistics with R (Danielle Navarro)
