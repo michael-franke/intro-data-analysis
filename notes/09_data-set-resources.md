@@ -1,5 +1,5 @@
 
-# Data sets ressources
+# Data set resources
 
 - https://www.psychdata.de/index.php?main=search&sub=browse&lang=eng
 - http://www.dataonthemind.org/data-resources 
