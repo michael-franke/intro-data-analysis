@@ -8,6 +8,7 @@
 - [*Understandable statistics* - publisher of this textbook provides some data sets organized by data type/uses](http://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/svls/frames/frame.html)
 - [Prof Larry Winner, University of Florida Department of Statistics, provides links to datasets](http://users.stat.ufl.edu/~winner/datasets.html)
 - [Datasets for teaching data science - with R examples](https://simplystatistics.org/2018/01/22/the-dslabs-package-provides-datasets-for-teaching-data-science/)
+- [General archive for datasets of Univeristy of Michigan](https://www.icpsr.umich.edu/icpsrweb/ICPSR/search/studies?)
 
 ## Other resources
 
