@@ -8,7 +8,7 @@
 - [*Understandable statistics* - publisher of this textbook provides some data sets organized by data type/uses](http://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/svls/frames/frame.html)
 - [Prof Larry Winner, University of Florida Department of Statistics, provides links to datasets](http://users.stat.ufl.edu/~winner/datasets.html)
 
-# Other resources
+## Other resources
 
 - [*data on the mind* - List of data sets, but not up-to-date](http://www.dataonthemind.org/data-resources)
 - https://dataverse.harvard.edu/
