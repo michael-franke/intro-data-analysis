@@ -7,6 +7,7 @@
 - [*DASL* - online library of datafiles and stories that illustrate the use of basic statistics methods](https://dasl.datadescription.com/datafiles/?_sfm_methods=Scatterplot&_sfm_cases=4+59943)
 - [*Understandable statistics* - publisher of this textbook provides some data sets organized by data type/uses](http://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/svls/frames/frame.html)
 - [Prof Larry Winner, University of Florida Department of Statistics, provides links to datasets](http://users.stat.ufl.edu/~winner/datasets.html)
+- [Datasets for teaching data science - with R examples](https://simplystatistics.org/2018/01/22/the-dslabs-package-provides-datasets-for-teaching-data-science/)
 
 ## Other resources
 
