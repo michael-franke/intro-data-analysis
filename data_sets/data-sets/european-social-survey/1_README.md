@@ -42,7 +42,7 @@ structured questionnaires
 ## Overview variable groups
 
 - Media and social trust (6 variables)
- - media communication, internet use, media exposure
+  + media communication, internet use, media exposure
 - Politics (91 variabels)
   + Political Issues, Shifts in Governance, Socio-Political Orientations, Attitudes to Homosexuality, Online Political Participation, Political Efficacy
 - Subjective well-being, social exclusion, religion, national and ethnic identity (75 variables)
