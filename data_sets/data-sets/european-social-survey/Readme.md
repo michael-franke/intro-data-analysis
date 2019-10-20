@@ -17,7 +17,14 @@ structured questionnaires
 # Data set - description
 
 **Detailed description of current data set and each variable:**
-See [ESS8.pdf](../ESS8.pdf) in folder *european-social-survey*
+
+- [ESS8-description.pdf](../ESS8-description.pdf) - complete description
+- [overview-ess-dataset.Rmd](../overview-ess-dataset.Rmd) - overview of variable groups and variables
+
+**Dataset:**
+
+- [ESS8.csv](../ESS8.csv) - complete dataset
+- [variable-description.csv](../variable-description.csv) - helpful overview and description of variables (e.g. for filtering, etc.)
 
 **Year:** 
 2016
