@@ -29,7 +29,7 @@ structured questionnaires
 **Year:** 
 2016
 
-**Number of countries:** 
+**Participating countries:** 
 23 countries ("AT" "BE" "CH" "CZ" "DE" "EE" "ES" "FI" "FR" "GB" "HU" "IE" "IL" "IS" "IT" "LT" "NL" "NO" "PL" "PT" "RU" "SE" "SI")
 
 **Missing data:**
