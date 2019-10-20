@@ -15,3 +15,4 @@
 - [*data on the mind* - List of data sets, but not up-to-date](http://www.dataonthemind.org/data-resources)
 - [*Dataverse* provided from Havard university](https://dataverse.harvard.edu/)
 - [*Kaggle* list of data sets](https://www.kaggle.com/datasets)
+- http://academictorrents.com/browse.php?cat=6
