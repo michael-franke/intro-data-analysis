@@ -24,7 +24,7 @@ structured questionnaires
 **Dataset:**
 
 - [ESS8.csv](../ESS8.csv) - complete dataset
-- [variable-description.csv](../variable-description.csv) - helpful overview and description of variables (e.g. for filtering, etc.)
+- [variable-description-ess.csv](../variable-description-ess.csv) - helpful overview and description of variables (e.g. for filtering, etc.)
 
 **Year:** 
 2016
