@@ -10,4 +10,4 @@ Find for each data set an appropriate folder in the directory. Links provided he
 - [World Happiness Report](https://www.kaggle.com/unsdsn/world-happiness)
   + [IN PROGRESS ...]
 - [World Values Survey](http://www.worldvaluessurvey.org/WVSDocumentationWV6.jsp)
-  + [IN PROGRESS ...]
+  + The [World Values Survey](www.worldvaluessurvey.org) is a global network of social scientists studying changing values and their impact on social and political life. The survey, which started in 1981, seeks to use the most rigorous, high-quality research designs in each country. The WVS consists of nationally representative surveys conducted in almost 100 countries which contain almost 90 percent of the world’s population, using a common questionnaire. The WVS is the largest non-commercial, cross-national, time series investigation of human beliefs and values ever executed, currently including interviews with almost 400,000 respondents. Moreover the WVS is the only academic study covering the full range of global variations, from very poor to very rich countries, in all of the world’s major cultural zones.
