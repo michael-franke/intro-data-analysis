@@ -11,7 +11,7 @@ Wave 6 (2010-2014)
 Inglehart, R., C. Haerpfer, A. Moreno, C. Welzel, K. Kizilova, J. Diez-Medrano, M. Lagos, P. Norris, E. Ponarin & B. Puranen et al. (eds.). 2014. World Values Survey: Round Six - Country-Pooled Datafile Version: www.worldvaluessurvey.org/WVSDocumentationWV6.jsp. Madrid: JD Systems Institute. 
 
 **Data collection mode:**
-structured questionnaire
+structured questionnaire (see [Official-questionnaire](../WV6_Official_Questionnaire.pdf))
 
 # Data set - description
 
