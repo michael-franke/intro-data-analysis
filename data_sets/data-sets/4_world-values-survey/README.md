@@ -31,11 +31,12 @@ The survey was presented to participants in both electronic and written form. Th
 60 countries (see for details [codebook](../WV6_Codebook.pdf) section *annex* PP002 Country Code p.64)
 
 **Missing data:**
--5 Missing; Unknown
--4 Not asked in survey
--3 Not applicable
--2 No answer
--1 Don´t know
+
+- 5 Missing; Unknown
+- 4 Not asked in survey
+- 3 Not applicable
+- 2 No answer
+- 1 Don´t know
 
 ## Overview variable groups
 
