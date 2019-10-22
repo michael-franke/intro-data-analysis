@@ -194,7 +194,7 @@ Overiew:
   - Bernoulli distribution
   - Beta binomial distribution
   - Poisson distribution
-- Understanding distributions as random variables [IN PROGRESS]
+- Understanding distributions as random variables [IN PROGRESS] (if the integration of WebPPL is possible then better to do it with WebPPL)
 
 3. Exponential Family and Maximum Entropy
 
