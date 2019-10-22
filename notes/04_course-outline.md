@@ -162,8 +162,24 @@ Overiew:
 - use/mention Jasp/WebPPL/greta?
 
  ## Appendix
+ 
+1.  Further useful information material
 
-1.  Common probability distributions
+- Installation Issues
+  - (base) R
+  - RStudio
+  - brms-package
+  - tidyverse-package
+  - greta-package [IN PROGRESS]
+- Reading material
+  - Textbooks on *Introduction to Probability*
+  - Textbooks on *Bayesian Data Analysis*
+  - Textbooks on *Frequentist statistics* [IN PROGRESS]
+  - Textbooks on *R, Tidyverse, etc.* [IN PROGRESS]
+  - Package documentation [IN PROGRESS]
+  - Further information for RStudio (e.g. Shortcuts)
+
+2.  Common probability distributions
 
 - Selected continous distributions of random variables
   - Normal distribution
@@ -178,9 +194,9 @@ Overiew:
   - Bernoulli distribution
   - Beta binomial distribution
   - Poisson distribution
-- Understanding distributions as random variables
+- Understanding distributions as random variables [IN PROGRESS]
 
-2. Exponential Family and Maximum Entropy
+3. Exponential Family and Maximum Entropy
 
 - An important family: The Exponential Family
 - Excursos: "Information Entropy" and "Maximum Entropy Principal"
