@@ -51,6 +51,7 @@
 * https://shiny.rit.albany.edu/stat/fdist/ (only F-distribution)
 * https://istats.shinyapps.io/FDist/ (explores F-distribution)
 * https://gallery.shinyapps.io/dist_calc/ (several distributions)
+* one thing to rule them all (?): https://ben18785.shinyapps.io/distribution-zoo/
 ### Sampling Distribution / Central Limit Theorem
 * https://shiny.rit.albany.edu/stat/sampdist/ (sampling and central limit theorem)
 * https://rstudio.aws.science.psu.edu:3838/Boast/Probability/Central_Limit_Theorem/ (Central Limit Theorem)

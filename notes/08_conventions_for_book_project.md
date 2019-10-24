@@ -28,3 +28,24 @@ When writing content for the bookdown-project, let's try to adhere to the follow
       arg2 = bar,
       arg3 = chi
     )
+
+- **documenting data sets**
+  - use the following structure:
+    1. Nature, origin and rationale of the data
+       - describe where the data set comes from
+       - why is this interesting / or in which respect
+       - what research questions would we like to address
+    2. Loading and preprocessing the data
+       - load data, wrangle into shape
+       - possibly create the necessary variable
+    3. Cleaning the data
+       - if applicable: remove bad data before plotting or analysis
+       - maybe show plots of what has been removed
+    4. Exploration: summary stats & plots
+       - give whatever interesting summary stats we can about the data
+       - also show different aspects of data (e.g., overal error rate, time spent on average, gender distribution ...)
+    5. Data analysis 
+       - if applicable: test the research hypotheses 
+       - use the methods appropriate for the task
+         - ideally, always also include a (Bayesian) regression analysis
+       - interpret the findings

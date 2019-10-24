@@ -33,5 +33,7 @@
 ## tinydenseR - Visualizing common probability distributions
   - https://github.com/bearloga/tinydensR
   
+# Books on stats
 
+- 
   
