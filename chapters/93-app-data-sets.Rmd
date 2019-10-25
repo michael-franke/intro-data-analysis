@@ -102,7 +102,7 @@ Notice that in the case at hand, the experimental conditions are the three types
 
 Our rule for removing data from outlier participants is this:
 
-> We remove remove the data from an individual participant $X$ if there is an experimental condition $C$ such that the mean RT of $X$ for condition $C$ is more than 2 standard deviations away from the overal mean RT for condition $C$.
+> We remove remove the data from an individual participant $X$ if there is an experimental condition $C$ such that the mean RT of $X$ for condition $C$ is more than 2 standard deviations away from the overal mean RT for condition $C$. We also remove all trials with reaction times below 100ms.
 
 This procedure is implemented in this code:
 
@@ -161,12 +161,41 @@ d_cleaned = d_preprocessed %>%
 
 Our rule for exclusing data from individual trials is:
 
-> From the remaining data, we then remove any individual trial $Y$ if the RT of $Y$ is more than 2 standard deviations away from the mean of experimental condition $C$ (where $C$ is the condition of $Y$, of course).
+> From the remaining data, we then remove any individual trial $Y$ if the RT of $Y$ is more than 2 standard deviations away from the mean of experimental condition $C$ (where $C$ is the condition of $Y$, of course). We also remove all trials with reaction times below 100ms.
 
 The following code implements this:
 
 ```{r}
 
+# mark individual trials as outliers
+d_cleaned = d_cleaned %>% 
+  full_join(
+    d_sum_stats_conditions,
+    by = "block"
+  ) %>% 
+  mutate(
+    trial_type = case_when(
+      abs(RT - mean_C) > 2 * sd_C ~ "too far from mean",
+      RT < 100 ~ "< 100ms",
+      TRUE ~ "acceptable"
+    ) %>% factor(levels = c("acceptable", "< 100ms", "too far from mean")),
+    trial = 1:nrow(d_cleaned)
+  )
+
+# visualize outlier trials
+
+d_cleaned %>% 
+  ggplot(aes(x = trial, y = RT, color = trial_type)) +
+  geom_point(alpha = 0.4) + facet_grid(~block) + 
+  geom_point(alpha = 0.9, data = filter(d_cleaned, trial_type != "acceptable"))
+
+```
+
+So, we remove `r filter(d_cleaned, trial_type != "acceptable") %>% nrow()` individual trials.
+
+```{r}
+d_cleaned = d_cleaned %>% 
+  filter(trial_type == "acceptable")
 ```
 
 
@@ -184,16 +213,42 @@ d_cleaned %>%
 
 There are two participants who took noticably longer than all the others, but we need not necessarily be concerned about this, because it is not unusual for participants of online experiments to open the experiment and wait before actually starting.
 
+Here are summary statistics for the reaction time measures for each condition (= block).
+
+```{r}
+d_sum_stats_blocks_cleaned = d_cleaned %>% 
+  group_by(block) %>% 
+  summarise(
+    HDI_low  = mean(RT) - sd(RT),
+    mean_RT  = mean(RT),
+    HDI_high = mean(RT) + sd(RT)
+  )
+
+d_sum_stats_blocks_cleaned
+
+```
+
+And a plot of the summary:
+
+```{r}
+d_sum_stats_blocks_cleaned %>% 
+  ggplot(aes(x = block, y = mean_RT, fill = block)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = HDI_low, ymax = HDI_high), size = 0.3, width = 0.4 ) +
+  ylab("mean reaction time") + xlab("") +
+  scale_fill_manual(values = project_colors) +
+  theme(legend.position = "none") 
+```
 
 
-- give whatever interesting summary stats we can about the data
-- also show different aspects of data (e.g., overal error rate, time spent on average, gender distribution ...)
+To do:
 
-## Data analysis 
+- replace sd with bootstrap CI
+- give alternative to barplot with individual points
+
+### Data analysis 
 
 We can look at the distribution of time spent on the whole experiment:
-
-
 
 - if applicable: test the research hypotheses 
 - use the methods appropriate for the task
