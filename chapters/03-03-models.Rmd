@@ -2,7 +2,7 @@
 
 ## Likelihood, Prior, \& Posterior
 
-Before the topic of is introduced, some conceptual notions regarding likelihood, prior and posterior are neccessary.
+Before the topic of is introduced, some conceptual notions regarding likelihood, prior and posterior are necessary.
 
 ### Probability density function vs. Likelihood function
 
@@ -14,9 +14,9 @@ where
 - $\theta$ is the probability of coin-flip-outcome "head", and
 - the bracket [ ] indicates that the particular parameter is treated as unknown.
 
-With the formula above the probability of $\theta$ is treated as "known". Accordingly, the distribution of possible outcomes can be derived. 
+With the formula above the probability of $\theta$ is treated as "known". Accordingly, the distribution of possible outcomes can be derived.
 
-But often the contrary is the case, that is one is interested in the value of $\theta$ by a given data set. Then $\theta$ is unknown and the data are observed. Treating $\theta$ as parameter instead of $x$ leads to the \emph{likelihood function} --- a mathematical formula that specifies the plausibility of the data. It states the probability of any possible observation: 
+But often the contrary is the case, that is one is interested in the value of $\theta$ by a given data set. Then $\theta$ is unknown and the data are observed. Treating $\theta$ as parameter instead of $x$ leads to the \emph{likelihood function} --- a mathematical formula that specifies the plausibility of the data. It states the probability of any possible observation:
 $$p(X=x|[\theta])=[\theta]^x(1-[\theta])^{(1-x)}$$
 ```{r ch-03-03-likelihood distribution, echo = FALSE, fig.cap = "Bernoulli likelihood for simulated observed coin-flip data."}
 # x-axis
@@ -26,19 +26,19 @@ theta = seq(from = 0, to = 1, by = 1/stepsize)
 # beroulli likelihood
 likelihood_bern <- tibble(
   theta = theta,
-  n = 30,                                    # number of observations 
-  k = 18,                                    # number of heads 
+  n = 30,                                    # number of observations
+  k = 18,                                    # number of heads
   likelihood = (theta^k)*(1-theta)^(n-k)     # bernoulli likelihood
-) %>% 
+) %>%
 mutate(likelihood_norm = (likelihood / sum(likelihood)*stepsize)
-           )  
+           )
 # plot likelihood
 ggplot(likelihood_bern, aes(x = theta, y = likelihood_norm)) +
   geom_line(size = 2) +
   labs(x = expression(theta), y = "Likelihood")
 ```
 
-Please be aware that through exchanging the roles of $x$ and $\theta$ in the second equation (likelihood function) this function is no longer a probability distribution and thus does not integrate to 1. 
+Please be aware that through exchanging the roles of $x$ and $\theta$ in the second equation (likelihood function) this function is no longer a probability distribution and thus does not integrate to 1.
 
 ### Prior & Posterior
 
@@ -57,14 +57,14 @@ tibble(
   theta = theta,
   y1 = dbeta(theta, shape1 = 1, shape2 = 1),
   y2 = dbeta(theta, shape1 = 10, shape2 = 10)
-) %>% 
+) %>%
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
-               values_to = "y") %>% 
+               values_to = "y") %>%
   mutate(
     parameter = case_when(parameter == "y1" ~ "(1,1)",
                           parameter == "y2" ~ "(10,10)")
-  ) %>% 
+  ) %>%
 
 ggplot(aes(theta, y, color = parameter)) +
   geom_line(size = 2) +
@@ -81,17 +81,17 @@ tibble(
   y_likelihood = likelihood_bern$likelihood_norm, # only for legend
   y_posterior1 = dbeta(theta, shape1 = likelihood_bern$k+1, shape2 = likelihood_bern$n-likelihood_bern$k+1),
   y_posterior2 = dbeta(theta, shape1 = likelihood_bern$k+10, shape2 = likelihood_bern$n-likelihood_bern$k+10)
-) %>% 
+) %>%
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
-               values_to = "y") %>% 
+               values_to = "y") %>%
   mutate(
     parameter = case_when(parameter == "y_prior1" ~ "Beta(1,1) - prior1",
                           parameter == "y_prior2" ~ "Beta(10,10) - prior2",
-                          parameter == "y_likelihood" ~ "Bernoulli(18) - likelihood", 
+                          parameter == "y_likelihood" ~ "Bernoulli(18) - likelihood",
                           parameter == "y_posterior1" ~ "Beta(19,13) - posterior1",
                           parameter == "y_posterior2" ~ "Beta(28,22) - posterior2")
-  ) %>% 
+  ) %>%
 
 ggplot() +
   geom_line(aes(theta, y, color = parameter), size = 2) +
@@ -100,7 +100,7 @@ ggplot() +
 
 ```
 
-A lot of effort has been done in the area of "Objective Baysian data analysis" in order to develop "uninformativ prior distributions", because a lot of people feel uncomfortable using informative priors --- seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this [@dobson2008]. It is "just" important that the definition of the prior distributions make sense (at every stage) in the model.
+A lot of effort has been done in the area of "Objective Bayesian data analysis" in order to develop "uninformative prior distributions", because a lot of people feel uncomfortable using informative priors --- seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this [@dobson2008]. It is "just" important that the definition of the prior distributions make sense (at every stage) in the model.
 
 #### Exursos: Prior predictive distribution
 
@@ -116,11 +116,11 @@ tibble(
   n = 1e5,
   p = rbeta(n = n, shape1 = 1, shape2 = 1),
   x = rbern(n = n, prob = p)
-) %>% 
+) %>%
   ggplot() +
   geom_histogram(aes(x, y = (..count..)/sum(..count..))) +
   scale_x_continuous(name = "number of heads", breaks = c(0.0,1.0), labels = c("0","1"), limits = c(-0.5,1.5)) +
-  scale_y_continuous(name = "Probability", limits = c(0,1)) 
+  scale_y_continuous(name = "Probability", limits = c(0,1))
 ```
 
 ## Modeling
@@ -139,7 +139,7 @@ k <- 0                    # number of heads [initialization]
 
 ## repeat experiment N-times
 for (i in 1: n) {
-  k[i] <- sum(sample(sample.space, size = X, replace = TRUE, 
+  k[i] <- sum(sample(sample.space, size = X, replace = TRUE,
                      prob = c(theta, 1 - theta)))
 }
 
@@ -147,11 +147,11 @@ for (i in 1: n) {
 coin.flip <- tibble("n" = seq(from=1, to=n, by=1),
                     "k" = k,
                     "x" = X
-) %>% 
+) %>%
   print()
 ```
 
-The above table shows the observed outcome, but how the underlying probability of coming up \emph{heads} can be derived from that data set? 
+The above table shows the observed outcome, but how the underlying probability of coming up \emph{heads} can be derived from that data set?
 
 ### Steps of Data Analysis
 
@@ -170,13 +170,13 @@ Further steps that will be subject of later chapters:
 
 *In the following we are interested in the question if a certain coin is biased.*
 
-**First step** is to *identify the relevant variables*. For the coin flip experiment a coin is flipped $n$ times, whereby each observation consists of $x$ trials. The variable \emph{coin flip} $Y$ is dichotomous with the possible outcomes "head" and "tail". For each observation the outcome is recorded: "0" for coming up tail and "1" for coming up head. The data are summarized for each observation. The variable $k$ indicates the number of heads coming up in $x$ trials. 
+**First step** is to *identify the relevant variables*. For the coin flip experiment a coin is flipped $n$ times, whereby each observation consists of $x$ trials. The variable \emph{coin flip} $Y$ is dichotomous with the possible outcomes "head" and "tail". For each observation the outcome is recorded: "0" for coming up tail and "1" for coming up head. The data are summarized for each observation. The variable $k$ indicates the number of heads coming up in $x$ trials.
 
 In **the second step** a *descriptive model for the identified variables* has to be defined. An underlying probability $\theta$ is assumed, indicating the probability of heads coming up $p(y=1)$. The probability that the outcome is head, given a value of parameter $\theta$, is the value of $\theta$ [@kruschke2015, p.109]. Formally, this can be written as
 $$p(y=1|\theta)=\theta$$
 As only two outcomes of $Y$ exists, the probability that the outcome is tail is the complementary probability $1-\theta$. Both probabilities can be combined in one probability expression:
 $$Pr(Y|n,\theta)=\frac{n!}{y!(n-y)!}\theta^{y}(1-\theta)^{n-y}.$$
-This probability distribution is called the **Binomial distribution**. The fracture at the beginning indicates how many ordered sequences of $n$ outcomes a count $y$ have. 
+This probability distribution is called the **Binomial distribution**. The fracture at the beginning indicates how many ordered sequences of $n$ outcomes a count $y$ have.
 
 ```{r ch-03-03-binomial distribution-coin flip example, echo = FALSE, fig.cap = "Binomial distribution for different coin biases"}
 # how many trials
@@ -187,10 +187,10 @@ rv_binom <- tibble(
   y1 = dbinom(x, size = trials, p = 0.2),
   y2 = dbinom(x, size = trials, p = 0.5),
   y3 = dbinom(x, size = trials, p = 0.8)
-) %>% 
+) %>%
   pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
-               values_to = "y") %>% 
+               values_to = "y") %>%
   mutate(
     parameter = case_when(parameter == "y1" ~ "(n,0.2)",
                           parameter == "y2" ~ "(n,0.5)",
@@ -204,7 +204,7 @@ ggplot(rv_binom, aes(x, y, fill = parameter)) +
 
 ```
 
-When the coin is flipped only once, then the probabilty can be written as:
+When the coin is flipped only once, then the probability can be written as:
 $$Pr(Y|\theta)=\theta^{y}(1-\theta)^{1-y}.$$
 This special variant of the Binomial distribution is the so-called **Bernoulli distribution**. To see the connection to the first considerations: When the outcome "head" is observed the equation reduces to $Pr(y=1|\theta)=\theta$ and when the outcome "tail" is observed the equation results in $Pr(y=0|\theta)=(1-\theta).$
 
@@ -220,15 +220,15 @@ tibble(
   y_1 = binomial.likelihood(n,2,theta),
   y_2 = binomial.likelihood(n,5,theta),
   y_3 = binomial.likelihood(n,8,theta)
-) %>% 
+) %>%
 pivot_longer(cols = starts_with("y"),
                names_to  = "parameter",
-               values_to = "y") %>% 
+               values_to = "y") %>%
   mutate(
     parameter = case_when(parameter == "y_1" ~ "(n=10,x=20,p)",
                           parameter == "y_2" ~ "(n=10,x=50,p)",
                           parameter == "y_3" ~ "(n=10,x=80,p)")
-  ) %>% 
+  ) %>%
 ggplot(aes(theta, y, color = parameter)) +
   geom_line(size = 2) +
   labs(color = "X ~ Binomial", y = "Likelihood", x = expression(theta))
@@ -236,21 +236,21 @@ ggplot(aes(theta, y, color = parameter)) +
 
 **The third step** is solely a \emph{Bayesian idea}, that is the *incorporation of prior knowledge*. What do we believe about the coin bias $\theta$ before seeing the data? Assuming that no expectation about $\theta$ exists a priori, indicating that all values of $\theta$ between 0 and 1 are equally probable. This can be modeled by a uniform distribution or as already visualized as Beta distribution with parameters a=1 and b=1 (see following figure).
 
-```{r ch-03-03-prior distribution-coin flip example, echo = FALSE, fig.cap = "Using uniformative prior distributions: The Uniform(0,1) and Beta(1,1) prior."}
+```{r ch-03-03-prior distribution-coin flip example, echo = FALSE, fig.cap = "Using uninformative prior distributions: The Uniform(0,1) and Beta(1,1) prior."}
 
 tibble(
   x = seq(from = -0.01, to = 1.01, by = 0.01),
   y_1 = dunif(x, min = 0, max = 1),
   y_2 = dbeta(x, shape1 = 1, shape2 = 1), # only for legend
   beta = dbeta(x, shape1 = 1, shape2 = 1)
-) %>% 
+) %>%
   pivot_longer(cols = starts_with("y"),
                names_to  = "prior",
-               values_to = "y") %>% 
+               values_to = "y") %>%
   mutate(
     prior = case_when(prior == "y_1" ~ "Uniform(0,1)",
                       prior == "y_2" ~ "Beta(1,1)")
-  ) %>% 
+  ) %>%
 ggplot() +
   geom_line(aes(x, y, color = prior), size = 2) +
   geom_line(aes(x, beta), color = project_colors[2], size = 2, linetype = "dashed") +
@@ -258,7 +258,7 @@ ggplot() +
   ylim(0,1.5)
 ```
 
-So far, the coin flip model is define conceptionally. In the following some notational considerations have to be made. 
+So far, the coin flip model is defined conceptually. In the following some notational considerations have to be made.
 
 ### Notation
 
@@ -268,7 +268,7 @@ In the textual notation, first the prior assumptions (if the Bayesian perspectiv
 $$\theta \sim Beta(1,1).$$
 The symbol "$\sim$" means "is distributed as", thus, the above equation says before seeing the data all possible values of $\theta$ between 0 and 1 are assumed to be equally likely.
 
-Subsequently, the descriptive model for the data has to be defined. As already described in the section above, it is assumed that the observed data (upcoming of heads $k$) are distributed as Binomial distribution with given $n$ (number of observations) and unknown $\theta$. This relation is denoted symbollically as
+Subsequently, the descriptive model for the data has to be defined. As already described in the section above, it is assumed that the observed data (upcoming of heads $k$) are distributed as Binomial distribution with given $n$ (number of observations) and unknown $\theta$. This relation is denoted symbolically as
 $$k\sim Binomial(\theta|n).$$
 To summarize the current model (whereby the prior knowledge is only considered from a Bayesian perspective):
 $$\theta \sim Beta(1,1),$$
@@ -296,11 +296,11 @@ For the introductory example this indicates:
 
 In the next step the dependencies have to be determined:
 
-The number of success $k$ depends on the probability of a success $\theta$ as well as on the number of trials $n$. 
+The number of success $k$ depends on the probability of a success $\theta$ as well as on the number of trials $n$.
 
 Finally, the graphical structure together with the textual notation can be represented:
 
-![Graphical notation Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Binom.png)
+![Graphical notation Beta-Binomial Model - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Binom.png)
 
 ### An outlook: Hierarchical models
 
@@ -324,28 +324,28 @@ $$Beta(a,b)=Beta\left(\omega(\kappa -2)+1, (1-\omega)(\kappa -2)+1\right).$$
 
 *Why this is useful? And what is its value in connection with hierarchical modeling?*
 
-Return back to the coin flip experiment. So far, the parameters of the prior on $\theta$ are fixed: $a=1$ and $b=1$. Assume that we get further information: The manifacturing process of the coins has a bias near $\omega$ (example taken from [@kruschke2015]). But how to incorporate this additional knowledge in the model?
+Return back to the coin flip experiment. So far, the parameters of the prior on $\theta$ are fixed: $a=1$ and $b=1$. Assume that we get further information: The manufacturing process of the coins has a bias near $\omega$ (example taken from [@kruschke2015]). But how to incorporate this additional knowledge in the model?
 
 At this point, the hierarchy and the reparameterization come into play. Hierarchy because a further assumption is placed on top of the existing model and reparameterization, because we want to express the prior in terms of the mode $\omega$.
 
 Such that the model can be assumed as follows:
 
-![Graphical notation hierarchical Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/binom-onelevel.png)
+![Graphical notation hierarchical Beta-Binomial Model - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/binom-onelevel.png)
 
 
-Now, the parameters of the hyperpriors (Gamma and Beta) are fixed, but they can be treated as parameters as well..as such hierarchical models can be created with any degree of complexity: 
+Now, the parameters of the hyperpriors (Gamma and Beta) are fixed, but they can be treated as parameters as well..as such hierarchical models can be created with any degree of complexity:
 
-![Graphical notation hierarchical Beta-Binomial Modell - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/hierarchical-model.png)
+![Graphical notation hierarchical Beta-Binomial Model - One group](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/hierarchical-model.png)
 
 ## Further examples
 
 ### Difference between two groups
 
-In the introductory example we asked for the underlying probility $\theta$ of a single coin that was flipped repeatedley.
+In the introductory example we asked for the underlying probability $\theta$ of a single coin that was flipped repeatedly.
 Consider now, that a second coin $y_2$ is introduced. One question that arises might be for example: \emph{How different are the biases of the two coins?}
 
 ```{r}
-#simulate flipps of two coins 
+#simulate flips of two coins
 sample.space <- c(0,1)
 ##First coin:
 theta1 <- 0.5              # probability of a success (here: head)
@@ -354,7 +354,7 @@ n1 <- 100                  # number of observations
 k1 <- 0                    # number of heads [initialization]
 
 for (i in 1: n1) {
-  k1[i] <- sum(sample(sample.space, size = X1, replace = TRUE, 
+  k1[i] <- sum(sample(sample.space, size = X1, replace = TRUE,
                      prob = c(theta1, 1 - theta1)))
 }
 ##Second coin:
@@ -365,7 +365,7 @@ k2 <- 0                    # number of heads [initialization]
 
 ## repeat experiment N-times
 for (i in 1: n2) {
-  k2[i] <- sum(sample(sample.space, size = X2, replace = TRUE, 
+  k2[i] <- sum(sample(sample.space, size = X2, replace = TRUE,
                      prob = c(theta2, 1 - theta2)))
 }
 
@@ -374,7 +374,7 @@ coin.flip2 <- tibble("coin" = c(replicate(n1,"coin1"), replicate(n2,"coin2")),
                      "n" = c(seq(from=1, to=n1, by=1), seq(from=1, to=n2, by=1)),
                      "k" = c(k1,k2),
                      "x" = c(replicate(n1,X1), replicate(n2,X2))
-) %>% 
+) %>%
   print()
 ```
 
@@ -386,7 +386,7 @@ ggplot(data=coin.flip2,mapping = aes(x=k, fill=coin ))+
 
 #### Conceptual steps for modeling
 
-We suppose that the underlying probabilities of the two coins correspond to *different* latent variables $\theta_1$ and $\theta_2$. 
+We suppose that the underlying probabilities of the two coins correspond to *different* latent variables $\theta_1$ and $\theta_2$.
 
 **First step** is again the *identification of the relevant variables* according to the research question. As already indicated for the "one coin" example we have:
 
@@ -401,11 +401,11 @@ The *distributional assumptions*, according to the **second and third step**, ca
 
 #### Notation Beta-Binomial Model - Two Groups
 
-![Graphical notation Beta-Binomial Modell - Two groups](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Factorial.png)
+![Graphical notation Beta-Binomial Model - Two groups](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Factorial.png)
 
 ### Simple linear regression with one metric predictor
 
-The following example originates from a data set in which speed of cars and the distance taken to stop was recorded. It is a simple data set good for introducing the basic ideas for simple linear regression. 
+The following example originates from a data set in which speed of cars and the distance taken to stop was recorded. It is a simple data set good for introducing the basic ideas for simple linear regression.
 ```{r}
 #The "cars" data set
 data(cars)
@@ -418,22 +418,22 @@ One possible question could be how much the stopping distance increases when the
 
 First step is to **identify the relevant variables**. In this case these are "speed" measured in mph and "distance" measured in ft, thus, both variables are metric variables. As distance will be predicted from speed. The \emph{predicted variable} is "distance" and the \emph{predictor variable} is "speed". A scatter plot can visualize a possible relationship between both variables.
 ```{r}
-plot(x=cars$speed,y=cars$dist, type="p", main="scatter plot of cars data set", 
+plot(x=cars$speed,y=cars$dist, type="p", main="scatter plot of cars data set",
      ylab="distance in ft", xlab="speed in mph")
 ```
 
 Next step is to define a **descriptive model of the data**. According to the scatter plot it is not too absurd to think that distance might be proportional to speed. Therefore, a linear relationship between both variables can be assumed, where speed is used i order to predict distance. But how can the distribution of the predicted variable "distance" be described? The following plot shows in blue the density of the actual distance values.
 
 ```{r, eval=FALSE}
-#density of distance values in blue 
+#density of distance values in blue
 #(in black simulation of a normal distribution)
-dens(cars$dist, col="blue", norm.comp = TRUE, main="Distribution of distance", 
+dens(cars$dist, col="blue", norm.comp = TRUE, main="Distribution of distance",
      xlab="distance in ft")
 ```
 
 Although the distribution of "distance" values is not identical to the corresponding normal distribution, it can be assumed that the values follow a *normal distribution*. The underlying consideration is that the distance values $y_i$ are distributed randomly according to a normal distribution around the predicted value $\hat{y}$ and with a standard deviation denoted with $\sigma$. This can be denoted as:
 $$y_i\sim Normal(\mu, \sigma).$$
-The index $i$ indicates each element (i.e. car) of the list $y$, which in turn is the list of distances. 
+The index $i$ indicates each element (i.e. car) of the list $y$, which in turn is the list of distances.
 
 In the third step, a Bayesian perspective is taken the **prior knowlege** (before seeing the data) has to be defined. The parameters of the current model are the predicted value $\mu$ and the standard deviation $\sigma$. For the parameter $\mu$ a normal distribution can be assumend with parameters that reflect the estimated values from the sample.
 
@@ -449,12 +449,12 @@ $$\mu\sim Normal(43,26)$$
 For the standard deviation $\sigma$ a uniform distribution is assumed:
 $$\sigma\sim Uniform(0,40)$$
 
-#### Excursos: Identically and independently distributed (\emph{iid})
+#### Excursus: Identically and independently distributed (\emph{iid})
 
-The short model description $y_i\sim Normal(\mu, \sigma)$ incorporates often already an assumption about the distribution of distance-values: They are \emph{identically and independently ditributed}. Often the abbreviation \emph{iid} can be found for this assumption:
+The short model description $y_i\sim Normal(\mu, \sigma)$ incorporates often already an assumption about the distribution of distance-values: They are \emph{identically and independently distributed}. Often the abbreviation \emph{iid} can be found for this assumption:
 $$y_i\overset{\text{iid}}{\sim} Normal(\mu, \sigma).$$
 
-The abbreviation \emph{iid} indicates that each value $y_i$ has the same probability function, independent of the other $y$ values and using the same parameters [@mcelreath2015]. This is hardly ever true (why hierarchical modeling is very attractive). For example, thinking about the cars in the current example data set. Some cars may be of different types or even the same type but different batches. But the question is: Is this underlying dependency relevant for the model? If yes, this information has to be added in the model (e.g. in form of a hierachical model). Janyes states it as follows: \begin{quote} "*The onus is always on the user to make sure that all information, which his common sense tells him is relevant to the problem, is actually incorporated into the equations, (...).*"\end{quote}[@jaynes2003,p.339]. But if one do not know any relevant underlying relationships the most conservative distribution to use is \emph{iid}. Note, that the stated assumptions define how the model represents a problem and not how the world should be understood. For example, there might exist underlying correlations but on the overall distribution there influence tends towards zero. In such cases it remains usefull to assume iid [@mcelreath2015].
+The abbreviation \emph{iid} indicates that each value $y_i$ has the same probability function, independent of the other $y$ values and using the same parameters [@mcelreath2015]. This is hardly ever true (why hierarchical modeling is very attractive). For example, thinking about the cars in the current example data set. Some cars may be of different types or even the same type but different batches. But the question is: Is this underlying dependency relevant for the model? If yes, this information has to be added in the model (e.g. in form of a hierarchical model). Janyes states it as follows: \begin{quote} "*The onus is always on the user to make sure that all information, which his common sense tells him is relevant to the problem, is actually incorporated into the equations, (...).*"\end{quote}[@jaynes2003,p.339]. But if one do not know any relevant underlying relationships the most conservative distribution to use is \emph{iid}. Note, that the stated assumptions define how the model represents a problem and not how the world should be understood. For example, there might exist underlying correlations but on the overall distribution there influence tends towards zero. In such cases it remains usefull to assume iid [@mcelreath2015].
 
 ### Notation Simple Regression model
 ![Graphical notation Simplre Regression model](https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_SimpReg.png)
@@ -465,14 +465,14 @@ The abbreviation \emph{iid} indicates that each value $y_i$ has the same probabi
 
 Sofar the existence of the underlying probability $\theta$ for observing head as outcome of a coin flip has been discussed. But the estimation of $\theta$ has been ignored until yet. Although "estimation" will be topic of next chapter, it is helpful at this point to discuss the introduced models further. In order to estimate $\theta$ \emph{parameter(s)} are needed. When it comes to estimation exactly this/these parameter(s) will be the result(s), therefore is is important to see already the connection to the models that were developed in this chapter.
 
-For the coin flip example the value of interest is the underlying probability, thus, only one parameter is needed:$\beta_0$. (Note: Latin letters are used when we refer to the sample, greek letters are used when we refer to the population.) 
+For the coin flip example the value of interest is the underlying probability, thus, only one parameter is needed:$\beta_0$. (Note: Latin letters are used when we refer to the sample, Greek letters are used when we refer to the population.)
 
 How is $\beta_0$ linked to the latent variable $\theta$?
 
-Considering for example the simplest case: a \emph{linear relationship} (see next plot left side). The problem which arises at this point is that $\theta$ represents a probability, and is therefore bounded to the range 0-1 (grey shaded area). 
+Considering for example the simplest case: a \emph{linear relationship} (see next plot left side). The problem which arises at this point is that $\theta$ represents a probability, and is therefore bounded to the range 0-1 (grey shaded area).
 
 ```{r}
-#Different relationships between the parameter and expected value 
+#Different relationships between the parameter and expected value
 x <- seq(from=-4, to=4, length.out = 100)
 y <- x                 #linear relationship
 y.log <- inv_logit_scaled(x)   #logistic relationship
@@ -484,7 +484,7 @@ plot(x, y.log, type="l", ylab=expression(logit~(theta)), xlab=expression(beta[0]
 rect(-5, 0, 5, 1, col = rgb(0.5, 0.5, 0.5, 1/4), border = NA)
 ```
 
-A mathematical transformation is needed such that the parameter $\beta_0$ can take any value while $\theta$ is bounded to the range 0-1. One transformation that offers exactly this possibility is the \emph{logit link function} (see aboth plot right side)
+A mathematical transformation is needed such that the parameter $\beta_0$ can take any value while $\theta$ is bounded to the range 0-1. One transformation that offers exactly this possibility is the \emph{logit link function} (see above plot right side)
 
 $$logit(\theta) = \beta_0.$$
 As the underlying assumption maps the parameter to the latent variable $\theta$ (and not the other way around) from a conceptional point of view the \emph{inverse link function} is more appropriate, which is the \emph{logistic link} in this case:
@@ -493,11 +493,11 @@ $$\theta = logistic(\beta_0).$$
 It is defined as
 $$\theta=\frac{exp(\beta_0)}{1+exp(\beta_0)}.$$
 
-Both expression, \emph{logit} and \emph{logistic} link achieve mathematically the same result but it is conceptionally just a different matter of emphasis [@kruschke2015].
+Both expression, \emph{logit} and \emph{logistic} link achieve mathematically the same result but it is conceptually just a different matter of emphasis [@kruschke2015].
 
 #### Notation of beta-binomial model - one group (revisited)
 
-The current descriptive model incorporates the idea that parameter $\beta_0$ is estimated from the given sample. It defines the latent variable $\theta$. The parameter is maped to $\theta$ by a logistic link function. The underlying probability $\theta$ designates the observed number of upcoming heads. The number of upcoming heads in turn, is assumed to be distributed as Binomial distribution.
+The current descriptive model incorporates the idea that parameter $\beta_0$ is estimated from the given sample. It defines the latent variable $\theta$. The parameter is mapped to $\theta$ by a logistic link function. The underlying probability $\theta$ designates the observed number of upcoming heads. The number of upcoming heads in turn, is assumed to be distributed as Binomial distribution.
 
 <!-- [here graphical notation including textual notation... but I don't know how to write it properly down... what is the right order????] -->
 
@@ -518,16 +518,11 @@ which is the \emph{intercept} and indicates the proportion of head coming up for
 
 Considering by contrast coin 1, then the equation would result in:
 $$\theta_1 = \beta_0 + \beta_1.$$
-The proportion of coming up head for coin 1 has to be calcuated by summing up the \emph{intercept} $\beta_0$ and the \emph{slope} $\beta_1$.
+The proportion of coming up head for coin 1 has to be calculated by summing up the \emph{intercept} $\beta_0$ and the \emph{slope} $\beta_1$.
 
-Taken togehter: *What is the interpretation of the slope $\beta_1$?*
+Taken together: *What is the interpretation of the slope $\beta_1$?*
 The difference $\delta=\theta_1-\theta2$ is
 $$\theta_1 - \theta_2 = (\beta_0+\beta_1)-\beta_0=\beta_1=\delta,$$
 the slope $\beta_1$, thus, we can see that this parameterization enables us to estimate the difference between two groups. When in comes to estimation and interpretation the results will be the intercept $b_0$ and the slope $b_1$.
 
 ### Simple linear regression model (revisited)
-
-
-
-
-
