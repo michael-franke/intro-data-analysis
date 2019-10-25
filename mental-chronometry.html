@@ -417,7 +417,11 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>Notice that in the case at hand, the experimental conditions are the three types of tasks.</p>
 <div id="cleaning-by-participant" class="section level4">
 <h4><span class="header-section-number">C.1.3.1</span> Cleaning by-participant</h4>
-<p>To remove participants, we use this code:</p>
+<p>Our rule for removing data from outlier participants is this:</p>
+<blockquote>
+<p>We remove remove the data from an individual participant <span class="math inline">\(X\)</span> if there is an experimental condition <span class="math inline">\(C\)</span> such that the mean RT of <span class="math inline">\(X\)</span> for condition <span class="math inline">\(C\)</span> is more than 2 standard deviations away from the overal mean RT for condition <span class="math inline">\(C\)</span>.</p>
+</blockquote>
+<p>This procedure is implemented in this code:</p>
 <div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" data-line-number="1"><span class="co"># summary stats (means) for participants</span></a>
 <a class="sourceLine" id="cb118-2" data-line-number="2">d_sum_stats_participants =<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb118-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(submission_id, block) <span class="op">%&gt;%</span><span class="st"> </span></a>
@@ -452,37 +456,47 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 1          8505 discrimination  1078.   518.  185. TRUE</code></pre>
 <p>When plotting the data for this condition and this participant, we see that the high overall mean is not just caused by a single outlier, but several trials that took longer than 1 second.</p>
 <div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb120-1" data-line-number="1">d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb120-2" data-line-number="2"><span class="st">  </span><span class="kw">inner_join</span>(</a>
-<a class="sourceLine" id="cb120-3" data-line-number="3">    d_preprocessed, </a>
-<a class="sourceLine" id="cb120-4" data-line-number="4">    d_sum_stats_participants, </a>
-<a class="sourceLine" id="cb120-5" data-line-number="5">    <span class="dt">by =</span> <span class="st">&quot;submission_id&quot;</span></a>
-<a class="sourceLine" id="cb120-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb120-7" data-line-number="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT.x)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb120-8" data-line-number="8"><span class="st">  </span><span class="kw">geom_histogram</span>()</a></code></pre></div>
+<a class="sourceLine" id="cb120-2" data-line-number="2"><span class="st">  </span><span class="kw">semi_join</span>(</a>
+<a class="sourceLine" id="cb120-3" data-line-number="3">    d_sum_stats_participants <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(outlier_P <span class="op">==</span><span class="st"> </span><span class="dv">1</span>), </a>
+<a class="sourceLine" id="cb120-4" data-line-number="4">    <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;submission_id&quot;</span>)</a>
+<a class="sourceLine" id="cb120-5" data-line-number="5">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb120-6" data-line-number="6"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb120-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth =</span> <span class="dv">100</span>)</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-51-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>We are then going to exclude this participants data completely from all subsequent analysis:</p>
+<p>We are then going to exclude this participant’s entire data from all subsequent analysis:<a href="#fn14" class="footnote-ref" id="fnref14"><sup>14</sup></a></p>
 <div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" data-line-number="1">d_cleaned =<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb121-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(submission_id <span class="op">!=</span><span class="st"> </span>d_sum_stats_participants<span class="op">$</span>submission_id[<span class="dv">1</span>] )</a></code></pre></div>
 </div>
 <div id="cleaning-by-trial" class="section level4">
 <h4><span class="header-section-number">C.1.3.2</span> Cleaning by-trial</h4>
+<p>Our rule for exclusing data from individual trials is:</p>
+<blockquote>
+<p>From the remaining data, we then remove any individual trial <span class="math inline">\(Y\)</span> if the RT of <span class="math inline">\(Y\)</span> is more than 2 standard deviations away from the mean of experimental condition <span class="math inline">\(C\)</span> (where <span class="math inline">\(C\)</span> is the condition of <span class="math inline">\(Y\)</span>, of course).</p>
+</blockquote>
+<p>The following code implements this:</p>
 </div>
 </div>
 <div id="exploration-summary-stats-plots" class="section level3">
 <h3><span class="header-section-number">C.1.4</span> Exploration: summary stats &amp; plots</h3>
 <p>What’s the distribution of <code>total_time_spent</code>, i.e., the time each participant took to complete the whole study?</p>
-<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb122-1" data-line-number="1">d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb122-1" data-line-number="1">d_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb122-2" data-line-number="2"><span class="st">  </span><span class="kw">select</span>(submission_id, total_time_spent) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb122-3" data-line-number="3"><span class="st">  </span><span class="kw">unique</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb122-4" data-line-number="4"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> total_time_spent)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb122-5" data-line-number="5"><span class="st">  </span><span class="kw">geom_histogram</span>()</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-53-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-54-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>There are two participants who took noticably longer than all the others, but we need not necessarily be concerned about this, because it is not unusual for participants of online experiments to open the experiment and wait before actually starting.</p>
 <ul>
 <li>give whatever interesting summary stats we can about the data</li>
 <li>also show different aspects of data (e.g., overal error rate, time spent on average, gender distribution …)</li>
 </ul>
 </div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="14">
+<li id="fn14"><p>This may seem a harsh step, but when data acquisition is cheap, it’s generally not a bad strategy to be very strict in exclusion criteria, and to apply rules that are not strongly context-dependent.<a href="mental-chronometry.html#fnref14" class="footnote-back">↩</a></p></li>
+</ol>
 </div>
             </section>
 
