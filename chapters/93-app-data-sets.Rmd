@@ -1,0 +1,188 @@
+# Data sets used in the book
+
+Several data sets are used throughout the book as 'running examples'. They occur in different places to illustrate different things. This chapter centrally describes each data set, together with the most important visualizations and analyses.
+
+## Mental Chronometry
+
+
+### Nature, origin and rationale of the data
+
+[Francis Donders](https://en.wikipedia.org/wiki/Franciscus_Donders) is remembered as one of, if not the first experimental cognitive psychologists. He famously introduced the **subtraction logic** which looks at difference in reaction times across different tasks to infer difference in the complexity of the mental processes involved in these tasks. The Mental Chronometry data set presents the results of an online replication of one such subtraction-experiment.
+
+#### The experiment
+
+50 participants were recruited using the crowd-sourcing platform [Prolific](https://www.prolific.co) and paid for their participation.
+
+In each experiment trial, participants see either a blue square or a blue circle appear on the screen and are asked to respond as quickly as possible. The experiment consists of three parts, presented to all participants in the same order (see below). The parts differ in the adequate response to the visual stimuli.
+
+1. **Reaction task**
+
+	The participant presses the space bar whenever there is a stimulus (square or circle)
+
+	*Recorded*: reaction time
+
+2. **Go/No-Go task**
+
+	The participant presses the space bar whenever their target (one of the two stimuli) is on the screen
+
+	*Recorded*: the reaction time and the response
+
+3. **Discrimination task**
+
+	The participant presses the **F** key on the keybord when there is one of the stimuli and the **J** key when there is the other one of the stimuli on the screen.
+
+	*Recorded*: the reaction time and the response
+
+The **reaction time** measurement starts from the onset of the visual stimuli to the button press. The **response** variable records whether the reaction was correct or incorrect.
+
+For each participant, the experiment randomly allocates one shape (circle or square) as the target to be used in both the second and the third task.
+
+The experiment was realized using [_magpie](https://magpie-ea.github.io/magpie-site/index.html) and can be tried out [here](https://magpie-exp-mental-chronometry.netlify.com).
+
+#### Theoretical motivation & hypotheses
+
+We expect that reaction times of correct responses are lowest in the reaction task, higher in the Go/No-Go task, and highest in the discrimination task.
+
+
+### Loading and preprocessing the data
+
+The raw data produced by the online experiment is not particularly tidy. It needs substantial massages before plotting and analysis.
+
+```{r}
+d_raw = read_csv('data_sets/mental-chrono-data_raw.csv')
+glimpse(d_raw)
+```
+
+The most pressing problem is that entries in the column `trial_type` contain two logically separate pieces of information: the block (reaction, go/no-go, discrimination) *and* whether the data comes from a practice trial (which we want to discard) or a main trial (which we want to analyze). We therefore separate this information, and perform some other massages, to finally select a preprocessed data set for further analysis:
+
+```{r}
+block_levels    = c("reaction", "goNoGo", "discrimination") # ordering of blocks for plotting, etc. 
+
+d_preprocessed = d_raw %>% 
+  separate(trial_type, c("block", "stage"), sep = "_", remove = FALSE) %>%
+  mutate(comments = ifelse(is.na(comments), "non given", comments)) %>% 
+  filter(stage == "main") %>% 
+  mutate(
+    block = factor(block, ordered = T, levels = block_levels),
+    response = ifelse(is.na(response), "none", response)
+  ) %>%
+  filter(response != "wait") %>% 
+  rename(
+    handedness = languages, # variable name is simply wrong
+    total_time_spent = timeSpent
+  ) %>% 
+  select(
+    submission_id, 
+    trial_number, 
+    block, 
+    stimulus, 
+    RT, 
+    handedness, 
+    gender, 
+    total_time_spent,
+    comments
+  )
+
+# write_csv(d_preprocessed, 'mental-chrono-data_preprocessed.csv')
+```
+
+
+### Cleaning the data
+
+Remeber that the criteria for data exclusion should ideally be defined before data collection (or at least inspection). They should definitely never be chosen in such a way as to maximize the "desirability" of an analysis. Data cleaning is not a way of making sure that your favorite research hypothesis "wins".
+
+Although we have not preregistered any data cleaning regime or analyses for this data set, we demonstrate a frequently used cleaning scheme for reaction time data, which does depend on the data in some sense, but does not require precise knowledge of the data. In particular, we are going to do this:
+
+1. We remove remove the data from an individual participant $X$ if there is an experimental condition $C$ such that the mean RT of $X$ for condition $C$ is more than 2 standard deviations away from the overal mean RT for condition $C$.
+2. From the remaining data, we then remove any individual trial $Y$ if the RT of $Y$ is more than 2 standard deviations away from the mean of experimental condition $C$ (where $C$ is the condition of $Y$, of course).
+
+Notice that in the case at hand, the experimental conditions are the three types of tasks.
+
+#### Cleaning by-participant
+
+To remove participants, we use this code:
+
+```{r}
+
+# summary stats (means) for participants
+d_sum_stats_participants = d_preprocessed %>% 
+  group_by(submission_id, block) %>% 
+  summarise(
+    mean_P = mean(RT)
+  )
+
+# summary stats (means and SDs) for conditions
+d_sum_stats_conditions = d_preprocessed %>% 
+  group_by(block) %>% 
+  summarise(
+    mean_C = mean(RT),
+    sd_C   = sd(RT)
+  )
+  
+d_sum_stats_participants = 
+  full_join(
+    d_sum_stats_participants,
+    d_sum_stats_conditions,
+    by = "block"
+  ) %>% 
+  mutate(
+    outlier_P = abs(mean_P - mean_C) > 2 * sd_C
+  )
+
+# show outlier participants
+d_sum_stats_participants %>% filter(outlier_P == 1) %>% show()
+```
+
+When plotting the data for this condition and this participant, we see that the high overall mean is not just caused by a single outlier, but several trials that took longer than 1 second.
+
+```{r}
+d_preprocessed %>% 
+  inner_join(
+    d_preprocessed, 
+    d_sum_stats_participants, 
+    by = "submission_id"
+  ) %>% 
+  ggplot(aes(x = RT.x)) +
+  geom_histogram()
+```
+
+We are then going to exclude this participants data completely from all subsequent analysis:
+
+```{r}
+d_cleaned = d_preprocessed %>% 
+  filter(submission_id != d_sum_stats_participants$submission_id[1] )
+```
+
+
+#### Cleaning by-trial
+
+
+### Exploration: summary stats & plots
+
+What's the distribution of `total_time_spent`, i.e., the time each participant took to complete the whole study?
+
+```{r}
+d_preprocessed %>% 
+  select(submission_id, total_time_spent) %>% 
+  unique() %>% 
+  ggplot(aes(x = total_time_spent)) +
+  geom_histogram()
+```
+
+There are two participants who took noticably longer than all the others, but we need not necessarily be concerned about this, because it is not unusual for participants of online experiments to open the experiment and wait before actually starting.
+
+
+
+- give whatever interesting summary stats we can about the data
+- also show different aspects of data (e.g., overal error rate, time spent on average, gender distribution ...)
+
+## Data analysis 
+
+We can look at the distribution of time spent on the whole experiment:
+
+
+
+- if applicable: test the research hypotheses 
+- use the methods appropriate for the task
+  - ideally, always also include a (Bayesian) regression analysis
+- interpret the findings
