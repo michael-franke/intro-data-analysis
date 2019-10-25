@@ -100,7 +100,11 @@ Notice that in the case at hand, the experimental conditions are the three types
 
 #### Cleaning by-participant
 
-To remove participants, we use this code:
+Our rule for removing data from outlier participants is this:
+
+> We remove remove the data from an individual participant $X$ if there is an experimental condition $C$ such that the mean RT of $X$ for condition $C$ is more than 2 standard deviations away from the overal mean RT for condition $C$.
+
+This procedure is implemented in this code:
 
 ```{r}
 
@@ -137,16 +141,15 @@ When plotting the data for this condition and this participant, we see that the 
 
 ```{r}
 d_preprocessed %>% 
-  inner_join(
-    d_preprocessed, 
-    d_sum_stats_participants, 
-    by = "submission_id"
+  semi_join(
+    d_sum_stats_participants %>% filter(outlier_P == 1), 
+    by = c("submission_id")
   ) %>% 
-  ggplot(aes(x = RT.x)) +
-  geom_histogram()
+  ggplot(aes(x = RT)) +
+  geom_histogram(binwidth = 100)
 ```
 
-We are then going to exclude this participants data completely from all subsequent analysis:
+We are then going to exclude this participant's entire data from all subsequent analysis:^[This may seem a harsh step, but when data acquisition is cheap, it's generally not a bad strategy to be very strict in exclusion criteria, and to apply rules that are not strongly context-dependent.]
 
 ```{r}
 d_cleaned = d_preprocessed %>% 
@@ -156,13 +159,23 @@ d_cleaned = d_preprocessed %>%
 
 #### Cleaning by-trial
 
+Our rule for exclusing data from individual trials is:
+
+> From the remaining data, we then remove any individual trial $Y$ if the RT of $Y$ is more than 2 standard deviations away from the mean of experimental condition $C$ (where $C$ is the condition of $Y$, of course).
+
+The following code implements this:
+
+```{r}
+
+```
+
 
 ### Exploration: summary stats & plots
 
 What's the distribution of `total_time_spent`, i.e., the time each participant took to complete the whole study?
 
 ```{r}
-d_preprocessed %>% 
+d_cleaned %>% 
   select(submission_id, total_time_spent) %>% 
   unique() %>% 
   ggplot(aes(x = total_time_spent)) +
