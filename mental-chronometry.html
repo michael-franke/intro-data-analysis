@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2 Basics of R | Introduction to Data Analysis</title>
+  <title>C.1 Mental Chronometry | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.14.1 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2 Basics of R | Introduction to Data Analysis" />
+  <meta property="og:title" content="C.1 Mental Chronometry | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2 Basics of R | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="C.1 Mental Chronometry | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="intro-installation.html"/>
-<link rel="next" href="ch1-first-steps.html"/>
+<link rel="prev" href="data-sets-used-in-the-book.html"/>
+<link rel="next" href="data-analysis.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -308,27 +308,189 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="basics-of-r" class="section level1">
-<h1><span class="header-section-number">2</span> Basics of R</h1>
-<p>R is a specialized programming language for data science. Though old, it is heavily supported by an active community. New tools for data handling, visualization, and statistical analysis are provided in the form of packages. Packages live in the official package repository <a href="https://cran.r-project.org/">CRAN</a>, or are supplied in less standardized forms, e.g., via open repositories, such as GitHub.</p>
-<p>We will make heavy use of R packages in this course. We will distinguish <strong>base R</strong> from the <strong>tidyverse</strong>. Base R is what you have when you do not load any packages. We enter the tidyverse by loading the package <code>tidyverse</code> (see below). The tidyverse consists of several components (which are actually stand-alone packages that can be loaded separately if needed) all of which supply extra functionality for data analysis, based on a unifying philosophy and representation format. While eventually interchangable, the look-and-feel of base R and the tidyverse is quite different. We will learn about this in this chapter.</p>
-<p>Make sure to have completely installed everything of relevance for this course, as described in Section <a href="intro-installation.html#intro-installation">1.5</a>.</p>
-<p>The official documentation for base R is <a href="https://colinfay.me/intro-to-r/">An Introduction to R</a>. The standard reference for using the tidyverse is <a href="https://r4ds.had.co.nz">R for Data Science (R4DS)</a>.</p>
-<p>At the end of this chapter you will be able to:</p>
+<div id="mental-chronometry" class="section level2">
+<h2><span class="header-section-number">C.1</span> Mental Chronometry</h2>
+<div id="nature-origin-and-rationale-of-the-data" class="section level3">
+<h3><span class="header-section-number">C.1.1</span> Nature, origin and rationale of the data</h3>
+<p><a href="https://en.wikipedia.org/wiki/Franciscus_Donders">Francis Donders</a> is remembered as one of, if not the first experimental cognitive psychologists. He famously introduced the <strong>subtraction logic</strong> which looks at difference in reaction times across different tasks to infer difference in the complexity of the mental processes involved in these tasks. The Mental Chronometry data set presents the results of an online replication of one such subtraction-experiment.</p>
+<div id="the-experiment" class="section level4">
+<h4><span class="header-section-number">C.1.1.1</span> The experiment</h4>
+<p>50 participants were recruited using the crowd-sourcing platform <a href="https://www.prolific.co">Prolific</a> and paid for their participation.</p>
+<p>In each experiment trial, participants see either a blue square or a blue circle appear on the screen and are asked to respond as quickly as possible. The experiment consists of three parts, presented to all participants in the same order (see below). The parts differ in the adequate response to the visual stimuli.</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Reaction task</strong></p>
+<p>The participant presses the space bar whenever there is a stimulus (square or circle)</p>
+<p><em>Recorded</em>: reaction time</p></li>
+<li><p><strong>Go/No-Go task</strong></p>
+<p>The participant presses the space bar whenever their target (one of the two stimuli) is on the screen</p>
+<p><em>Recorded</em>: the reaction time and the response</p></li>
+<li><p><strong>Discrimination task</strong></p>
+<p>The participant presses the <strong>F</strong> key on the keybord when there is one of the stimuli and the <strong>J</strong> key when there is the other one of the stimuli on the screen.</p>
+<p><em>Recorded</em>: the reaction time and the response</p></li>
+</ol>
+<p>The <strong>reaction time</strong> measurement starts from the onset of the visual stimuli to the button press. The <strong>response</strong> variable records whether the reaction was correct or incorrect.</p>
+<p>For each participant, the experiment randomly allocates one shape (circle or square) as the target to be used in both the second and the third task.</p>
+<p>The experiment was realized using <a href="https://magpie-ea.github.io/magpie-site/index.html">_magpie</a> and can be tried out <a href="https://magpie-exp-mental-chronometry.netlify.com">here</a>.</p>
+</div>
+<div id="theoretical-motivation-hypotheses" class="section level4">
+<h4><span class="header-section-number">C.1.1.2</span> Theoretical motivation &amp; hypotheses</h4>
+<p>We expect that reaction times of correct responses are lowest in the reaction task, higher in the Go/No-Go task, and highest in the discrimination task.</p>
+</div>
+</div>
+<div id="loading-and-preprocessing-the-data" class="section level3">
+<h3><span class="header-section-number">C.1.2</span> Loading and preprocessing the data</h3>
+<p>The raw data produced by the online experiment is not particularly tidy. It needs substantial massages before plotting and analysis.</p>
+<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb115-1" data-line-number="1">d_raw =<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&#39;data_sets/mental-chrono-data_raw.csv&#39;</span>)</a>
+<a class="sourceLine" id="cb115-2" data-line-number="2"><span class="kw">glimpse</span>(d_raw)</a></code></pre></div>
+<pre><code>## Observations: 3,750
+## Variables: 32
+## $ submission_id &lt;dbl&gt; 8554, 8554, 8554, 8554, 8554, 8554, 8554, 8554, 85…
+## $ QUD           &lt;chr&gt; &quot;Press SPACE when you see a shape on the screen&quot;, …
+## $ RT            &lt;dbl&gt; 376, 311, 329, 270, 284, 311, 269, 317, 325, 240, …
+## $ age           &lt;dbl&gt; 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21…
+## $ comments      &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+## $ correctness   &lt;chr&gt; &quot;correct&quot;, &quot;correct&quot;, &quot;correct&quot;, &quot;correct&quot;, &quot;corre…
+## $ education     &lt;chr&gt; &quot;high school / college&quot;, &quot;high school / college&quot;, …
+## $ elemSize      &lt;dbl&gt; 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, …
+## $ endTime       &lt;dbl&gt; 1.570374e+12, 1.570374e+12, 1.570374e+12, 1.570374…
+## $ expected      &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+## $ experiment_id &lt;dbl&gt; 68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68…
+## $ f             &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+## $ focalColor    &lt;chr&gt; &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;b…
+## $ focalNumber   &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+## $ focalShape    &lt;chr&gt; &quot;square&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;square&quot;, &quot;circle&quot;, …
+## $ gender        &lt;chr&gt; &quot;female&quot;, &quot;female&quot;, &quot;female&quot;, &quot;female&quot;, &quot;female&quot;, …
+## $ j             &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+## $ key1          &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+## $ key2          &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+## $ key_pressed   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+## $ languages     &lt;chr&gt; &quot;Right&quot;, &quot;Right&quot;, &quot;Right&quot;, &quot;Right&quot;, &quot;Right&quot;, &quot;Righ…
+## $ pause         &lt;dbl&gt; 2631, 1700, 1322, 1787, 1295, 2330, 1620, 2460, 15…
+## $ response      &lt;chr&gt; &quot;space&quot;, &quot;space&quot;, &quot;space&quot;, &quot;space&quot;, &quot;space&quot;, &quot;spac…
+## $ sort          &lt;chr&gt; &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;g…
+## $ startDate     &lt;chr&gt; &quot;Sun Oct 06 2019 15:45:19 GMT+0100 (Hora de verão …
+## $ startTime     &lt;dbl&gt; 1.570373e+12, 1.570373e+12, 1.570373e+12, 1.570373…
+## $ stimulus      &lt;chr&gt; &quot;square&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;square&quot;, &quot;circle&quot;, …
+## $ target        &lt;chr&gt; &quot;square&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;square&quot;, &quot;circle&quot;, …
+## $ timeSpent     &lt;dbl&gt; 7.2514, 7.2514, 7.2514, 7.2514, 7.2514, 7.2514, 7.…
+## $ total         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+## $ trial_number  &lt;dbl&gt; 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, …
+## $ trial_type    &lt;chr&gt; &quot;reaction_practice&quot;, &quot;reaction_practice&quot;, &quot;reactio…</code></pre>
+<p>The most pressing problem is that entries in the column <code>trial_type</code> contain two logically separate pieces of information: the block (reaction, go/no-go, discrimination) <em>and</em> whether the data comes from a practice trial (which we want to discard) or a main trial (which we want to analyze). We therefore separate this information, and perform some other massages, to finally select a preprocessed data set for further analysis:</p>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb117-1" data-line-number="1">block_levels    =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;reaction&quot;</span>, <span class="st">&quot;goNoGo&quot;</span>, <span class="st">&quot;discrimination&quot;</span>) <span class="co"># ordering of blocks for plotting, etc. </span></a>
+<a class="sourceLine" id="cb117-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb117-3" data-line-number="3">d_preprocessed =<span class="st"> </span>d_raw <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb117-4" data-line-number="4"><span class="st">  </span><span class="kw">separate</span>(trial_type, <span class="kw">c</span>(<span class="st">&quot;block&quot;</span>, <span class="st">&quot;stage&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>, <span class="dt">remove =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb117-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">comments =</span> <span class="kw">ifelse</span>(<span class="kw">is.na</span>(comments), <span class="st">&quot;non given&quot;</span>, comments)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb117-6" data-line-number="6"><span class="st">  </span><span class="kw">filter</span>(stage <span class="op">==</span><span class="st"> &quot;main&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb117-7" data-line-number="7"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb117-8" data-line-number="8">    <span class="dt">block =</span> <span class="kw">factor</span>(block, <span class="dt">ordered =</span> T, <span class="dt">levels =</span> block_levels),</a>
+<a class="sourceLine" id="cb117-9" data-line-number="9">    <span class="dt">response =</span> <span class="kw">ifelse</span>(<span class="kw">is.na</span>(response), <span class="st">&quot;none&quot;</span>, response)</a>
+<a class="sourceLine" id="cb117-10" data-line-number="10">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb117-11" data-line-number="11"><span class="st">  </span><span class="kw">filter</span>(response <span class="op">!=</span><span class="st"> &quot;wait&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb117-12" data-line-number="12"><span class="st">  </span><span class="kw">rename</span>(</a>
+<a class="sourceLine" id="cb117-13" data-line-number="13">    <span class="dt">handedness =</span> languages, <span class="co"># variable name is simply wrong</span></a>
+<a class="sourceLine" id="cb117-14" data-line-number="14">    <span class="dt">total_time_spent =</span> timeSpent</a>
+<a class="sourceLine" id="cb117-15" data-line-number="15">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb117-16" data-line-number="16"><span class="st">  </span><span class="kw">select</span>(</a>
+<a class="sourceLine" id="cb117-17" data-line-number="17">    submission_id, </a>
+<a class="sourceLine" id="cb117-18" data-line-number="18">    trial_number, </a>
+<a class="sourceLine" id="cb117-19" data-line-number="19">    block, </a>
+<a class="sourceLine" id="cb117-20" data-line-number="20">    stimulus, </a>
+<a class="sourceLine" id="cb117-21" data-line-number="21">    RT, </a>
+<a class="sourceLine" id="cb117-22" data-line-number="22">    handedness, </a>
+<a class="sourceLine" id="cb117-23" data-line-number="23">    gender, </a>
+<a class="sourceLine" id="cb117-24" data-line-number="24">    total_time_spent,</a>
+<a class="sourceLine" id="cb117-25" data-line-number="25">    comments</a>
+<a class="sourceLine" id="cb117-26" data-line-number="26">  )</a>
+<a class="sourceLine" id="cb117-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb117-28" data-line-number="28"><span class="co"># write_csv(d_preprocessed, &#39;mental-chrono-data_preprocessed.csv&#39;)</span></a></code></pre></div>
+</div>
+<div id="cleaning-the-data" class="section level3">
+<h3><span class="header-section-number">C.1.3</span> Cleaning the data</h3>
+<p>Remeber that the criteria for data exclusion should ideally be defined before data collection (or at least inspection). They should definitely never be chosen in such a way as to maximize the “desirability” of an analysis. Data cleaning is not a way of making sure that your favorite research hypothesis “wins”.</p>
+<p>Although we have not preregistered any data cleaning regime or analyses for this data set, we demonstrate a frequently used cleaning scheme for reaction time data, which does depend on the data in some sense, but does not require precise knowledge of the data. In particular, we are going to do this:</p>
+<ol style="list-style-type: decimal">
+<li>We remove remove the data from an individual participant <span class="math inline">\(X\)</span> if there is an experimental condition <span class="math inline">\(C\)</span> such that the mean RT of <span class="math inline">\(X\)</span> for condition <span class="math inline">\(C\)</span> is more than 2 standard deviations away from the overal mean RT for condition <span class="math inline">\(C\)</span>.</li>
+<li>From the remaining data, we then remove any individual trial <span class="math inline">\(Y\)</span> if the RT of <span class="math inline">\(Y\)</span> is more than 2 standard deviations away from the mean of experimental condition <span class="math inline">\(C\)</span> (where <span class="math inline">\(C\)</span> is the condition of <span class="math inline">\(Y\)</span>, of course).</li>
+</ol>
+<p>Notice that in the case at hand, the experimental conditions are the three types of tasks.</p>
+<div id="cleaning-by-participant" class="section level4">
+<h4><span class="header-section-number">C.1.3.1</span> Cleaning by-participant</h4>
+<p>To remove participants, we use this code:</p>
+<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" data-line-number="1"><span class="co"># summary stats (means) for participants</span></a>
+<a class="sourceLine" id="cb118-2" data-line-number="2">d_sum_stats_participants =<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb118-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(submission_id, block) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb118-4" data-line-number="4"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb118-5" data-line-number="5">    <span class="dt">mean_P =</span> <span class="kw">mean</span>(RT)</a>
+<a class="sourceLine" id="cb118-6" data-line-number="6">  )</a>
+<a class="sourceLine" id="cb118-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb118-8" data-line-number="8"><span class="co"># summary stats (means and SDs) for conditions</span></a>
+<a class="sourceLine" id="cb118-9" data-line-number="9">d_sum_stats_conditions =<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb118-10" data-line-number="10"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb118-11" data-line-number="11"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb118-12" data-line-number="12">    <span class="dt">mean_C =</span> <span class="kw">mean</span>(RT),</a>
+<a class="sourceLine" id="cb118-13" data-line-number="13">    <span class="dt">sd_C   =</span> <span class="kw">sd</span>(RT)</a>
+<a class="sourceLine" id="cb118-14" data-line-number="14">  )</a>
+<a class="sourceLine" id="cb118-15" data-line-number="15">  </a>
+<a class="sourceLine" id="cb118-16" data-line-number="16">d_sum_stats_participants =<span class="st"> </span></a>
+<a class="sourceLine" id="cb118-17" data-line-number="17"><span class="st">  </span><span class="kw">full_join</span>(</a>
+<a class="sourceLine" id="cb118-18" data-line-number="18">    d_sum_stats_participants,</a>
+<a class="sourceLine" id="cb118-19" data-line-number="19">    d_sum_stats_conditions,</a>
+<a class="sourceLine" id="cb118-20" data-line-number="20">    <span class="dt">by =</span> <span class="st">&quot;block&quot;</span></a>
+<a class="sourceLine" id="cb118-21" data-line-number="21">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb118-22" data-line-number="22"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb118-23" data-line-number="23">    <span class="dt">outlier_P =</span> <span class="kw">abs</span>(mean_P <span class="op">-</span><span class="st"> </span>mean_C) <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>sd_C</a>
+<a class="sourceLine" id="cb118-24" data-line-number="24">  )</a>
+<a class="sourceLine" id="cb118-25" data-line-number="25"></a>
+<a class="sourceLine" id="cb118-26" data-line-number="26"><span class="co"># show outlier participants</span></a>
+<a class="sourceLine" id="cb118-27" data-line-number="27">d_sum_stats_participants <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(outlier_P <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">show</span>()</a></code></pre></div>
+<pre><code>## # A tibble: 1 x 6
+## # Groups:   submission_id [1]
+##   submission_id block          mean_P mean_C  sd_C outlier_P
+##           &lt;dbl&gt; &lt;ord&gt;           &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;lgl&gt;    
+## 1          8505 discrimination  1078.   518.  185. TRUE</code></pre>
+<p>When plotting the data for this condition and this participant, we see that the high overall mean is not just caused by a single outlier, but several trials that took longer than 1 second.</p>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb120-1" data-line-number="1">d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb120-2" data-line-number="2"><span class="st">  </span><span class="kw">inner_join</span>(</a>
+<a class="sourceLine" id="cb120-3" data-line-number="3">    d_preprocessed, </a>
+<a class="sourceLine" id="cb120-4" data-line-number="4">    d_sum_stats_participants, </a>
+<a class="sourceLine" id="cb120-5" data-line-number="5">    <span class="dt">by =</span> <span class="st">&quot;submission_id&quot;</span></a>
+<a class="sourceLine" id="cb120-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb120-7" data-line-number="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT.x)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb120-8" data-line-number="8"><span class="st">  </span><span class="kw">geom_histogram</span>()</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-51-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>We are then going to exclude this participants data completely from all subsequent analysis:</p>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" data-line-number="1">d_cleaned =<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb121-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(submission_id <span class="op">!=</span><span class="st"> </span>d_sum_stats_participants<span class="op">$</span>submission_id[<span class="dv">1</span>] )</a></code></pre></div>
+</div>
+<div id="cleaning-by-trial" class="section level4">
+<h4><span class="header-section-number">C.1.3.2</span> Cleaning by-trial</h4>
+</div>
+</div>
+<div id="exploration-summary-stats-plots" class="section level3">
+<h3><span class="header-section-number">C.1.4</span> Exploration: summary stats &amp; plots</h3>
+<p>What’s the distribution of <code>total_time_spent</code>, i.e., the time each participant took to complete the whole study?</p>
+<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb122-1" data-line-number="1">d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb122-2" data-line-number="2"><span class="st">  </span><span class="kw">select</span>(submission_id, total_time_spent) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb122-3" data-line-number="3"><span class="st">  </span><span class="kw">unique</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb122-4" data-line-number="4"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> total_time_spent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb122-5" data-line-number="5"><span class="st">  </span><span class="kw">geom_histogram</span>()</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-53-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>There are two participants who took noticably longer than all the others, but we need not necessarily be concerned about this, because it is not unusual for participants of online experiments to open the experiment and wait before actually starting.</p>
 <ul>
-<li>understand the basics of R</li>
-<li>understand simple R scripts</li>
-<li>write simple R scripts from scratch</li>
+<li>give whatever interesting summary stats we can about the data</li>
+<li>also show different aspects of data (e.g., overal error rate, time spent on average, gender distribution …)</li>
 </ul>
-<p>[IMPROVE LEARNING GOALS]</p> 
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="intro-installation.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="ch1-first-steps.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="data-sets-used-in-the-book.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="data-analysis.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
