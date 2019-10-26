@@ -6,6 +6,7 @@ suppressPackageStartupMessages(library(gridExtra))
 suppressPackageStartupMessages(library(Rlab)) # for dbern (used in appendix; maybe solve differently?)
 suppressPackageStartupMessages(library(rcartocolor)) # color-blind friendly palettes: https://github.com/Nowosad/rcartocolor
 suppressPackageStartupMessages(library(extraDistr))  # create beta-binomial and bernoulli rvs
+suppressPackageStartupMessages(library(boot))  # bootstrapped (mainly: 95% CIs for the mean)
 # suppressPackageStartupMessages(library(rethinking))
 
 ## set defaults
@@ -14,3 +15,6 @@ theme_set(
   hrbrthemes::theme_ipsum(plot_margin = margin(10, 10, 10, 10)) +
     theme(legend.position = "top")
 )
+
+# parallel execution of Stan code
+options(mc.cores = parallel::detectCores())

@@ -49,16 +49,16 @@ We expect that reaction times of correct responses are lowest in the reaction ta
 The raw data produced by the online experiment is not particularly tidy. It needs substantial massages before plotting and analysis.
 
 ```{r}
-d_raw = read_csv('data_sets/mental-chrono-data_raw.csv')
+d_raw <- read_csv('data_sets/mental-chrono-data_raw.csv')
 glimpse(d_raw)
 ```
 
 The most pressing problem is that entries in the column `trial_type` contain two logically separate pieces of information: the block (reaction, go/no-go, discrimination) *and* whether the data comes from a practice trial (which we want to discard) or a main trial (which we want to analyze). We therefore separate this information, and perform some other massages, to finally select a preprocessed data set for further analysis:
 
 ```{r}
-block_levels    = c("reaction", "goNoGo", "discrimination") # ordering of blocks for plotting, etc. 
+block_levels <- c("reaction", "goNoGo", "discrimination") # ordering of blocks for plotting, etc. 
 
-d_preprocessed = d_raw %>% 
+d_preprocessed <- d_raw %>% 
   separate(trial_type, c("block", "stage"), sep = "_", remove = FALSE) %>%
   mutate(comments = ifelse(is.na(comments), "non given", comments)) %>% 
   filter(stage == "main") %>% 
@@ -109,21 +109,21 @@ This procedure is implemented in this code:
 ```{r}
 
 # summary stats (means) for participants
-d_sum_stats_participants = d_preprocessed %>% 
+d_sum_stats_participants <- d_preprocessed %>% 
   group_by(submission_id, block) %>% 
   summarise(
     mean_P = mean(RT)
   )
 
 # summary stats (means and SDs) for conditions
-d_sum_stats_conditions = d_preprocessed %>% 
+d_sum_stats_conditions <- d_preprocessed %>% 
   group_by(block) %>% 
   summarise(
     mean_C = mean(RT),
     sd_C   = sd(RT)
   )
   
-d_sum_stats_participants = 
+d_sum_stats_participants <- 
   full_join(
     d_sum_stats_participants,
     d_sum_stats_conditions,
@@ -152,7 +152,7 @@ d_preprocessed %>%
 We are then going to exclude this participant's entire data from all subsequent analysis:^[This may seem a harsh step, but when data acquisition is cheap, it's generally not a bad strategy to be very strict in exclusion criteria, and to apply rules that are not strongly context-dependent.]
 
 ```{r}
-d_cleaned = d_preprocessed %>% 
+d_cleaned <- d_preprocessed %>% 
   filter(submission_id != d_sum_stats_participants$submission_id[1] )
 ```
 
@@ -168,7 +168,7 @@ The following code implements this:
 ```{r}
 
 # mark individual trials as outliers
-d_cleaned = d_cleaned %>% 
+d_cleaned <- d_cleaned %>% 
   full_join(
     d_sum_stats_conditions,
     by = "block"
@@ -194,7 +194,7 @@ d_cleaned %>%
 So, we remove `r filter(d_cleaned, trial_type != "acceptable") %>% nrow()` individual trials.
 
 ```{r}
-d_cleaned = d_cleaned %>% 
+d_cleaned <- d_cleaned %>% 
   filter(trial_type == "acceptable")
 ```
 
@@ -216,12 +216,31 @@ There are two participants who took noticably longer than all the others, but we
 Here are summary statistics for the reaction time measures for each condition (= block).
 
 ```{r}
-d_sum_stats_blocks_cleaned = d_cleaned %>% 
-  group_by(block) %>% 
+## TODO make pretty and find proper place for convenience function for bootstrap
+
+## takes a vector of numbers and returns bootstrapped 
+## credible interval (95% per default), based on `n_resamples` re-samples
+bootstrapped_CI <-  function(data_vector, n_resamples = 1000) {
+  resampled_means <- map_dbl(1:n_resamples, function(i) {
+       mean(sample(x = data_vector, 
+                   size = length(data_vector), 
+                   replace = T)
+       )
+    }
+  )
+  tibble(
+    'lower' = quantile(resampled_means, 0.025) %>% as.numeric(),
+    'upper' = quantile(resampled_means, 0.975) %>% as.numeric()
+  ) 
+}
+
+## TODO use nesting
+d_sum_stats_blocks_cleaned <- d_cleaned %>%
+  group_by(block) %>%
   summarise(
-    HDI_low  = mean(RT) - sd(RT),
+    lower = bootstrapped_CI(RT)$lower,
     mean_RT  = mean(RT),
-    HDI_high = mean(RT) + sd(RT)
+    upper = bootstrapped_CI(RT)$upper
   )
 
 d_sum_stats_blocks_cleaned
@@ -234,23 +253,40 @@ And a plot of the summary:
 d_sum_stats_blocks_cleaned %>% 
   ggplot(aes(x = block, y = mean_RT, fill = block)) +
   geom_col() +
-  geom_errorbar(aes(ymin = HDI_low, ymax = HDI_high), size = 0.3, width = 0.4 ) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), size = 0.3, width = 0.2 ) +
   ylab("mean reaction time") + xlab("") +
   scale_fill_manual(values = project_colors) +
   theme(legend.position = "none") 
 ```
 
 
-To do:
-
-- replace sd with bootstrap CI
-- give alternative to barplot with individual points
+<!-- To do: -->
+<!-- - give alternative to barplot with individual points -->
 
 ### Data analysis 
 
-We can look at the distribution of time spent on the whole experiment:
+We are interested in seeing whether the mean RTs are smallest for the 'reaction' task, higher for the 'go/no-go' task, and highest for the 'discrimination' task. We test this with a hierarchical Bayesian regression model, taking participant-level variation of intercets and slopes for factor `block` into account. We make 'go/no-go' the default level of the `block` factor, so that we can directly test our directed hypothesis, using posterior parameter inference.
 
-- if applicable: test the research hypotheses 
-- use the methods appropriate for the task
-  - ideally, always also include a (Bayesian) regression analysis
-- interpret the findings
+<!-- TODO: write convenience function for this kind of releveling -->
+
+```{r}
+# making 'go/no-go' the reference level
+## TODO: write convenience function for this kind of releveling
+reflevel <- "goNoGo"
+reflevel_index <- which(levels(d_cleaned$block) == reflevel)
+contrasts(d_cleaned$block) <- contr.treatment(
+  nlevels(d_cleaned$block), 
+  reflevel_index
+)
+colnames(contrasts(d_cleaned$block)) <- str_c("_",levels(d_cleaned$block)[-reflevel_index])
+  
+regression_model_ME <- brm(
+  formula = RT ~ block + (1 + block | submission_id),
+  data = d_cleaned
+)
+
+## TODO tidy and concise output
+regression_model_ME
+```
+
+We see that the value zero lies clearly outsie of the 95% credible interval for block 'reaction' and for block 'discrimination'. The deviation from the intercept (zero point) is in the expected direction. We may conclude that, as hypothesized, reaction times in the 'reaction' condition are lowest, higher in the 'go/no-go' condition, and highest in the 'discrimination' condition.
