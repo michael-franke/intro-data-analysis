@@ -254,3 +254,349 @@ We can look at the distribution of time spent on the whole experiment:
 - use the methods appropriate for the task
   - ideally, always also include a (Bayesian) regression analysis
 - interpret the findings
+
+## World Values Survey (wave 6 | 2010-2014)
+
+### Nature, origin and rationale of the data
+
+The [World Values Survey](www.worldvaluessurvey.org) (WVS) aims to study *changing values and their impact on social and political life*. The WVS consists of nationally representative surveys conducted in almost 100 countries which contain almost 90 percent of the world's population, using a common questionnaire. The WVS is the largest non-commercial, cross-national, time series investigation of human beliefs and values. 
+
+It currently includes interviews with almost *400,000 respondents*. Respondents are people in the age 18 and older residing within private households in each country, regardless of their nationality, citizenship or language. 
+
+The main method of data collection in the WVS survey is *face-to-face interview* at respondent's home / place of residence.
+
+#### The questionnaire
+
+The survey was conducted by using a *structured* [questionnaire](../4_WV6_Official_Questionnaire.pdf), consisting of 250 questions (here: variables) ([overview of all variables](../3_WV6_Codebook.pdf)) that describe 10 thematic sub-sections:
+
+1. Perceptions of life,
+2. Environment,
+3. Work,
+4. Family,
+5. Politics and Society,
+6. Religion and Morale,
+7. National Identity,
+8. Security,
+9. Science, and
+10. Socio-demographics.
+
+(The document ["variable description"](../6_variable-description-wvs.csv) contains the assigment of variables to topics.)
+
+#### Theoretical motivation & hypotheses
+
+**Inglehart's Concept of Postmaterialism**
+**Schwartz-Value-Scale**
+
+
+[WORKOUT POSSIBLE HYPOTHESES/ANALYSIS]
+
+### Loading and preprocessing the data
+
+```{r}
+d_raw_wvs <- readRDS('../data_sets/data-sets/4_world-values-survey/5_WV6.rds')
+head(d_raw_wvs)
+```
+
+
+#### Inglehart's Concept of Postmaterialism
+
+Inglehart (1977) has suggested that value orientations are organized hierarchically on a uni-dimensional continuum from material to postmaterial values [REFERENCE].
+
+The 12-item measure is based on the variables(questions) V60 to V65 in the questionnaire:
+
+People sometimes talk about what the aims of this country should be for the next ten years. On this card are listed some of the goals which different people would give top priority. 
+
+**V60** Would you please say which one of these you, yourself, consider the *most important*? 
+**V61** And which would be the *next most important*? 
+
+1. A high level of economic growth (materialist)
+2. Making sure this country has strong defense forces (materialist)
+3. Seeing that people have more say about how things are done at their jobs and in their communities (post-materialist)
+4. Trying to make our cities and countryside more beautiful (post-materialist)
+
+**V62** If you had to choose, which one of the things on this card would you say is *most important*? 
+**V63** And which would be the *next most important*? 
+
+1. Maintaining order in the nation (materialist)
+2. Giving people more say in important government decisions (post-materialist)
+3. Fighting rising prices (materialist)
+4. Protecting freedom of speech (post-materialist)
+
+**V64** Here is **another list**. In your opinion, which one of these is *most important*? 
+**V65** And what would be the *next most important*? 
+
+1. A stable economy (materialist)
+2. Progress toward a less impersonal and more humane society (post-materialist)
+3. Progress toward a society in which ideas count more than money (post-materialist)
+4. The fight against crime (materialist)
+
+```{r}
+# select variables for Postmaterialism-Index
+d_post_raw <- select(d_raw_wvs, 
+                       "V60":"V65",    # scale items
+                       "V2",           # country
+                       "V240",         # gender participant
+                       "V238"          # working-class participant
+                       ) %>% 
+  filter(
+    V2 %in% c(276,840,392,710)         #276-Germany,840-United States,392-Japan,710-South Africa
+  ) %>% 
+  as_tibble() %>% 
+  print()
+```
+
+```{r}
+library(naniar)
+# change values c(-5,-4,-3,-2,-1) to NAs
+d_post_clean <- replace_with_na_all(d_post_raw, condition = ~.x %in% c(-5,-4,-3,-2,-1))
+
+# inspect missing values per country and variable (item)
+d_post_clean %>% 
+  group_by(V2) %>% 
+  summarize(
+    V60 = scales::percent(sum(is.na(V60))/length(V60)),
+    V61 = scales::percent(sum(is.na(V61))/length(V61)),
+    V62 = scales::percent(sum(is.na(V62))/length(V62)),
+    V63 = scales::percent(sum(is.na(V63))/length(V63)),
+    V64 = scales::percent(sum(is.na(V64))/length(V64)),
+    V65 = scales::percent(sum(is.na(V65))/length(V65)),
+    gender = scales::percent(sum(is.na(V240))/length(V240)),
+    workingclass = scales::percent(sum(is.na(V238))/length(V238))
+  )
+
+```
+
+```{r}
+# prepare data set
+d_post_clean <- 
+ mutate(d_post_clean,
+    country = factor(d_post_clean$V2, levels = c(276,840,392,710), labels = c("Germany","United States","Japan","South Africa")),
+    gender = factor(d_post_clean$V240, levels = c(1,2), labels = c("female", "male")),
+    working_class = factor(d_post_clean$V238, levels = c(1,2,3,4,5), labels = c("Upper class","Upper middle class","Lower middle class","Working class","Lower class"))
+  ) %>% 
+  print()
+```
+
+
+```{r}
+# calculating the postmaterialism-index (12-items)
+post_index <- mutate(d_post_clean, "post_materialist" =  # postmaterialist: first choice = 2/ second choice = 1
+    ifelse(V60 %in% c(1,2),0,2)+
+    ifelse(V61 %in% c(1,2),0,1)+
+    ifelse(V62 %in% c(1,3),0,2)+
+    ifelse(V63 %in% c(1,3),0,1)+
+    ifelse(V64 %in% c(1,4),0,2)+
+    ifelse(V65 %in% c(1,4),0,1)) %>% 
+mutate("post_index" = ifelse(
+      post_materialist == 9 , 1,
+      ifelse(post_materialist %in% c(8,7), 2,
+      ifelse(post_materialist %in% c(6,5), 3,
+      ifelse(post_materialist %in% c(4,3), 4,
+      ifelse(post_materialist %in% c(2,1), 5,
+      6
+    )))))) %>%  
+mutate("label" = ifelse(
+  post_index == 1, "postmaterialist",
+  ifelse(post_index == 2, "rather postmaterialist",
+  ifelse(post_index == 3, "mixed postmaterialist",
+  ifelse(post_index == 4, "mixed materialist",
+  ifelse(post_index == 5, "rather materialist",
+  "materialist"
+)))))) %>% 
+  print()
+```
+
+```{r}
+# distribution of postmaterialists-types in population 
+group_by(post_index, `post_index`, label) %>% 
+  summarize(count = n(),
+            percentage = scales::percent(count/10252)
+            ) %>% 
+  as_tibble() 
+```
+
+##### Difference between countries
+
+```{r}
+# plotting
+post_index %>% 
+ggplot(mapping = aes(x = post_index, y = ..prop.., fill = country)) +
+  geom_bar(position = "fill") +
+  scale_x_continuous(name = "Postmaterialism-Index", breaks =c(1,2,3,4,5,6), labels = c("postmaterialist","rather post.", "mixed post.", "mixed mat.", "rather mat.", "materialist")) +
+  ylab("Percentage") +
+  ggtitle("Postmaterialism-Index: Comparision between countries")
+  
+```
+
+###### Gender difference in Germany
+
+```{r}
+# variable: "gender" with 1 - female and 2 - male
+post_index %>% 
+  filter(country == "Germany") %>%
+ggplot(mapping = aes(x = post_index, y = ..prop.., fill = gender)) +
+  geom_bar(position = "dodge") +
+  scale_x_continuous(name = "Postmaterialism-Index", breaks =c(1,2,3,4,5,6), labels = c("postmaterialist","rather post.", "mixed post.", "mixed mat.", "rather mat.", "materialist")) +
+  ylab("Percentage") +
+  ggtitle("Postmaterialism-Index: Germany - gender difference")
+```
+
+##### Working-class differences in Germany
+
+```{r}
+# variable: "working-class" with 1 - upper class to 5 - lower class
+post_index %>% 
+  filter(country == "Germany") %>%
+ggplot(mapping = aes(x = post_index, y = ..prop..)) +
+  geom_bar(position = "dodge") +
+  scale_x_continuous(name = "Postmaterialism-Index", breaks =c(1,2,3,4,5,6), labels = c("post.","2", "3", "4", "5", "mat.")) +
+  facet_wrap(~ working_class, nrow = 2) +
+  ylab("Percentage") +
+  ggtitle("Postmaterialism-Index: Germany - working-class difference")
+```
+
+#### Schwartz's Value Circle
+
+Schwartz identifies *ten different values* which can be summarized in two fundamental polarities along which these values cluster: *egoism* versus *altruism* (in Schwartz's terminology: self-enhancement vs. self-transcendence) and *conformism* versus *individualism* (conservation vs. openness to change). The first dimension includes values such as *power* and *achievement* (egoism) and benevolence and universalism (al-truism); stimulation and self-direction (individualism) and security and conformity (con-formism) form the second dimension.
+
+**Schwartz Value Inventory (SVI) items**:
+
+Question: Would you please indicate for each description whether that person is very much like you, like you, somewhat like you, a little like you, not like you, or not at all like you? (6-point Likert-scale)
+
+1. V70: It is important to this person to think up new ideas and be creative; to do things one's own way. (Self-Direction)
+2. V71: It is important to this person to be rich; to have a lot of money and expensive things. (Power)
+3. V72: Living in secure surroundings is important to this person; to avoid anything that might be dangerous. (Security)
+4. V73: It is important to this person to have a good time; to "spoil" oneself. (Hedonism)
+5. V74: It is important to this person to do something for the good of society. (Benevolence)
+6. V74B: It is important for this people to help the people nearby; to care for their well-being (Benevolence)
+7. V75: Being very successful is important to this person; to have people recognize one's achievements. (Achievement)
+8. V76: Adventure and taking risks are important to this person; to have an exciting life. (Stimulation)
+9. V77: It is important to this person to always behave properly; to avoid doing anything people would say is wrong. (Conformity)
+10. V78: Looking after the environment is important to this person; to care for nature and save life resources. (Universalism)
+11. V79: Tradition is important to this person; to follow the customs handed down by one's religion or family. (Tradition)
+
+```{r}
+# select variables for Schwartz-value-scale
+d_value_raw <- select(d_raw_wvs, 
+                       "V70":"V79",    # scale items
+                       "V2",           # country
+                       "V240",         # gender participant
+                       "V238"          # working-class participant
+                       ) %>% 
+  filter(
+    V2 %in% c(276,840,392,710)         #276-Germany,840-United States,392-Japan,710-South Africa
+  ) %>% 
+  as_tibble() %>% 
+  print()
+```
+
+```{r}
+# change values c(-5,-4,-3,-2,-1) to NAs
+d_value_clean <- replace_with_na_all(d_value_raw, condition = ~.x %in% c(-5,-4,-3,-2,-1))
+
+# inspect missing values per country and variable (item)
+d_value_clean %>% 
+  group_by(V2) %>% 
+  summarize(
+    V70 = scales::percent(sum(is.na(V70))/length(V70)),
+    V71 = scales::percent(sum(is.na(V71))/length(V71)),
+    V72 = scales::percent(sum(is.na(V72))/length(V72)),
+    V73 = scales::percent(sum(is.na(V73))/length(V73)),
+    V74 = scales::percent(sum(is.na(V74))/length(V74)),
+    V74B = scales::percent(sum(is.na(V74B))/length(V74B)),
+    V75 = scales::percent(sum(is.na(V75))/length(V75)),
+    V76 = scales::percent(sum(is.na(V76))/length(V76)),
+    V77 = scales::percent(sum(is.na(V77))/length(V77)),
+    V78 = scales::percent(sum(is.na(V78))/length(V78)),
+    V79 = scales::percent(sum(is.na(V79))/length(V79)),
+    gender = scales::percent(sum(is.na(V240))/length(V240)),
+    workingclass = scales::percent(sum(is.na(V238))/length(V238))
+  )
+```
+```{r}
+# use V74 or V74B, depending on NA
+d_value_clean <- d_value_clean %>% 
+  mutate(V74_new = ifelse(is.na(V74)==FALSE,V74,V74B)) %>% 
+  print()
+```
+
+```{r}
+# prepare tibble 
+d_value_clean1 <- 
+ transmute(d_value_clean,
+    self_direction =  factor(V70, levels = c(1,2,3,4,5,6), labels = c("very much", "like me","somewhat","a little","not like me","not at all")),
+    power = factor(V71, levels = c(1,2,3,4,5,6), labels = c("very much", "like me","somewhat","a little","not like me","not at all")),
+    security = factor(V72, levels = c(1,2,3,4,5,6), labels = c("very much", "like me","somewhat","a little","not like me","not at all")),
+    hedonism = factor(V73, levels = c(1,2,3,4,5,6), labels = c("very much", "like me","somewhat","a little","not like me","not at all")),
+    benevolence = factor(V74_new, levels = c(1,2,3,4,5,6), labels = c("very much", "like me","somewhat","a little","not like me","not at all")),
+    achievement = factor(V75, levels = c(1,2,3,4,5,6), labels = c("very much", "like me","somewhat","a little","not like me","not at all")),
+    stimulation = factor(V76, levels = c(1,2,3,4,5,6), labels = c("very much", "like me","somewhat","a little","not like me","not at all")),
+    conformity = factor(V77, levels = c(1,2,3,4,5,6), labels = c("very much", "like me","somewhat","a little","not like me","not at all")),
+    universalism = factor(V78, levels = c(1,2,3,4,5,6), labels = c("very much", "like me","somewhat","a little","not like me","not at all")),
+    tradition = factor(V79, levels = c(1,2,3,4,5,6), labels = c("very much", "like me","somewhat","a little","not like me","not at all")),
+    country = factor(V2, levels = c(276,840,392,710), labels = c("Germany","United States","Japan","South Africa")),
+    gender = factor(V240, levels = c(1,2), labels = c("female", "male")),
+    working_class = factor(V238, levels = c(1,2,3,4,5), labels = c("Upper class","Upper middle class","Lower middle class","Working class","Lower class"))
+  ) %>% 
+  print()
+```
+
+```{r}
+# rearrange tibble for plotting
+d_value_clean1 <- d_value_clean1 %>% 
+  pivot_longer(
+    cols = self_direction:tradition,
+    names_to = "value",
+    values_to = "rating"
+  ) %>% 
+  print()
+```
+
+
+```{r}
+# flipped bar chart
+d_value_clean1 %>% 
+  na.omit() %>% 
+  filter(country == "Germany") %>%
+ggplot(mapping = aes(x = rating, y = (..count..)/sum(..count..), fill = rating)) +
+  geom_bar(
+    show.legend = FALSE,
+    width = 1
+  ) +
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL) +
+  coord_flip() +
+  facet_wrap(~ value, nrow = 2) +
+  ggtitle("Value scale: Germany (1-very much to 6-not at all)")
+```
+
+```{r}
+# Bar chart and Coxcomb chart
+d_value_clean1 %>% 
+  na.omit() %>% 
+  filter(country == "Germany") %>%
+ggplot(mapping = aes(x = rating,y = (..count..)/sum(..count..), fill = rating)) +
+  geom_bar(
+    show.legend = FALSE,
+    width = 1
+  ) +
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL) +
+  coord_polar() +
+  facet_wrap(~ value, nrow = 2) +
+  ggtitle("Value scale: Germany")
+```
+
+```{r}
+# bar chart - grouped by countries and values
+d_value_clean1 %>%
+  na.omit() %>% 
+  filter(country %in% c("Germany", "Japan", "South Africa")) %>%
+ggplot(mapping = aes(x = rating, y = (..count..)/sum(..count..), fill = country)) +
+  geom_bar() +
+  facet_wrap(~ value, nrow = 3) +
+  scale_x_discrete(labels = c(1,2,3,4,5,6)) +
+  ylab("percentage") +
+  ggtitle("Value scale: Germany, Japan, South Africa (1-very much to 6-not at all)")
+```
+
