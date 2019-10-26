@@ -532,30 +532,31 @@ code span.wa { color: #bf0303; } /* Warning */
 <a class="sourceLine" id="cb126-11" data-line-number="11">    }</a>
 <a class="sourceLine" id="cb126-12" data-line-number="12">  )</a>
 <a class="sourceLine" id="cb126-13" data-line-number="13">  <span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb126-14" data-line-number="14">    <span class="st">&#39;lower&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.025</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>(),</a>
-<a class="sourceLine" id="cb126-15" data-line-number="15">    <span class="st">&#39;upper&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.975</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>()</a>
-<a class="sourceLine" id="cb126-16" data-line-number="16">  ) </a>
-<a class="sourceLine" id="cb126-17" data-line-number="17">}</a>
-<a class="sourceLine" id="cb126-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb126-19" data-line-number="19">## <span class="al">TODO</span> use nesting</a>
-<a class="sourceLine" id="cb126-20" data-line-number="20">d_sum_stats_blocks_cleaned &lt;-<span class="st"> </span>d_cleaned <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb126-21" data-line-number="21"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb126-22" data-line-number="22"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb126-23" data-line-number="23">    <span class="dt">lower =</span> <span class="kw">bootstrapped_CI</span>(RT)<span class="op">$</span>lower,</a>
-<a class="sourceLine" id="cb126-24" data-line-number="24">    <span class="dt">mean_RT  =</span> <span class="kw">mean</span>(RT),</a>
-<a class="sourceLine" id="cb126-25" data-line-number="25">    <span class="dt">upper =</span> <span class="kw">bootstrapped_CI</span>(RT)<span class="op">$</span>upper</a>
-<a class="sourceLine" id="cb126-26" data-line-number="26">  )</a>
-<a class="sourceLine" id="cb126-27" data-line-number="27"></a>
-<a class="sourceLine" id="cb126-28" data-line-number="28">d_sum_stats_blocks_cleaned</a></code></pre></div>
+<a class="sourceLine" id="cb126-14" data-line-number="14">    <span class="st">&#39;lower&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.025</span>),</a>
+<a class="sourceLine" id="cb126-15" data-line-number="15">    <span class="st">&#39;mean&#39;</span>  =<span class="st"> </span><span class="kw">mean</span>(data_vector),</a>
+<a class="sourceLine" id="cb126-16" data-line-number="16">    <span class="st">&#39;upper&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.975</span>)</a>
+<a class="sourceLine" id="cb126-17" data-line-number="17">  ) </a>
+<a class="sourceLine" id="cb126-18" data-line-number="18">}</a>
+<a class="sourceLine" id="cb126-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb126-20" data-line-number="20">## <span class="al">TODO</span> use nesting</a>
+<a class="sourceLine" id="cb126-21" data-line-number="21">d_sum_stats_blocks_cleaned &lt;-<span class="st"> </span>d_cleaned <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb126-22" data-line-number="22"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb126-23" data-line-number="23"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb126-24" data-line-number="24"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb126-25" data-line-number="25">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>RT))</a>
+<a class="sourceLine" id="cb126-26" data-line-number="26">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb126-27" data-line-number="27"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a>
+<a class="sourceLine" id="cb126-28" data-line-number="28"></a>
+<a class="sourceLine" id="cb126-29" data-line-number="29">d_sum_stats_blocks_cleaned</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 4
-##   block          lower mean_RT upper
-##   &lt;ord&gt;          &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
-## 1 reaction        296.    300.  304.
-## 2 goNoGo          419.    427.  435.
-## 3 discrimination  480.    488.  495.</code></pre>
+##   block          lower  mean upper
+##   &lt;ord&gt;          &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 reaction        296.  300.  304.
+## 2 goNoGo          420.  427.  435.
+## 3 discrimination  481.  488.  495.</code></pre>
 <p>And a plot of the summary:</p>
 <div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb128-1" data-line-number="1">d_sum_stats_blocks_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb128-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> block, <span class="dt">y =</span> mean_RT, <span class="dt">fill =</span> block)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb128-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> block, <span class="dt">y =</span> mean, <span class="dt">fill =</span> block)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb128-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_col</span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb128-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lower, <span class="dt">ymax =</span> upper), <span class="dt">size =</span> <span class="fl">0.3</span>, <span class="dt">width =</span> <span class="fl">0.2</span> ) <span class="op">+</span></a>
 <a class="sourceLine" id="cb128-5" data-line-number="5"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;mean reaction time&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></a>
@@ -596,33 +597,33 @@ code span.wa { color: #bf0303; } /* Warning */
 ## Group-Level Effects: 
 ## ~submission_id (Number of levels: 49) 
 ##                                          Estimate Est.Error l-95% CI
-## sd(Intercept)                               48.04      6.18    37.41
-## sd(block_reaction)                          30.89      6.11    19.77
-## sd(block_discrimination)                    49.06      6.81    36.77
+## sd(Intercept)                               48.42      6.22    37.31
+## sd(block_reaction)                          31.12      5.98    20.01
+## sd(block_discrimination)                    49.62      7.00    37.29
 ## cor(Intercept,block_reaction)               -0.70      0.11    -0.87
-## cor(Intercept,block_discrimination)          0.30      0.18    -0.06
-## cor(block_reaction,block_discrimination)    -0.31      0.24    -0.80
+## cor(Intercept,block_discrimination)          0.28      0.18    -0.08
+## cor(block_reaction,block_discrimination)    -0.27      0.23    -0.71
 ##                                          u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)                               61.85 1.00     1233     1962
-## sd(block_reaction)                          43.71 1.00     1218     1782
-## sd(block_discrimination)                    63.61 1.00     1455     2424
-## cor(Intercept,block_reaction)               -0.44 1.00     2292     2884
-## cor(Intercept,block_discrimination)          0.65 1.00     1182     1705
-## cor(block_reaction,block_discrimination)     0.16 1.01      653      886
+## sd(Intercept)                               61.78 1.00     1296     1895
+## sd(block_reaction)                          43.40 1.00     1213     2026
+## sd(block_discrimination)                    64.33 1.00     1712     2262
+## cor(Intercept,block_reaction)               -0.44 1.00     1938     2613
+## cor(Intercept,block_discrimination)          0.61 1.00     1421     2042
+## cor(block_reaction,block_discrimination)     0.18 1.00      735     1102
 ## 
 ## Population-Level Effects: 
 ##                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-## Intercept              428.53      7.49   413.65   443.04 1.01     1066
-## block_reaction        -128.71      5.91  -140.00  -117.17 1.00     1755
-## block_discrimination    62.42      8.31    46.11    78.42 1.00     2141
+## Intercept              428.08      7.68   413.38   443.41 1.00      840
+## block_reaction        -128.43      5.96  -140.62  -116.55 1.00     1702
+## block_discrimination    62.85      8.15    46.97    79.35 1.00     1896
 ##                      Tail_ESS
-## Intercept                1769
-## block_reaction           2521
-## block_discrimination     2613
+## Intercept                1605
+## block_reaction           2584
+## block_discrimination     2447
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma    70.99      1.08    68.89    73.17 1.00     5328     2906
+## sigma    70.97      1.03    69.00    73.03 1.00     7152     3166
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
 ## is a crude measure of effective sample size, and Rhat is the potential 
