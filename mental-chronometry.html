@@ -347,7 +347,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="loading-and-preprocessing-the-data" class="section level3">
 <h3><span class="header-section-number">C.1.2</span> Loading and preprocessing the data</h3>
 <p>The raw data produced by the online experiment is not particularly tidy. It needs substantial massages before plotting and analysis.</p>
-<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb116-1" data-line-number="1">d_raw =<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&#39;data_sets/mental-chrono-data_raw.csv&#39;</span>)</a>
+<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb116-1" data-line-number="1">d_raw &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&#39;data_sets/mental-chrono-data_raw.csv&#39;</span>)</a>
 <a class="sourceLine" id="cb116-2" data-line-number="2"><span class="kw">glimpse</span>(d_raw)</a></code></pre></div>
 <pre><code>## Observations: 3,750
 ## Variables: 32
@@ -384,9 +384,9 @@ code span.wa { color: #bf0303; } /* Warning */
 ## $ trial_number  &lt;dbl&gt; 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, …
 ## $ trial_type    &lt;chr&gt; &quot;reaction_practice&quot;, &quot;reaction_practice&quot;, &quot;reactio…</code></pre>
 <p>The most pressing problem is that entries in the column <code>trial_type</code> contain two logically separate pieces of information: the block (reaction, go/no-go, discrimination) <em>and</em> whether the data comes from a practice trial (which we want to discard) or a main trial (which we want to analyze). We therefore separate this information, and perform some other massages, to finally select a preprocessed data set for further analysis:</p>
-<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" data-line-number="1">block_levels    =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;reaction&quot;</span>, <span class="st">&quot;goNoGo&quot;</span>, <span class="st">&quot;discrimination&quot;</span>) <span class="co"># ordering of blocks for plotting, etc. </span></a>
+<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" data-line-number="1">block_levels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;reaction&quot;</span>, <span class="st">&quot;goNoGo&quot;</span>, <span class="st">&quot;discrimination&quot;</span>) <span class="co"># ordering of blocks for plotting, etc. </span></a>
 <a class="sourceLine" id="cb118-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb118-3" data-line-number="3">d_preprocessed =<span class="st"> </span>d_raw <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb118-3" data-line-number="3">d_preprocessed &lt;-<span class="st"> </span>d_raw <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb118-4" data-line-number="4"><span class="st">  </span><span class="kw">separate</span>(trial_type, <span class="kw">c</span>(<span class="st">&quot;block&quot;</span>, <span class="st">&quot;stage&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>, <span class="dt">remove =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb118-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">comments =</span> <span class="kw">ifelse</span>(<span class="kw">is.na</span>(comments), <span class="st">&quot;non given&quot;</span>, comments)) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb118-6" data-line-number="6"><span class="st">  </span><span class="kw">filter</span>(stage <span class="op">==</span><span class="st"> &quot;main&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
@@ -430,21 +430,21 @@ code span.wa { color: #bf0303; } /* Warning */
 </blockquote>
 <p>This procedure is implemented in this code:</p>
 <div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb119-1" data-line-number="1"><span class="co"># summary stats (means) for participants</span></a>
-<a class="sourceLine" id="cb119-2" data-line-number="2">d_sum_stats_participants =<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb119-2" data-line-number="2">d_sum_stats_participants &lt;-<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb119-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(submission_id, block) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb119-4" data-line-number="4"><span class="st">  </span><span class="kw">summarise</span>(</a>
 <a class="sourceLine" id="cb119-5" data-line-number="5">    <span class="dt">mean_P =</span> <span class="kw">mean</span>(RT)</a>
 <a class="sourceLine" id="cb119-6" data-line-number="6">  )</a>
 <a class="sourceLine" id="cb119-7" data-line-number="7"></a>
 <a class="sourceLine" id="cb119-8" data-line-number="8"><span class="co"># summary stats (means and SDs) for conditions</span></a>
-<a class="sourceLine" id="cb119-9" data-line-number="9">d_sum_stats_conditions =<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb119-9" data-line-number="9">d_sum_stats_conditions &lt;-<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb119-10" data-line-number="10"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb119-11" data-line-number="11"><span class="st">  </span><span class="kw">summarise</span>(</a>
 <a class="sourceLine" id="cb119-12" data-line-number="12">    <span class="dt">mean_C =</span> <span class="kw">mean</span>(RT),</a>
 <a class="sourceLine" id="cb119-13" data-line-number="13">    <span class="dt">sd_C   =</span> <span class="kw">sd</span>(RT)</a>
 <a class="sourceLine" id="cb119-14" data-line-number="14">  )</a>
 <a class="sourceLine" id="cb119-15" data-line-number="15">  </a>
-<a class="sourceLine" id="cb119-16" data-line-number="16">d_sum_stats_participants =<span class="st"> </span></a>
+<a class="sourceLine" id="cb119-16" data-line-number="16">d_sum_stats_participants &lt;-<span class="st"> </span></a>
 <a class="sourceLine" id="cb119-17" data-line-number="17"><span class="st">  </span><span class="kw">full_join</span>(</a>
 <a class="sourceLine" id="cb119-18" data-line-number="18">    d_sum_stats_participants,</a>
 <a class="sourceLine" id="cb119-19" data-line-number="19">    d_sum_stats_conditions,</a>
@@ -471,7 +471,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <a class="sourceLine" id="cb121-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_point</span>()</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-52-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We are then going to exclude this participant’s entire data from all subsequent analysis:<a href="#fn14" class="footnote-ref" id="fnref14"><sup>14</sup></a></p>
-<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb122-1" data-line-number="1">d_cleaned =<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb122-1" data-line-number="1">d_cleaned &lt;-<span class="st"> </span>d_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb122-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(submission_id <span class="op">!=</span><span class="st"> </span>d_sum_stats_participants<span class="op">$</span>submission_id[<span class="dv">1</span>] )</a></code></pre></div>
 </div>
 <div id="cleaning-by-trial" class="section level4">
@@ -482,7 +482,7 @@ code span.wa { color: #bf0303; } /* Warning */
 </blockquote>
 <p>The following code implements this:</p>
 <div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb123-1" data-line-number="1"><span class="co"># mark individual trials as outliers</span></a>
-<a class="sourceLine" id="cb123-2" data-line-number="2">d_cleaned =<span class="st"> </span>d_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb123-2" data-line-number="2">d_cleaned &lt;-<span class="st"> </span>d_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb123-3" data-line-number="3"><span class="st">  </span><span class="kw">full_join</span>(</a>
 <a class="sourceLine" id="cb123-4" data-line-number="4">    d_sum_stats_conditions,</a>
 <a class="sourceLine" id="cb123-5" data-line-number="5">    <span class="dt">by =</span> <span class="st">&quot;block&quot;</span></a>
@@ -504,7 +504,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <a class="sourceLine" id="cb123-21" data-line-number="21"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.9</span>, <span class="dt">data =</span> <span class="kw">filter</span>(d_cleaned, trial_type <span class="op">!=</span><span class="st"> &quot;acceptable&quot;</span>))</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-54-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>So, we remove 63 individual trials.</p>
-<div class="sourceCode" id="cb124"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb124-1" data-line-number="1">d_cleaned =<span class="st"> </span>d_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
+<div class="sourceCode" id="cb124"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb124-1" data-line-number="1">d_cleaned &lt;-<span class="st"> </span>d_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb124-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;acceptable&quot;</span>)</a></code></pre></div>
 </div>
 </div>
@@ -519,47 +519,115 @@ code span.wa { color: #bf0303; } /* Warning */
 <p><img src="I2DA_files/figure-html/unnamed-chunk-56-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>There are two participants who took noticably longer than all the others, but we need not necessarily be concerned about this, because it is not unusual for participants of online experiments to open the experiment and wait before actually starting.</p>
 <p>Here are summary statistics for the reaction time measures for each condition (= block).</p>
-<div class="sourceCode" id="cb126"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb126-1" data-line-number="1">d_sum_stats_blocks_cleaned =<span class="st"> </span>d_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb126-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb126-3" data-line-number="3"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb126-4" data-line-number="4">    <span class="dt">HDI_low  =</span> <span class="kw">mean</span>(RT) <span class="op">-</span><span class="st"> </span><span class="kw">sd</span>(RT),</a>
-<a class="sourceLine" id="cb126-5" data-line-number="5">    <span class="dt">mean_RT  =</span> <span class="kw">mean</span>(RT),</a>
-<a class="sourceLine" id="cb126-6" data-line-number="6">    <span class="dt">HDI_high =</span> <span class="kw">mean</span>(RT) <span class="op">+</span><span class="st"> </span><span class="kw">sd</span>(RT)</a>
-<a class="sourceLine" id="cb126-7" data-line-number="7">  )</a>
-<a class="sourceLine" id="cb126-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb126-9" data-line-number="9">d_sum_stats_blocks_cleaned</a></code></pre></div>
+<div class="sourceCode" id="cb126"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb126-1" data-line-number="1">## <span class="al">TODO</span> make pretty and find proper place for convenience function for bootstrap</a>
+<a class="sourceLine" id="cb126-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb126-3" data-line-number="3">## takes a vector of numbers and returns bootstrapped </a>
+<a class="sourceLine" id="cb126-4" data-line-number="4">## credible interval (95% per default), based on `n_resamples` re-samples</a>
+<a class="sourceLine" id="cb126-5" data-line-number="5">bootstrapped_CI &lt;-<span class="st">  </span><span class="cf">function</span>(data_vector, <span class="dt">n_resamples =</span> <span class="dv">1000</span>) {</a>
+<a class="sourceLine" id="cb126-6" data-line-number="6">  resampled_means &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(<span class="dv">1</span><span class="op">:</span>n_resamples, <span class="cf">function</span>(i) {</a>
+<a class="sourceLine" id="cb126-7" data-line-number="7">       <span class="kw">mean</span>(<span class="kw">sample</span>(<span class="dt">x =</span> data_vector, </a>
+<a class="sourceLine" id="cb126-8" data-line-number="8">                   <span class="dt">size =</span> <span class="kw">length</span>(data_vector), </a>
+<a class="sourceLine" id="cb126-9" data-line-number="9">                   <span class="dt">replace =</span> T)</a>
+<a class="sourceLine" id="cb126-10" data-line-number="10">       )</a>
+<a class="sourceLine" id="cb126-11" data-line-number="11">    }</a>
+<a class="sourceLine" id="cb126-12" data-line-number="12">  )</a>
+<a class="sourceLine" id="cb126-13" data-line-number="13">  <span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb126-14" data-line-number="14">    <span class="st">&#39;lower&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.025</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>(),</a>
+<a class="sourceLine" id="cb126-15" data-line-number="15">    <span class="st">&#39;upper&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.975</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>()</a>
+<a class="sourceLine" id="cb126-16" data-line-number="16">  ) </a>
+<a class="sourceLine" id="cb126-17" data-line-number="17">}</a>
+<a class="sourceLine" id="cb126-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb126-19" data-line-number="19">## <span class="al">TODO</span> use nesting</a>
+<a class="sourceLine" id="cb126-20" data-line-number="20">d_sum_stats_blocks_cleaned &lt;-<span class="st"> </span>d_cleaned <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb126-21" data-line-number="21"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb126-22" data-line-number="22"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb126-23" data-line-number="23">    <span class="dt">lower =</span> <span class="kw">bootstrapped_CI</span>(RT)<span class="op">$</span>lower,</a>
+<a class="sourceLine" id="cb126-24" data-line-number="24">    <span class="dt">mean_RT  =</span> <span class="kw">mean</span>(RT),</a>
+<a class="sourceLine" id="cb126-25" data-line-number="25">    <span class="dt">upper =</span> <span class="kw">bootstrapped_CI</span>(RT)<span class="op">$</span>upper</a>
+<a class="sourceLine" id="cb126-26" data-line-number="26">  )</a>
+<a class="sourceLine" id="cb126-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb126-28" data-line-number="28">d_sum_stats_blocks_cleaned</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 4
-##   block          HDI_low mean_RT HDI_high
-##   &lt;ord&gt;            &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
-## 1 reaction          240.    300.     359.
-## 2 goNoGo            345.    427.     510.
-## 3 discrimination    373.    488.     602.</code></pre>
+##   block          lower mean_RT upper
+##   &lt;ord&gt;          &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
+## 1 reaction        296.    300.  304.
+## 2 goNoGo          419.    427.  435.
+## 3 discrimination  480.    488.  495.</code></pre>
 <p>And a plot of the summary:</p>
 <div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb128-1" data-line-number="1">d_sum_stats_blocks_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb128-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> block, <span class="dt">y =</span> mean_RT, <span class="dt">fill =</span> block)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb128-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_col</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb128-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> HDI_low, <span class="dt">ymax =</span> HDI_high), <span class="dt">size =</span> <span class="fl">0.3</span>, <span class="dt">width =</span> <span class="fl">0.4</span> ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb128-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lower, <span class="dt">ymax =</span> upper), <span class="dt">size =</span> <span class="fl">0.3</span>, <span class="dt">width =</span> <span class="fl">0.2</span> ) <span class="op">+</span></a>
 <a class="sourceLine" id="cb128-5" data-line-number="5"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;mean reaction time&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></a>
 <a class="sourceLine" id="cb128-6" data-line-number="6"><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> project_colors) <span class="op">+</span></a>
 <a class="sourceLine" id="cb128-7" data-line-number="7"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>) </a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-58-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>To do:</p>
-<ul>
-<li>replace sd with bootstrap CI</li>
-<li>give alternative to barplot with individual points</li>
-</ul>
+<!-- To do: -->
+<!-- - give alternative to barplot with individual points -->
 </div>
 <div id="data-analysis" class="section level3">
 <h3><span class="header-section-number">C.1.5</span> Data analysis</h3>
-<p>We can look at the distribution of time spent on the whole experiment:</p>
-<ul>
-<li>if applicable: test the research hypotheses</li>
-<li>use the methods appropriate for the task
-<ul>
-<li>ideally, always also include a (Bayesian) regression analysis</li>
-</ul></li>
-<li>interpret the findings</li>
-</ul>
+<p>We are interested in seeing whether the mean RTs are smallest for the ‘reaction’ task, higher for the ‘go/no-go’ task, and highest for the ‘discrimination’ task. We test this with a hierarchical Bayesian regression model, taking participant-level variation of intercets and slopes for factor <code>block</code> into account. We make ‘go/no-go’ the default level of the <code>block</code> factor, so that we can directly test our directed hypothesis, using posterior parameter inference.</p>
+<!-- TODO: write convenience function for this kind of releveling -->
+<div class="sourceCode" id="cb129"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb129-1" data-line-number="1"><span class="co"># making &#39;go/no-go&#39; the reference level</span></a>
+<a class="sourceLine" id="cb129-2" data-line-number="2">## <span class="al">TODO</span>: write convenience function for this kind of releveling</a>
+<a class="sourceLine" id="cb129-3" data-line-number="3">reflevel &lt;-<span class="st"> &quot;goNoGo&quot;</span></a>
+<a class="sourceLine" id="cb129-4" data-line-number="4">reflevel_index &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">levels</span>(d_cleaned<span class="op">$</span>block) <span class="op">==</span><span class="st"> </span>reflevel)</a>
+<a class="sourceLine" id="cb129-5" data-line-number="5"><span class="kw">contrasts</span>(d_cleaned<span class="op">$</span>block) &lt;-<span class="st"> </span><span class="kw">contr.treatment</span>(</a>
+<a class="sourceLine" id="cb129-6" data-line-number="6">  <span class="kw">nlevels</span>(d_cleaned<span class="op">$</span>block), </a>
+<a class="sourceLine" id="cb129-7" data-line-number="7">  reflevel_index</a>
+<a class="sourceLine" id="cb129-8" data-line-number="8">)</a>
+<a class="sourceLine" id="cb129-9" data-line-number="9"><span class="kw">colnames</span>(<span class="kw">contrasts</span>(d_cleaned<span class="op">$</span>block)) &lt;-<span class="st"> </span><span class="kw">str_c</span>(<span class="st">&quot;_&quot;</span>,<span class="kw">levels</span>(d_cleaned<span class="op">$</span>block)[<span class="op">-</span>reflevel_index])</a>
+<a class="sourceLine" id="cb129-10" data-line-number="10">  </a>
+<a class="sourceLine" id="cb129-11" data-line-number="11">regression_model_ME &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb129-12" data-line-number="12">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>block <span class="op">|</span><span class="st"> </span>submission_id),</a>
+<a class="sourceLine" id="cb129-13" data-line-number="13">  <span class="dt">data =</span> d_cleaned</a>
+<a class="sourceLine" id="cb129-14" data-line-number="14">)</a>
+<a class="sourceLine" id="cb129-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb129-16" data-line-number="16">## <span class="al">TODO</span> tidy and concise output</a>
+<a class="sourceLine" id="cb129-17" data-line-number="17">regression_model_ME</a></code></pre></div>
+<pre><code>##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: RT ~ block + (1 + block | submission_id) 
+##    Data: d_cleaned (Number of observations: 2404) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Group-Level Effects: 
+## ~submission_id (Number of levels: 49) 
+##                                          Estimate Est.Error l-95% CI
+## sd(Intercept)                               48.04      6.18    37.41
+## sd(block_reaction)                          30.89      6.11    19.77
+## sd(block_discrimination)                    49.06      6.81    36.77
+## cor(Intercept,block_reaction)               -0.70      0.11    -0.87
+## cor(Intercept,block_discrimination)          0.30      0.18    -0.06
+## cor(block_reaction,block_discrimination)    -0.31      0.24    -0.80
+##                                          u-95% CI Rhat Bulk_ESS Tail_ESS
+## sd(Intercept)                               61.85 1.00     1233     1962
+## sd(block_reaction)                          43.71 1.00     1218     1782
+## sd(block_discrimination)                    63.61 1.00     1455     2424
+## cor(Intercept,block_reaction)               -0.44 1.00     2292     2884
+## cor(Intercept,block_discrimination)          0.65 1.00     1182     1705
+## cor(block_reaction,block_discrimination)     0.16 1.01      653      886
+## 
+## Population-Level Effects: 
+##                      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+## Intercept              428.53      7.49   413.65   443.04 1.01     1066
+## block_reaction        -128.71      5.91  -140.00  -117.17 1.00     1755
+## block_discrimination    62.42      8.31    46.11    78.42 1.00     2141
+##                      Tail_ESS
+## Intercept                1769
+## block_reaction           2521
+## block_discrimination     2613
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma    70.99      1.08    68.89    73.17 1.00     5328     2906
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
+## is a crude measure of effective sample size, and Rhat is the potential 
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<p>We see that the value zero lies clearly outsie of the 95% credible interval for block ‘reaction’ and for block ‘discrimination’. The deviation from the intercept (zero point) is in the expected direction. We may conclude that, as hypothesized, reaction times in the ‘reaction’ condition are lowest, higher in the ‘go/no-go’ condition, and highest in the ‘discrimination’ condition.</p>
 
 </div>
 </div>
