@@ -8,6 +8,7 @@ suppressPackageStartupMessages(library(rcartocolor)) # color-blind friendly pale
 suppressPackageStartupMessages(library(extraDistr))  # create beta-binomial and bernoulli rvs
 suppressPackageStartupMessages(library(boot))  # bootstrapped (mainly: 95% CIs for the mean)
 # suppressPackageStartupMessages(library(rethinking))
+suppressPackageStartupMessages(library(naniar)) # turn numbers (e.g. -5,99,..) into NA (handling of missing values in data sets)
 
 ## set defaults
 # hrbrthemes::import_public_sans()
