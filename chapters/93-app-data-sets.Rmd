@@ -229,19 +229,20 @@ bootstrapped_CI <-  function(data_vector, n_resamples = 1000) {
     }
   )
   tibble(
-    'lower' = quantile(resampled_means, 0.025) %>% as.numeric(),
-    'upper' = quantile(resampled_means, 0.975) %>% as.numeric()
+    'lower' = quantile(resampled_means, 0.025),
+    'mean'  = mean(data_vector),
+    'upper' = quantile(resampled_means, 0.975)
   ) 
 }
 
 ## TODO use nesting
 d_sum_stats_blocks_cleaned <- d_cleaned %>%
   group_by(block) %>%
+  nest() %>% 
   summarise(
-    lower = bootstrapped_CI(RT)$lower,
-    mean_RT  = mean(RT),
-    upper = bootstrapped_CI(RT)$upper
-  )
+    CIs = map(data, function(d) bootstrapped_CI(d$RT))
+  ) %>% 
+  unnest(CIs)
 
 d_sum_stats_blocks_cleaned
 
@@ -251,7 +252,7 @@ And a plot of the summary:
 
 ```{r}
 d_sum_stats_blocks_cleaned %>% 
-  ggplot(aes(x = block, y = mean_RT, fill = block)) +
+  ggplot(aes(x = block, y = mean, fill = block)) +
   geom_col() +
   geom_errorbar(aes(ymin = lower, ymax = upper), size = 0.3, width = 0.2 ) +
   ylab("mean reaction time") + xlab("") +
