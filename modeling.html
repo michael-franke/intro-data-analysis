@@ -323,25 +323,25 @@ code span.wa { color: #bf0303; } /* Warning */
 <h2><span class="header-section-number">9.2</span> Modeling</h2>
 <div id="introductory-example" class="section level3">
 <h3><span class="header-section-number">9.2.1</span> Introductory example</h3>
-<p>As introductory example we considered a coin flip experiment and asked if a particular coin is . In order to investigate this question a coin is flipped <span class="math inline">\(x\)</span> times (= trials) and the number of success (i.e. numbers of “head”) <span class="math inline">\(k\)</span> is recorded. This is repeated <span class="math inline">\(n\)</span> times (=observations).</p>
+<p>As introductory example we considered a coin flip experiment and asked if a particular coin is <em>biased</em>. In order to investigate this question a coin is flipped <span class="math inline">\(x\)</span> times (= trials) and the number of success (i.e. numbers of “head”) <span class="math inline">\(k\)</span> is recorded. This is repeated <span class="math inline">\(n\)</span> times (=observations).</p>
 <pre><code>## # A tibble: 10 x 3
 ##        n     k     x
 ##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-##  1     1    12    30
-##  2     2    13    30
-##  3     3    13    30
-##  4     4    20    30
-##  5     5    12    30
-##  6     6     9    30
-##  7     7    12    30
-##  8     8    15    30
-##  9     9    16    30
-## 10    10    13    30</code></pre>
-<p>The above table shows the observed outcome, but how the underlying probability of coming up  can be derived from that data set?</p>
+##  1     1    18    30
+##  2     2    17    30
+##  3     3    15    30
+##  4     4    14    30
+##  5     5    16    30
+##  6     6    10    30
+##  7     7    19    30
+##  8     8     8    30
+##  9     9    15    30
+## 10    10    17    30</code></pre>
+<p>The above table shows the observed outcome, but how the underlying probability of coming up <em>heads</em> can be derived from that data set?</p>
 </div>
 <div id="steps-of-data-analysis" class="section level3">
 <h3><span class="header-section-number">9.2.2</span> Steps of Data Analysis</h3>
-<p>The approach described here is based on <span class="citation">(McElreath <a href="#ref-mcelreath2015">2015</a>, <span class="citation">@kruschke2015</span>)</span>. Although the approach is introduced in a Bayesian context, it can be used as a general guideline (with some caveats):</p>
+<p>The approach described here is based on <span class="citation">(McElreath <a href="#ref-mcelreath2015">2015</a>; Kruschke <a href="#ref-kruschke2015">2015</a>)</span>. Although the approach is introduced in a Bayesian context, it can be used as a general guideline (with some caveats):</p>
 <ul>
 <li>Identify the relevant variables according to the hypothesis (Measurement scales, predicted vs. predictor variables).</li>
 <li>Define the descriptive model for the relevant variables.
@@ -357,7 +357,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li>Model checking (Is the defined model adequate?)</li>
 </ul>
 <p><em>In the following we are interested in the question if a certain coin is biased.</em></p>
-<p><strong>First step</strong> is to <em>identify the relevant variables</em>. For the coin flip experiment a coin is flipped <span class="math inline">\(n\)</span> times, whereby each observation consists of <span class="math inline">\(x\)</span> trials. The variable  <span class="math inline">\(Y\)</span> is dichotomous with the possible outcomes “head” and “tail”. For each observation the outcome is recorded: “0” for coming up tail and “1” for coming up head. The data are summarized for each observation. The variable <span class="math inline">\(k\)</span> indicates the number of heads coming up in <span class="math inline">\(x\)</span> trials.</p>
+<p><strong>First step</strong> is to <em>identify the relevant variables</em>. For the coin flip experiment a coin is flipped <span class="math inline">\(n\)</span> times, whereby each observation consists of <span class="math inline">\(x\)</span> trials. Imagine for example 10 people flip a coin 30 times, then <span class="math inline">\(n=10\)</span> and <span class="math inline">\(x=30\)</span>. The variable <em>coin flip</em> <span class="math inline">\(Y\)</span> is dichotomous with the possible outcomes “head” and “tail”. For each observation the outcome is recorded: “0” for coming up tail and “1” for coming up head. The data are summarized for each observation. The variable <span class="math inline">\(k\)</span> indicates the number of heads coming up in <span class="math inline">\(x\)</span> trials.</p>
 <p>In <strong>the second step</strong> a <em>descriptive model for the identified variables</em> has to be defined. An underlying probability <span class="math inline">\(\theta\)</span> is assumed, indicating the probability of heads coming up <span class="math inline">\(p(y=1)\)</span>. The probability that the outcome is head, given a value of parameter <span class="math inline">\(\theta\)</span>, is the value of <span class="math inline">\(\theta\)</span> <span class="citation">(Kruschke <a href="#ref-kruschke2015">2015</a>, 109)</span>. Formally, this can be written as
 <span class="math display">\[p(y=1|\theta)=\theta\]</span>
 As only two outcomes of <span class="math inline">\(Y\)</span> exists, the probability that the outcome is tail is the complementary probability <span class="math inline">\(1-\theta\)</span>. Both probabilities can be combined in one probability expression:
@@ -372,14 +372,14 @@ This probability distribution is called the <strong>Binomial distribution</stron
 <p>When the coin is flipped only once, then the probability can be written as:
 <span class="math display">\[Pr(Y|\theta)=\theta^{y}(1-\theta)^{1-y}.\]</span>
 This special variant of the Binomial distribution is the so-called <strong>Bernoulli distribution</strong>. To see the connection to the first considerations: When the outcome “head” is observed the equation reduces to <span class="math inline">\(Pr(y=1|\theta)=\theta\)</span> and when the outcome “tail” is observed the equation results in <span class="math inline">\(Pr(y=0|\theta)=(1-\theta).\)</span></p>
-<p>Accordingly, for the introductory example it can be noted that the coin flip variable <span class="math inline">\(Y\)</span>  Binomial distribution. (Note: For Bayes’ rule the  is needed. Remember, the likelihood function treats <span class="math inline">\(\theta\)</span> as unknow and the data as known. This role of parameter is exchanged in a probability distribution.)</p>
+<p>Accordingly, for the introductory example it can be noted that the coin flip variable <span class="math inline">\(Y\)</span> <em>is distributed as</em> Binomial distribution. (Note: For Bayes’ rule the <em>likelihood function</em> is needed. Remember, the likelihood function treats <span class="math inline">\(\theta\)</span> as unknow and the data as known. This role of parameter is exchanged in a probability distribution.)</p>
 <div class="figure" style="text-align: center">
 <img src="I2DA_files/figure-html/ch-03-03-binomial%20likelihood-coin%20flip%20example-1.png" alt="Binomial likelihoods for different observed coin flip outcomes." width="672" />
 <p class="caption">
 (#fig:ch-03-03-binomial likelihood-coin flip example)Binomial likelihoods for different observed coin flip outcomes.
 </p>
 </div>
-<p><strong>The third step</strong> is solely a , that is the <em>incorporation of prior knowledge</em>. What do we believe about the coin bias <span class="math inline">\(\theta\)</span> before seeing the data? Assuming that no expectation about <span class="math inline">\(\theta\)</span> exists a priori, indicating that all values of <span class="math inline">\(\theta\)</span> between 0 and 1 are equally probable. This can be modeled by a uniform distribution or as already visualized as Beta distribution with parameters a=1 and b=1 (see following figure).</p>
+<p><strong>The third step</strong> is solely a <em>Bayesian idea</em>, that is the <em>incorporation of prior knowledge</em>. What do we believe about the coin bias <span class="math inline">\(\theta\)</span> before seeing the data? Assuming that no expectation about <span class="math inline">\(\theta\)</span> exists a priori, indicating that all values of <span class="math inline">\(\theta\)</span> between 0 and 1 are equally probable. This can be modeled by a uniform distribution or as already visualized as Beta distribution with parameters a=1 and b=1 (see following figure).</p>
 <div class="figure" style="text-align: center">
 <img src="I2DA_files/figure-html/ch-03-03-prior%20distribution-coin%20flip%20example-1.png" alt="Using uninformative prior distributions: The Uniform(0,1) and Beta(1,1) prior." width="672" />
 <p class="caption">
@@ -403,7 +403,7 @@ To summarize the current model (whereby the prior knowledge is only considered f
 </div>
 <div id="graphical-notation" class="section level4">
 <h4><span class="header-section-number">9.2.3.2</span> Graphical notation</h4>
-<p>When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. In the following the convention described in Wagenmakers and Lee’s  (2014) is used: The graph structure is used to indicate dependencies between the variables, with children depending on their parents <span class="citation">(Lee and Wagenmakers <a href="#ref-leeWagen2014">2014</a>)</span>. General conventions:</p>
+<p>When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. In the following the convention described in Wagenmakers and Lee’s <em>Bayesian Cognitive Modelling</em> (2014) is used: The graph structure is used to indicate dependencies between the variables, with children depending on their parents <span class="citation">(Lee and Wagenmakers <a href="#ref-leeWagen2014">2014</a>)</span>. General conventions:</p>
 <ul>
 <li>Nodes - problem relevant variables,</li>
 <li>shaded nodes - observed variables,</li>
@@ -433,26 +433,26 @@ To summarize the current model (whereby the prior knowledge is only considered f
 <div id="an-outlook-hierarchical-models" class="section level3">
 <h3><span class="header-section-number">9.2.4</span> An outlook: Hierarchical models</h3>
 <p>Often data can be considered as part of an overall structure. Single observations can be modelled belonging into different groups. These groups in turn are part of a superordinate group etc. Such information are presented in a model in form of a hierarchy.</p>
-<p>For example, consider again the coin flip experiment. The outcome of  is influenced by the probability <span class="math inline">\(\theta\)</span>. Further, <span class="math inline">\(\theta\)</span> is assumed to be distributed as Beta(1,1). Remember that the parameter a and b of a Beta-distribution can be considered in this context as: <span class="math inline">\(a=\)</span>number of heads and <span class="math inline">\(b=\)</span> number of tails, consequently, <span class="math inline">\(n=a+b\)</span>.</p>
+<p>For example, consider again the coin flip experiment. The outcome of <em>head</em> is influenced by the probability <span class="math inline">\(\theta\)</span>. Further, <span class="math inline">\(\theta\)</span> is assumed to be distributed as Beta(1,1). Remember that the parameter a and b of a Beta-distribution can be considered in this context as: <span class="math inline">\(a=\)</span>number of heads and <span class="math inline">\(b=\)</span> number of tails, consequently, <span class="math inline">\(n=a+b\)</span>.</p>
 <div id="reparameterization-of-a-beta-distribution" class="section level4">
 <h4><span class="header-section-number">9.2.4.1</span> Reparameterization of a Beta distribution</h4>
-<p>Probability distributions can be described by their  and  (or dispersion). The  of a Beta distribution is defined as:</p>
+<p>Probability distributions can be described by their <em>central tendency</em> and <em>spread</em> (or dispersion). The <em>mode</em> of a Beta distribution is defined as:</p>
 <p><span class="math inline">\(\omega=\frac{a-1}{a+b-2}\)</span>,</p>
 <p>and the concentration as:</p>
 <p><span class="math inline">\(\kappa=a+b.\)</span></p>
-<p>The nice thing is, that the definition of the  as well as of the  consists solely of the parameters a and b. Therefore, it is possible to re-express the parameters of a Beta density in terms of <span class="math inline">\(\omega\)</span> and <span class="math inline">\(\kappa\)</span>, such that:</p>
+<p>The nice thing is, that the definition of the <em>mode</em> as well as of the <em>concentration</em> consists solely of the parameters a and b. Therefore, it is possible to re-express the parameters of a Beta density in terms of <span class="math inline">\(\omega\)</span> and <span class="math inline">\(\kappa\)</span>, such that:</p>
 <p><span class="math display">\[Beta(a,b)=Beta\left(\omega(\kappa -2)+1, (1-\omega)(\kappa -2)+1\right).\]</span></p>
 <p><em>Why this is useful? And what is its value in connection with hierarchical modeling?</em></p>
 <p>Return back to the coin flip experiment. So far, the parameters of the prior on <span class="math inline">\(\theta\)</span> are fixed: <span class="math inline">\(a=1\)</span> and <span class="math inline">\(b=1\)</span>. Assume that we get further information: The manufacturing process of the coins has a bias near <span class="math inline">\(\omega\)</span> (example taken from <span class="citation">(Kruschke <a href="#ref-kruschke2015">2015</a>)</span>). But how to incorporate this additional knowledge in the model?</p>
 <p>At this point, the hierarchy and the reparameterization come into play. Hierarchy because a further assumption is placed on top of the existing model and reparameterization, because we want to express the prior in terms of the mode <span class="math inline">\(\omega\)</span>.</p>
 <p>Such that the model can be assumed as follows:</p>
 <div class="figure">
-<img src="https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/binom-onelevel.png" alt="Graphical notation hierarchical Beta-Binomial Model - One group" />
+<img src="../chapters/images/binom-oneLevel.png" alt="Graphical notation hierarchical Beta-Binomial Model - One group" />
 <p class="caption">Graphical notation hierarchical Beta-Binomial Model - One group</p>
 </div>
-<p>Now, the parameters of the hyperpriors (Gamma and Beta) are fixed, but they can be treated as parameters as well..as such hierarchical models can be created with any degree of complexity:</p>
+<p>Now, the parameters of the hyperpriors (Gamma and Beta) are fixed, but they can be treated as parameters as well … as such hierarchical models can be created with any degree of complexity:</p>
 <div class="figure">
-<img src="https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/hierarchical-model.png" alt="Graphical notation hierarchical Beta-Binomial Model - One group" />
+<img src="../chapters/images/hierarchical-model.png" alt="Graphical notation hierarchical Beta-Binomial Model - One group" />
 <p class="caption">Graphical notation hierarchical Beta-Binomial Model - One group</p>
 </div>
 </div>
