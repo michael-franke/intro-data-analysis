@@ -2,34 +2,25 @@
 
 ## Part One: Foundations
 
-Overiew:
-
-0. **general introduction**
+### 1. General introduction
 
 - goals of this course
-  - 
-
 - what stats is about
-- different practices
-  - frequentist:
-    - (objective) probability from repeat experiment
-    - tight regime of error control (-> significance testing)
-  - Bayes:
-    - (subjective) probability from beliefs
-    - inference as rational belief update / decision making under uncertainty
-  - learning goals
-    - Use this on a slide:
-      - "At the end of the course, students are to be able to independently evaluate statistical analyses based on their adequacy for a given research question and data set, and to critically assess the adequacy of analyses commonly found in the literature. The course seeks to convey the competence to understand complex data sets, and to manipulate the data and plot aspects of it in ways that are useful for answering a given research question."
-    - Notice that this is modest! It doesn't actually say that we aim at the competence to /do it/ or even to /do it flawlessly/! We are aiming at understanding, because that is the foundation of practical success /and/ the foundation of an ability to learn more in the future. We do not teach tricks! We do not share recipes! [Hilfe zur Selbsthilfe]
+- dual-pronged approach: frequentist vs Bayes
+- learning goals
+  - Use this on a slide:
+    - "At the end of the course, students are to be able to independently evaluate statistical analyses based on their adequacy for a given research question and data set, and to critically assess the adequacy of analyses commonly found in the literature. The course seeks to convey the competence to understand complex data sets, and to manipulate the data and plot aspects of it in ways that are useful for answering a given research question."
 
-1. **basics of R**
+### 2. Basics of R
 
+- first steps
 - data types
 - functions
-- pipes
-- map
-  
-2. **data**
+- loops, maps & pipes
+
+## Part Two: Data
+
+### 3. Kinds of data 
 
 *learning goal:* how to arrange, summarize and visualize (aspects of data) to address a question of interest ("hypothesis-driven data poking")
 
@@ -37,13 +28,19 @@ Overiew:
   - discrete/continuous
   - nominal/orginal/metric/count/...
   - ...
+  
+### 4. Data wrangling
+
 - data wrangling (practical R)
   - tidy data (read, write, ...)
   - `pivot_longer`, `pivot_wider`, `join` ...
     - check `vignette("pivot")`
   - nested tibbles
   - `group_by`, `summarize`, ...
-- data plotting
+- data cleaning
+
+### 5. Summary statistics
+
 - simple summary statistics (theory)
   - mean/mode/median/quantiles/bootstraped CI of mean
   - variance, standard deviation
@@ -57,13 +54,25 @@ Overiew:
   - multiple correlations
     - show `pairs` plots
     - find a good data set (also for later in simple linear regressions)
-- data cleaning
+- bootstrap
+  - 95% confidence intervals for mean estimates 
+    - use for plotting
     
-3. **probability**
+### 6. Visualization
+
+- principles of helpful plotting
+- using ggplot
+  - geoms
+  - scales & stats
+  - faceting
+  - legends
+
+## Part 3: Models and inference
+
+### 7. Basics of probability theory
 
 *learning goal:* get comfortable with basic notions of probability theory
 
-[follow script from BDA_CM2018]
 - basics of "probability"
   - outcomes, events, observations
   - probability distribution (on sigma-algebra)
@@ -77,12 +86,21 @@ Overiew:
 - selected distributions
   - (read McElreath: Chapter 8; "Meet the family")
 
-4. **models**
+### 8. Two approaches to statistical modeling
+
+- dual-pronged approach
+  - frequentist:
+    - (objective) probability from repeat experiment
+    - tight regime of error control (-> significance testing)
+  - Bayes:
+    - (subjective) probability from beliefs
+    - inference as rational belief update / decision making under uncertainty
+
+### 9. Models
 
 *learning goal:* diagnosing the (conceptual) differences between kinds of statistical models
 
 - priors & likelihood (not yet complete)
-- conceptual differences between frequentist and Bayesian approaches (revisited) (added - but have to shorten the section)
 - notation
   - explain `~` notation (added)
   - explain how `d_i ~ N(0,1)` means that all d_i are i.i.d. (added)
@@ -100,14 +118,14 @@ Overiew:
   - show how to derive the prior predictive distribution (Bayesian) (has to be done - perhaps as outline in the "prior&likelihood"-section)
 - (included a part that should help to understand the link between parameters and model -- perhaps we should include it elsewhere, but when it comes to interpretation of R output (e.g. from tests) then the link between parameters and model has to be clear...)
 
-5. **inference**
+### 10. Parameter inference
 
 - MLE vs posterior
 - confidence intervals
 - credible intervals
 - briefly: algorithms for MLE & Bayesian inference
 
-6. **null hypothesis significance testing**
+### 11. Hypothesis testing
 
 - p-value
   - error control
@@ -116,26 +134,26 @@ Overiew:
 - ANOVA
 - linear regression
 
-7. **model comparison**
+### 12. Model comparison
 
 - AIC
   - check chapter 5 of McElreath
 - likelihood ratio test
 - Bayes factor
 
-8. **Bayesian approaches to hypothesis testing**
+### 13. Bayesian approaches to hypothesis testing
 
 - testing via Bayesian posterior inference
 - testing via model comparison
 
-9. model criticism
+### 14. Model criticism
 
 - posterior predictive checks (visual inspection)
 - (posterior) predictive $p$-values
 
-## Part Two: Applied (generalized) linear modeling
+## Part Four: Applied (generalized) linear modeling
 
-1. **simple linear regression**
+### 15. simple linear regression
 
 - "multiple" = "more than one predictor"
   - interactions
@@ -145,13 +163,13 @@ Overiew:
   - different coding shemes
 - robust regression
 
-2. **logistic regression**
+### 16. logistic regression
 
-3. **multinomial regression**
+### 17. multinomial regression
 
-4. **ordinal regression**
+### 18. Ordinal regression
  
-5. **hierarchical regression**
+### 19. Hierarchical regression
 
 - random effects
 
