@@ -22,8 +22,71 @@ The first part of the Mental Chronometry experiment is a simple reaction time ta
 ```{r}
 # read a data set of reaction times (as a tibble)
 # RTs <- read_csv("https://tinyurl.com/y4jo8mox")
-RTs <- read_csv("data_sets/ch-03-set-01-MC-RTs.csv")
+RT <- read_csv("data_sets/ch-03-set-01-MC-RTs.csv") %>% pull(RT)
 
 # check its content
-glimpse(RTs)
+glimpse(RT)
+```
+
+### Bootstrapped 95% confidence intervals
+
+[Bootstrapping](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) is an elegant way to obtain measures of confidence for summary statistics. These measures of confidence can be used for parameter inference, too. We will discuss parameter inference at length in Section \@ref(03-04-intro-learning-goals). In this course, we will not use bootstrapping as an alternative approach to parameter inference. We will, however, follow a common practice (at least in some areas of Cognitive Psychology) to use **bootstrapped 95% confidence intervals of the mean** as part of descriptive statistics, i.e., in summaries and plots of the data.
+
+The bootstrap is a method from a more general class of algorithms, namely so-called **resampling methods**. The general idea is, roughly put, that we treat the data at hand as the true representation of reality. We then imagine that we run an experiment on that (restricted, hypothetical) reality. We then ask ourselves: what would we estimate (e.g., as a mean) in any such hypothetical experiment. The more these hypothetical measures derived from hypothetical experiments based on a hypthetical reality differ, the less confident we are in the estimate. Sounds weird, but is mindblowingly elegant.
+
+An algorithm for constructing a 95% confidence interval of the mean of vector $D$ of numeric data with length $k$ looks as follows:
+
+1. take $k$ samples from $D$ with replacement, call this $D^{\textrm{rep}}$^[$D^{\textrm{rep}}$ is short for "repeated Data". We will use this concept more later on. The idea is that we consider "hypothetical data" which we have not perceived, but which we might have. Repeated data is (usually) of the same shape and form as the original, observed data, which is also sometimes noted as $D^{\textrm{obs}}$ for clarity in comparison to $D^{\textrm{rep}}$.]
+2. calculate the mean $\mu(D^{\textrm{rep}})$ of the newly sampled data
+3. repeat steps 1 and 2 to gather $r$ means of different resamples of $D$; call the result vector $\mu_{\textrm{sampled}}$
+4. the boundaries of the 95% inner quantile of $\mu_{\textrm{sampled}}$ are the bootstrapped 95% confidence interval of the mean
+
+The higher $r$, i.e., the more samples we take, the better the estimate. The higher $k$, i.e., the more observations we have to begin with, the less variable the means $\mu(D^{\textrm{rep}})$ of the resampled data will usually be. Hence, usually, the higher $k$ the smaller the bootstrapped 95% confidence interval of the mean.
+
+Here is a convenience function that we will use throughout the book to produce bootstrapped 95% confidence intervals of the mean:
+
+```{r}
+## takes a vector of numbers and returns bootstrapped 95% ConfInt
+## for the mean, based on `n_resamples` re-samples (default: 1000)
+bootstrapped_CI <-  function(data_vector, n_resamples = 1000) {
+  resampled_means <- map_dbl(1:n_resamples, function(i) {
+       mean(sample(x = data_vector, 
+                   size = length(data_vector), 
+                   replace = T)
+       )
+    }
+  )
+  tibble(
+    'lower' = quantile(resampled_means, 0.025),
+    'mean'  = mean(data_vector),
+    'upper' = quantile(resampled_means, 0.975)
+  ) 
+}
+```
+
+Applying this method to the vector of reaction times from above we get:
+
+```{r}
+bootstrapped_CI(RT)
+```
+
+Notice that, since `RT` has length `r length(RT)`, i.e., we have $k = `r length(RT)`$ observations in the data, the bootstrapped 95% confidence interval is rather narrow. Compare this against a case of $k = 30$:
+
+```{r}
+# 30 samples from a standard normal
+smaller_data = rnorm(n = 30, mean = 0, sd = 1)
+bootstrapped_CI(smaller_data)
+```
+
+To obtain summary statistics for different groups of a variable, we can use the function `bootstrapped_CI` conveniently in concert with nested tibbles, as demonstrated here on the Mental Chronometry data set (see Appendix \@ref(app-93-data-sets-mental-chronometry):
+
+```{r}
+mc_data_cleaned = read_csv("data_sets/mental-chrono-data_cleaned.csv") 
+mc_data_cleaned %>%
+  group_by(block) %>%
+  nest() %>% 
+  summarise(
+    CIs = map(data, function(d) bootstrapped_CI(d$RT))
+  ) %>% 
+  unnest(CIs)
 ```

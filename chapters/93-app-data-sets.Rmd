@@ -2,7 +2,7 @@
 
 Several data sets are used throughout the book as 'running examples'. They occur in different places to illustrate different things. This chapter centrally describes each data set, together with the most important visualizations and analyses.
 
-## Mental Chronometry
+## Mental Chronometry {#app-93-data-sets-mental-chronometry}
 
 
 ### Nature, origin and rationale of the data
@@ -188,7 +188,6 @@ d_cleaned %>%
   ggplot(aes(x = trial, y = RT, color = trial_type)) +
   geom_point(alpha = 0.4) + facet_grid(~block) + 
   geom_point(alpha = 0.9, data = filter(d_cleaned, trial_type != "acceptable"))
-
 ```
 
 So, we remove `r filter(d_cleaned, trial_type != "acceptable") %>% nrow()` individual trials.
@@ -196,6 +195,9 @@ So, we remove `r filter(d_cleaned, trial_type != "acceptable") %>% nrow()` indiv
 ```{r}
 d_cleaned <- d_cleaned %>% 
   filter(trial_type == "acceptable")
+
+## this version of the data is stored as cleaned 
+# write_csv(d_cleaned, "data_sets/mental-chrono-data_cleaned.csv")
 ```
 
 
@@ -216,26 +218,6 @@ There are two participants who took noticably longer than all the others, but we
 Here are summary statistics for the reaction time measures for each condition (= block).
 
 ```{r}
-## TODO make pretty and find proper place for convenience function for bootstrap
-
-## takes a vector of numbers and returns bootstrapped 
-## credible interval (95% per default), based on `n_resamples` re-samples
-bootstrapped_CI <-  function(data_vector, n_resamples = 1000) {
-  resampled_means <- map_dbl(1:n_resamples, function(i) {
-       mean(sample(x = data_vector, 
-                   size = length(data_vector), 
-                   replace = T)
-       )
-    }
-  )
-  tibble(
-    'lower' = quantile(resampled_means, 0.025),
-    'mean'  = mean(data_vector),
-    'upper' = quantile(resampled_means, 0.975)
-  ) 
-}
-
-## TODO use nesting
 d_sum_stats_blocks_cleaned <- d_cleaned %>%
   group_by(block) %>%
   nest() %>% 
@@ -245,7 +227,6 @@ d_sum_stats_blocks_cleaned <- d_cleaned %>%
   unnest(CIs)
 
 d_sum_stats_blocks_cleaned
-
 ```
 
 And a plot of the summary:
