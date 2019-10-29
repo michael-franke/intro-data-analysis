@@ -10,7 +10,7 @@ knitr::include_graphics("visuals/tidyverse_overview.png")
 ```
 
 
-Make sure to have completely installed everything of relevance for this course, as described in Section \@ref(intro-installation).
+Make sure to have completely installed everything of relevance for this course, as described in Section \@ref(intro-installation). Unless you have strong opinions or an unassailable favorite, we recommend trying [RStudio](https://rstudio.com) as an IDE for R.
 
 The official documentation for base R is [An Introduction to R](https://colinfay.me/intro-to-r/). The standard reference for using the tidyverse is [R for Data Science (R4DS)](https://r4ds.had.co.nz). There are some very useful [cheat sheets](https://rstudio.com/resources/cheatsheets/) which you should definitely check out! There are pointers to further material in Appendix \@ref(app-90-02-reading-material).
 
@@ -20,14 +20,15 @@ The learning goals for this chapter are:
 - become familiar with R, its syntax and basic notions
 - become familiar with the key functionality from the tidyverse
 - understand and write simple R scripts
+- be able to write documents in Rmarkdown
 ```
 
 
 ## First steps {#ch1-first-steps}
 
-R is an interpreted language. This means that you do not have to compile it. You can just evaluate it line by line, in a so-called **session**. The session stores the current values all variables. If you do not want to retype, you can store your code in a script. You can execute selected parts of a script or run the whole script. All the last values of all variables used in the script are then available to you in your current session.
+R is an interpreted language. This means that you do not have to compile it. You can just evaluate it line by line, in a so-called **session**. The session stores the current values of all variables. If you do not want to retype, you can store your code in a **script**.
 
-Try this out by either typing `r` to open an R session in a terminal or load RStudio. You can immediately calculate stuff:
+Try this out by either typing `r` to open an R session in a terminal or load RStudio.^[When starting a session in a terminal, you can exit a running R session by typing `quit()` or `q()`.] You can immediately calculate stuff:
 
 ```{r}
 6 * 7
@@ -44,9 +45,9 @@ z = 3
 x * y / z
 ```
 
-Use of `=` is discouraged. You can produce `<-` in RStudio with Option-`-` (on Mac) and Alt-`-` (on Windows/Linux) [FILL ME: how on other machines --> see list of "keyboard shortcutes" in notes: 03_other-resources]
+Use of `=` is discouraged.^[You can produce `<-` in RStudio with Option-`-` (on Mac) and Alt-`-` (on Windows/Linux). For other useful keyboard shortcuts, see [here](https://support.rstudio.com/hc/en-us/articles/200711853-Keyboard-Shortcuts).]
 
-It is good practice to use a consistent naming scheme for variables. This book uses `snake_case_variable_names` and tends towards using long and informative names for important variables, and short variable names for local variables, indices etc.
+It is good practice to use a consistent naming scheme for variables. This book uses `snake_case_variable_names` and tends towards using `long_and_excessively_informative_names` for important variables, and short variable names, like `i`, `j` or `x`, for local variables, indices etc.
 
 
 ### Literate coding
@@ -57,30 +58,58 @@ It is good practice to document code with short but informative comments. Commen
 x <- 4711 # a nice number from Cologne
 ```
 
-To comment or uncomment code you can use in RStudio `Command+Shift+C` (on Mac) and `Ctrl+Shift+C` (on Windows/Linux).
-[MORE ON HOW/WHERE TO COMMENT FUNCTIONS ETC?]
+In RStudio, you can use `Command+Shift+C` (on Mac) and `Ctrl+Shift+C` (on Windows/Linux) to comment or uncomment code, and you can use comments to structure your scripts. Any comment followed by `----` is treated as a (foldable) section.
 
-In RStudio, you can use comments to structure your scripts. Any comment followed by `----` [CHECK THIS!] is treated as a section. [HOW TO DO DIFFERENT LEVELS OF SECTIONING?]
-
-```{r}
-# SECTION: totally boring code ----
-## SUBSECTION: declaring variables ----
-### SUBSUBSECTION: variable x ----
+```{r, eval = FALSE}
+# SECTION: variable assignments ----
 x <- 6
-### SUBSUBSECTION: variable x ----
 y <- 7
-## SUBSECTION: some calculations ----
+# SECTION: some calculations ----
 x * y
 ```
 
 ### Objects
 
-Everything in R is an object [CHECK THIS, EXPLAIN WHAT THAT MEANS].
+Strictly speaking, all entities in R are *objects* but that is not always apparent or important for everyday practical purposes (see the manual for more information)[https://colinfay.me/intro-to-r/objects-their-modes-and-attributes.html]. R supports an object-oriented programming style, but we will not make (explicit) use of this functionality. Some functions (e.g., optimizers or fitting functions for statistical models) return objects, however, and we will use this output in various ways. For example, if we run a linear regression model on some data set, the output is an object.
+
+```{r}
+## you do not need to understand this code
+model_fit = lm(formula = speed~dist, data = cars)
+## just notice that the function `lm` returns an object
+is.object(model_fit)
+## printing an object on the screen usually gives you summary information
+print(model_fit)
+```
+
 
 ### Getting help
 
-- getting help / information about function / vignettes
+If you encounter a function like `lm` that you do not know about, you can access its documentation with the `help` function or just typing `?lm`. Ror example, the following call summons the documentation for `lm`, the first parts are shown in Figure \@ref(fig:R-doc-example).
 
+```{r, eval = FALSE}
+help(lm)
+```
+
+```{r R-doc-example, fig.cap = "Excerpt from the documentation of the `lm` function."}
+knitr::include_graphics("visuals/R-doc-example.png")
+```
+
+If you are looking for help on a more general topic, use the function `help.search`. It takes a regular expression as input and outputs a list of occurrences in the available documentation. For example, calling the following code might produce a display like in Figure \@(fig:R-doc-search-example).
+
+```{r, eval = FALSE}
+help.search("linear")
+```
+
+
+```{r R-doc-search-example, fig.cap = "Result of calling `help.search` for the term 'linear'."}
+knitr::include_graphics("visuals/R-doc-search-example.png")
+```
+
+The top entries in Figure \@(fig:R-doc-search-example) are **vignettes**. These are compact manuals or tutorial on particular topics or functions, and they are directly available in R. If you want to browse through the vignettes available on your machine (which depend on which packages you have installed), go ahead:
+
+```{r, eval = FALSE}
+browseVignettes()
+```
 
 
 ## Data types {#ch1-data-types}
@@ -266,3 +295,6 @@ my_dataframe = data.frame(x = 1:10, y = x^2)  ## ERROR :/
 - functional programming with `apply` `purrr`
   - the philosophy of "passing functions to functions"
 - piping
+
+## Rmarkdown
+
