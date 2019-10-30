@@ -1,0 +1,271 @@
+## World Values Survey (wave 6 | 2010-2014)
+
+### Nature, origin and rationale of the data
+
+The [World Values Survey](www.worldvaluessurvey.org) (WVS) aims to study *changing values and their impact on social and political life*. The WVS consists of nationally representative surveys conducted in almost 100 countries which contain almost 90 percent of the world's population, using a common questionnaire. The WVS is the largest non-commercial, cross-national, time series investigation of human beliefs and values.
+
+It currently includes interviews with almost *400,000 respondents*. Respondents are people in the age 18 and older residing within private households in each country, regardless of their nationality, citizenship or language.
+
+The main method of data collection in the WVS survey is *face-to-face interview* at respondent's home / place of residence.
+
+#### The questionnaire
+
+The survey was conducted by using a *structured* [questionnaire](../4_WV6_Official_Questionnaire.pdf), consisting of 250 questions (here: variables) ([overview of all variables](../3_WV6_Codebook.pdf)) that describe 10 thematic sub-sections:
+
+1. Perceptions of life,
+2. Environment,
+3. Work,
+4. Family,
+5. Politics and Society,
+6. Religion and Morale,
+7. National Identity,
+8. Security,
+9. Science, and
+10. Socio-demographics.
+
+(The document ["variable description"](../6_variable-description-wvs.csv) contains the assigment of variables to topics.)
+
+### Loading and preprocessing the data
+
+```{r wvs loading data set}
+#d_raw_wvs <- readRDS("../data_sets/data-sets/4_world-values-survey/5_WV6.rds")
+d_raw_wvs <- readRDS("5_WV6.rds")
+head(d_raw_wvs)
+```
+
+#### Case story: How Stable Are Democracies? 'Warning Signs Are Flashing Red' 
+
+The following example is taken from Healy (2018) [INCLUDE REFERENCE]. 
+
+The descriptive analysis and plot is reproduced from Foa and Mounk (2016), with the following changes: Foa and Mounk (2016) used combined data from Waves 5 and 6 (2005-7 and 2010-14) in the current analysis only data from wave 6 are used. Therefore one country "Great Britain" doped out. It has been replaced with "Germany".
+
+**relevant variables**
+- *country* (V2)
+  + 36 Australia
+  + 276 Germany (as replacement for Great Britain (826); was not asked in wave 2010-2014)
+  + 528 Netherlands
+  + 554 New Zealand
+  + 752 Sweden
+  + 840 Unitated States
+- *year of birth* (V241)
+  + 30th (30-39)
+  + 40th (40-49)
+  + 50th (50-59)
+  + 60th (60-69)
+  + 70th (70-79)
+  + 80th (80-89)
+- *How important is it for you to live in a country that is governed democratically?* (V140)
+  + rating scale: 1-"not at all important" to 10-"Absolutely important"
+
+```{r wvs-democracy selecting relevant variables}
+d_democracy <- d_raw_wvs %>% 
+  select(V2,V241,V140) %>% 
+  filter(V2 %in% c(36,276,528,554,752,840) & V241 >= 1930 & V241 < 1990) %>% 
+  mutate(
+    birth_decade = ifelse(V241 >= 1930 & V241< 1940, 1930,
+                          ifelse(V241 >= 1940 & V241< 1950, 1940,
+                                 ifelse(V241 >= 1950 & V241< 1960, 1950,
+                                        ifelse(V241 >= 1960 & V241< 1970, 1960,
+                                               ifelse(V241 >= 1970 & V241 < 1980, 1970,
+                                                      1980))))),
+    democracy_essential = ifelse(V140 == 10,1,0)
+  ) %>% 
+  replace_with_na_all(condition = ~.x %in% c(-5,-4,-3,-2,-1)) %>% 
+  mutate(
+    country = factor(V2, levels = c(36,276,528,554,752,840), labels = c("Australia","Germany","Netherlands","New Zealand","Sweden","United States")),
+    rating = factor(V140, ordered = TRUE)
+    ) %>% 
+  print()
+```
+
+
+```{r wvs-democracy create percentage of rating=10 (dichotomous) for country and year}
+d_democracy_grouped <- d_democracy %>% 
+  group_by(birth_decade, country) %>% 
+  summarise(
+    democracy = sum(democracy_essential),
+    obs = length(V140),
+    democracy_per = democracy/obs,
+    lower_ci = mean(democracy_essential)-2*sd(democracy_essential)/sqrt(length(democracy_essential)),
+    upper_ci = mean(democracy_essential)+2*sd(democracy_essential)/sqrt(length(democracy_essential))
+  ) %>% 
+  print()
+```
+
+
+```{r wvs-democracy plotting democracy-attitude per birth year and country , fig.cap="Reproducing plot by Foa and Mounk (2016): democracy-attitude as dichotomous variable across age and countries"}
+d_democracy_grouped %>% 
+  ggplot(mapping = aes(x = birth_decade, y = democracy_per))+
+  geom_point() +
+  geom_line() +
+  geom_ribbon(mapping = aes(x = birth_decade, ymin = lower_ci, ymax = upper_ci), alpha = .2) +
+  facet_wrap(~ country, nrow = 1) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  scale_x_continuous(name = "Decade of Birth", breaks = c(1930,1940,1950,1960,1970,1980)) +
+  scale_y_continuous(name = ""Essential" to Live in a Democracy", limits = c(.15,.9), breaks = c(0.2,0.4,0.6,0.8), labels = c("20%","40%","60%","80%"))
+
+```
+
+Healy (2016) cites Eric Voeten who redraw the above plot by using the 10-point rating variable instead of reduced dichotomous variant of the dependent variable. In the following a reproduction of Voeten's graphic:
+
+```{r wvs-democracy create mean for 10-rating-scale per country and birth year}
+d_democracy_grouped2 <- d_democracy %>% 
+  group_by(V241, country) %>% 
+  summarise(
+    democracy = mean(V140),
+    lower_ci = mean(V140)-2*sd(V140)/sqrt(length(V140)),
+    upper_ci = mean(V140)+2*sd(V140)/sqrt(length(V140))
+  ) 
+```
+
+```{r wvs-democracy plotting democracy-attitude per birth year and country , fig.cap="Reproducing plot by Eric Voeten [CITATION FROM HEALY-BOOK]: democracy-attitude as 10-rating scaled variable across age and countries"}
+d_democracy_grouped2 %>%   
+  ggplot(mapping = aes(x = V241, y = democracy))+
+  geom_smooth(color = "black") +
+  facet_wrap(~ country, nrow = 1) +
+  scale_x_continuous(name = "Decade of Birth", breaks = c(1930,1950,1970,1989), labels = c("'30", "'50", "'70", "'90"), limits = c(1930,1990)) +
+  scale_y_continuous(name = ""Essential" to Live in a Democracy", limits = c(1,10),breaks = c(1,2,3,4,5,6,7,8,9,10))
+```
+
+After visualizing the data some analysis can be made in order to check if the usage of a dichotomous or 10-point dependent variable influence the adequacy of a model.
+
+```{r wvs-democracy one predictor-model (birth year) for country "Australia"}
+data <- d_democracy %>% 
+  filter(country =="Australia")
+
+model1 <- democracy_essential ~ V241 
+model2 <- rating ~ V241 
+
+m1 <- brm(data = data, formula = model1, family = "bernoulli")
+m2 <- brm(data = data, formula = model2, family = "cumulative")
+```
+
+```{r wvs-democracy model fit summary: rating dichotomous; one predictor-model}
+summary(m1)
+```
+
+
+```{r wvs-democracy model fit summary: rating 10-scaled; one predictor-model}
+summary(m2)
+```
+
+```{r}
+m1 <- add_criterion(m1, c("loo", "waic"))
+m2 <- add_criterion(m2, c("loo", "waic"))
+
+print(m1$waic)
+```
+
+```{r}
+print(m2$waic)
+```
+
+
+```{r wvs-democracy model fit plot: rating dichotomous; one predictor-model, fig.cap="Predictions of the dichotomous model"}
+# model predictions 
+plot(marginal_effects(m1), points = TRUE, rug = TRUE)
+```
+
+```{r wvs-democracy predictions vs. observed data: rating dichotomous; one predictor-model}
+# Predicted responses based on model fit
+pp_m1 <- predict(m1)
+pred <- pp_m1[,1]
+
+# include predictions in observed data set
+data <- data %>% 
+  add_column(
+    pred = as_vector(pred)
+  ) %>% 
+  mutate(
+    pred_m1 = ifelse(pred < 0.5, 0,1)
+  ) 
+# create crosstable (Package: gmodels)
+CrossTable(data$pred_m1,data$democracy_essential, prop.r = FALSE, prop.c = FALSE, prop.chisq = FALSE, dnn = c("observed data","predicted data"))
+```
+
+```{r wvs-democracy model fit plot: rating 10-scaled; one predictor-model, fig.cap="Predictions of the 10-rating scale model"}
+# model predictions
+marginal_effects(m2, categorical = TRUE)
+```
+
+```{r wvs-democracy predictions vs. observed data: rating 10-scaled; one predictor-model}
+# Predicted responses based on model fit
+pp_m2 <- predict(m2) %>% 
+  as_tibble %>% 
+  `colnames<-`(c(1,2,3,4,5,6,7,8,9,10))
+
+pred_m2 <- colnames(pp_m2)[apply(pp_m2,1,which.max)]
+
+# include predictions in observed data set
+data <- data %>% 
+  add_column(
+    pred = as_vector(pred_m2)
+  ) 
+# create crosstable (Package: gmodels)
+CrossTable(data$pred,data$rating, prop.r = FALSE, prop.c = FALSE, prop.chisq = FALSE, dnn = c("observed data","predicted data"))
+```
+
+
+Until here there some problems with estimation, perhaps due to false model? 
+
+```{r wvs-democracy group-level model; group: country("Australia", "New Zealand")}
+data2 <- d_democracy %>% 
+  filter(country %in% c("Australia", "New Zealand"))
+
+#model21 <- democracy_essential ~ V241|country 
+#model22 <- rating ~ V241|country
+
+m21 <- brm(data = data2, formula = model21, family = "bernoulli")
+m22 <- brm(data = data2, formula = model22, family = "cumulative")
+
+summary(m21)
+```
+
+```{r}
+summary(m22)
+```
+
+```{r}
+# model predictions 
+plot(marginal_effects(m21), points = TRUE, rug = TRUE)
+```
+
+```{r}
+# Predicted responses based on model fit
+pp_m21 <- predict(m21)
+pred <- pp_m21[,1]
+
+# include predictions in observed data set
+data <- data %>% 
+  add_column(
+    pred = as_vector(pred)
+  ) %>% 
+  mutate(
+    pred_m1 = ifelse(pred < 0.5, 0,1)
+  ) 
+# create crosstable (Package: gmodels)
+CrossTable(data$pred_m1,data$democracy_essential, prop.r = FALSE, prop.c = FALSE, prop.chisq = FALSE, dnn = c("observed data","predicted data"))
+```
+
+```{r}
+# model predictions
+marginal_effects(m22, categorical = TRUE)
+```
+
+```{r}
+# Predicted responses based on model fit
+pp_m22 <- predict(m22) %>% 
+  as_tibble %>% 
+  `colnames<-`(c(1,2,3,4,5,6,7,8,9,10))
+
+pred_m22 <- colnames(pp_m2)[apply(pp_m22,1,which.max)]
+
+# include predictions in observed data set
+data <- data %>% 
+  add_column(
+    pred = as_vector(pred_m22)
+  ) 
+# create crosstable (Package: gmodels)
+CrossTable(data$pred,data$rating, prop.r = FALSE, prop.c = FALSE, prop.chisq = FALSE, dnn = c("observed data","predicted data"))
+```
+
