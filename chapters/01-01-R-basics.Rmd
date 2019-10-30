@@ -1,4 +1,4 @@
-# Basics of R
+# Basics of R {#Chap-01-01-R}
 
 R is a specialized programming language for data science. Though old, it is heavily supported by an active community. New tools for data handling, visualization, and statistical analysis are provided in the form of **packages**.^[Packages live in the official package repository [CRAN](https://cran.r-project.org/), or are supplied in less standardized forms, e.g., via open repositories, such as GitHub.] While other programming languages specialized for scientific computing, like Python of Julia, also lend themselves beautifully for data analysis, the choice of R in this course is motivated because R's raison d'être is data analysis. Some of the R packages that this course will use provide cutting-edge methods which are not as conveniently available in other programming languages (yet).
 
@@ -33,6 +33,57 @@ Try this out by either typing `r` to open an R session in a terminal or load RSt
 ```{r}
 6 * 7
 ```
+
+### Functions
+
+R has many built-in functions. The most common situation is that the function is called by its name using **prefix notation**, followed by round brackets which enclose the function's arguments (separated by commata if multiple). For example, the function `round` takes a number and, per default, returns the closest integer:
+
+```{r}
+## the function `round` takes a number as argument and 
+## returns the closest integer (default)
+round(0.6)
+```
+
+Actually, `round` allows several arguments. It takes as input the number `x` to be rounded, and another integer number `digits` which gives the number of digits after the comma to which `x` should be rounded. We can then specify these arguments in a function call of `round` by providing the named arguments.
+
+```{r}
+## rounds the number `x` to the number `digits` of digits
+round(x = 0.138, digits = 2)
+```
+
+When providing all arguments with names, the order of arguments does not matter. When providing at least one non-named argument, all non-named arguments have to be presented in the right order (as expected by the function; to find out what that is use `help`, as explained below in \@ref(Chap-01-01-R-help)) after subtracting the named arguments from the ordered list of arguments.
+
+<!-- EXERCISE: validate what's written here with a function that takes at least three named arguments -->
+
+```{r, eval = FALSE}
+round(x = 0.138, digits = 2)  # works as intended
+round(digits = 2, x = 0.138)  # works as intended
+round(0.138, digits = 2)      # works as intended
+round(0.138, 2)               # works as intended
+round(x = 0.138, 2)           # works as intended
+round(digits = 2, 0.138)      # works as intended
+round(2, x = 0.138)           # works as intended
+round(2, 0.138)               # does not work as intended (returns 2)
+```
+
+Functions can have default values for some or all of their arguments. In the case of `round` the default is `digits = 0`. There is obviously no default for `x` in the function `round`.
+
+Some functions can take an arbitrary number of arguments. The function `sum`, which sums up numbers is a point in case.
+
+```{r}
+## adds all of its arguments together
+sum(1,2,3)
+```
+
+Selected functions can also be called in **infix notation**. This applies to frequently recurring operations, such as mathematical operations or logical comparisons.
+
+```{r, eval = F}
+## both of these calls sum 1, 2, and 3 together
+sum(1,2,3)     # prefix notation
+1 + 2 + 3      # prefix notation
+```
+
+Section \@ref(Chap-01-01-functions) will list some of the most important built-in functions. It will also explain how to define your own functions.
 
 ### Variables
 
@@ -70,7 +121,9 @@ x * y
 
 ### Objects
 
-Strictly speaking, all entities in R are *objects* but that is not always apparent or important for everyday practical purposes (see the manual for more information)[https://colinfay.me/intro-to-r/objects-their-modes-and-attributes.html]. R supports an object-oriented programming style, but we will not make (explicit) use of this functionality. Some functions (e.g., optimizers or fitting functions for statistical models) return objects, however, and we will use this output in various ways. For example, if we run a linear regression model on some data set, the output is an object.
+Strictly speaking, all entities in R are *objects* but that is not always apparent or important for everyday practical purposes (see the manual for more information)[https://colinfay.me/intro-to-r/objects-their-modes-and-attributes.html]. R supports an object-oriented programming style, but we will not make (explicit) use of this functionality. In fact, this course heavily uses and encourages a functional programming style (see Section \@ref(ch-01-01-loops-and-maps)).
+
+Some functions (e.g., optimizers or fitting functions for statistical models) return objects, however, and we will use this output in various ways. For example, if we run a linear regression model on some data set, the output is an object.
 
 ```{r}
 ## you do not need to understand this code
@@ -114,7 +167,7 @@ library(IDA2019)
 ```
 
 
-### Getting help
+### Getting help {#Chap-01-01-R-help}
 
 If you encounter a function like `lm` that you do not know about, you can access its documentation with the `help` function or just typing `?lm`. Ror example, the following call summons the documentation for `lm`, the first parts are shown in Figure \@ref(fig:R-doc-example).
 
@@ -228,27 +281,6 @@ x + 3
 ```
 
 
-### Logical operators etc
-
-#### Standard logic
-
-- `&`: "and"
-- `|`: "or"
-- `!`: "not"
-- `all`: returns true of a vector if all elements are `T`
-- `any`: returns true of a vector if at least on element is `T`
-
-#### comparisons
-
-- `<`: smaller
-- `>`: greater
-- `==`: equal (you can also use `near()`instead of `==` e.g. `near(3/3,1)`returns TRUE)
-- `>=`: greater or equal
-- `<=`: less or equal
-- `!=`: not equal
-
-#### Set theory
-
 ### Special values
 
 - NA: "not availables", represents missing values
@@ -335,11 +367,39 @@ my_tibble    = tibble(x = 1:10, y = x^2)      ## dynamic construction possible
 my_dataframe = data.frame(x = 1:10, y = x^2)  ## ERROR :/
 ```
 
-## Functions {#ch1-functions}
+## Functions {#Chap-01-01-functions}
 
-- named and anonymous
+### Defining your own functions
 
-## Loops and maps {#ch1-loops-and-maps}
+#### Named functions
+
+#### Anonymous functions
+
+### Some important built-in functions
+
+#### Logical operators etc
+
+##### Standard logic
+
+- `&`: "and"
+- `|`: "or"
+- `!`: "not"
+- `all`: returns true of a vector if all elements are `T`
+- `any`: returns true of a vector if at least on element is `T`
+
+##### Comparisons
+
+- `<`: smaller
+- `>`: greater
+- `==`: equal (you can also use `near()`instead of `==` e.g. `near(3/3,1)`returns TRUE)
+- `>=`: greater or equal
+- `<=`: less or equal
+- `!=`: not equal
+
+##### Set theory
+
+
+## Loops and maps {#ch-01-01-loops-and-maps}
 
 - `for` loops
 - functional programming with `apply` `purrr`
