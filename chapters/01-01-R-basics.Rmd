@@ -199,9 +199,45 @@ browseVignettes()
 
 ## Data types {#ch1-data-types}
 
-Let's briefly go through the data types that are most important for our later purposes.
+Let's briefly go through the data types that are most important for our later purposes. We can assess the type of an object stored in variable `x` with the function `typeof(x)`. 
 
-### Numbers
+```{r}
+typeof(3)        ## returns type "double"
+typeof(TRUE)     ## returns type "logical"
+typeof(cars)     ## returns 'list' (includes data.frames, tibbles, objects, ...)
+typeof("huhu")   ## return 'character" (= string) 
+typeof(mean)     ## return 'closure" (= function)
+typeof(c)        ## return 'builtin" (= deep system internal stuff)
+typeof(round)    ## returns type "special" (= well, special stuff?)
+```
+
+It is sometimes possible to cast objects of one type into another type `XXX` using functions `as.XXX` in base R or `as_XXX` in the tidyverse.
+
+```{r}
+## casting Boolean value `TRUE` into number format 
+as.numeric(TRUE)
+```
+
+R is essentially an array-based language. Arrays are arbitrary but finite dimensional matrices. We will discuss what is usually referred to as vectors (= one-dimensional arrays), matrices (= two-dimensional arrays) and arrays (= more-than-two-dimensional) in the following section on numeric information. But it is important to keep in mind that arrays can contain objects of other types than numeric information (as long as all objects in the array are of the same type).
+
+### Numeric vectors & matrices
+
+#### Numeric information
+
+Standard number format in R is double. 
+
+```{r}
+typeof(3)
+```
+
+We can also represent numbers as integers and complex.
+
+```{r}
+typeof(as.integer(3))    # returns 'integer'
+typeof(as.complex(3))    # returns 'complex'
+```
+
+#### Numeric vectors
 
 As a generally useful heuristic, expect every numerical information to be treated as a vector (or higher-order: matrix, array, ... ; see below), and to expect any (basic, mathematical) operation in R to (most likely) apply to the whole vector, matrix, array, collection.^[If you are familiar with Python's *scipy* and *numpy* packages, this is R's default mode of treating numerical information.] This makes it possible to ask for the length of a variable to which we assing a single number, for instance:
 
@@ -224,16 +260,26 @@ x[3] <- 6   ## assign the value 6 to the 3rd entry of vector x
 x           ## notice that the 2nd entry is undefined, or "NA", not available
 ```
 
-Vectors can be declared with the built-in function `c()`. To memorize this, think of *concatenation* or *combination*.
+Vectors in general can be declared with the built-in function `c()`. To memorize this, think of *concatenation* or *combination*.
 
 ```{r}
 x <- c(4, 7, 1, 1)   # this is now a 4-place vector
 x
 ```
 
+There are also helpful functions to generate sequences of numbers:
+
+```{r, eval = F}
+1:10                                     ## returns 1, 2, 3, ..., 10
+seq(from = 1, to = 10, by = 1)           ## returns 1, 2, 3, ..., 10
+seq(from = 1, to = 10, by = 0.5)         ## returns 1, 1.5, 2, ..., 9.5, 10
+seq(from = 0, to = 1 , length.out = 11)  ## returns 0, 0.1, ..., 0.9, 1
+```
+
 Indexing in R starts with 1, not 0!
 
 ```{r}
+x <- c(4, 7, 1, 1)   # this is now a 4-place vector
 x[2]
 ```
 
@@ -243,6 +289,8 @@ And now we see what is meant above when we said that (almost) every mathematical
 x <- c(4, 7, 1, 1)   # 4-placed vector as before
 x + 1
 ```
+
+#### Numeric matrices
 
 Matrices are declared with the function `matrix`. This function takes, for instance, a vector as an argument.
 
@@ -254,7 +302,8 @@ x <- c(4, 7, 1, 1)     # 4-placed vector as before
 Notice that the result is a matrix with a single column. This is important. R uses so-called *column-major mode*.^[Python, on the other hand, uses the reverse *row-major mode*.] This means that it will fill columns first. For example, a matrix with three columns based on a six-placed vector $1, 2, \dots, 6$ will be built by filling the first column from top to bottom, then the second column top to bottom, and so on.^[It is in this sense that the "first index moves fastest" in column-major mode, which is another frequently given explanation of column-major mode.]
 
 ```{r}
-(m = matrix(1:6, ncol = 3))
+m <- matrix(1:6, ncol = 3)
+m
 ```
 
 In line with column-major mode, vectors are treated as column vectors in matrix operations:
@@ -270,6 +319,42 @@ As usual, and independently of column- or row-major mode, matrix indexing starts
 m[1,]   ## produces first row of matrix 'm'
 ```
 
+#### Arrays
+
+Arrays are simply higher-dimensional matrices. We will not make use of arrays in this course.
+
+#### Names for vectors, matrices and arrays
+
+The positions in a vector can be given names. This is extremely useful for good "literate coding" and therefore highly recommended. The names of vector `x`'s positions are retrieved and set by the `names` function:
+
+```{r}
+students <- c("Jax", "Jamie", "Jason")  # names of students
+grades <- c(1.3, 2.7, 2.0)              # a vector of grades
+names(grades)                           # retrieve names: with no nanmes so far
+names(grades) <- students               # assign names
+names(grades)                           # retrieve names again: names assigned
+grades                                  # output shows names
+```
+
+We can also set the names of a vector directly during construction:
+
+```{r}
+# names of students
+students <- c("Jax", "Jamie", "Jason")  
+# constructing a vector with names directly assigned
+grades <- c(1.3, 2.7, 2.0, names = students) 
+```
+
+
+Names for matrices are retrieved or set with functions `rownames` and `colnames`.
+
+```{r}
+m <- matrix(1:6, ncol = 3)  ## declare matrix
+rownames(m) <-paste0("row_", 1:nrow(m))
+colnames(m) <-paste0("col_", 1:ncol(m))
+m
+```
+
 ### Booleans
 
 There are built-in names for Boolean values "true" and "false", predictably named `TRUE` and `FALSE`. Equivalent shortcuts are `T` and `F`. If we attempt to do math with Boolean vectors, the outcome is what any reasonable logician would expect:
@@ -280,13 +365,23 @@ x = c(T,F,T)
 x + 3
 ```
 
+Boolean vectors can be used as index sets to extract elements from other vectors.
+
+```{r}
+number_vector  = 1:5           # 1, 2, ..., 5
+boolean_vector = c(T,F,T,F,T)  # index of odd numbers set to `TRUE`
+number_vector[boolean_vector]  # returns the elemnts from number vector, for which
+                               # the corresponding element in the Boolean vector is true
+```
 
 ### Special values
 
-- NA: "not availables", represents missing values
-- NaN: "not a number"
-- Inf or -Inf: number is too big or devision by zero
-[... what else? `NULL`?]
+There are a couple of keywords reserved in R for special kinds of objects:
+
+- `NA`: "not availables"; represents missing values in data
+- `NaN`: "not a number"; e.g., division zero by zero
+- `Inf` or `-Inf`: infinity and negative infinity; returned when number is too big or devision by zero
+- `NULL`: the NULL object; often returned when function is undefined for input
 
 ### Characters (= strings)
 
