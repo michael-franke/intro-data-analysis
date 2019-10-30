@@ -201,7 +201,7 @@ browseVignettes()
 
 Let's briefly go through the data types that are most important for our later purposes. We can assess the type of an object stored in variable `x` with the function `typeof(x)`. 
 
-```{r}
+```{r, eval = F}
 typeof(3)        ## returns type "double"
 typeof(TRUE)     ## returns type "logical"
 typeof(cars)     ## returns 'list' (includes data.frames, tibbles, objects, ...)
@@ -210,6 +210,13 @@ typeof(mean)     ## return 'closure" (= function)
 typeof(c)        ## return 'builtin" (= deep system internal stuff)
 typeof(round)    ## returns type "special" (= well, special stuff?)
 ```
+
+To learn more about an object, it can help to just print it out as a string:
+
+```{r}
+str(lm)
+```
+
 
 It is sometimes possible to cast objects of one type into another type `XXX` using functions `as.XXX` in base R or `as_XXX` in the tidyverse.
 
@@ -336,12 +343,12 @@ names(grades)                           # retrieve names again: names assigned
 grades                                  # output shows names
 ```
 
-We can also set the names of a vector directly during construction:
+We can also set the names of a vector directly during construction:^[Notice that we can create strings (actually called 'characters' in R) with double quotes]
 
 ```{r}
-# names of students
+## names of students (this is a character vector, see below)
 students <- c("Jax", "Jamie", "Jason")  
-# constructing a vector with names directly assigned
+## constructing a vector with names directly assigned
 grades <- c(1.3, 2.7, 2.0, names = students) 
 ```
 
@@ -349,9 +356,12 @@ grades <- c(1.3, 2.7, 2.0, names = students)
 Names for matrices are retrieved or set with functions `rownames` and `colnames`.
 
 ```{r}
-m <- matrix(1:6, ncol = 3)  ## declare matrix
-rownames(m) <-paste0("row_", 1:nrow(m))
-colnames(m) <-paste0("col_", 1:ncol(m))
+## declare matrix
+m <- matrix(1:6, ncol = 3)  
+## assign row and column names, using function
+## `str_c` which is described below
+rownames(m) <- str_c("row", 1:nrow(m), sep = "_")
+colnames(m) <- str_c("col", 1:ncol(m), sep = "_")
 m
 ```
 
@@ -368,10 +378,13 @@ x + 3
 Boolean vectors can be used as index sets to extract elements from other vectors.
 
 ```{r}
-number_vector  = 1:5           # 1, 2, ..., 5
-boolean_vector = c(T,F,T,F,T)  # index of odd numbers set to `TRUE`
-number_vector[boolean_vector]  # returns the elemnts from number vector, for which
-                               # the corresponding element in the Boolean vector is true
+# vector 1, 2, ..., 5
+number_vector  = 1:5           
+# index of odd numbers set to `TRUE`
+boolean_vector = c(T,F,T,F,T)  
+## returns the elemnts from number vector, for which
+## the corresponding element in the Boolean vector is true
+number_vector[boolean_vector] 
 ```
 
 ### Special values
@@ -385,33 +398,80 @@ There are a couple of keywords reserved in R for special kinds of objects:
 
 ### Characters (= strings)
 
-- strings are called characters
+Strings are called characters in R. We will be stubborn and call them strings for most of the time here. We can assign a string value to a variable by putting the string in double quotes:
 
 ```{r}
-typeof("huhu")
+x <- "huhu"
+typeof(x)
 ```
 
-- `paste`, `grep`, `cat`, `sprintf`... what else?
-
-- vector of characters
+We can create vectors of characters in the obvious way:
 
 ```{r}
-chr.vector = c("huhu", "hello", "huhu", "ciao")
-chr.vector
+chr_vector = c("huhu", "hello", "huhu", "ciao")
+chr_vector
 ```
+
+
+The package `stringr` from the tidyverse also provides very useful and, in comparison to base R, more uniform functions for string manipulation. The [cheat sheet](http://edrub.in/CheatSheets/cheatSheetStringr.pdf) for the `stingr` package is highly recommended for a quick overview. Below are some examples.
+
+Function `str_c` concatenates strings:
+
+```{r}
+str_c("Hello", "Hi", "Hey", sep = "! ")
+```
+
+We can find the indeces of matches in a character vector with `str_which`: 
+
+```{r}
+chr_vector = c("huhu", "hello", "huhu", "ciao")
+str_which(chr_vector, "hu")
+```
+
+Similarly, `str_detect` gives a Boolean vector of matching:
+
+```{r}
+chr_vector = c("huhu", "hello", "huhu", "ciao")
+str_detect(chr_vector, "hu")
+```
+
+If we want to get the strings matching a pattern, we can use `str_subset`:
+
+```{r}
+chr_vector = c("huhu", "hello", "huhu", "ciao")
+str_subset(chr_vector, "hu")
+```
+
+Replacing all matches with another string works with `str_replace_all`:
+
+```{r}
+chr_vector = c("huhu", "hello", "huhu", "ciao")
+str_replace_all(chr_vector, "h", "B")
+```
+
+For data preparation we often need to split strings by a particular character. For instance, a set of reaction times could be separated by a character line "|". We can split this string representation to get individual measurements like so:
+
+```{r}
+## three measures of reaction time in a single string
+reaction_times = "123|234|345"
+## notice that we need to doubly (!) escape character |
+## notice also that the results is a list (see below)
+str_split(reaction_times, "\\|", n = 3)
+```
+
 
 ### Factors
 
 - factors track levels
 
 ```{r}
-factor(chr.vector)
+factor(chr_vector)
 ```
 
 - ordered factors arrange their levels
 
 ```{r}
-factor(chr.vector, ordered = T,
+factor(chr_vector, ordered = T,
        levels = c("huhu", "ciao", "hello"))
 ```
 
