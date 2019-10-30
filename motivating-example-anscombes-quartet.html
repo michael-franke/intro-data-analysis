@@ -161,7 +161,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="2.1.6" data-path="ch1-first-steps.html"><a href="ch1-first-steps.html#Chap-01-01-R-help"><i class="fa fa-check"></i><b>2.1.6</b> Getting help</a></li>
 </ul></li>
 <li class="chapter" data-level="2.2" data-path="ch1-data-types.html"><a href="ch1-data-types.html"><i class="fa fa-check"></i><b>2.2</b> Data types</a><ul>
-<li class="chapter" data-level="2.2.1" data-path="ch1-data-types.html"><a href="ch1-data-types.html#numbers"><i class="fa fa-check"></i><b>2.2.1</b> Numbers</a></li>
+<li class="chapter" data-level="2.2.1" data-path="ch1-data-types.html"><a href="ch1-data-types.html#numeric-vectors-matrices"><i class="fa fa-check"></i><b>2.2.1</b> Numeric vectors &amp; matrices</a></li>
 <li class="chapter" data-level="2.2.2" data-path="ch1-data-types.html"><a href="ch1-data-types.html#booleans"><i class="fa fa-check"></i><b>2.2.2</b> Booleans</a></li>
 <li class="chapter" data-level="2.2.3" data-path="ch1-data-types.html"><a href="ch1-data-types.html#special-values"><i class="fa fa-check"></i><b>2.2.3</b> Special values</a></li>
 <li class="chapter" data-level="2.2.4" data-path="ch1-data-types.html"><a href="ch1-data-types.html#characters-strings"><i class="fa fa-check"></i><b>2.2.4</b> Characters (= strings)</a></li>
@@ -322,7 +322,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <h2><span class="header-section-number">6.1</span> Motivating example: Anscombe’s quartet</h2>
 <p>Numerical summaries of complex data always incur information loss. Still lossy, but less so (if done well), is visualization. Any serious data analysis should start with a process in which the analyst becomes intimate with the data at hand. Visualization is an integral part of data-intimacy.</p>
 <p>Consider a famous dataset available in R <span class="citation">(Anscombe <a href="#ref-anscombe1973">1973</a>)</span>:</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb85-1" data-line-number="1"><span class="kw">glimpse</span>(anscombe <span class="op">%&gt;%</span><span class="st"> </span>as_tibble)</a></code></pre></div>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb120-1" data-line-number="1"><span class="kw">glimpse</span>(anscombe <span class="op">%&gt;%</span><span class="st"> </span>as_tibble)</a></code></pre></div>
 <pre><code>## Observations: 11
 ## Variables: 8
 ## $ x1 &lt;dbl&gt; 10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5
@@ -334,15 +334,15 @@ code span.wa { color: #bf0303; } /* Warning */
 ## $ y3 &lt;dbl&gt; 7.46, 6.77, 12.74, 7.11, 7.81, 8.84, 6.08, 5.39, 8.15, 6.42, …
 ## $ y4 &lt;dbl&gt; 6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.50, 5.56, 7.91, …</code></pre>
 <p>There are four pairs of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> coordinates. Unfortunately, these are stored in long format with two pieces of information buried inside of the column name: for instance, the name <code>x3</code> contains the information that this column contains the <span class="math inline">\(x\)</span> coordinates for the 3rd pair. This is rather untidy. But, after the last section on data wrangling, we can tidy up quickly:</p>
-<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb87-1" data-line-number="1">tidy_anscombe =<span class="st"> </span>anscombe <span class="op">%&gt;%</span><span class="st"> </span>as_tibble <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb87-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
-<a class="sourceLine" id="cb87-3" data-line-number="3">    <span class="kw">everything</span>(),                  ## we want o pivot every column</a>
-<a class="sourceLine" id="cb87-4" data-line-number="4">    <span class="dt">names_pattern =</span> <span class="st">&quot;(.)(.)&quot;</span>,      ## use reg-exps to capture 1st and 2nd character</a>
-<a class="sourceLine" id="cb87-5" data-line-number="5">    <span class="dt">names_to =</span> <span class="kw">c</span>(<span class="st">&quot;.value&quot;</span>, <span class="st">&quot;grp&quot;</span>)  ## assign names to new cols, using 1st part of</a>
-<a class="sourceLine" id="cb87-6" data-line-number="6">                                   ##   what reg-exp captures as new column names</a>
-<a class="sourceLine" id="cb87-7" data-line-number="7">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb87-8" data-line-number="8"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">grp =</span> <span class="kw">paste0</span>(<span class="st">&quot;Group &quot;</span>, grp))</a>
-<a class="sourceLine" id="cb87-9" data-line-number="9">tidy_anscombe</a></code></pre></div>
+<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb122-1" data-line-number="1">tidy_anscombe =<span class="st"> </span>anscombe <span class="op">%&gt;%</span><span class="st"> </span>as_tibble <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb122-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
+<a class="sourceLine" id="cb122-3" data-line-number="3">    <span class="kw">everything</span>(),                  ## we want o pivot every column</a>
+<a class="sourceLine" id="cb122-4" data-line-number="4">    <span class="dt">names_pattern =</span> <span class="st">&quot;(.)(.)&quot;</span>,      ## use reg-exps to capture 1st and 2nd character</a>
+<a class="sourceLine" id="cb122-5" data-line-number="5">    <span class="dt">names_to =</span> <span class="kw">c</span>(<span class="st">&quot;.value&quot;</span>, <span class="st">&quot;grp&quot;</span>)  ## assign names to new cols, using 1st part of</a>
+<a class="sourceLine" id="cb122-6" data-line-number="6">                                   ##   what reg-exp captures as new column names</a>
+<a class="sourceLine" id="cb122-7" data-line-number="7">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb122-8" data-line-number="8"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">grp =</span> <span class="kw">paste0</span>(<span class="st">&quot;Group &quot;</span>, grp))</a>
+<a class="sourceLine" id="cb122-9" data-line-number="9">tidy_anscombe</a></code></pre></div>
 <pre><code>## # A tibble: 44 x 3
 ##    grp         x     y
 ##    &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt;
@@ -358,17 +358,17 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 10 Group 2    13  8.74
 ## # … with 34 more rows</code></pre>
 <p>Here are some summary statistics for each of the four pairs:</p>
-<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb89-1" data-line-number="1">tidy_anscombe <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb89-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(grp) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb89-3" data-line-number="3"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb89-4" data-line-number="4">    <span class="dt">mean_x    =</span> <span class="kw">mean</span>(x),</a>
-<a class="sourceLine" id="cb89-5" data-line-number="5">    <span class="dt">mean_y    =</span> <span class="kw">mean</span>(y),</a>
-<a class="sourceLine" id="cb89-6" data-line-number="6">    <span class="dt">min_x     =</span> <span class="kw">min</span>(x),</a>
-<a class="sourceLine" id="cb89-7" data-line-number="7">    <span class="dt">min_y     =</span> <span class="kw">min</span>(y),</a>
-<a class="sourceLine" id="cb89-8" data-line-number="8">    <span class="dt">max_x     =</span> <span class="kw">max</span>(x),</a>
-<a class="sourceLine" id="cb89-9" data-line-number="9">    <span class="dt">max_y     =</span> <span class="kw">max</span>(y),</a>
-<a class="sourceLine" id="cb89-10" data-line-number="10">    <span class="dt">r_squared =</span> <span class="kw">cor</span>(x,y)<span class="op">^</span><span class="dv">2</span></a>
-<a class="sourceLine" id="cb89-11" data-line-number="11">  )</a></code></pre></div>
+<div class="sourceCode" id="cb124"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb124-1" data-line-number="1">tidy_anscombe <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb124-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(grp) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb124-3" data-line-number="3"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb124-4" data-line-number="4">    <span class="dt">mean_x    =</span> <span class="kw">mean</span>(x),</a>
+<a class="sourceLine" id="cb124-5" data-line-number="5">    <span class="dt">mean_y    =</span> <span class="kw">mean</span>(y),</a>
+<a class="sourceLine" id="cb124-6" data-line-number="6">    <span class="dt">min_x     =</span> <span class="kw">min</span>(x),</a>
+<a class="sourceLine" id="cb124-7" data-line-number="7">    <span class="dt">min_y     =</span> <span class="kw">min</span>(y),</a>
+<a class="sourceLine" id="cb124-8" data-line-number="8">    <span class="dt">max_x     =</span> <span class="kw">max</span>(x),</a>
+<a class="sourceLine" id="cb124-9" data-line-number="9">    <span class="dt">max_y     =</span> <span class="kw">max</span>(y),</a>
+<a class="sourceLine" id="cb124-10" data-line-number="10">    <span class="dt">r_squared =</span> <span class="kw">cor</span>(x,y)<span class="op">^</span><span class="dv">2</span></a>
+<a class="sourceLine" id="cb124-11" data-line-number="11">  )</a></code></pre></div>
 <pre><code>## # A tibble: 4 x 8
 ##   grp     mean_x mean_y min_x min_y max_x max_y r_squared
 ##   &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;
@@ -378,16 +378,16 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 4 Group 4      9   7.50     8  5.25    19 12.5      0.667</code></pre>
 <!-- EXERCISE: make the index the new column names instead -->
 <p>These numeric indicators suggest that each pair of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> values is very similar. Only the ranges seem to differ. A brilliant example of how misleading numeric statistics can be, as compared to a plot of the data:</p>
-<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb91-1" data-line-number="1">tidy_anscombe <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb91-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, y)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb91-3" data-line-number="3"><span class="st">    </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> lm, <span class="dt">se =</span> F, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb91-4" data-line-number="4"><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">color =</span> project_colors[<span class="dv">3</span>], <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb91-5" data-line-number="5"><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>()) <span class="op">+</span></a>
-<a class="sourceLine" id="cb91-6" data-line-number="6"><span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>()) <span class="op">+</span></a>
-<a class="sourceLine" id="cb91-7" data-line-number="7"><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Anscombe&#39;s Quartet&quot;</span>, <span class="dt">x =</span> <span class="ot">NULL</span>, <span class="dt">y =</span> <span class="ot">NULL</span>,</a>
-<a class="sourceLine" id="cb91-8" data-line-number="8">         <span class="dt">subtitle =</span> <span class="kw">bquote</span>(y <span class="op">==</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">3</span> <span class="op">~</span><span class="st"> </span>(R<span class="op">^</span><span class="dv">2</span> <span class="op">%~~%</span><span class="st"> </span><span class="fl">.667</span>) <span class="op">~</span><span class="st"> &quot;for all datasets&quot;</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb91-9" data-line-number="9"><span class="st">    </span><span class="kw">facet_wrap</span>(<span class="op">~</span>grp, <span class="dt">ncol =</span> <span class="dv">2</span>, <span class="dt">scales =</span> <span class="st">&quot;free_x&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb91-10" data-line-number="10"><span class="st">    </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="st">&quot;#f2f2f2&quot;</span>, <span class="dt">colour =</span> <span class="st">&quot;white&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb126"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb126-1" data-line-number="1">tidy_anscombe <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb126-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, y)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb126-3" data-line-number="3"><span class="st">    </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> lm, <span class="dt">se =</span> F, <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb126-4" data-line-number="4"><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">color =</span> project_colors[<span class="dv">3</span>], <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb126-5" data-line-number="5"><span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>()) <span class="op">+</span></a>
+<a class="sourceLine" id="cb126-6" data-line-number="6"><span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>()) <span class="op">+</span></a>
+<a class="sourceLine" id="cb126-7" data-line-number="7"><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Anscombe&#39;s Quartet&quot;</span>, <span class="dt">x =</span> <span class="ot">NULL</span>, <span class="dt">y =</span> <span class="ot">NULL</span>,</a>
+<a class="sourceLine" id="cb126-8" data-line-number="8">         <span class="dt">subtitle =</span> <span class="kw">bquote</span>(y <span class="op">==</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">3</span> <span class="op">~</span><span class="st"> </span>(R<span class="op">^</span><span class="dv">2</span> <span class="op">%~~%</span><span class="st"> </span><span class="fl">.667</span>) <span class="op">~</span><span class="st"> &quot;for all datasets&quot;</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb126-9" data-line-number="9"><span class="st">    </span><span class="kw">facet_wrap</span>(<span class="op">~</span>grp, <span class="dt">ncol =</span> <span class="dv">2</span>, <span class="dt">scales =</span> <span class="st">&quot;free_x&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb126-10" data-line-number="10"><span class="st">    </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span> <span class="st">&quot;#f2f2f2&quot;</span>, <span class="dt">colour =</span> <span class="st">&quot;white&quot;</span>))</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-02-anscombe"></span>
 <img src="I2DA_files/figure-html/ch-02-anscombe-1.png" alt="Anscombe's Quartet: four different data sets all of which receive the same correlation score." width="672" />
 <p class="caption">

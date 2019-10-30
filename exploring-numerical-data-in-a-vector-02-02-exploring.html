@@ -161,7 +161,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="2.1.6" data-path="ch1-first-steps.html"><a href="ch1-first-steps.html#Chap-01-01-R-help"><i class="fa fa-check"></i><b>2.1.6</b> Getting help</a></li>
 </ul></li>
 <li class="chapter" data-level="2.2" data-path="ch1-data-types.html"><a href="ch1-data-types.html"><i class="fa fa-check"></i><b>2.2</b> Data types</a><ul>
-<li class="chapter" data-level="2.2.1" data-path="ch1-data-types.html"><a href="ch1-data-types.html#numbers"><i class="fa fa-check"></i><b>2.2.1</b> Numbers</a></li>
+<li class="chapter" data-level="2.2.1" data-path="ch1-data-types.html"><a href="ch1-data-types.html#numeric-vectors-matrices"><i class="fa fa-check"></i><b>2.2.1</b> Numeric vectors &amp; matrices</a></li>
 <li class="chapter" data-level="2.2.2" data-path="ch1-data-types.html"><a href="ch1-data-types.html#booleans"><i class="fa fa-check"></i><b>2.2.2</b> Booleans</a></li>
 <li class="chapter" data-level="2.2.3" data-path="ch1-data-types.html"><a href="ch1-data-types.html#special-values"><i class="fa fa-check"></i><b>2.2.3</b> Special values</a></li>
 <li class="chapter" data-level="2.2.4" data-path="ch1-data-types.html"><a href="ch1-data-types.html#characters-strings"><i class="fa fa-check"></i><b>2.2.4</b> Characters (= strings)</a></li>
@@ -321,12 +321,12 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="exploring-numerical-data-in-a-vector-02-02-exploring" class="section level2">
 <h2><span class="header-section-number">5.1</span> Exploring numerical data in a vector {#02-02-exploring}</h2>
 <p>The first part of the Mental Chronometry experiment is a simple reaction time task.</p>
-<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb76-1" data-line-number="1"><span class="co"># read a data set of reaction times (as a tibble)</span></a>
-<a class="sourceLine" id="cb76-2" data-line-number="2"><span class="co"># RTs &lt;- read_csv(&quot;https://tinyurl.com/y4jo8mox&quot;)</span></a>
-<a class="sourceLine" id="cb76-3" data-line-number="3">RT &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data_sets/ch-03-set-01-MC-RTs.csv&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT)</a>
-<a class="sourceLine" id="cb76-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb76-5" data-line-number="5"><span class="co"># check its content</span></a>
-<a class="sourceLine" id="cb76-6" data-line-number="6"><span class="kw">glimpse</span>(RT)</a></code></pre></div>
+<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb111-1" data-line-number="1"><span class="co"># read a data set of reaction times (as a tibble)</span></a>
+<a class="sourceLine" id="cb111-2" data-line-number="2"><span class="co"># RTs &lt;- read_csv(&quot;https://tinyurl.com/y4jo8mox&quot;)</span></a>
+<a class="sourceLine" id="cb111-3" data-line-number="3">RT &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data_sets/ch-03-set-01-MC-RTs.csv&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT)</a>
+<a class="sourceLine" id="cb111-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb111-5" data-line-number="5"><span class="co"># check its content</span></a>
+<a class="sourceLine" id="cb111-6" data-line-number="6"><span class="kw">glimpse</span>(RT)</a></code></pre></div>
 <pre><code>##  num [1:3980] 5.61 5.32 5.36 5.67 5.37 ...</code></pre>
 <div id="bootstrapped-95-confidence-intervals" class="section level3">
 <h3><span class="header-section-number">5.1.1</span> Bootstrapped 95% confidence intervals</h3>
@@ -341,51 +341,51 @@ code span.wa { color: #bf0303; } /* Warning */
 </ol>
 <p>The higher <span class="math inline">\(r\)</span>, i.e., the more samples we take, the better the estimate. The higher <span class="math inline">\(k\)</span>, i.e., the more observations we have to begin with, the less variable the means <span class="math inline">\(\mu(D^{\textrm{rep}})\)</span> of the resampled data will usually be. Hence, usually, the higher <span class="math inline">\(k\)</span> the smaller the bootstrapped 95% confidence interval of the mean.</p>
 <p>Here is a convenience function that we will use throughout the book to produce bootstrapped 95% confidence intervals of the mean:</p>
-<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb78-1" data-line-number="1">## takes a vector of numbers and returns bootstrapped 95% ConfInt</a>
-<a class="sourceLine" id="cb78-2" data-line-number="2">## for the mean, based on `n_resamples` re-samples (default: 1000)</a>
-<a class="sourceLine" id="cb78-3" data-line-number="3">bootstrapped_CI &lt;-<span class="st">  </span><span class="cf">function</span>(data_vector, <span class="dt">n_resamples =</span> <span class="dv">1000</span>) {</a>
-<a class="sourceLine" id="cb78-4" data-line-number="4">  resampled_means &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(<span class="dv">1</span><span class="op">:</span>n_resamples, <span class="cf">function</span>(i) {</a>
-<a class="sourceLine" id="cb78-5" data-line-number="5">       <span class="kw">mean</span>(<span class="kw">sample</span>(<span class="dt">x =</span> data_vector, </a>
-<a class="sourceLine" id="cb78-6" data-line-number="6">                   <span class="dt">size =</span> <span class="kw">length</span>(data_vector), </a>
-<a class="sourceLine" id="cb78-7" data-line-number="7">                   <span class="dt">replace =</span> T)</a>
-<a class="sourceLine" id="cb78-8" data-line-number="8">       )</a>
-<a class="sourceLine" id="cb78-9" data-line-number="9">    }</a>
-<a class="sourceLine" id="cb78-10" data-line-number="10">  )</a>
-<a class="sourceLine" id="cb78-11" data-line-number="11">  <span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb78-12" data-line-number="12">    <span class="st">&#39;lower&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.025</span>),</a>
-<a class="sourceLine" id="cb78-13" data-line-number="13">    <span class="st">&#39;mean&#39;</span>  =<span class="st"> </span><span class="kw">mean</span>(data_vector),</a>
-<a class="sourceLine" id="cb78-14" data-line-number="14">    <span class="st">&#39;upper&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.975</span>)</a>
-<a class="sourceLine" id="cb78-15" data-line-number="15">  ) </a>
-<a class="sourceLine" id="cb78-16" data-line-number="16">}</a></code></pre></div>
+<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb113-1" data-line-number="1">## takes a vector of numbers and returns bootstrapped 95% ConfInt</a>
+<a class="sourceLine" id="cb113-2" data-line-number="2">## for the mean, based on `n_resamples` re-samples (default: 1000)</a>
+<a class="sourceLine" id="cb113-3" data-line-number="3">bootstrapped_CI &lt;-<span class="st">  </span><span class="cf">function</span>(data_vector, <span class="dt">n_resamples =</span> <span class="dv">1000</span>) {</a>
+<a class="sourceLine" id="cb113-4" data-line-number="4">  resampled_means &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(<span class="dv">1</span><span class="op">:</span>n_resamples, <span class="cf">function</span>(i) {</a>
+<a class="sourceLine" id="cb113-5" data-line-number="5">       <span class="kw">mean</span>(<span class="kw">sample</span>(<span class="dt">x =</span> data_vector, </a>
+<a class="sourceLine" id="cb113-6" data-line-number="6">                   <span class="dt">size =</span> <span class="kw">length</span>(data_vector), </a>
+<a class="sourceLine" id="cb113-7" data-line-number="7">                   <span class="dt">replace =</span> T)</a>
+<a class="sourceLine" id="cb113-8" data-line-number="8">       )</a>
+<a class="sourceLine" id="cb113-9" data-line-number="9">    }</a>
+<a class="sourceLine" id="cb113-10" data-line-number="10">  )</a>
+<a class="sourceLine" id="cb113-11" data-line-number="11">  <span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb113-12" data-line-number="12">    <span class="st">&#39;lower&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.025</span>),</a>
+<a class="sourceLine" id="cb113-13" data-line-number="13">    <span class="st">&#39;mean&#39;</span>  =<span class="st"> </span><span class="kw">mean</span>(data_vector),</a>
+<a class="sourceLine" id="cb113-14" data-line-number="14">    <span class="st">&#39;upper&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.975</span>)</a>
+<a class="sourceLine" id="cb113-15" data-line-number="15">  ) </a>
+<a class="sourceLine" id="cb113-16" data-line-number="16">}</a></code></pre></div>
 <p>Applying this method to the vector of reaction times from above we get:</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb79-1" data-line-number="1"><span class="kw">bootstrapped_CI</span>(RT)</a></code></pre></div>
+<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb114-1" data-line-number="1"><span class="kw">bootstrapped_CI</span>(RT)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 3
 ##   lower  mean upper
 ##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1  5.72  5.73  5.74</code></pre>
 <p>Notice that, since <code>RT</code> has length 3980, i.e., we have <span class="math inline">\(k = 3980\)</span> observations in the data, the bootstrapped 95% confidence interval is rather narrow. Compare this against a case of <span class="math inline">\(k = 30\)</span>:</p>
-<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb81-1" data-line-number="1"><span class="co"># 30 samples from a standard normal</span></a>
-<a class="sourceLine" id="cb81-2" data-line-number="2">smaller_data =<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">30</span>, <span class="dt">mean =</span> <span class="dv">0</span>, <span class="dt">sd =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb81-3" data-line-number="3"><span class="kw">bootstrapped_CI</span>(smaller_data)</a></code></pre></div>
+<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb116-1" data-line-number="1"><span class="co"># 30 samples from a standard normal</span></a>
+<a class="sourceLine" id="cb116-2" data-line-number="2">smaller_data =<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">30</span>, <span class="dt">mean =</span> <span class="dv">0</span>, <span class="dt">sd =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb116-3" data-line-number="3"><span class="kw">bootstrapped_CI</span>(smaller_data)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 3
-##    lower   mean upper
-##    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-## 1 -0.201 0.0752 0.350</code></pre>
+##    lower  mean upper
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 -0.113 0.230 0.518</code></pre>
 <p>To obtain summary statistics for different groups of a variable, we can use the function <code>bootstrapped_CI</code> conveniently in concert with nested tibbles, as demonstrated here on the Mental Chronometry data set (see Appendix <a href="app-93-data-sets-mental-chronometry.html#app-93-data-sets-mental-chronometry">D.1</a>:</p>
-<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb83-1" data-line-number="1">mc_data_cleaned =<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data_sets/mental-chrono-data_cleaned.csv&quot;</span>) </a>
-<a class="sourceLine" id="cb83-2" data-line-number="2">mc_data_cleaned <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb83-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb83-4" data-line-number="4"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb83-5" data-line-number="5"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb83-6" data-line-number="6">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>RT))</a>
-<a class="sourceLine" id="cb83-7" data-line-number="7">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb83-8" data-line-number="8"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a></code></pre></div>
+<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" data-line-number="1">mc_data_cleaned =<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data_sets/mental-chrono-data_cleaned.csv&quot;</span>) </a>
+<a class="sourceLine" id="cb118-2" data-line-number="2">mc_data_cleaned <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb118-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb118-4" data-line-number="4"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb118-5" data-line-number="5"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb118-6" data-line-number="6">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>RT))</a>
+<a class="sourceLine" id="cb118-7" data-line-number="7">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb118-8" data-line-number="8"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 4
 ##   block          lower  mean upper
 ##   &lt;chr&gt;          &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1 discrimination  481.  488.  495.
-## 2 goNoGo          421.  427.  434.
-## 3 reaction        297.  300.  303.</code></pre>
+## 1 discrimination  480.  488.  495.
+## 2 goNoGo          420.  427.  435.
+## 3 reaction        296.  300.  304.</code></pre>
 <!-- Homework: -->
 <!-- - calculate bs 95% CI for vector [1,2,3] by hand! -->
 
