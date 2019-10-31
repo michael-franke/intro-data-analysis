@@ -75,6 +75,7 @@ d_democracy <- d_raw_wvs %>%
     country = factor(V2, levels = c(36,276,528,554,752,840), labels = c("Australia","Germany","Netherlands","New Zealand","Sweden","United States")),
     rating = factor(V140, ordered = TRUE)
     ) %>% 
+  na.omit() %>% 
   print()
 ```
 
@@ -150,16 +151,14 @@ summary(m2)
 ```
 
 ```{r}
-m1 <- add_criterion(m1, c("loo", "waic"))
-m2 <- add_criterion(m2, c("loo", "waic"))
+m1 <- add_criterion(m1, "waic")
+m2 <- add_criterion(m2, "waic")
 
 print(m1$waic)
-```
-
-```{r}
 print(m2$waic)
-```
 
+loo_compare(m1,m2, criterion = "waic")
+```
 
 ```{r wvs-democracy model fit plot: rating dichotomous; one predictor-model, fig.cap="Predictions of the dichotomous model"}
 # model predictions 
@@ -212,8 +211,8 @@ Until here there some problems with estimation, perhaps due to false model?
 data2 <- d_democracy %>% 
   filter(country %in% c("Australia", "New Zealand"))
 
-#model21 <- democracy_essential ~ V241|country 
-#model22 <- rating ~ V241|country
+model21 <- democracy_essential ~ V241 + V241|country 
+model22 <- rating ~ V241 + V241|country
 
 m21 <- brm(data = data2, formula = model21, family = "bernoulli")
 m22 <- brm(data = data2, formula = model22, family = "cumulative")
