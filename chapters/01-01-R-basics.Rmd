@@ -649,12 +649,88 @@ There are many useful built-in functions. We recommend browsing the [Cheat Sheet
 
 ## Loops and maps {#ch-01-01-loops-and-maps}
 
+For iteratively performing computation steps, R has a special syntax for `for` loops. Here is an example of a (stupid, but illustrative) example of a `for` loop in R:
+
+```{r}
+## fix a vector to transform
+input_vector   = 1:6
+
+## create output vector for memory allocation
+output_vector  = integer(length(input_vector))
+
+## iterate over length of input
+for (i in 1:length(input_vector)) {
+  ## multiply by 10 if even
+  if (input_vector[i] %% 2 == 0) {
+    output_vector[i] = input_vector[i] * 10  
+  }
+  else {
+    output_vector[i] = input_vector[i]
+  }
+}
+
+output_vector
+```
 
 
-- `for` loops
-- functional programming with `apply` `purrr`
-  - the philosophy of "passing functions to functions"
-- piping
+R also provides functional iterators (e.g., `apply`), but we will use the functional iterators from the `purrr` package. Here is a first example of how this code looks in a functional style using the functional iterator `map_dbl` from `purrr`:
+
+```{r}
+map_dbl(
+  input_vector,
+  function(i)  {
+      if (input_vector[i] %% 2 == 0) {
+        return (input_vector[i] * 10  )
+      }
+      else {
+        return (input_vector[i])
+      }
+  }
+)
+```
+
+Or even shorter:
+
+```{r}
+map_dbl(
+  input_vector,
+  ~ ifelse(.x %% 2 == 0, .x * 10, .x) 
+)
+## TODO: explain this
+```
+
+### Piping
+
+When we use a functional style of programming, piping is your best friend. Consider the standard example of applying functions in what linguists would call "center-embedding". We start with the input (written inside the inner-most bracketing), then apply the first function `round`, then the second `mean`, writing each next function call "around" the previous.
+
+```{r}
+## define input
+input_vector = c(0.4, 0.5, 0.6)
+
+## first round, then take mean
+mean(round(input_vector))
+```
+
+Things quickly get out of hand when more commands are nested. A common practice is to store intermediate results of computations in new variables which are only used to pass the result into the next step.
+
+```{r}
+## define input
+input_vector = c(0.4, 0.5, 0.6)
+
+## rounded input
+rounded_input = round(input_vector)
+
+## mean of rounded input
+mean(rounded_input)
+```
+
+Piping let's you pass the result of a previous function call into the next:
+
+```{r}
+input_vector %>% round %>% mean
+```
+
+
 
 ## Rmarkdown {#ch-01-01-Rmarkdown}
 
