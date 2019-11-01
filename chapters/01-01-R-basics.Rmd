@@ -539,22 +539,59 @@ my_dataframe = data.frame(x = 1:10, y = x^2)  ## ERROR :/
 
 ## Functions {#Chap-01-01-functions}
 
-Many helpful functions are defined in base R or supplied by packages. If you find yourself in a situation in which you would like to copy-paste some code, possibly with minor amendments, this usually means that you should wrap some recurring operations into a custom-defined function.
+### Some important built-in functions
+
+Many helpful functions are defined in base R or supplied by packages. We recommend browsing the [Cheat Sheets](https://rstudio.com/resources/cheatsheets/) every now and then to pick up more useful stuff for your inventory. Here are some functions that are very basic and generally useful.
+
+#### Standard logic
+
+- `&`: "and"
+- `|`: "or"
+- `!`: "not"
+- `negate()`: a pipe-friendly `!` (see Section \@ref(Chap-01-01-piping) for more on piping)
+- `all()`: returns true of a vector if all elements are `T`
+- `any()`: returns true of a vector if at least on element is `T`
+
+#### Comparisons
+
+- `<`: smaller
+- `>`: greater
+- `==`: equal (you can also use `near()`instead of `==` e.g. `near(3/3,1)`returns TRUE)
+- `>=`: greater or equal
+- `<=`: less or equal
+- `!=`: not equal
+
+#### Set theory
+
+- `%in%`: wheter an element is in a vector
+- `union(x,y)`: union of `x` and `y`
+- `intersect(x,y)`: intersection of `x` and `y`
+- `setdiff(x,y)`: all elements in `x` that are not in `y`
+
+#### Sampling and combinatorics
+
+- `runif()`: random number from unit interval [0;1]
+- `sample(x, size, replace)`: take `size` samples from `x` (with replacement if `replace` is `T`)
+- `choose(n,k)`: number of subsets of size `n` out of a set of size `k` (binomial coefficient) 
+
+
 
 ### Defining your own functions
 
+If you find yourself in a situation in which you would like to copy-paste some code, possibly with minor amendments, this usually means that you should wrap some recurring operations into a custom-defined function.
+ 
 There are two ways of defining your own functions: as a named function, or an anonymous function.
 
 #### Named functions
 
-The special operator supplied by base R to create new functions is the keyword `function`. Here is an example of defining a new function with two input variables `x` and `y` that returns a computation based on these numbers. We assign this newly created function to the variable `cool_function`, so that we can use this name to call the function later.
+The special operator supplied by base R to create new functions is the keyword `function`. Here is an example of defining a new function with two input variables `x` and `y` that returns a computation based on these numbers. We assign this newly created function to the variable `cool_function`, so that we can use this name to call the function later. Notice that the use of the `return` keyword is optional here. If it is left out, the evaluation of the last line is returned.
 
 ```{r, eval = F}
 ## define a new function
 ## takes two numbers x & y as argument
 ## returnt x * y + 1
 cool_function = function(x, y) {
-  return(x * y + 1)   ## `return` is optional; w/o it the last line's evaluation is returned
+  return(x * y + 1)   
 }
 
 ## apply `cool_function` to some numbers:
@@ -569,15 +606,13 @@ cool_function()        ## throws error: 'argument "x" is missing, with no defaul
 We can give default values for the parameters passed to a function:
 
 ```{r, eval = F}
-## define a new function
-## takes two numbers x & y as argument
-## assigns a default values to each argument
-## returnt x * y + 1
+# same function as before but with
+# default values for each argument
 cool_function_2 = function(x = 2, y = 3) {
   return(x * y + 1)
 }
 
-## apply `cool_function_2` to some numbers:
+# apply `cool_function_2` to some numbers:
 cool_function_2(3,3)     ## return 10
 cool_function_2(1,1)     ## return 2
 cool_function_2(1:2,1)   ## returns vector [2,3]
@@ -587,19 +622,19 @@ cool_function_2()        ## returns 7 (= 2 * 3 + 1)
 
 #### Anonymous functions
 
-Notice that we can feed functions as parameters to other functions. This is an important ingredient of a functional-stlye of programming, and something that we will rely on heavily in this course (see Section \@(ch-01-01-loops-and-maps)). When supplying a function as an argument to another function, we might not want to name the function that is passed. Here's a (stupid, but hopefully illustrating) example:
+Notice that we can feed functions as parameters to other functions. This is an important ingredient of a functional-stlye of programming, and something that we will rely on heavily in this course (see Section \@ref(ch-01-01-loops-and-maps)). When supplying a function as an argument to another function, we might not want to name the function that is passed. Here's a (stupid, but hopefully illustrating) example:
 
 ```{r, eval = F}
-## define a function that takes a function as argument
+# define a function that takes a function as argument
 new_applier_function = function(input, function_to_apply) {
   return(function_to_apply(input))
 }
 
-## sum vector with built-in & named function
+# sum vector with built-in & named function
 new_applier_function(
   input = 1:2,              # input vector 
   function_to_apply = sum   # built-in & named function to apply
-)   ## returns 3
+)   # returns 3
 
 ## sum vector with anonymous function
 new_applier_function(
@@ -611,41 +646,7 @@ new_applier_function(
 ```
 
 
-### Some important built-in functions
 
-There are many useful built-in functions. We recommend browsing the [Cheat Sheets](https://rstudio.com/resources/cheatsheets/) every now and then to pick up more useful stuff for your inventory.
-
-#### Logical operators etc
-
-##### Standard logic
-
-- `&`: "and"
-- `|`: "or"
-- `!`: "not"
-- `all`: returns true of a vector if all elements are `T`
-- `any`: returns true of a vector if at least on element is `T`
-
-##### Comparisons
-
-- `<`: smaller
-- `>`: greater
-- `==`: equal (you can also use `near()`instead of `==` e.g. `near(3/3,1)`returns TRUE)
-- `>=`: greater or equal
-- `<=`: less or equal
-- `!=`: not equal
-
-##### Set theory
-
-- `%in%`: wheter an element is in a vector
-- `union(x,y)`: union of `x` and `y`
-- `intersect(x,y)`: intersection of `x` and `y`
-- `setdiff(x,y)`: all elements in `x` that are not in `y`
-
-##### Sampling and combinatorics
-
-- `runif()`: random numer from unit interval [0;1]
-- `sample(x, size, replace)`: take `size` samples from `x` (with replacement is `replace` is `T`)
-- `choose(n,k)`: number of subsets of size `n` out of a set of size `k` (binomial coefficient) 
 
 ## Loops and maps {#ch-01-01-loops-and-maps}
 
@@ -699,7 +700,7 @@ map_dbl(
 ## TODO: explain this
 ```
 
-### Piping
+## Piping {#Chap-01-01-piping}
 
 When we use a functional style of programming, piping is your best friend. Consider the standard example of applying functions in what linguists would call "center-embedding". We start with the input (written inside the inner-most bracketing), then apply the first function `round`, then the second `mean`, writing each next function call "around" the previous.
 
