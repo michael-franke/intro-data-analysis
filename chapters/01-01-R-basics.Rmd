@@ -539,11 +539,79 @@ my_dataframe = data.frame(x = 1:10, y = x^2)  ## ERROR :/
 
 ## Functions {#Chap-01-01-functions}
 
+Many helpful functions are defined in base R or supplied by packages. If you find yourself in a situation in which you would like to copy-paste some code, possibly with minor amendments, this usually means that you should wrap some recurring operations into a custom-defined function.
+
 ### Defining your own functions
+
+There are two ways of defining your own functions: as a named function, or an anonymous function.
 
 #### Named functions
 
+The special operator supplied by base R to create new functions is the keyword `function`. Here is an example of defining a new function with two input variables `x` and `y` that returns a computation based on these numbers. We assign this newly created function to the variable `cool_function`, so that we can use this name to call the function later.
+
+```{r, eval = F}
+## define a new function
+## takes two numbers x & y as argument
+## returnt x * y + 1
+cool_function = function(x, y) {
+  return(x * y + 1)   ## `return` is optional; w/o it the last line's evaluation is returned
+}
+
+## apply `cool_function` to some numbers:
+cool_function(3,3)     ## return 10
+cool_function(1,1)     ## return 2
+cool_function(1:2,1)   ## returns vector [2,3]
+cool_function(1)       ## throws error: 'argument "y" is missing, with no default'
+cool_function()        ## throws error: 'argument "x" is missing, with no default'
+
+```
+
+We can give default values for the parameters passed to a function:
+
+```{r, eval = F}
+## define a new function
+## takes two numbers x & y as argument
+## assigns a default values to each argument
+## returnt x * y + 1
+cool_function_2 = function(x = 2, y = 3) {
+  return(x * y + 1)
+}
+
+## apply `cool_function_2` to some numbers:
+cool_function_2(3,3)     ## return 10
+cool_function_2(1,1)     ## return 2
+cool_function_2(1:2,1)   ## returns vector [2,3]
+cool_function_2(1)       ## returns 4 (= 1 * 3 + 1)
+cool_function_2()        ## returns 7 (= 2 * 3 + 1)
+```
+
 #### Anonymous functions
+
+Notice that we can feed functions as parameters to other functions. This is an important ingredient of a functional-stlye of programming, and something that we will rely on heavily in this course (see Section \@(ch-01-01-loops-and-maps)). When supplying a function as an argument to another function, we might not want to name the function that is passed. Here's a (stupid, but hopefully illustrating) example:
+
+```{r, eval = F}
+## define a function that takes a function as argument
+new_applier_function = function(input, function_to_apply) {
+  return(function_to_apply(input))
+}
+
+## sum vector with built-in & named function
+new_applier_function(
+  input = 1:2,              # input vector 
+  function_to_apply = sum   # built-in & named function to apply
+)   ## returns 3
+
+## sum vector with anonymous function
+new_applier_function(
+  input = 1:2,              # input vector 
+  function_to_apply = function(input) {
+    return(input[1] + input[2])
+  } 
+)   ## returns 3 as well
+```
+
+
+
 
 ### Some important built-in functions
 
