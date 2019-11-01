@@ -166,7 +166,9 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="2.3.1" data-path="Chap-01-01-functions.html"><a href="Chap-01-01-functions.html#defining-your-own-functions"><i class="fa fa-check"></i><b>2.3.1</b> Defining your own functions</a></li>
 <li class="chapter" data-level="2.3.2" data-path="Chap-01-01-functions.html"><a href="Chap-01-01-functions.html#some-important-built-in-functions"><i class="fa fa-check"></i><b>2.3.2</b> Some important built-in functions</a></li>
 </ul></li>
-<li class="chapter" data-level="2.4" data-path="ch-01-01-loops-and-maps.html"><a href="ch-01-01-loops-and-maps.html"><i class="fa fa-check"></i><b>2.4</b> Loops and maps</a></li>
+<li class="chapter" data-level="2.4" data-path="ch-01-01-loops-and-maps.html"><a href="ch-01-01-loops-and-maps.html"><i class="fa fa-check"></i><b>2.4</b> Loops and maps</a><ul>
+<li class="chapter" data-level="2.4.1" data-path="ch-01-01-loops-and-maps.html"><a href="ch-01-01-loops-and-maps.html#piping"><i class="fa fa-check"></i><b>2.4.1</b> Piping</a></li>
+</ul></li>
 <li class="chapter" data-level="2.5" data-path="ch-01-01-Rmarkdown.html"><a href="ch-01-01-Rmarkdown.html"><i class="fa fa-check"></i><b>2.5</b> Rmarkdown</a></li>
 </ul></li>
 <li class="part"><span><b>II Data</b></span></li>
@@ -232,7 +234,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="9.4.3" data-path="further-elaboration-on-modeling-in-anticipation-of-the-topic-estimation.html"><a href="further-elaboration-on-modeling-in-anticipation-of-the-topic-estimation.html#simple-linear-regression-model-revisited"><i class="fa fa-check"></i><b>9.4.3</b> Simple linear regression model (revisited)</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="10" data-path="parameter-inference-03-04-intro-learning-goals.html"><a href="parameter-inference-03-04-intro-learning-goals.html"><i class="fa fa-check"></i><b>10</b> Parameter inference {#03-04-intro-learning-goals}</a></li>
+<li class="chapter" data-level="10" data-path="ch-03-04-intro-learning-goals.html"><a href="ch-03-04-intro-learning-goals.html"><i class="fa fa-check"></i><b>10</b> Parameter inference</a></li>
 <li class="chapter" data-level="11" data-path="hypothesis-testing.html"><a href="hypothesis-testing.html"><i class="fa fa-check"></i><b>11</b> Hypothesis Testing</a></li>
 <li class="chapter" data-level="12" data-path="model-comparison.html"><a href="model-comparison.html"><i class="fa fa-check"></i><b>12</b> Model Comparison</a></li>
 <li class="chapter" data-level="13" data-path="bayesian-hypothesis-testing.html"><a href="bayesian-hypothesis-testing.html"><i class="fa fa-check"></i><b>13</b> Bayesian hypothesis testing</a></li>
@@ -315,14 +317,69 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="ch-01-01-loops-and-maps" class="section level2">
 <h2><span class="header-section-number">2.4</span> Loops and maps</h2>
-<ul>
-<li><code>for</code> loops</li>
-<li>functional programming with <code>apply</code> <code>purrr</code>
-<ul>
-<li>the philosophy of “passing functions to functions”</li>
-</ul></li>
-<li>piping</li>
-</ul>
+<p>For iteratively performing computation steps, R has a special syntax for <code>for</code> loops. Here is an example of a (stupid, but illustrative) example of a <code>for</code> loop in R:</p>
+<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb110-1" data-line-number="1">## fix a vector to transform</a>
+<a class="sourceLine" id="cb110-2" data-line-number="2">input_vector   =<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">6</span></a>
+<a class="sourceLine" id="cb110-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb110-4" data-line-number="4">## create output vector for memory allocation</a>
+<a class="sourceLine" id="cb110-5" data-line-number="5">output_vector  =<span class="st"> </span><span class="kw">integer</span>(<span class="kw">length</span>(input_vector))</a>
+<a class="sourceLine" id="cb110-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb110-7" data-line-number="7">## iterate over length of input</a>
+<a class="sourceLine" id="cb110-8" data-line-number="8"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(input_vector)) {</a>
+<a class="sourceLine" id="cb110-9" data-line-number="9">  ## multiply by 10 if even</a>
+<a class="sourceLine" id="cb110-10" data-line-number="10">  <span class="cf">if</span> (input_vector[i] <span class="op">%%</span><span class="st"> </span><span class="dv">2</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span>) {</a>
+<a class="sourceLine" id="cb110-11" data-line-number="11">    output_vector[i] =<span class="st"> </span>input_vector[i] <span class="op">*</span><span class="st"> </span><span class="dv">10</span>  </a>
+<a class="sourceLine" id="cb110-12" data-line-number="12">  }</a>
+<a class="sourceLine" id="cb110-13" data-line-number="13">  <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb110-14" data-line-number="14">    output_vector[i] =<span class="st"> </span>input_vector[i]</a>
+<a class="sourceLine" id="cb110-15" data-line-number="15">  }</a>
+<a class="sourceLine" id="cb110-16" data-line-number="16">}</a>
+<a class="sourceLine" id="cb110-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb110-18" data-line-number="18">output_vector</a></code></pre></div>
+<pre><code>## [1]  1 20  3 40  5 60</code></pre>
+<p>R also provides functional iterators (e.g., <code>apply</code>), but we will use the functional iterators from the <code>purrr</code> package. Here is a first example of how this code looks in a functional style using the functional iterator <code>map_dbl</code> from <code>purrr</code>:</p>
+<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb112-1" data-line-number="1"><span class="kw">map_dbl</span>(</a>
+<a class="sourceLine" id="cb112-2" data-line-number="2">  input_vector,</a>
+<a class="sourceLine" id="cb112-3" data-line-number="3">  <span class="cf">function</span>(i)  {</a>
+<a class="sourceLine" id="cb112-4" data-line-number="4">      <span class="cf">if</span> (input_vector[i] <span class="op">%%</span><span class="st"> </span><span class="dv">2</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span>) {</a>
+<a class="sourceLine" id="cb112-5" data-line-number="5">        <span class="kw">return</span> (input_vector[i] <span class="op">*</span><span class="st"> </span><span class="dv">10</span>  )</a>
+<a class="sourceLine" id="cb112-6" data-line-number="6">      }</a>
+<a class="sourceLine" id="cb112-7" data-line-number="7">      <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb112-8" data-line-number="8">        <span class="kw">return</span> (input_vector[i])</a>
+<a class="sourceLine" id="cb112-9" data-line-number="9">      }</a>
+<a class="sourceLine" id="cb112-10" data-line-number="10">  }</a>
+<a class="sourceLine" id="cb112-11" data-line-number="11">)</a></code></pre></div>
+<pre><code>## [1]  1 20  3 40  5 60</code></pre>
+<p>Or even shorter:</p>
+<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb114-1" data-line-number="1"><span class="kw">map_dbl</span>(</a>
+<a class="sourceLine" id="cb114-2" data-line-number="2">  input_vector,</a>
+<a class="sourceLine" id="cb114-3" data-line-number="3">  <span class="op">~</span><span class="st"> </span><span class="kw">ifelse</span>(.x <span class="op">%%</span><span class="st"> </span><span class="dv">2</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, .x <span class="op">*</span><span class="st"> </span><span class="dv">10</span>, .x) </a>
+<a class="sourceLine" id="cb114-4" data-line-number="4">)</a></code></pre></div>
+<pre><code>## [1]  1 20  3 40  5 60</code></pre>
+<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb116-1" data-line-number="1">## <span class="al">TODO</span>: explain this</a></code></pre></div>
+<div id="piping" class="section level3">
+<h3><span class="header-section-number">2.4.1</span> Piping</h3>
+<p>When we use a functional style of programming, piping is your best friend. Consider the standard example of applying functions in what linguists would call “center-embedding”. We start with the input (written inside the inner-most bracketing), then apply the first function <code>round</code>, then the second <code>mean</code>, writing each next function call “around” the previous.</p>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb117-1" data-line-number="1">## define input</a>
+<a class="sourceLine" id="cb117-2" data-line-number="2">input_vector =<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>)</a>
+<a class="sourceLine" id="cb117-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb117-4" data-line-number="4">## first round, then take mean</a>
+<a class="sourceLine" id="cb117-5" data-line-number="5"><span class="kw">mean</span>(<span class="kw">round</span>(input_vector))</a></code></pre></div>
+<pre><code>## [1] 0.3333333</code></pre>
+<p>Things quickly get out of hand when more commands are nested. A common practice is to store intermediate results of computations in new variables which are only used to pass the result into the next step.</p>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb119-1" data-line-number="1">## define input</a>
+<a class="sourceLine" id="cb119-2" data-line-number="2">input_vector =<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>)</a>
+<a class="sourceLine" id="cb119-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb119-4" data-line-number="4">## rounded input</a>
+<a class="sourceLine" id="cb119-5" data-line-number="5">rounded_input =<span class="st"> </span><span class="kw">round</span>(input_vector)</a>
+<a class="sourceLine" id="cb119-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb119-7" data-line-number="7">## mean of rounded input</a>
+<a class="sourceLine" id="cb119-8" data-line-number="8"><span class="kw">mean</span>(rounded_input)</a></code></pre></div>
+<pre><code>## [1] 0.3333333</code></pre>
+<p>Piping let’s you pass the result of a previous function call into the next:</p>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" data-line-number="1">input_vector <span class="op">%&gt;%</span><span class="st"> </span>round <span class="op">%&gt;%</span><span class="st"> </span>mean</a></code></pre></div>
+<pre><code>## [1] 0.3333333</code></pre>
+</div>
 </div>
             </section>
 
