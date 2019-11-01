@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>9.2 Modeling | Introduction to Data Analysis</title>
+  <title>2.5 Piping | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.14.1 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="9.2 Modeling | Introduction to Data Analysis" />
+  <meta property="og:title" content="2.5 Piping | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="9.2 Modeling | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="2.5 Piping | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="likelihood-prior-posterior.html"/>
-<link rel="next" href="further-examples.html"/>
+<link rel="prev" href="ch-01-01-loops-and-maps.html"/>
+<link rel="next" href="ch-01-01-Rmarkdown.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -314,164 +314,36 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="modeling" class="section level2">
-<h2><span class="header-section-number">9.2</span> Modeling</h2>
-<div id="introductory-example" class="section level3">
-<h3><span class="header-section-number">9.2.1</span> Introductory example</h3>
-<p>As introductory example we considered a coin flip experiment and asked if a particular coin is <em>biased</em>. In order to investigate this question a coin is flipped <span class="math inline">\(x\)</span> times (= trials) and the number of success (i.e. numbers of “head”) <span class="math inline">\(k\)</span> is recorded. This is repeated <span class="math inline">\(n\)</span> times (=observations).</p>
-<pre><code>## # A tibble: 10 x 3
-##        n     k     x
-##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-##  1     1    14    30
-##  2     2    13    30
-##  3     3    17    30
-##  4     4     7    30
-##  5     5    15    30
-##  6     6     9    30
-##  7     7    18    30
-##  8     8    17    30
-##  9     9    19    30
-## 10    10    12    30</code></pre>
-<p>The above table shows the observed outcome, but how the underlying probability of coming up <em>heads</em> can be derived from that data set?</p>
-</div>
-<div id="steps-of-data-analysis" class="section level3">
-<h3><span class="header-section-number">9.2.2</span> Steps of Data Analysis</h3>
-<p>The approach described here is based on <span class="citation">(McElreath <a href="#ref-mcelreath2015">2015</a>; Kruschke <a href="#ref-kruschke2015">2015</a>)</span>. Although the approach is introduced in a Bayesian context, it can be used as a general guideline (with some caveats):</p>
-<ul>
-<li>Identify the relevant variables according to the hypothesis (Measurement scales, predicted vs. predictor variables).</li>
-<li>Define the descriptive model for the relevant variables.
-<ul>
-<li>likelihood distribution (distribution of each outcome variable that defines the plausibility of individual observations)</li>
-<li>parameters (define and name all parameters of the model in order to relate the likelihood to the predictor variable(s))</li>
-</ul></li>
-<li>Bayesian context: Specify prior distribution(s).</li>
-</ul>
-<p>Further steps that will be subject of later chapters:</p>
-<ul>
-<li>Inference and interpretation of the results.</li>
-<li>Model checking (Is the defined model adequate?)</li>
-</ul>
-<p><em>In the following we are interested in the question if a certain coin is biased.</em></p>
-<p><strong>First step</strong> is to <em>identify the relevant variables</em>. For the coin flip experiment a coin is flipped <span class="math inline">\(n\)</span> times, whereby each observation consists of <span class="math inline">\(x\)</span> trials. Imagine for example 10 people flip a coin 30 times, then <span class="math inline">\(n=10\)</span> and <span class="math inline">\(x=30\)</span>. The variable <em>coin flip</em> <span class="math inline">\(Y\)</span> is dichotomous with the possible outcomes “head” and “tail”. For each observation the outcome is recorded: “0” for coming up tail and “1” for coming up head. The data are summarized for each observation. The variable <span class="math inline">\(k\)</span> indicates the number of heads coming up in <span class="math inline">\(x\)</span> trials.</p>
-<p>In <strong>the second step</strong> a <em>descriptive model for the identified variables</em> has to be defined. An underlying probability <span class="math inline">\(\theta\)</span> is assumed, indicating the probability of heads coming up <span class="math inline">\(p(y=1)\)</span>. The probability that the outcome is head, given a value of parameter <span class="math inline">\(\theta\)</span>, is the value of <span class="math inline">\(\theta\)</span> <span class="citation">(Kruschke <a href="#ref-kruschke2015">2015</a>, 109)</span>. Formally, this can be written as
-<span class="math display">\[p(y=1|\theta)=\theta\]</span>
-As only two outcomes of <span class="math inline">\(Y\)</span> exists, the probability that the outcome is tail is the complementary probability <span class="math inline">\(1-\theta\)</span>. Both probabilities can be combined in one probability expression:
-<span class="math display">\[Pr(Y|n,\theta)=\frac{n!}{y!(n-y)!}\theta^{y}(1-\theta)^{n-y}.\]</span>
-This probability distribution is called the <strong>Binomial distribution</strong>. The fracture at the beginning indicates how many ordered sequences of <span class="math inline">\(n\)</span> outcomes a count <span class="math inline">\(y\)</span> have.</p>
-<div class="figure" style="text-align: center">
-<img src="I2DA_files/figure-html/ch-03-03-binomial%20distribution-coin%20flip%20example-1.png" alt="Binomial distribution for different coin biases" width="672" />
-<p class="caption">
-(#fig:ch-03-03-binomial distribution-coin flip example)Binomial distribution for different coin biases
-</p>
-</div>
-<p>When the coin is flipped only once, then the probability can be written as:
-<span class="math display">\[Pr(Y|\theta)=\theta^{y}(1-\theta)^{1-y}.\]</span>
-This special variant of the Binomial distribution is the so-called <strong>Bernoulli distribution</strong>. To see the connection to the first considerations: When the outcome “head” is observed the equation reduces to <span class="math inline">\(Pr(y=1|\theta)=\theta\)</span> and when the outcome “tail” is observed the equation results in <span class="math inline">\(Pr(y=0|\theta)=(1-\theta).\)</span></p>
-<p>Accordingly, for the introductory example it can be noted that the coin flip variable <span class="math inline">\(Y\)</span> <em>is distributed as</em> Binomial distribution. (Note: For Bayes’ rule the <em>likelihood function</em> is needed. Remember, the likelihood function treats <span class="math inline">\(\theta\)</span> as unknow and the data as known. This role of parameter is exchanged in a probability distribution.)</p>
-<div class="figure" style="text-align: center">
-<img src="I2DA_files/figure-html/ch-03-03-binomial%20likelihood-coin%20flip%20example-1.png" alt="Binomial likelihoods for different observed coin flip outcomes." width="672" />
-<p class="caption">
-(#fig:ch-03-03-binomial likelihood-coin flip example)Binomial likelihoods for different observed coin flip outcomes.
-</p>
-</div>
-<p><strong>The third step</strong> is solely a <em>Bayesian idea</em>, that is the <em>incorporation of prior knowledge</em>. What do we believe about the coin bias <span class="math inline">\(\theta\)</span> before seeing the data? Assuming that no expectation about <span class="math inline">\(\theta\)</span> exists a priori, indicating that all values of <span class="math inline">\(\theta\)</span> between 0 and 1 are equally probable. This can be modeled by a uniform distribution or as already visualized as Beta distribution with parameters a=1 and b=1 (see following figure).</p>
-<div class="figure" style="text-align: center">
-<img src="I2DA_files/figure-html/ch-03-03-prior%20distribution-coin%20flip%20example-1.png" alt="Using uninformative prior distributions: The Uniform(0,1) and Beta(1,1) prior." width="672" />
-<p class="caption">
-(#fig:ch-03-03-prior distribution-coin flip example)Using uninformative prior distributions: The Uniform(0,1) and Beta(1,1) prior.
-</p>
-</div>
-<p>So far, the coin flip model is defined conceptually. In the following some notational considerations have to be made.</p>
-</div>
-<div id="notation" class="section level3">
-<h3><span class="header-section-number">9.2.3</span> Notation</h3>
-<div id="textual-notation" class="section level4">
-<h4><span class="header-section-number">9.2.3.1</span> Textual notation</h4>
-<p>In the textual notation, first the prior assumptions (if the Bayesian perspective is taken) are described. For the coin flip example this is:
-<span class="math display">\[\theta \sim Beta(1,1).\]</span>
-The symbol “<span class="math inline">\(\sim\)</span>” means “is distributed as”, thus, the above equation says before seeing the data all possible values of <span class="math inline">\(\theta\)</span> between 0 and 1 are assumed to be equally likely.</p>
-<p>Subsequently, the descriptive model for the data has to be defined. As already described in the section above, it is assumed that the observed data (upcoming of heads <span class="math inline">\(k\)</span>) are distributed as Binomial distribution with given <span class="math inline">\(n\)</span> (number of observations) and unknown <span class="math inline">\(\theta\)</span>. This relation is denoted symbolically as
-<span class="math display">\[k\sim Binomial(\theta|n).\]</span>
-To summarize the current model (whereby the prior knowledge is only considered from a Bayesian perspective):
-<span class="math display">\[\theta \sim Beta(1,1),\]</span>
-<span class="math display">\[k\sim Binomial(\theta|n).\]</span></p>
-</div>
-<div id="graphical-notation" class="section level4">
-<h4><span class="header-section-number">9.2.3.2</span> Graphical notation</h4>
-<p>When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. In the following the convention described in Wagenmakers and Lee’s <em>Bayesian Cognitive Modelling</em> (2014) is used: The graph structure is used to indicate dependencies between the variables, with children depending on their parents <span class="citation">(Lee and Wagenmakers <a href="#ref-leeWagen2014">2014</a>)</span>. General conventions:</p>
-<ul>
-<li>Nodes - problem relevant variables,</li>
-<li>shaded nodes - observed variables,</li>
-<li>unshaded nodes - unobserved variables,</li>
-<li>circular nodes - continuous variables,</li>
-<li>square nodes - discrete variables,</li>
-<li>single line - stochastic dependency, and</li>
-<li>double line - deterministic dependency.</li>
-</ul>
-<p>For the introductory example this indicates:</p>
-<ul>
-<li>relevant variables: number of trials (<span class="math inline">\(n\)</span>), number of success (<span class="math inline">\(k\)</span>) and probability for a success (<span class="math inline">\(\theta\)</span>),</li>
-<li>observed variables: <span class="math inline">\(n\)</span> and <span class="math inline">\(k\)</span>,</li>
-<li>unobserved variables: <span class="math inline">\(\theta\)</span>,</li>
-<li>continuous variable: <span class="math inline">\(\theta\)</span>,</li>
-<li>discrete variables: <span class="math inline">\(n\)</span> and <span class="math inline">\(k\)</span>.</li>
-</ul>
-<p>In the next step the dependencies have to be determined:</p>
-<p>The number of success <span class="math inline">\(k\)</span> depends on the probability of a success <span class="math inline">\(\theta\)</span> as well as on the number of trials <span class="math inline">\(n\)</span>.</p>
-<p>Finally, the graphical structure together with the textual notation can be represented:</p>
-<div class="figure">
-<img src="https://github.com/michael-franke/intro-data-analysis/blob/master/chapters/images/Graph_Binom.png" alt="Graphical notation Beta-Binomial Model - One group" />
-<p class="caption">Graphical notation Beta-Binomial Model - One group</p>
-</div>
-</div>
-</div>
-<div id="an-outlook-hierarchical-models" class="section level3">
-<h3><span class="header-section-number">9.2.4</span> An outlook: Hierarchical models</h3>
-<p>Often data can be considered as part of an overall structure. Single observations can be modelled belonging into different groups. These groups in turn are part of a superordinate group etc. Such information are presented in a model in form of a hierarchy.</p>
-<p>For example, consider again the coin flip experiment. The outcome of <em>head</em> is influenced by the probability <span class="math inline">\(\theta\)</span>. Further, <span class="math inline">\(\theta\)</span> is assumed to be distributed as Beta(1,1). Remember that the parameter a and b of a Beta-distribution can be considered in this context as: <span class="math inline">\(a=\)</span>number of heads and <span class="math inline">\(b=\)</span> number of tails, consequently, <span class="math inline">\(n=a+b\)</span>.</p>
-<div id="reparameterization-of-a-beta-distribution" class="section level4">
-<h4><span class="header-section-number">9.2.4.1</span> Reparameterization of a Beta distribution</h4>
-<p>Probability distributions can be described by their <em>central tendency</em> and <em>spread</em> (or dispersion). The <em>mode</em> of a Beta distribution is defined as:</p>
-<p><span class="math inline">\(\omega=\frac{a-1}{a+b-2}\)</span>,</p>
-<p>and the concentration as:</p>
-<p><span class="math inline">\(\kappa=a+b.\)</span></p>
-<p>The nice thing is, that the definition of the <em>mode</em> as well as of the <em>concentration</em> consists solely of the parameters a and b. Therefore, it is possible to re-express the parameters of a Beta density in terms of <span class="math inline">\(\omega\)</span> and <span class="math inline">\(\kappa\)</span>, such that:</p>
-<p><span class="math display">\[Beta(a,b)=Beta\left(\omega(\kappa -2)+1, (1-\omega)(\kappa -2)+1\right).\]</span></p>
-<p><em>Why this is useful? And what is its value in connection with hierarchical modeling?</em></p>
-<p>Return back to the coin flip experiment. So far, the parameters of the prior on <span class="math inline">\(\theta\)</span> are fixed: <span class="math inline">\(a=1\)</span> and <span class="math inline">\(b=1\)</span>. Assume that we get further information: The manufacturing process of the coins has a bias near <span class="math inline">\(\omega\)</span> (example taken from <span class="citation">(Kruschke <a href="#ref-kruschke2015">2015</a>)</span>). But how to incorporate this additional knowledge in the model?</p>
-<p>At this point, the hierarchy and the reparameterization come into play. Hierarchy because a further assumption is placed on top of the existing model and reparameterization, because we want to express the prior in terms of the mode <span class="math inline">\(\omega\)</span>.</p>
-<p>Such that the model can be assumed as follows:</p>
-<div class="figure">
-<img src="../chapters/images/binom-oneLevel.png" alt="Graphical notation hierarchical Beta-Binomial Model - One group" />
-<p class="caption">Graphical notation hierarchical Beta-Binomial Model - One group</p>
-</div>
-<p>Now, the parameters of the hyperpriors (Gamma and Beta) are fixed, but they can be treated as parameters as well … as such hierarchical models can be created with any degree of complexity:</p>
-<div class="figure">
-<img src="../chapters/images/hierarchical-model.png" alt="Graphical notation hierarchical Beta-Binomial Model - One group" />
-<p class="caption">Graphical notation hierarchical Beta-Binomial Model - One group</p>
-</div>
-</div>
-</div>
-</div>
-<h3>References</h3>
-<div id="refs" class="references">
-<div id="ref-kruschke2015">
-<p>Kruschke, John. 2015. <em>Doing Bayesian data analysis: A tutorial with R, JAGS, and Stan</em>. Academic Press.</p>
-</div>
-<div id="ref-leeWagen2014">
-<p>Lee, Michael D., and Eric-Jan Wagenmakers. 2014. <em>Bayesian cognitive modeling: A practical course</em>. Cambridge university press.</p>
-</div>
-<div id="ref-mcelreath2015">
-<p>McElreath, Richard. 2015. <em>Statistical Rethinking: A Bayesian Course with Examples in R and Stan</em>. Chapman; Hall/CRC.</p>
-</div>
+<div id="Chap-01-01-piping" class="section level2">
+<h2><span class="header-section-number">2.5</span> Piping</h2>
+<p>When we use a functional style of programming, piping is your best friend. Consider the standard example of applying functions in what linguists would call “center-embedding”. We start with the input (written inside the inner-most bracketing), then apply the first function <code>round</code>, then the second <code>mean</code>, writing each next function call “around” the previous.</p>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb117-1" data-line-number="1">## define input</a>
+<a class="sourceLine" id="cb117-2" data-line-number="2">input_vector =<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>)</a>
+<a class="sourceLine" id="cb117-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb117-4" data-line-number="4">## first round, then take mean</a>
+<a class="sourceLine" id="cb117-5" data-line-number="5"><span class="kw">mean</span>(<span class="kw">round</span>(input_vector))</a></code></pre></div>
+<pre><code>## [1] 0.3333333</code></pre>
+<p>Things quickly get out of hand when more commands are nested. A common practice is to store intermediate results of computations in new variables which are only used to pass the result into the next step.</p>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb119-1" data-line-number="1">## define input</a>
+<a class="sourceLine" id="cb119-2" data-line-number="2">input_vector =<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>)</a>
+<a class="sourceLine" id="cb119-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb119-4" data-line-number="4">## rounded input</a>
+<a class="sourceLine" id="cb119-5" data-line-number="5">rounded_input =<span class="st"> </span><span class="kw">round</span>(input_vector)</a>
+<a class="sourceLine" id="cb119-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb119-7" data-line-number="7">## mean of rounded input</a>
+<a class="sourceLine" id="cb119-8" data-line-number="8"><span class="kw">mean</span>(rounded_input)</a></code></pre></div>
+<pre><code>## [1] 0.3333333</code></pre>
+<p>Piping let’s you pass the result of a previous function call into the next:</p>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" data-line-number="1">input_vector <span class="op">%&gt;%</span><span class="st"> </span>round <span class="op">%&gt;%</span><span class="st"> </span>mean</a></code></pre></div>
+<pre><code>## [1] 0.3333333</code></pre>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="likelihood-prior-posterior.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="further-examples.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="ch-01-01-loops-and-maps.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="ch-01-01-Rmarkdown.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
