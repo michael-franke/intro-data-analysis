@@ -690,76 +690,163 @@ knitr::include_app("https://istats.shinyapps.io/PoissonDist/", height = "800px")
 
 ## Understanding distributions as random variables
 
-```{r}
-#initialize parameters
-a = 3
-b = 1.5
-n = 1e6
+```{r ch-app-01-random-variables-normal-distribution, fig.cap = "Transformation of a normal distributed random variable by addition and linear transformation."}
 
-#create random variables
-## normal distributed RVs 
-X_norm <- rnorm(n = n, mean = 1, sd = 2)
-Y_norm <- rnorm(n = n, mean = 1.5, sd = 2.5)
-## standard normal distributed RVs
-stdNormal1 <- rnorm(n = n, mean = 0, sd = 1)
-stdNormal2 <- rnorm(n = n, mean = 0, sd = 1)
-stdNormal3 <- rnorm(n = n, mean = 0, sd = 1)
-## chi-square distributed RV
-C <- rchisq(n=n, df=3)
-## student-t distributed RV
-student <- rt(n=20, df=3)
-## F distributed RV
-fisher <- rf(n=n, df1=1, df2=3)
+rv_normal_transform = tibble(
+  x_axis = seq(from = -5, to = 5, by = .01),
+  rv_norm_x = dnorm(x = x_axis, mean = 1, sd = 2),
+  rv_norm_y = dnorm(x = x_axis, mean = 1.75, sd = 2.75),
+  rv_linear_transform = 3*rv_norm_x+0.25,
+  rv_summ_transform = rv_norm_x + rv_norm_y
+) %>% 
+  pivot_longer(cols = starts_with("rv"),
+               names_to  = "random_variables",
+               values_to = "y") %>% 
+  mutate(
+    random_variables = case_when(random_variables == "rv_norm_x" ~ "X ~ N(1,2)",
+                          random_variables == "rv_norm_y" ~ "Y ~ N(1.75,2.75)",
+                          random_variables == "rv_linear_transform" ~ "3*X+0.25~ N(3*1+0.25,3^2*2^2)",
+                          random_variables == "rv_summ_transform" ~ "X+Y ~ N(1+1.75,2^2+2.75^2)"
+                          )
+  )
 
-## create linear transformation of X
-X_lin <- a*X_norm+b
-## create RV A as addition of X + Y
-sum_xy <- X_norm + Y_norm
-## create chisquare distributed RV 
-C2 <- stdNormal2^2+stdNormal3^2
-C3 <- stdNormal1^2+stdNormal2^2+stdNormal3^2
-## create student-t distributed RV
-T1 <- stdNormal1/sqrt(C2/1)
-## create F distributed RV
-F1 <- (C2/2)/(C3/1)
-
-## normal ditributed RV B (equal to addition: X+Y)
-N_add <- rnorm(n = n, mean = 1 + 1.5, sd = sqrt(2^2 + 2.5^2))
-## normal distributed RV V (equal to linear transformation: a*X+b)
-N_lin <- rnorm(n = n, mean = a*1+b, sd = (a*2))
+# dist plot
+ggplot(rv_normal_transform, aes(x_axis, y, color = random_variables)) +
+  geom_line(size = 2) +
+  labs(color = "X,Y ~ Normal", y = "Density", x = "x") 
 ```
 
-```{r}
-par(mfrow=c(1,2))
-plot(density(X_norm), main="Normal RV: a*X+b", xlim=c(-20,20),xlab="RVs")+
-  points(density(N_lin), type = "l", col="blue")+
-plot(density(X_norm), main="Normal RV: X+Y", xlim=c(-20,20),xlab="RVs")+
-  points(density(Y_norm), type = "l", lty="dotted")+
-  points(density(N_add), type = "l", col="blue")
-par(mfrow=c(1,2))
-plot(density(stdNormal1), main=expression("X,Y,Z ~N(0,1);"~X^2+Y^2+Z^2),   
-     xlim=c(-10,10),ylim=c(0,0.4),xlab="RVs")+
-  points(density(C3), type = "l", col="blue")
-plot(density(C), main="Chi-square distribution", xlim=c(0,15),ylim=c(0,0.4),
-     xlab="RVs", col="red", lwd=2, lty="dashed")+
-  points(density(C3), type = "l", col="blue")
+```{r ch-app-01-random-variables-chi-distribution, fig.cap = "Create chi-distributed random variable by summation of standard normal random variables"}
+
+rv_norm_transform = tibble(
+  rv_norm_X = rnorm(n = 1e6),
+  rv_norm_Y = rnorm(n = 1e6),
+  rv_norm_Z = rnorm(n = 1e6),
+  rv_summ_transform_1 = rv_norm_X^2+rv_norm_Y^2,
+  rv_summ_transform_2 = rv_norm_X^2+rv_norm_Y^2+rv_norm_Z^2
+) %>% 
+  pivot_longer(cols = starts_with("rv_summ"),
+               names_to  = "random_variables",
+               values_to = "y") %>% 
+  mutate(
+    RVs = case_when(random_variables == "rv_summ_transform_1" ~ "X^2+Y^2",
+                          random_variables == "rv_summ_transform_2" ~ "X^2+Y^2+Z^2"
+    )
+  )
+
+rv_chi_transform = tibble(
+  x_axis = seq(from = 0, to = 10, by = .01),
+  rv_chi_1 = dchisq(x = x_axis, df = 2),
+  rv_chi_2 = dchisq(x = x_axis, df = 3)
+) %>% 
+  pivot_longer(cols = starts_with("rv"),
+               names_to  = "random_variables",
+               values_to = "y") %>% 
+  mutate(
+    RVs = case_when(random_variables == "rv_chi_1" ~ "Chi(2)",
+                          random_variables == "rv_chi_2" ~ "Chi(3)"
+                          )
+  )
+
+# dist plots
+p1 <- ggplot() +
+  geom_line(rv_chi_transform, mapping = aes(x_axis, y, color = RVs), size = 2) +
+  labs(y = "Density", x = "x") 
+  
+p2 <- ggplot() +
+  geom_line(rv_norm_transform, mapping = aes(y, color = RVs), size = 2, stat = "density") +
+  xlim(0,10) +
+  ylim(0,0.5) +
+  labs(y = "Density", x = "x") 
+  
+plot_grid(p1,p2)
 ```
 
-```{r}
-par(mfrow=c(2,2))
-plot(density(stdNormal1), main="Normal devided by Chi-square RVs",   
-     xlim=c(-10,10),ylim=c(0,0.4),xlab="RVs")+
-  points(density(C), type = "l")+
-  points(density(T1),type="l", col="blue")
-plot(density(T1), main="Student-t distribution",   
-     xlim=c(-10,10),ylim=c(0,0.4),xlab="RVs")+
-  points(density(student),type="l", col="red")
-plot(density(stdNormal1), main=expression("X~N(0,1),"~Y~"~"~chi^2~(2)~";"~X/sqrt(Y/n)),   
-     xlim=c(-10,10),ylim=c(0,0.4),xlab="RVs")+
-  points(density(C2), type = "l")+
-  points(density(T1), type = "l", col="blue")
-plot(density(stdNormal1), main="Student-t distribution",   
-     xlim=c(-10,10),ylim=c(0,0.4),xlab="RVs")+
-  points(density(student), type = "l", col="red")
+```{r ch-app-01-random-variables-t-distribution, fig.cap = "Create t-distributed random variable by divison of standard normal RV by chi-squared RV"}
 
+rv_norm_chi_transform = tibble(
+  rv_norm_X = rnorm(n = 1e6),
+  rv_norm_Y = rnorm(n = 1e6),
+  rv_norm_Z = rnorm(n = 1e6),
+  rv_chi = rv_norm_Y^2+rv_norm_Z^2,
+  rv_transform_t = rv_norm_X/sqrt(rv_chi/2)
+) %>% 
+  pivot_longer(cols = starts_with("rv_transform"),
+               names_to  = "random_variables",
+               values_to = "y") %>% 
+  mutate(
+    RVs = case_when(random_variables == "rv_transform_t" ~ "X/sqrt(chi/df)")
+  )
+
+rv_student = tibble(
+  x_axis = seq(from = -5, to = 5, by = .01),
+  rv_t_1 = dt(x = x_axis, df = 2)
+) %>% 
+  pivot_longer(cols = starts_with("rv"),
+               names_to  = "random_variables",
+               values_to = "y") %>% 
+  mutate(
+    RVs = case_when(random_variables == "rv_t" ~ "t(2)")
+  )
+
+# dist plots
+p1 <- ggplot() +
+  geom_line(rv_student, mapping = aes(x_axis, y), size = 2) +
+  ylim(0,0.4) +
+  labs(y = "Density", x = "x") 
+  
+  
+p2 <- ggplot() +
+  geom_line(rv_norm_chi_transform, mapping = aes(y), size = 2, stat = "density") +
+  xlim(-5,5) +
+  ylim(0,0.4) +
+  labs(y = "Density", x = "x") 
+  
+plot_grid(p1,p2, labels = c("RV ~ t(2)","RV ~ std.norm/sqrt(chi/2)"))
+```
+
+```{r r ch-app-01-random-variables-F-distribution, fig.cap = "Create F-distributed random variable by divison of chi-squared RV by (another independent) chi-squared RV"}
+
+rv_norm_chi_transform = tibble(
+  rv_norm_V = rnorm(n = 1e6),
+  rv_norm_W = rnorm(n = 1e6),
+  rv_norm_X = rnorm(n = 1e6),
+  rv_norm_Y = rnorm(n = 1e6),
+  rv_norm_Z = rnorm(n = 1e6),
+  rv_chi_1 = rv_norm_V^2+rv_norm_W^2,
+  rv_chi_2 = rv_norm_X^2+rv_norm_Y^2+rv_norm_Z^2,
+  rv_transform_F = (rv_chi_1/2)/(rv_chi_2/3)
+) %>% 
+  pivot_longer(cols = starts_with("rv_transform"),
+               names_to  = "random_variables",
+               values_to = "y") %>% 
+  mutate(
+    RVs = case_when(random_variables == "rv_transform_F" ~ "(rv_chi_1/2)/(rv_chi_2/3)")
+  )
+
+rv_fisher = tibble(
+  x_axis = seq(from = 0, to = 20, by = .01),
+  rv_F = df(x = x_axis, df1 = 2, df2 = 3)
+) %>% 
+  pivot_longer(cols = starts_with("rv"),
+               names_to  = "random_variables",
+               values_to = "y") %>% 
+  mutate(
+    RVs = case_when(random_variables == "rv_F" ~ "F(2,3)")
+  )
+
+# dist plots
+p1 <- ggplot() +
+  geom_line(rv_fisher, mapping = aes(x_axis, y), size = 2) +
+  ylim(0,1) +
+  labs(y = "Density", x = "x") 
+  
+  
+p2 <- ggplot() +
+  geom_line(rv_norm_chi_transform, mapping = aes(y), size = 2, stat = "density") +
+  xlim(0,20) +
+  ylim(0,1) +
+  labs(y = "Density", x = "x") 
+  
+plot_grid(p1,p2, labels = c("RV ~ F(2,3)","RV ~ (rv_chi_1/2)/(rv_chi_2/3)"), label_size = 10)
 ```
