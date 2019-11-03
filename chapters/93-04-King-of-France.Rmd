@@ -1,0 +1,165 @@
+
+## King of France {#app-93-data-sets-king-of-france}
+
+### Nature, origin and rationale of the data
+
+A **presupposition** of a sentence is a piece of information that is necessary for the sentence to make sense, but which is not communicated explicitly. If I say "Jones chained my camel to a tree", this sentence pressupposes, somewhat incredibly, that I own a camel. If it is false that I own a camel, the sentence makes no sense. Yet, if I say it and you say: "I disagree" you take issue with my claim about chaining, not about me owning a camel. In this sense, the presupposition is not part of the implicitly contributed content (it is "not at issue content", as the linguists would say). 
+
+
+#### The experiment
+
+
+The experiment was realized using [_magpie](https://magpie-ea.github.io/magpie-site/index.html) and can be tried out [here](https://magpie-king-of-france.netlify.com).
+
+#### Theoretical motivation & hypotheses
+
+We will be concerned with the following two research questions:^[These questions are not driven by deep theoretical interest, but mostly for educational reasons.]
+
+1. Is the overal rate (= aggregating over all vignettes & conditions) of "TRUE" judgements for sentences with presupposition failure different from pure guessing chance of 0.5?
+2. Do conditions differ in the rate of "TRUE" judgements?
+
+### Loading and preprocessing the data
+
+The raw data produced by the online experiment is not particularly tidy. It needs substantial massages before plotting and analysis.
+
+```{r}
+d_raw <- read_csv('data_sets/king-of-france_data_raw.csv')
+glimpse(d_raw)
+```
+
+
+```{r}
+str_c("There was a total of ", d_raw %>% pull(submission_id) %>% unique() %>% length(), " submissions.") 
+```
+
+```{r}
+d_processed <-  d_raw %>% 
+  filter(trial_type != "practice") %>% 
+  mutate(
+    condition = case_when(
+      trial_type != "filler" ~ str_c("Condition ", item_version),
+      TRUE ~ "filler"
+    ) %>% 
+      factor( 
+        ordered = T,
+        levels = str_c("Condition ", c(0, 1, 6, 9, 10))
+      )
+  )
+
+# write_csv(d_processed, "data-sets/king-of-france_data_processed.csv")
+```
+
+
+### Cleaning the data
+
+We clean the data in two consecutive steps:
+
+1. Remove all data from any participant who got more than 50% of the answer to filler material wrong.
+2. Remove individual main trials if the corresponding "background check" question was answered wrongly.
+
+#### Cleaning by-participant
+
+```{r}
+# look at error rates for filler sentences by subject
+# mark every subject with < 0.5 proportion correct
+
+subject_error_rate <- d_processed %>% 
+  filter(trial_type == "filler") %>% 
+  group_by(submission_id) %>% 
+  summarise(
+    proportion_correct = mean(correct_answer == response),
+    outlier_subject = proportion_correct < 0.5
+  ) %>% 
+  arrange(proportion_correct)
+```
+
+Plot the results:
+
+```{r}
+# plot by-subject error rates
+subject_error_rate %>% 
+  ggplot(aes(x = proportion_correct, color = outlier_subject, shape = outlier_subject)) + 
+  geom_jitter(aes(y = ""), width = 0.001) +
+  xlab("Poportion of correct answers") + ylab("") + 
+  ggtitle("Distribution of proportion of correct answers on filler trials") +
+  xlim(0,1) +
+  scale_color_discrete(name = "Outlier") +
+  scale_shape_discrete(name = "Outlier")
+```
+
+Apply the cleaning step:
+
+```{r}
+# add info about error rates and exclude outlier subject(s)
+d_cleaned <- 
+  full_join(d_processed, subject_error_rate, by = "submission_id") %>% 
+  filter(outlier_subject == FALSE)
+
+```
+
+
+#### Cleaning by-trial
+
+
+```{r}
+# exclude every critical trial whose 'background' test question was answered wrongly
+
+d_cleaned <- 
+  d_cleaned %>% 
+  # select only the 'background question' trials
+  filter(trial_type == "special") %>% 
+  # is the background question answered correctly?
+  mutate(
+    background_correct = correct_answer == response
+  ) %>%
+  # select only the relevant columns
+  select(submission_id, vignette, background_correct) %>%
+  # right join lines to original data set 
+  right_join(d_cleaned, by = c("submission_id", "vignette")) %>% 
+  # remove all special trials, as well as main trials with incorrect background check
+  filter(trial_type == "main" & background_correct == TRUE)
+
+# write_csv(d_cleaned, "data-sets/king-of-france_data_cleaned.csv")
+```
+
+
+### Exploration: summary stats & plots
+
+Plot for ratings by condition:
+
+```{r}
+d_cleaned %>% 
+  group_by(condition) %>%
+  nest() %>% 
+  summarise(
+    CIs = map(data, function(d) bootstrapped_CI(d$response == "TRUE"))
+  ) %>% 
+  unnest(CIs) %>% 
+  ggplot(aes(x = condition, y = mean, fill = condition)) + 
+  geom_bar(stat = "identity") +
+  geom_errorbar(aes(ymin = lower, ymax = upper, width = 0.2)) +
+  ylim(0,1) +
+  ylab("") + xlab("") + ggtitle("Proportion of 'TRUE' responses per condition") +
+  theme(legend.position = "none")
+```
+
+Plot for each condition & vignette:
+
+```{r}
+d_processed %>% 
+  filter(trial_type == "main") %>%
+  group_by(condition, vignette) %>% 
+  nest() %>% 
+  summarise(
+    CIs = map(data, function(d) bootstrapped_CI(d$response == "TRUE"))
+  ) %>% 
+  unnest(CIs) %>% 
+  ggplot(aes(x = condition, y = mean, fill = vignette)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  ylim(0,1) +
+  ylab("") + xlab("") + ggtitle("Proportion of 'TRUE' responses per condition & vignette")
+
+```
+
+### Data analysis 
+
