@@ -156,9 +156,9 @@ d %>% ggplot(aes(x = RT)) +
 
 We are interested in comparing the RTs of correct answers in the congruent and incongruent conditions. We saw a difference in mean reaction times, but we'd like to know if this difference is meaningful. One way of testing this is by running a regression model, which tries to predict RTs as a function of conguency. In the simplest case we would therefore do this:
 
-```{r, cache=T}
-model_simple = brm(RT ~ condition, filter(d, correctness == "correct"))
-summary(model_simple)
+```{r, eval = F}
+model_ST_simple = brm(RT ~ condition, filter(d, correctness == "correct"))
+summary(model_ST_simple)
 ```
 
 According to this analysis, there is reason to believe in a difference in RTs between congruent and incongruent groups. The coefficient estimated for the incongruent group is on average ca. 25 ms higher than that of the congruent group.
@@ -169,22 +169,22 @@ As shown in the above graph, there are four different cells in a 2x2 grid.
 
 In the below model, this is coded with 'dummy coding' such that the top-left cell (congruent-correct) is the intercept, and each other cell is calculated by the addition of offsets.
 
-```{r, cache = T}
-model_complex <- brm(RT ~ condition * correctness, d)
+```{r, eval = F}
+model_ST_complex <- brm(RT ~ condition * correctness, d)
 ```
 
 We may want to ask the question: are reaction times to correct-congruent responses shorter than reaction times to incorrect-incongruent responses?
 
 To do this, we first need to extract the posterior samples from our model.
 
-```{r}
-post_samples <- posterior_samples(model_complex) %>% 
+```{r, eval = F}
+post_samples <- posterior_samples(model_ST_complex) %>% 
   as_tibble()
 ```
 
 Then we need to determine the correct offsets to match the correct-congruent and incorrect-incongruent cells in the design matrix.
 
-```{r}
+```{r, eval = F}
 
 # correct-congruent is the reference cell
 correct_congruent <- post_samples$b_Intercept
@@ -198,7 +198,7 @@ incorrect_incongruent <- post_samples$b_Intercept +
 
 Once we know these, we can calculate the probability that the comparison is in the correct direction.
  
-```{r}
+```{r, eval = F}
 mean(correct_congruent < incorrect_incongruent)
 ```
 
