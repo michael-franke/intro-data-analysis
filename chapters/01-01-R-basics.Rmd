@@ -480,12 +480,14 @@ str_split(reaction_times, "\\|", n = 3)
 Factors are special vectors, which treat its elements as ordered or unorderd categories. This is useful for representing data from experiments, e.g., of categorical or ordinal variables (see Chapter \@ref(Chap-02-01-data)). To create a factor, we can use the function `factor`. The following code creates an *unorderd factor*:
 
 ```{r}
+chr_vector = c("huhu", "hello", "huhu", "ciao")
 factor(chr_vector)
 ```
 
 *Ordered factors* also register the order of the categories:
 
 ```{r}
+chr_vector = c("huhu", "hello", "huhu", "ciao")
 factor(
   chr_vector,    # the vector to treat as factor
   ordered = T,   # make sure its treated as ordered factor
@@ -494,6 +496,47 @@ factor(
 ```
 
 We will see that ordered factors are important, for example, in plotting when they determine the order in which different parts of data are arranged on the screen. They are also important for statistical analysis, because they help determine how categories are compared to one another.
+
+Factors are trickier to work with than mere lists, because they are rigid about the represented factor levels. Adding an item that does not belong to any of a factor's levels, leads to trouble:
+
+```{r}
+chr_vector = c("huhu", "hello", "huhu", "ciao")
+my_factor <- factor(
+  chr_vector,    # the vector to treat as factor
+  ordered = T,   # make sure its treated as ordered factor
+  levels = c("huhu", "ciao", "hello")  # specify order of levels
+)
+my_factor[5] <- "huhu"  # adding a "known category" is okay
+my_factor[6] <- "moin"  # adding an "unknown category" does not work
+my_factor
+```
+
+The `forcats` package from the tidyverse helps dealing with factors. You should check the [Cheat Sheet](https://resources.rstudio.com/rstudio-developed/factors) for more helpful functionality. Here is an example of how to expand the levels of a factor:
+
+```{r}
+chr_vector = c("huhu", "hello", "huhu", "ciao")
+my_factor <- factor(
+  chr_vector,    # the vector to treat as factor
+  ordered = T,   # make sure its treated as ordered factor
+  levels = c("huhu", "ciao", "hello")  # specify order of levels
+)
+my_factor[5] <- "huhu"  # adding a "known category" is okay
+my_factor <- fct_expand(my_factor, "moin") # add new category
+my_factor[6] <- "moin"  # adding new item now works
+my_factor
+```
+
+It is sometimes useful (especially for plotting) to flexibly reorder the levels of an ordered factor. Here are some useful functions from the `forcats` package:
+
+```{r}
+my_factor               # original factor
+fct_rev(my_factor)      # reverse level order 
+fct_relevel(            # manually supply new level order 
+  my_factor,
+  c("hello", "ciao", "huhu")
+)      
+```
+
 
 ### Lists, data frames & tibbles
 
