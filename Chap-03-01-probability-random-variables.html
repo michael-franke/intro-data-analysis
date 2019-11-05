@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>15 Simple linear regression | Introduction to Data Analysis</title>
+  <title>7.4 Random variables | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.14.1 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="15 Simple linear regression | Introduction to Data Analysis" />
+  <meta property="og:title" content="7.4 Random variables | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="15 Simple linear regression | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="7.4 Random variables | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Chap-03-08-model-criticism.html"/>
-<link rel="next" href="logistic-regression.html"/>
+<link rel="prev" href="conditional-probability.html"/>
+<link rel="next" href="expected-value-variance.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -326,30 +326,98 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="simple-linear-regression" class="section level1">
-<h1><span class="header-section-number">15</span> Simple linear regression</h1>
-<ul>
-<li>“multiple” = “more than one predictor”
-<ul>
-<li>interactions</li>
-<li>collinearity</li>
-</ul></li>
-<li>categorical predictors
-<ul>
-<li>relation to t-test and ANOVA</li>
-<li>different coding shemes</li>
-</ul></li>
-<li>robust regression</li>
-</ul>
+<div id="Chap-03-01-probability-random-variables" class="section level2">
+<h2><span class="header-section-number">7.4</span> Random variables</h2>
+<p>We have so far define a probability distribution as a function that assigns a probability to
+each subset of the space <span class="math inline">\(\Omega\)</span> of elementary outcomes. A special case occurs when we are
+interested in a space of numeric outcomes.</p>
+<p>A <strong>random variable</strong> is a function <span class="math inline">\(X \ \colon \ \Omega \rightarrow \mathbb{R}\)</span> that
+assigns to each elementary outcome a numerical value.</p>
 
+<div class="infobox">
+<strong>Example.</strong> For a single flip of a coin we have <span class="math inline">\(\Omega_{\text{coin flip}} = \left \{ \text{heads}, \text{tails} \right \}\)</span>. A usual way of mapping this onto numerical outcomes is to define <span class="math inline">\(X_{\text{coin flip}} \ \colon \ \text{heads} \mapsto 1; \text{tails} \mapsto 0\)</span>. Less trivially, consider flipping a coin two times. Elementary outcomes should be individuated by the outcome of the first flip and the outcome of the second flip, so that we get:
+<span class="math display">\[
+    \Omega_{\text{two flips}} = \left \{ \langle \text{heads}, \text{heads} \rangle, \langle \text{heads}, \text{tails} \rangle,
+    \langle \text{tails}, \text{heads} \rangle, \langle \text{tails}, \text{tails} \rangle \right \}
+\]</span>
+Consider the random variable <span class="math inline">\(X_{\text{two flips}}\)</span> that counts the total number of heads. Crucially, <span class="math inline">\(X_{\text{two flips}}(\langle \text{heads}, \text{tails} \rangle) = 1 = X_{\text{two flips}}(\langle \text{tails}, \text{heads} \rangle)\)</span>. We assign the same numerical value to different elementary outcomes.
+</div>
+
+<div id="notation-terminology" class="section level3">
+<h3><span class="header-section-number">7.4.1</span> Notation &amp; terminology</h3>
+<p>Traditionally random variables are represented by capital letters, like <span class="math inline">\(X\)</span>. Variables for the numeric values they take on are written as small letters, like <span class="math inline">\(x\)</span>.</p>
+<p>We write <span class="math inline">\(P(X = x)\)</span> as a shorthand for the probability <span class="math inline">\(P(\left \{ \omega \in \Omega \mid X(\omega) = 2 \right \})\)</span> that an event occurs that is mapped onto <span class="math inline">\(x\)</span> by random variable <span class="math inline">\(X\)</span>. For example, if our coin is fair, then <span class="math inline">\(P(X_{\text{two flips}} = x) = 0.5\)</span> for <span class="math inline">\(x=1\)</span> and <span class="math inline">\(0.25\)</span> otherwise. Similarly, we can also write <span class="math inline">\(P(X \le x)\)</span> for the probability of observing an event that <span class="math inline">\(X\)</span> maps to a number not bigger than <span class="math inline">\(x\)</span>.</p>
+<p>If the range of <span class="math inline">\(X\)</span> is countable, we say that <span class="math inline">\(X\)</span> is <strong>discrete</strong>. For ease of exposition, we may say that if the range of <span class="math inline">\(X\)</span> is an interval of real numbers, <span class="math inline">\(X\)</span> is called <strong>continuous</strong>.</p>
+</div>
+<div id="cumulative-distribution-functions-mass-density" class="section level3">
+<h3><span class="header-section-number">7.4.2</span> Cumulative distribution functions, mass &amp; density</h3>
+<p>For a discrete random variable <span class="math inline">\(X\)</span>, the <strong>cumulative distribution function</strong> <span class="math inline">\(F_X\)</span> associated with <span class="math inline">\(X\)</span> is defined as:
+<span class="math display">\[
+  F_X(x) = P(X \le x) = \sum_{x&#39; \in \left \{ \text{Rng}(X) \mid x&#39; \le x \right \}} P(X = x)
+\]</span>
+The <strong>probability mass function</strong> <span class="math inline">\(f_x\)</span> associated with <span class="math inline">\(X\)</span> is defined as:
+<span class="math display">\[
+  f_X(x) = P(X = x)
+\]</span></p>
+<div class="infobox">
+<p><strong>Example.</strong> Suppose we flip a coin with a bias of <span class="math inline">\(\theta\)</span> <span class="math inline">\(n\)</span> times. What is the probability that we will see heads <span class="math inline">\(k\)</span> times? If we map the outcome of heads to 1 and tails to 0, this probability is given by the Binomial distribution, as follows:
+<span class="math display">\[
+    \text{Binom}(K = k ; n, \theta) = \binom{n}{k} \,  \theta^{k} \, (1-\theta)^{n-k}
+\]</span>
+Here <span class="math inline">\(\binom{n}{k} = \frac{n!}{k!(n-k)!}\)</span> is the binomial coefficient. It gives the number of possibilities of drawing an unordered set with <span class="math inline">\(k\)</span> elements from a set with a total of <span class="math inline">\(n\)</span> elements. Figure <a href="Chap-03-01-probability-random-variables.html#fig:ch-03-BinomialDistribution-Mass">7.1</a> gives an example of the Binomial distribution, concretely its probability mass function, for two values of the coin’s bias, <span class="math inline">\(\theta = 0.25\)</span> or <span class="math inline">\(\theta = 0.5\)</span>, when flipping the coin <span class="math inline">\(n=24\)</span> times. Figure <a href="Chap-03-01-probability-random-variables.html#fig:ch-03-BinomialDistribution-Cumulative">7.2</a> gives the corresponding cumulative distributions.
+<!-- add some more explanation --></p>
+<div class="figure" style="text-align: center"><span id="fig:ch-03-BinomialDistribution-Mass"></span>
+<img src="I2DA_files/figure-html/ch-03-BinomialDistribution-Mass-1.png" alt="Examples of the Binomial distribution. The $y$-axis give the probability of seeing $k$ heads when flipping a coin $n=24$ times with a bias of either $\theta = 0.25$ or $\theta = 0.5$." width="672" />
+<p class="caption">
+Figure 7.1: Examples of the Binomial distribution. The <span class="math inline">\(y\)</span>-axis give the probability of seeing <span class="math inline">\(k\)</span> heads when flipping a coin <span class="math inline">\(n=24\)</span> times with a bias of either <span class="math inline">\(\theta = 0.25\)</span> or <span class="math inline">\(\theta = 0.5\)</span>.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:ch-03-BinomialDistribution-Cumulative"></span>
+<img src="I2DA_files/figure-html/ch-03-BinomialDistribution-Cumulative-1.png" alt="Examples of the cumulative distribution of the Binomial. The $y$-axis gives the probability of seeing $k$ or less outcomes of heads when flipping a coin $n=24$ times with a bias of either $\theta = 0.25$ or $\theta = 0.5$." width="672" />
+<p class="caption">
+Figure 7.2: Examples of the cumulative distribution of the Binomial. The <span class="math inline">\(y\)</span>-axis gives the probability of seeing <span class="math inline">\(k\)</span> or less outcomes of heads when flipping a coin <span class="math inline">\(n=24\)</span> times with a bias of either <span class="math inline">\(\theta = 0.25\)</span> or <span class="math inline">\(\theta = 0.5\)</span>.
+</p>
+</div>
+</div>
+<p>For a continuous random variable <span class="math inline">\(X\)</span>, the probability <span class="math inline">\(P(X = x)\)</span> will usually be zero: it is virtually impossible that we will see precisely the value <span class="math inline">\(x\)</span> realized in a random event that can realize uncountably many numerical values of <span class="math inline">\(X\)</span>. However, <span class="math inline">\(P(X \le x)\)</span> does take workable values and so we define the cumulative distribution function <span class="math inline">\(F_X\)</span> associated with <span class="math inline">\(X\)</span> as:
+<span class="math display">\[
+  F_X(x) = P(X \le x)
+\]</span>
+Instead of a probability <strong>mass</strong> function, we derive a <strong>probability density function</strong> from the cumulative function as:
+<span class="math display">\[
+  f_X(x) = F&#39;(x)
+\]</span>
+A probability density function can take values greater than one, unlike a probability mass
+function.</p>
+<div class="infobox">
+<p><strong>Example.</strong> The <strong>Gaussian or Normal distribution</strong> characterizes many natural distributions of measurements which are symmetrically spread around a central tendency. It is defined as:
+<span class="math display">\[
+    \mathcal{N}(X = x ; \mu, \sigma) = \frac{1}{\sqrt{2 \sigma^2 \pi}} \exp \left ( -
+      \frac{(x-\mu)^2}{2 \sigma^2} \right)
+\]</span>
+where parameter <span class="math inline">\(\mu\)</span> is the <em>mean</em>, the central tendency, and parameter <span class="math inline">\(\sigma\)</span> is the <em>standard deviation</em>. Figure <a href="Chap-03-01-probability-random-variables.html#fig:ch-03-NormalDistribution-Density">7.3</a> gives examples of the probability density function of two normal distributions. Figure <a href="Chap-03-01-probability-random-variables.html#fig:ch-03-NormalDistribution-Cumulative">7.4</a> gives the corresponding cumulative distribution functions.</p>
+<div class="figure" style="text-align: center"><span id="fig:ch-03-NormalDistribution-Density"></span>
+<img src="I2DA_files/figure-html/ch-03-NormalDistribution-Density-1.png" alt="Examples of the Normal distribution. In both cases $\mu = 0$, once with $\sigma = 1$ and once with $\sigma = 4$" width="672" />
+<p class="caption">
+Figure 7.3: Examples of the Normal distribution. In both cases <span class="math inline">\(\mu = 0\)</span>, once with <span class="math inline">\(\sigma = 1\)</span> and once with <span class="math inline">\(\sigma = 4\)</span>
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:ch-03-NormalDistribution-Cumulative"></span>
+<img src="I2DA_files/figure-html/ch-03-NormalDistribution-Cumulative-1.png" alt="Examples of the cumulative normal distribution corresponding to the previous probability density functions." width="672" />
+<p class="caption">
+Figure 7.4: Examples of the cumulative normal distribution corresponding to the previous probability density functions.
+</p>
+</div>
+</div>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="Chap-03-08-model-criticism.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="logistic-regression.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="conditional-probability.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="expected-value-variance.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
