@@ -99,3 +99,68 @@ mc_data_cleaned %>%
 
 <!-- Homework: -->
 <!-- - calculate bs 95% CI for vector [1,2,3] by hand! -->
+
+
+## Co-variance & correlation
+
+Covariance:
+
+$$cov(x,y) = \frac{1}{n-1} \ \sum_{i=1}^n (x_i - \bar{x}) \ (y_i - \bar{y})$$
+
+There is a visually intuitive geometric interpretation of covariance. To see this, let's look at a short contrived example. 
+
+```{r}
+contrived_example <- 
+  tribble(
+    ~x,   ~y,
+    2,    2,
+    2.5,  4,
+    3.5,  2.5,
+    4,    3.5
+  )
+```
+
+First, notice that the mean of `x` and `y` is 3:
+
+```{r}
+means_contr_example <- map_df(contrived_example, mean)
+means_contr_example
+```
+
+We can then compute the covariance as follows:
+
+```{r}
+contrived_example <- 
+  contrived_example %>% 
+  mutate(
+    area_rectangle =               (x-mean(x)) * (y - mean(y)),
+    covariance     =  1/ (n()-1) * sum((x-mean(x)) * (y - mean(y)))
+  )
+contrived_example
+```
+
+
+```{r}
+contrived_example %>% 
+  ggplot(aes(x, y)) +
+  geom_rect(
+    aes(
+      xmin = map_dbl(x, function(i) {min(i, means_contr_example$x)}),
+      ymin = map_dbl(y, function(i) {min(i, means_contr_example$y)}),
+      xmax = map_dbl(x, function(i) {max(i, means_contr_example$x)}),
+      ymax = map_dbl(y, function(i) {max(i, means_contr_example$y)}),
+      fill = area_rectangle
+    )
+  ) +
+  geom_point(color = "darkorange", size = 4) +
+  geom_point(data = means_contr_example, color = "white", size = 10) +
+  theme(legend.position = "none") +
+  ggtitle("Rectangular areas contributing to the computation of covariance")
+```
+
+We can, of course, also calculate covariance just with a built-in base R function, `cov`:
+
+```{r}
+with(contrived_example, cov(x,y))
+```
+
