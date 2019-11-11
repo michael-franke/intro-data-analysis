@@ -6,10 +6,149 @@
 <img src="visuals/badge-data-wrangling.png" alt="badge-data-wrangling">  
 </div>  
 
-- data wrangling (practical R)
-  - tidy data (read, write, ...)
-  - `pivot_longer`, `pivot_wider`, `join` ...
-    - check `vignette("pivot")`
-  - nested tibbles
-  - `group_by`, `summarize`, ...
+The information relevant for our analysis goals is not always directly accessible. Sometimes we must first uncover it effortfully from an inconvenient representation. Also, sometimes data must be cleaned (ideally: by *a priori* specified criteria) by removing data points that are deemed of insufficient quality for a particular goal. All of this, and more, is the domain of **data wrangling**: preprocessing, cleaning, reshaping, renaming etc. This chapter introduces the concept of **tidy data** in Section \@ref(Chap-02-02-data-tidy-data). Section \@ref(Chap-02-02-data-IO) describes how to read data from and write data to files. We then visit a mixed bag of common problems with data plucked from the wild world out there in Section \@ref(Chap-02-02-data-preprocessing-cleaning). We will learn about grouping operations in Section \@ref(Chap-02-02-data-grouping-nesting) Finally, we look at a concrete application in Section \@ref(Chap-02-02-data-case-study-KoF).
 
+```{block, type='infobox'}
+The learning goals for this chapter are:
+
+- understand notion of *tidy data*
+- be able to read from and write data to files
+- be able to solve common problems of data preprocessing and cleaning
+```
+
+
+## Tidy data {#Chap-02-02-data-tidy-data}
+
+The same data can be represented in multiple ways. There is even room for variance in the class of rectangular representations of data. Some manners of representations are more useful for certain purposes than for others. For data analysis (plotting, statistical analyses) we prefer to represent our data as (rectangular) **tidy data**.
+
+### Running example
+
+Consider the example of student grades for two exams in a course. A compact way of representing the data for visual digestion is the following representation:
+
+
+```{r , echo = T}
+exam_results_visual <- tribble(
+  ~exam,       ~"Rozz",   ~"Andrew",   ~"Siouxsie",
+  "midterm",   "1.3",     "2.0",       "1.7",
+  "final"  ,   "2.3",     "1.7",       "1.0"
+)
+exam_results_visual
+```
+
+This is how such data would frequently be represented, e.g., in tables in a journal. Indeed, Rmarkdown helps us present this data in an appetizing manner, e.g., in Table \@ref(tab:Ch-02-01-exam-results-untidy), which is produced by the code below:
+
+```{r Ch-02-01-exam-results-untidy}
+knitr::kable(
+  exam_results_visual,
+  caption = "Fictitious exam results of fictitious students.", 
+  booktabs = TRUE
+)
+```
+
+
+Though highly perspicuous, this representation of the data is not tidy, in the special technical sense we endorse here. A tidy representation of the course results could be this:
+
+
+```{r}
+exam_results_tidy <- tribble(
+  ~student,    ~exam,      ~grade,
+  "Rozz",      "midterm",  1.3,
+  "Andrew",    "midterm",  2.0,
+  "Siouxsie",  "midterm",  1.7,
+  "Rozz",      "final",    2.3,
+  "Andrew",    "final",    1.7,
+  "Siouxsie",  "final",    1.0
+)
+exam_results_tidy
+```
+
+### Definition of *tidy data*
+
+Following @Wickham2014:Tidy-Data, a tidy representation of (rectangular) data is defined as one where:
+
+1. each variable forms a column,
+2. each observation forms a row, and
+3. each type of observational unit forms a table.
+
+Any data set that is not tidy is **messy data**. Messy data that satisfies the first two contraints, but not the third will be called **almost tidy data** in this course. We will work, wherever possible, with data that is at least almost tidy. Figure \@ref(fig:02-02-tidy-data-picture) shows a graphical representation of the concept of tidy data.
+
+```{r 02-02-tidy-data-picture, echo = F, fig.cap="Organization of tidy data (taken from @wickham2016)."}
+knitr::include_graphics("visuals/tidy-data-R4DS.png")
+```
+
+<!-- TODO: explain difference between truly tidy and almost tidy -->
+
+### Excursion: non-redundant data
+
+The final condition in the definition of tidy data is not particularly important for us here (since we will make do with 'almost tidy data'), but to understand it nonetheless consider the following data set:
+
+```{r}
+exam_results_overloaded <- tribble(
+  ~student,    ~stu_number,    ~exam,      ~grade,
+  "Rozz",      "666",          "midterm",  1.3,
+  "Andrew",    "1969",         "midterm",  2.0,
+  "Siouxsie",  "3.14",         "midterm",  1.7,
+  "Rozz",      "666",          "final",    2.3,
+  "Andrew",    "1969",         "final",    1.7,
+  "Siouxsie",  "3.14",         "final",    1.0
+)
+exam_results_overloaded
+```
+
+This table is not tidy in an intuitive sense because it includes redundancy. Why list the student numbers twice, once with each observation of exam score? The table is not tidy in the technical sense that not every observational unit forms a table, i.e., the observation of student numbers and the observation of exam scores should be stored independently in different tables, like so:
+
+```{r}
+# same as before
+exam_results_tidy <- tribble(
+  ~student,    ~exam,      ~grade,
+  "Rozz",      "midterm",  1.3,
+  "Andrew",    "midterm",  2.0,
+  "Siouxsie",  "midterm",  1.7,
+  "Rozz",      "final",    2.3,
+  "Andrew",    "final",    1.7,
+  "Siouxsie",  "final",    1.0
+)
+# additional table with student numbers
+student_numbers <- tribble(
+  ~student,    ~student_number,
+  "Rozz",      "666",   
+  "Andrew",    "1969",
+  "Siouxsie",  "3.14"
+)
+```
+
+Notice that, although the information is distributed over two tibbles, it is linked by the common column `student`. If we really need to bring all of the information together, the tidyverse has a quick and elegant solution:
+
+```{r}
+full_join(exam_results_tidy, student_numbers, by = "student")
+```
+
+### Data preprocessing 
+
+The tidyverse strongly encourages the use of tidy data, or at least almost tidy data. If your data is (almost) tidy, you can be reasonably sure that you can plot and analyze the data without additional wrangling. 
+
+To bring your data into a tidy format, or an almost tidy format, you will usually want to perform a step of **data pre-processing**. Section \@ref(Chap-02-02-data-preprocessing-cleaning) describes tools for doing this.
+
+
+## Data in, data out {#Chap-02-02-data-IO}
+
+Reading a data set from a file:
+
+```{r, eval = F}
+fresh_raw_data <- read_csv("PATH/FILENAME_RAW_DATA.csv")
+```
+
+Writing to a csv file:
+
+<!-- TODO: mention reproducible workflow -->
+
+```{r, eval = F}
+write_csv(processed_data, "PATH/FILENAME_PROCESSED_DATA.csv")
+```
+
+
+## Data pre-processing and cleaning {#Chap-02-02-data-preprocessing-cleaning}
+
+## Grouped operations {#Chap-02-02-data-grouping-nesting}
+
+## Case study: the King of France {#Chap-02-02-data-case-study-KoF}
