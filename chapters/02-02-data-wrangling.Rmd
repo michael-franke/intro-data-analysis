@@ -164,7 +164,7 @@ This data is "too wide". We can make it longer with the function `pivot_longer` 
 exam_results_visual %>% 
   pivot_longer(
     # pivot every column except the first 
-    cols = - 1,  
+    cols = - 1,
     # name of new column which contains the
     # names of the columns to be "gathered"
     names_to = "student",
@@ -182,8 +182,6 @@ What `pivot_longer` does, in general, is take a bunch of columns and gather the 
 1. which columns to spin around (function argument `cols`)
 2. the name of the to-be-created new value column (function argument `values_to`)
 3. the name of the to-be-created new name column (function argument `names_to`)
-
-<!-- TODO: explain `tidyselect` speciication -->
 
 #### Making too long data wider with `pivot_wider`
 
@@ -204,8 +202,6 @@ To fix a data representation that is too long, we can make it wider with the hel
 ```{r}
 mixed_results_too_long %>% 
   pivot_wider(
-    # which columns identify an associated measurement
-    id_cols = student,
     # column containing the names of the new columns
     names_from = what,
     # column containing the values of the new columns
@@ -213,6 +209,53 @@ mixed_results_too_long %>%
   )
 ```
 
+In general, `pivot_wider` picks out two columns, one column of values to distribute into new to-be-created columns, and one vector of names or groups which contains the information about the, well, names of the to-be-created new columns. There are more refined options for `pivot_wider` some of which we will encounter in the context of concrete cases of application.
+
+### Subsetting columns and rows
+
+If a data set contains too much information for your current purposes, you can discard irrelevant (or unhelpful) rows and columns. The function `filter` takes a Boolean expression and returns only those rows of which the Boolean expression is true:
+
+```{r}
+exam_results_tidy %>% 
+  # show only entries with grades better than 1.7
+  filter(grade <= 1.7)
+```
+
+The function `select` allows to pick out a subset of columns. Interestingly, it can also be used to reorder columns, because the order in which column names are specified matches the order in the returned tibble.
+
+```{r}
+exam_results_tidy %>% 
+  select(grade, exam)
+```
+
+#### Tidy selection of column names
+
+To select the colums in several functions within the tidyverse, such as `pivot_longer` or `select`, there are useful helper functions from the `tidyselect` package. Here are some examples:^[The helpers from the `tidyselect` package also accept regular expressions.]
+
+```{r, eval = F}
+# bogus code for illustration of possibilities!
+SOME_DATA %>% 
+  select( ... # could be one of the following
+        # all columns indexed 2, 3, ..., 10
+        2:10
+        # all columns except the one called "COLNAME"
+        - COLNAME
+        # all columns with names starting with "STRING"
+       ... starts_with("STRING")
+       # all columns with names ending with "STRING"
+       ... ends_with("STRING")
+       # all columns with names containing "STRING"
+       ... contains("STRING")
+       # all columns with names of the form "Col_i" with i = 1, ..., 10
+       ... num_range("Col_", 1:10)
+  )
+```
+
+
+
+### Adding, changing and renaming columns
+
+`mutate`, `rename`
 
 
 ## Grouped operations {#Chap-02-02-data-grouping-nesting}
