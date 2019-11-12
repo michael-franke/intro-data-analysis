@@ -19,13 +19,15 @@ The learning goals for this chapter are:
 
 ## Data in, data out {#Chap-02-02-data-IO}
 
-Reading a data set from a file:
+The `readr` package handles the reading and writing of data stored in text files.^[Other packages help with reading data from and writing data to other file types, such as excel sheets. Look at the [data I/O cheat sheet](https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf) for more information.] Here is a cheat sheet on the topice: [data I/O cheat sheet](https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf). In this course will mostly deal with data stored in CSV files.
+
+Reading a data set from a CSV file works with the `read_csv` function:
 
 ```{r, eval = F}
 fresh_raw_data <- read_csv("PATH/FILENAME_RAW_DATA.csv")
 ```
 
-Writing to a csv file:
+Writing to a csv file can be done with the `write_csv` function:
 
 <!-- TODO: mention reproducible workflow -->
 
@@ -33,6 +35,12 @@ Writing to a csv file:
 write_csv(processed_data, "PATH/FILENAME_PROCESSED_DATA.csv")
 ```
 
+If you want to use a different delimiter (between cells) than a comma, you can use `read_delim` and `write_delim` for example, which take an additional argument `delim` to be set to the delimiter in question. 
+
+```{r, eval = F}
+# reading data from a file where cells are (unconventionally) delimitted by string "|"
+data_from_weird_file <- read_delim("WEIRD_DATA_FILE.TXT", delim = "|")
+```
 
 ## Tidy data {#Chap-02-02-data-tidy-data}
 
@@ -64,7 +72,6 @@ knitr::kable(
 
 
 Though highly perspicuous, this representation of the data is not tidy, in the special technical sense we endorse here. A tidy representation of the course results could be this:
-
 
 ```{r}
 exam_results_tidy <- tribble(
@@ -183,6 +190,8 @@ What `pivot_longer` does, in general, is take a bunch of columns and gather the 
 2. the name of the to-be-created new value column (function argument `values_to`)
 3. the name of the to-be-created new name column (function argument `names_to`)
 
+For different ways of selecting columns to pivot around, see Section \@ref(Chap-02-02-tidy-selection) below.
+
 #### Making too long data wider with `pivot_wider`
 
 Consider the following example of data which untidy because it is too long:
@@ -228,7 +237,7 @@ exam_results_tidy %>%
   select(grade, exam)
 ```
 
-#### Tidy selection of column names
+### Tidy selection of column names {#Chap-02-02-tidy-selection}
 
 To select the colums in several functions within the tidyverse, such as `pivot_longer` or `select`, there are useful helper functions from the `tidyselect` package. Here are some examples:^[The helpers from the `tidyselect` package also accept regular expressions.]
 
@@ -252,12 +261,78 @@ SOME_DATA %>%
 ```
 
 
-
 ### Adding, changing and renaming columns
 
-`mutate`, `rename`
+To add a new column, or to change an existing one use function `mutate`, like so:
 
+```{r}
+exam_results_tidy %>% 
+  mutate(
+    # add a new column called 'passed' depending on grade
+    # [NB: severe passing conditions in this class!!]
+    passed = grade <= 1.7, 
+    # change an existing column; here: change
+    # character column 'exam' to ordered factor
+    exam = factor(exam, ordered = T)
+  )
+```
+
+If you want to rename a column, function `rename` is what you want:
+
+```{r}
+exam_results_tidy %>% 
+  # rename existing colum "student" to new name "participant"
+  # [NB: rename takes the new name first]
+  rename(participant = student)
+```
 
 ## Grouped operations {#Chap-02-02-data-grouping-nesting}
+
+A frequently occurring problem in data analysis is to obtain a summary statistic (see Section \@ref(Chap-02-03-summary-statistics)) for different subsets of data. For example, we might want to calculate the average score for each student in our class. We could do that by filtering like so (notice that `pull` gives you the column vector specified):
+
+```{r}
+# extracting mean grade for Rozz
+mean_grade_Rozz <- exam_results_tidy %>% 
+  filter(student == "Rozz") %>% pull(grade) %>% mean
+mean_grade_Rozz
+```
+
+But then we need to do that two more times, so we shouldn't copy-paste code, so we write a function and use `mutate` to add a mean for each student:
+
+```{r}
+get_mean_for_student = function(student_name) {
+  exam_results_tidy %>% 
+  filter(student == student_name) %>% pull(grade) %>% mean
+}
+
+map_dbl(
+  exam_results_tidy %>% pull(student) %>% unique,
+  get_mean_for_student
+)
+```
+
+Also not quite satisfactory, clumsy and error-prone. Enter, grouping in the tidyverse. If we want to apply a particular operation to all combinations of levels of different variables (no matter whether they are encoded as factors or not when we group), we can do this with the function `group_by`, followed by either a call to `mutate` or `summarise`. Check this example:
+
+```{r}
+exam_results_tidy %>% 
+  group_by(student) %>% 
+  summarise(
+    student_mean = mean(grade)
+  )
+```
+
+The funciton `summarise` returns a single row for each combination of levels of grouping variables. If we use the function `mutate` instead, the summary statistic is added (repeatedly) in each of the original rows:
+
+```{r}
+exam_results_tidy %>% 
+  group_by(student) %>% 
+  mutate(
+    student_mean = mean(grade)
+  )
+```
+
+The latter can sometimes be handy, for example when overlaying a plot of the data with grouped means, for instance.
+
+<!-- TODO: summarizing to return tibbles -->
 
 ## Case study: the King of France {#Chap-02-02-data-case-study-KoF}
