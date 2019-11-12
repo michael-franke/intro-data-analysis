@@ -1,7 +1,7 @@
 
 ## King of France {#app-93-data-sets-king-of-france}
 
-### Nature, origin and rationale of the data
+### Nature, origin and rationale of the data {#app-93-data-sets-king-of-france-background}
 
 A **presupposition** of a sentence is a piece of information that is necessary for the sentence to make sense, but which is not communicated explicitly. If I say "Jones chained my camel to a tree", this sentence pressupposes, somewhat incredibly, that I own a camel. If it is false that I own a camel, the sentence makes no sense. Yet, if I say it and you say: "I disagree" you take issue with my claim about chaining, not about me owning a camel. In this sense, the presupposition is not part of the explicitly contributed content (it is "not at issue content", as the linguists would say). 
 
@@ -90,21 +90,22 @@ We will be concerned with the following two research questions:^[These research 
 First, load and glimpse at the data:
 
 ```{r}
-d_raw <- read_csv('data_sets/king-of-france_data_raw.csv')
-glimpse(d_raw)
+data_KoF_raw <- read_csv('data_sets/king-of-france_data_raw.csv')
+glimpse(data_KoF_raw)
 ```
 
 The most important variables in this data set are:
 
 - `submission_id`: unique identifier for each participant
 - `trial_type`: whether the trial was of the category `filler`, `main`, `practice` or `special`, where the latter encodes the "background checks"
-- `item_version`: the current item's vignette number (applies only to trials of type `main` and `special`)
+- `item_version`: the condition which the test sentence belongs to (only given for trials of type `main` and `special`)
 - `response`: the answer ("TRUE" or "FALSE") on each trial
+- `vignette`: the current item's vignette number (applies only to trials of type `main` and `special`)
 
 As the variable names used in the raw data are not ideal, we will pre-process the raw data a bit for easier analysis.
 
 ```{r}
-d_processed <-  d_raw %>% 
+data_KoF_processed <-  data_KoF_raw %>% 
   # discard practice trials
   filter(trial_type != "practice") %>% 
   mutate(
@@ -119,7 +120,7 @@ d_processed <-  d_raw %>%
         levels = c(str_c("Condition ", c(0, 1, 6, 9, 10)), "background check", "filler")
       )
   )
-# write_csv(d_processed, "data_sets/king-of-france_data_processed.csv")
+# write_csv(data_KoF_processed, "data_sets/king-of-france_data_processed.csv")
 ```
 
 
@@ -136,7 +137,7 @@ We clean the data in two consecutive steps:
 # look at error rates for filler sentences by subject
 # mark every subject with < 0.5 proportion correct
 
-subject_error_rate <- d_processed %>% 
+subject_error_rate <- data_KoF_processed %>% 
   filter(trial_type == "filler") %>% 
   group_by(submission_id) %>% 
   summarise(
@@ -165,7 +166,7 @@ Apply the cleaning step:
 ```{r}
 # add info about error rates and exclude outlier subject(s)
 d_cleaned <- 
-  full_join(d_processed, subject_error_rate, by = "submission_id") %>% 
+  full_join(data_KoF_processed, subject_error_rate, by = "submission_id") %>% 
   filter(outlier_subject == FALSE)
 
 ```
@@ -224,7 +225,7 @@ d_cleaned %>%
 Plot for each condition & vignette:
 
 ```{r}
-d_processed %>% 
+data_KoF_processed %>% 
   filter(trial_type == "main") %>%
   droplevels() %>% 
   group_by(condition, vignette) %>% 

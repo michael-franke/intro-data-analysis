@@ -336,3 +336,160 @@ The latter can sometimes be handy, for example when overlaying a plot of the dat
 <!-- TODO: summarizing to return tibbles -->
 
 ## Case study: the King of France {#Chap-02-02-data-case-study-KoF}
+
+Let's go through one case study of data preprocessing. We look at the example introduced and fully worked out in Appendix \@ref(app-93-data-sets-king-of-france). (Please read Section \@ref(app-93-data-sets-king-of-france-background) to find out more about where this data set is coming from.)
+
+The raw data set is stored in the GitHub repository that also hosts this web-book. It can be loaded using:
+
+```{r, echo = F}
+data_KoF_raw <- read_csv('data_sets/king-of-france_data_raw.csv')
+```
+
+
+```{r eval = F}
+data_KoF_raw <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/king-of-france_data_raw.csv'))
+```
+
+We can then get a glimpse at the data using:
+
+```{r}
+glimpse(data_KoF_raw )
+```
+
+The variables in this data set are:
+
+- `submission_id`: unique identifier for each participant
+- `RT`: the reaction time for each decision
+- `age`: the (self-reported) age of the participant
+- `comments`: the (optional) comments each participant may have given
+- `item_version`: the condition which the test sentence belongs to (only given for trials of type `main` and `special`)
+- `correct_answer`: for trials of type `filler` and `special` what the true answer should have been
+- `education`: the (self-reported) education level with options `Graduated College`, `Graduated High School`, `Higher Degree`
+- `gender`: (self-reported) gender
+- `languages`: (self-reported) native languages
+- `question`: the sentence to be judged true or false
+- `response`: the answer ("TRUE" or "FALSE") on each trial
+- `trial_name`: whether the trial is a main or practice trials (levels `main_trials` and `practice_trials`)
+- `trial_number`: consecutive numbering of each participant's trial
+- `trial_type`: whether the trial was of the category `filler`, `main`, `practice` or `special`, where the latter encodes the "background checks"
+- `vignette`: the current item's vignette number (applies only to trials of type `main` and `special`)
+
+
+
+
+
+Let's have brief look at the comments (sometimes helpful, usually entertaining) and the self-reported native languages:
+
+```{r}
+data_KoF_raw %>% pull(comments) %>% unique
+```
+
+```{r}
+data_KoF_raw %>% pull(languages) %>% unique
+```
+
+We might wish to exclude people who do not include "English" as one of their native languages in some studies. Here, we do not since we also have strong, more specific filters on comprehension (see below). Since we are not going to use this information later on, we might as well discard it now:
+
+```{r}
+data_KoF_raw <- data_KoF_raw %>% 
+  select(-languages, - comments, -age, - RT, - education, - gender)
+```
+
+
+But even after pruning irrelevant columns, this data set is still not ideal. We need to preprocess it more thoroughly to make it more intuitively managable. For example, the information in column `trial_name` does not give the trial's name in an intuitive sense, but its type: whether it is a practice or a main trial. But this information, and more, is also represented in the column `trial_type`. We will therefore remove the column `trial_name` completely.
+
+```{r}
+data_KoF_raw <- data_KoF_raw %>% 
+  select(-trial_name)
+```
+
+The column `item_version` contains information about the experimental condition. Indeed, we would like to have a column called `condition` and it should, ideally, also contain useful information for the cases where `trial_type` is not `main` or `special`. That is why we preprocess the data by creating an informative column `condition` in which we learn of every row whether it belongs to one of the 5 experimental conditions, and if not whether it is a filler or a "background check" (= special) trial.
+
+```{r}
+data_KoF_processed <-  data_KoF_raw %>% 
+  # discard practice trials
+  filter(trial_type != "practice") %>% 
+  mutate(
+    # add a 'condition' variable
+    condition = case_when(
+      trial_type == "special" ~ "background check",
+      trial_type == "main" ~ str_c("Condition ", item_version),
+      TRUE ~ "filler"
+    ) %>% 
+      # make the new 'condition' variable a factor
+      factor( 
+        ordered = T,
+        levels = c(
+          str_c("Condition ", c(0, 1, 6, 9, 10)), 
+          "background check", "filler"
+        )
+      )
+  )
+# write_csv(data_KoF_processed, "data_sets/king-of-france_data_processed.csv")
+```
+
+
+<!-- TODO: mention reproducible workflow -->
+
+### Cleaning the data
+
+We clean the data in two consecutive steps:
+
+1. Remove all data from any participant who got more than 50% of the answer to filler material wrong.
+2. Remove individual main trials if the corresponding "background check" question was answered wrongly.
+
+#### Cleaning by-participant
+
+```{r}
+# look at error rates for filler sentences by subject
+# mark every subject as an outlier when they 
+# have a proportion of correct responses of less than 0.5 
+subject_error_rate <- data_KoF_processed %>% 
+  filter(trial_type == "filler") %>% 
+  group_by(submission_id) %>% 
+  summarise(
+    proportion_correct = mean(correct_answer == response),
+    outlier_subject = proportion_correct < 0.5
+  ) %>% 
+  arrange(proportion_correct)
+```
+
+
+
+
+Apply the cleaning step:
+
+```{r}
+# add info about error rates and exclude outlier subject(s)
+d_cleaned <- 
+  full_join(data_KoF_processed, subject_error_rate, by = "submission_id") %>% 
+  filter(outlier_subject == FALSE)
+
+```
+
+
+#### Cleaning by-trial
+
+
+```{r}
+# exclude every critical trial whose 'background' test question was answered wrongly
+
+d_cleaned <- 
+  d_cleaned %>% 
+  # select only the 'background question' trials
+  filter(trial_type == "special") %>% 
+  # is the background question answered correctly?
+  mutate(
+    background_correct = correct_answer == response
+  ) %>%
+  # select only the relevant columns
+  select(submission_id, vignette, background_correct) %>%
+  # right join lines to original data set 
+  right_join(d_cleaned, by = c("submission_id", "vignette")) %>% 
+  # remove all special trials, as well as main trials with incorrect background check
+  filter(trial_type == "main" & background_correct == TRUE)
+
+# write_csv(d_cleaned, "data_sets/king-of-france_data_cleaned.csv")
+```
+
+
