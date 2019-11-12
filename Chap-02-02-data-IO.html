@@ -190,12 +190,13 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="4.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html"><i class="fa fa-check"></i><b>4.3</b> Data manipulation: the basics</a><ul>
 <li class="chapter" data-level="4.3.1" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#pivoting"><i class="fa fa-check"></i><b>4.3.1</b> Pivoting</a></li>
 <li class="chapter" data-level="4.3.2" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#subsetting-columns-and-rows"><i class="fa fa-check"></i><b>4.3.2</b> Subsetting columns and rows</a></li>
-<li class="chapter" data-level="4.3.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#adding-changing-and-renaming-columns"><i class="fa fa-check"></i><b>4.3.3</b> Adding, changing and renaming columns</a></li>
+<li class="chapter" data-level="4.3.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#Chap-02-02-tidy-selection"><i class="fa fa-check"></i><b>4.3.3</b> Tidy selection of column names</a></li>
+<li class="chapter" data-level="4.3.4" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#adding-changing-and-renaming-columns"><i class="fa fa-check"></i><b>4.3.4</b> Adding, changing and renaming columns</a></li>
 </ul></li>
 <li class="chapter" data-level="4.4" data-path="Chap-02-02-data-grouping-nesting.html"><a href="Chap-02-02-data-grouping-nesting.html"><i class="fa fa-check"></i><b>4.4</b> Grouped operations</a></li>
 <li class="chapter" data-level="4.5" data-path="Chap-02-02-data-case-study-KoF.html"><a href="Chap-02-02-data-case-study-KoF.html"><i class="fa fa-check"></i><b>4.5</b> Case study: the King of France</a></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="summary-statistics.html"><a href="summary-statistics.html"><i class="fa fa-check"></i><b>5</b> Summary statistics</a><ul>
+<li class="chapter" data-level="5" data-path="Chap-02-03-summary-statistics.html"><a href="Chap-02-03-summary-statistics.html"><i class="fa fa-check"></i><b>5</b> Summary statistics</a><ul>
 <li class="chapter" data-level="5.1" data-path="exploring-numerical-data-in-a-vector-02-02-exploring.html"><a href="exploring-numerical-data-in-a-vector-02-02-exploring.html"><i class="fa fa-check"></i><b>5.1</b> Exploring numerical data in a vector {#02-02-exploring}</a><ul>
 <li class="chapter" data-level="5.1.1" data-path="exploring-numerical-data-in-a-vector-02-02-exploring.html"><a href="exploring-numerical-data-in-a-vector-02-02-exploring.html#bootstrapped-95-confidence-intervals"><i class="fa fa-check"></i><b>5.1.1</b> Bootstrapped 95% confidence intervals</a></li>
 </ul></li>
@@ -344,11 +345,21 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="Chap-02-02-data-IO" class="section level2">
 <h2><span class="header-section-number">4.1</span> Data in, data out</h2>
-<p>Reading a data set from a file:</p>
+<p>The <code>readr</code> package handles the reading and writing of data stored in text files.<a href="#fn13" class="footnote-ref" id="fnref13"><sup>13</sup></a> Here is a cheat sheet on the topice: <a href="https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf">data I/O cheat sheet</a>. In this course will mostly deal with data stored in CSV files.</p>
+<p>Reading a data set from a CSV file works with the <code>read_csv</code> function:</p>
 <div class="sourceCode" id="cb145"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb145-1" data-line-number="1">fresh_raw_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;PATH/FILENAME_RAW_DATA.csv&quot;</span>)</a></code></pre></div>
-<p>Writing to a csv file:</p>
+<p>Writing to a csv file can be done with the <code>write_csv</code> function:</p>
 <!-- TODO: mention reproducible workflow -->
 <div class="sourceCode" id="cb146"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb146-1" data-line-number="1"><span class="kw">write_csv</span>(processed_data, <span class="st">&quot;PATH/FILENAME_PROCESSED_DATA.csv&quot;</span>)</a></code></pre></div>
+<p>If you want to use a different delimiter (between cells) than a comma, you can use <code>read_delim</code> and <code>write_delim</code> for example, which take an additional argument <code>delim</code> to be set to the delimiter in question.</p>
+<div class="sourceCode" id="cb147"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb147-1" data-line-number="1"><span class="co"># reading data from a file where cells are (unconventionally) delimitted by string &quot;|&quot;</span></a>
+<a class="sourceLine" id="cb147-2" data-line-number="2">data_from_weird_file &lt;-<span class="st"> </span><span class="kw">read_delim</span>(<span class="st">&quot;WEIRD_DATA_FILE.TXT&quot;</span>, <span class="dt">delim =</span> <span class="st">&quot;|&quot;</span>)</a></code></pre></div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="13">
+<li id="fn13"><p>Other packages help with reading data from and writing data to other file types, such as excel sheets. Look at the <a href="https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf">data I/O cheat sheet</a> for more information.<a href="Chap-02-02-data-IO.html#fnref13" class="footnote-back">↩</a></p></li>
+</ol>
 </div>
             </section>
 
