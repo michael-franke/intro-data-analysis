@@ -143,7 +143,9 @@ full_join(exam_results_tidy, student_numbers, by = "student")
 
 ### Pivoting
 
-The tidyverse strongly encourages the use of tidy data, or at least almost tidy data. If your data is (almost) tidy, you can be reasonably sure that you can plot and analyze the data without additional wrangling. If your data is not (almost) tidy because it is too wide or too long (see below), what is required is a joyful round of pivoting.
+The tidyverse strongly encourages the use of tidy data, or at least almost tidy data. If your data is (almost) tidy, you can be reasonably sure that you can plot and analyze the data without additional wrangling. If your data is not (almost) tidy because it is too wide or too long (see below), what is required is a joyful round of pivoting. There are two directions of pivoting: making data longer, and making data wider.
+
+#### Making too wide data longer with `pivot_longer`
 
 Consider the previous example of messy data again:
 
@@ -156,22 +158,62 @@ exam_results_visual <- tribble(
 exam_results_visual
 ```
 
-This data is "too wide". We can make it wider with `pivot_longer`:
+This data is "too wide". We can make it longer with the function `pivot_longer` from the `tidyr` package. Check out the example below before we plunge into a description of `pivot_longer`.
 
 ```{r}
 exam_results_visual %>% 
   pivot_longer(
     # pivot every column except the first 
-    cols = -1,  
-    # name of new column
-    names_to = "student"
-  ) 
+    cols = - 1,  
+    # name of new column which contains the
+    # names of the columns to be "gathered"
+    names_to = "student",
+    # name of new column which contains the values
+    # of the cells which now form a new column
+    values_to = "grade"
+  ) %>% 
+  # optional reordering of columns (to make 
+  # the output exactly like `exam_results_tidy`)
+  select(student, exam, grade)
+```
 
+What `pivot_longer` does, in general, is take a bunch of columns and gather the values of all cells in these columns into a single, new column, the so-called *value column*, i.e., the column with the values of the cells to be gathered. If `pivot_longer` stopped here, we would loose information about which cell values belonged to which original column. Therefore, `pivot_longer` also creates a second new column, the so-called *name column*, i.e., the column with the names of the original columns that we gathered together. Consequently, in order to do its job, `pivot_longer` minimally needs three pieces of information:^[There are alternative possibilities for specifying names of the value and name column, which allow for more dynamic construction of strings. We will not cover all of these details here, but we will use some of these alternative specifications in subsequent examples.]
+
+1. which columns to spin around (function argument `cols`)
+2. the name of the to-be-created new value column (function argument `values_to`)
+3. the name of the to-be-created new name column (function argument `names_to`)
+
+<!-- TODO: explain `tidyselect` speciication -->
+
+#### Making too long data wider with `pivot_wider`
+
+Consider the following example of data which untidy because it is too long:
+
+```{r}
+mixed_results_too_long <- 
+  tibble(student = rep(c('Rozz', 'Andrew', 'Siouxsie'), times = 2),
+         what =    rep(c('grade', 'participation'), each = 3),
+         howmuch = c(2.7, 2.0, 1.0, 75, 93, 33))
+mixed_results_too_long
+```
+
+This data is untidy because it lumps two types of different measurements (a course grade, and the percentage of participation) in a single column. These are different variables, and so should be represented in different columns.
+
+To fix a data representation that is too long, we can make it wider with the help of the `pivot_wider` function from the `tidyr` package. We look at an example before looking at the general behavior of the `pivot_wider` function.
+
+```{r}
+mixed_results_too_long %>% 
+  pivot_wider(
+    # which columns identify an associated measurement
+    id_cols = student,
+    # column containing the names of the new columns
+    names_from = what,
+    # column containing the values of the new columns
+    values_from = howmuch
+  )
 ```
 
 
-
-To bring your data into a tidy format, or an almost tidy format, you will usually want to perform a step of **data pre-processing**. 
 
 ## Grouped operations {#Chap-02-02-data-grouping-nesting}
 
