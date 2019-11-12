@@ -344,7 +344,9 @@ code span.wa { color: #bf0303; } /* Warning */
 <h2><span class="header-section-number">4.3</span> Data manipulation: the basics</h2>
 <div id="pivoting" class="section level3">
 <h3><span class="header-section-number">4.3.1</span> Pivoting</h3>
-<p>The tidyverse strongly encourages the use of tidy data, or at least almost tidy data. If your data is (almost) tidy, you can be reasonably sure that you can plot and analyze the data without additional wrangling. If your data is not (almost) tidy because it is too wide or too long (see below), what is required is a joyful round of pivoting.</p>
+<p>The tidyverse strongly encourages the use of tidy data, or at least almost tidy data. If your data is (almost) tidy, you can be reasonably sure that you can plot and analyze the data without additional wrangling. If your data is not (almost) tidy because it is too wide or too long (see below), what is required is a joyful round of pivoting. There are two directions of pivoting: making data longer, and making data wider.</p>
+<div id="making-too-wide-data-longer-with-pivot_longer" class="section level4">
+<h4><span class="header-section-number">4.3.1.1</span> Making too wide data longer with <code>pivot_longer</code></h4>
 <p>Consider the previous example of messy data again:</p>
 <div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb157-1" data-line-number="1">exam_results_visual &lt;-<span class="st"> </span><span class="kw">tribble</span>(</a>
 <a class="sourceLine" id="cb157-2" data-line-number="2">  <span class="op">~</span>exam,       <span class="op">~</span><span class="st">&quot;Rozz&quot;</span>,   <span class="op">~</span><span class="st">&quot;Andrew&quot;</span>,   <span class="op">~</span><span class="st">&quot;Siouxsie&quot;</span>,</a>
@@ -357,25 +359,80 @@ code span.wa { color: #bf0303; } /* Warning */
 ##   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;   
 ## 1 midterm 1.3   2.0    1.7     
 ## 2 final   2.3   1.7    1.0</code></pre>
-<p>This data is “too wide”. We can make it wider with <code>pivot_longer</code>:</p>
+<p>This data is “too wide”. We can make it longer with the function <code>pivot_longer</code> from the <code>tidyr</code> package. Check out the example below before we plunge into a description of <code>pivot_longer</code>.</p>
 <div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb159-1" data-line-number="1">exam_results_visual <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb159-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
 <a class="sourceLine" id="cb159-3" data-line-number="3">    <span class="co"># pivot every column except the first </span></a>
-<a class="sourceLine" id="cb159-4" data-line-number="4">    <span class="dt">cols =</span> <span class="dv">-1</span>,  </a>
-<a class="sourceLine" id="cb159-5" data-line-number="5">    <span class="co"># name of new column</span></a>
-<a class="sourceLine" id="cb159-6" data-line-number="6">    <span class="dt">names_to =</span> <span class="st">&quot;student&quot;</span></a>
-<a class="sourceLine" id="cb159-7" data-line-number="7">  ) </a></code></pre></div>
+<a class="sourceLine" id="cb159-4" data-line-number="4">    <span class="dt">cols =</span> <span class="op">-</span><span class="st"> </span><span class="dv">1</span>,  </a>
+<a class="sourceLine" id="cb159-5" data-line-number="5">    <span class="co"># name of new column which contains the</span></a>
+<a class="sourceLine" id="cb159-6" data-line-number="6">    <span class="co"># names of the columns to be &quot;gathered&quot;</span></a>
+<a class="sourceLine" id="cb159-7" data-line-number="7">    <span class="dt">names_to =</span> <span class="st">&quot;student&quot;</span>,</a>
+<a class="sourceLine" id="cb159-8" data-line-number="8">    <span class="co"># name of new column which contains the values</span></a>
+<a class="sourceLine" id="cb159-9" data-line-number="9">    <span class="co"># of the cells which now form a new column</span></a>
+<a class="sourceLine" id="cb159-10" data-line-number="10">    <span class="dt">values_to =</span> <span class="st">&quot;grade&quot;</span></a>
+<a class="sourceLine" id="cb159-11" data-line-number="11">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb159-12" data-line-number="12"><span class="st">  </span><span class="co"># optional reordering of columns (to make </span></a>
+<a class="sourceLine" id="cb159-13" data-line-number="13"><span class="st">  </span><span class="co"># the output exactly like `exam_results_tidy`)</span></a>
+<a class="sourceLine" id="cb159-14" data-line-number="14"><span class="st">  </span><span class="kw">select</span>(student, exam, grade)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 3
-##   exam    student  value
-##   &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;
-## 1 midterm Rozz     1.3  
-## 2 midterm Andrew   2.0  
-## 3 midterm Siouxsie 1.7  
-## 4 final   Rozz     2.3  
-## 5 final   Andrew   1.7  
-## 6 final   Siouxsie 1.0</code></pre>
-<p>To bring your data into a tidy format, or an almost tidy format, you will usually want to perform a step of <strong>data pre-processing</strong>.</p>
+##   student  exam    grade
+##   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;
+## 1 Rozz     midterm 1.3  
+## 2 Andrew   midterm 2.0  
+## 3 Siouxsie midterm 1.7  
+## 4 Rozz     final   2.3  
+## 5 Andrew   final   1.7  
+## 6 Siouxsie final   1.0</code></pre>
+<p>What <code>pivot_longer</code> does, in general, is take a bunch of columns and gather the values of all cells in these columns into a single, new column, the so-called <em>value column</em>, i.e., the column with the values of the cells to be gathered. If <code>pivot_longer</code> stopped here, we would loose information about which cell values belonged to which original column. Therefore, <code>pivot_longer</code> also creates a second new column, the so-called <em>name column</em>, i.e., the column with the names of the original columns that we gathered together. Consequently, in order to do its job, <code>pivot_longer</code> minimally needs three pieces of information:<a href="#fn13" class="footnote-ref" id="fnref13"><sup>13</sup></a></p>
+<ol style="list-style-type: decimal">
+<li>which columns to spin around (function argument <code>cols</code>)</li>
+<li>the name of the to-be-created new value column (function argument <code>values_to</code>)</li>
+<li>the name of the to-be-created new name column (function argument <code>names_to</code>)</li>
+</ol>
+<!-- TODO: explain `tidyselect` speciication -->
 </div>
+<div id="making-too-long-data-wider-with-pivot_wider" class="section level4">
+<h4><span class="header-section-number">4.3.1.2</span> Making too long data wider with <code>pivot_wider</code></h4>
+<p>Consider the following example of data which untidy because it is too long:</p>
+<div class="sourceCode" id="cb161"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb161-1" data-line-number="1">mixed_results_too_long &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb161-2" data-line-number="2"><span class="st">  </span><span class="kw">tibble</span>(<span class="dt">student =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&#39;Rozz&#39;</span>, <span class="st">&#39;Andrew&#39;</span>, <span class="st">&#39;Siouxsie&#39;</span>), <span class="dt">times =</span> <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb161-3" data-line-number="3">         <span class="dt">what =</span>    <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&#39;grade&#39;</span>, <span class="st">&#39;participation&#39;</span>), <span class="dt">each =</span> <span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb161-4" data-line-number="4">         <span class="dt">howmuch =</span> <span class="kw">c</span>(<span class="fl">2.7</span>, <span class="fl">2.0</span>, <span class="fl">1.0</span>, <span class="dv">75</span>, <span class="dv">93</span>, <span class="dv">33</span>))</a>
+<a class="sourceLine" id="cb161-5" data-line-number="5">mixed_results_too_long</a></code></pre></div>
+<pre><code>## # A tibble: 6 x 3
+##   student  what          howmuch
+##   &lt;chr&gt;    &lt;chr&gt;           &lt;dbl&gt;
+## 1 Rozz     grade             2.7
+## 2 Andrew   grade             2  
+## 3 Siouxsie grade             1  
+## 4 Rozz     participation    75  
+## 5 Andrew   participation    93  
+## 6 Siouxsie participation    33</code></pre>
+<p>This data is untidy because it lumps two types of different measurements (a course grade, and the percentage of participation) in a single column. These are different variables, and so should be represented in different columns.</p>
+<p>To fix a data representation that is too long, we can make it wider with the help of the <code>pivot_wider</code> function from the <code>tidyr</code> package. We look at an example before looking at the general behavior of the <code>pivot_wider</code> function.</p>
+<div class="sourceCode" id="cb163"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb163-1" data-line-number="1">mixed_results_too_long <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb163-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_wider</span>(</a>
+<a class="sourceLine" id="cb163-3" data-line-number="3">    <span class="co"># which columns identify an associated measurement</span></a>
+<a class="sourceLine" id="cb163-4" data-line-number="4">    <span class="dt">id_cols =</span> student,</a>
+<a class="sourceLine" id="cb163-5" data-line-number="5">    <span class="co"># column containing the names of the new columns</span></a>
+<a class="sourceLine" id="cb163-6" data-line-number="6">    <span class="dt">names_from =</span> what,</a>
+<a class="sourceLine" id="cb163-7" data-line-number="7">    <span class="co"># column containing the values of the new columns</span></a>
+<a class="sourceLine" id="cb163-8" data-line-number="8">    <span class="dt">values_from =</span> howmuch</a>
+<a class="sourceLine" id="cb163-9" data-line-number="9">  )</a></code></pre></div>
+<pre><code>## # A tibble: 3 x 3
+##   student  grade participation
+##   &lt;chr&gt;    &lt;dbl&gt;         &lt;dbl&gt;
+## 1 Rozz       2.7            75
+## 2 Andrew     2              93
+## 3 Siouxsie   1              33</code></pre>
+</div>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="13">
+<li id="fn13"><p>There are alternative possibilities for specifying names of the value and name column, which allow for more dynamic construction of strings. We will not cover all of these details here, but we will use some of these alternative specifications in subsequent examples.<a href="Chap-02-02-data-preprocessing-cleaning.html#fnref13" class="footnote-back">↩</a></p></li>
+</ol>
 </div>
             </section>
 
