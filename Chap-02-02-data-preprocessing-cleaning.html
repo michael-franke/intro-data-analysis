@@ -189,6 +189,8 @@ code span.wa { color: #bf0303; } /* Warning */
 </ul></li>
 <li class="chapter" data-level="4.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html"><i class="fa fa-check"></i><b>4.3</b> Data manipulation: the basics</a><ul>
 <li class="chapter" data-level="4.3.1" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#pivoting"><i class="fa fa-check"></i><b>4.3.1</b> Pivoting</a></li>
+<li class="chapter" data-level="4.3.2" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#subsetting-columns-and-rows"><i class="fa fa-check"></i><b>4.3.2</b> Subsetting columns and rows</a></li>
+<li class="chapter" data-level="4.3.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#adding-changing-and-renaming-columns"><i class="fa fa-check"></i><b>4.3.3</b> Adding, changing and renaming columns</a></li>
 </ul></li>
 <li class="chapter" data-level="4.4" data-path="Chap-02-02-data-grouping-nesting.html"><a href="Chap-02-02-data-grouping-nesting.html"><i class="fa fa-check"></i><b>4.4</b> Grouped operations</a></li>
 <li class="chapter" data-level="4.5" data-path="Chap-02-02-data-case-study-KoF.html"><a href="Chap-02-02-data-case-study-KoF.html"><i class="fa fa-check"></i><b>4.5</b> Case study: the King of France</a></li>
@@ -363,7 +365,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb159-1" data-line-number="1">exam_results_visual <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb159-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
 <a class="sourceLine" id="cb159-3" data-line-number="3">    <span class="co"># pivot every column except the first </span></a>
-<a class="sourceLine" id="cb159-4" data-line-number="4">    <span class="dt">cols =</span> <span class="op">-</span><span class="st"> </span><span class="dv">1</span>,  </a>
+<a class="sourceLine" id="cb159-4" data-line-number="4">    <span class="dt">cols =</span> <span class="op">-</span><span class="st"> </span><span class="dv">1</span>,</a>
 <a class="sourceLine" id="cb159-5" data-line-number="5">    <span class="co"># name of new column which contains the</span></a>
 <a class="sourceLine" id="cb159-6" data-line-number="6">    <span class="co"># names of the columns to be &quot;gathered&quot;</span></a>
 <a class="sourceLine" id="cb159-7" data-line-number="7">    <span class="dt">names_to =</span> <span class="st">&quot;student&quot;</span>,</a>
@@ -389,7 +391,6 @@ code span.wa { color: #bf0303; } /* Warning */
 <li>the name of the to-be-created new value column (function argument <code>values_to</code>)</li>
 <li>the name of the to-be-created new name column (function argument <code>names_to</code>)</li>
 </ol>
-<!-- TODO: explain `tidyselect` speciication -->
 </div>
 <div id="making-too-long-data-wider-with-pivot_wider" class="section level4">
 <h4><span class="header-section-number">4.3.1.2</span> Making too long data wider with <code>pivot_wider</code></h4>
@@ -412,26 +413,76 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>To fix a data representation that is too long, we can make it wider with the help of the <code>pivot_wider</code> function from the <code>tidyr</code> package. We look at an example before looking at the general behavior of the <code>pivot_wider</code> function.</p>
 <div class="sourceCode" id="cb163"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb163-1" data-line-number="1">mixed_results_too_long <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb163-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_wider</span>(</a>
-<a class="sourceLine" id="cb163-3" data-line-number="3">    <span class="co"># which columns identify an associated measurement</span></a>
-<a class="sourceLine" id="cb163-4" data-line-number="4">    <span class="dt">id_cols =</span> student,</a>
-<a class="sourceLine" id="cb163-5" data-line-number="5">    <span class="co"># column containing the names of the new columns</span></a>
-<a class="sourceLine" id="cb163-6" data-line-number="6">    <span class="dt">names_from =</span> what,</a>
-<a class="sourceLine" id="cb163-7" data-line-number="7">    <span class="co"># column containing the values of the new columns</span></a>
-<a class="sourceLine" id="cb163-8" data-line-number="8">    <span class="dt">values_from =</span> howmuch</a>
-<a class="sourceLine" id="cb163-9" data-line-number="9">  )</a></code></pre></div>
+<a class="sourceLine" id="cb163-3" data-line-number="3">    <span class="co"># column containing the names of the new columns</span></a>
+<a class="sourceLine" id="cb163-4" data-line-number="4">    <span class="dt">names_from =</span> what,</a>
+<a class="sourceLine" id="cb163-5" data-line-number="5">    <span class="co"># column containing the values of the new columns</span></a>
+<a class="sourceLine" id="cb163-6" data-line-number="6">    <span class="dt">values_from =</span> howmuch</a>
+<a class="sourceLine" id="cb163-7" data-line-number="7">  )</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 3
 ##   student  grade participation
 ##   &lt;chr&gt;    &lt;dbl&gt;         &lt;dbl&gt;
 ## 1 Rozz       2.7            75
 ## 2 Andrew     2              93
 ## 3 Siouxsie   1              33</code></pre>
+<p>In general, <code>pivot_wider</code> picks out two columns, one column of values to distribute into new to-be-created columns, and one vector of names or groups which contains the information about the, well, names of the to-be-created new columns. There are more refined options for <code>pivot_wider</code> some of which we will encounter in the context of concrete cases of application.</p>
 </div>
+</div>
+<div id="subsetting-columns-and-rows" class="section level3">
+<h3><span class="header-section-number">4.3.2</span> Subsetting columns and rows</h3>
+<p>If a data set contains too much information for your current purposes, you can discard irrelevant (or unhelpful) rows and columns. The function <code>filter</code> takes a Boolean expression and returns only those rows of which the Boolean expression is true:</p>
+<div class="sourceCode" id="cb165"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb165-1" data-line-number="1">exam_results_tidy <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb165-2" data-line-number="2"><span class="st">  </span><span class="co"># show only entries with grades better than 1.7</span></a>
+<a class="sourceLine" id="cb165-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(grade <span class="op">&lt;=</span><span class="st"> </span><span class="fl">1.7</span>)</a></code></pre></div>
+<pre><code>## # A tibble: 4 x 3
+##   student  exam    grade
+##   &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
+## 1 Rozz     midterm   1.3
+## 2 Siouxsie midterm   1.7
+## 3 Andrew   final     1.7
+## 4 Siouxsie final     1</code></pre>
+<p>The function <code>select</code> allows to pick out a subset of columns. Interestingly, it can also be used to reorder columns, because the order in which column names are specified matches the order in the returned tibble.</p>
+<div class="sourceCode" id="cb167"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb167-1" data-line-number="1">exam_results_tidy <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb167-2" data-line-number="2"><span class="st">  </span><span class="kw">select</span>(grade, exam)</a></code></pre></div>
+<pre><code>## # A tibble: 6 x 2
+##   grade exam   
+##   &lt;dbl&gt; &lt;chr&gt;  
+## 1   1.3 midterm
+## 2   2   midterm
+## 3   1.7 midterm
+## 4   2.3 final  
+## 5   1.7 final  
+## 6   1   final</code></pre>
+<div id="tidy-selection-of-column-names" class="section level4">
+<h4><span class="header-section-number">4.3.2.1</span> Tidy selection of column names</h4>
+<p>To select the colums in several functions within the tidyverse, such as <code>pivot_longer</code> or <code>select</code>, there are useful helper functions from the <code>tidyselect</code> package. Here are some examples:<a href="#fn14" class="footnote-ref" id="fnref14"><sup>14</sup></a></p>
+<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb169-1" data-line-number="1"><span class="co"># bogus code for illustration of possibilities!</span></a>
+<a class="sourceLine" id="cb169-2" data-line-number="2">SOME_DATA <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb169-3" data-line-number="3"><span class="st">  </span><span class="kw">select</span>( ... <span class="co"># could be one of the following</span></a>
+<a class="sourceLine" id="cb169-4" data-line-number="4">        <span class="co"># all columns indexed 2, 3, ..., 10</span></a>
+<a class="sourceLine" id="cb169-5" data-line-number="5">        <span class="dv">2</span><span class="op">:</span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb169-6" data-line-number="6">        <span class="co"># all columns except the one called &quot;COLNAME&quot;</span></a>
+<a class="sourceLine" id="cb169-7" data-line-number="7">        <span class="op">-</span><span class="st"> </span>COLNAME</a>
+<a class="sourceLine" id="cb169-8" data-line-number="8">        <span class="co"># all columns with names starting with &quot;STRING&quot;</span></a>
+<a class="sourceLine" id="cb169-9" data-line-number="9">       ... <span class="kw">starts_with</span>(<span class="st">&quot;STRING&quot;</span>)</a>
+<a class="sourceLine" id="cb169-10" data-line-number="10">       <span class="co"># all columns with names ending with &quot;STRING&quot;</span></a>
+<a class="sourceLine" id="cb169-11" data-line-number="11">       ... <span class="kw">ends_with</span>(<span class="st">&quot;STRING&quot;</span>)</a>
+<a class="sourceLine" id="cb169-12" data-line-number="12">       <span class="co"># all columns with names containing &quot;STRING&quot;</span></a>
+<a class="sourceLine" id="cb169-13" data-line-number="13">       ... <span class="kw">contains</span>(<span class="st">&quot;STRING&quot;</span>)</a>
+<a class="sourceLine" id="cb169-14" data-line-number="14">       <span class="co"># all columns with names of the form &quot;Col_i&quot; with i = 1, ..., 10</span></a>
+<a class="sourceLine" id="cb169-15" data-line-number="15">       ... <span class="kw">num_range</span>(<span class="st">&quot;Col_&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb169-16" data-line-number="16">  )</a></code></pre></div>
+</div>
+</div>
+<div id="adding-changing-and-renaming-columns" class="section level3">
+<h3><span class="header-section-number">4.3.3</span> Adding, changing and renaming columns</h3>
+<p><code>mutate</code>, <code>rename</code></p>
 </div>
 </div>
 <div class="footnotes">
 <hr />
 <ol start="13">
 <li id="fn13"><p>There are alternative possibilities for specifying names of the value and name column, which allow for more dynamic construction of strings. We will not cover all of these details here, but we will use some of these alternative specifications in subsequent examples.<a href="Chap-02-02-data-preprocessing-cleaning.html#fnref13" class="footnote-back">↩</a></p></li>
+<li id="fn14"><p>The helpers from the <code>tidyselect</code> package also accept regular expressions.<a href="Chap-02-02-data-preprocessing-cleaning.html#fnref14" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>
