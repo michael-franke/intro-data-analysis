@@ -13,7 +13,7 @@ The learning goals for this chapter are:
 
 - be able to read from and write data to files
 - understand notion of *tidy data*
-- be able to solve common problems of data preprocessing and cleaning
+- be able to solve common problems of data preprocessing
 ```
 
 
@@ -220,20 +220,29 @@ mixed_results_too_long %>%
 
 In general, `pivot_wider` picks out two columns, one column of values to distribute into new to-be-created columns, and one vector of names or groups which contains the information about the, well, names of the to-be-created new columns. There are more refined options for `pivot_wider` some of which we will encounter in the context of concrete cases of application.
 
-### Subsetting columns and rows
+### Subsetting row & columns
 
 If a data set contains too much information for your current purposes, you can discard irrelevant (or unhelpful) rows and columns. The function `filter` takes a Boolean expression and returns only those rows of which the Boolean expression is true:
 
 ```{r}
 exam_results_tidy %>% 
-  # show only entries with grades better than 1.7
+  # keep only entries with grades better than 1.7
   filter(grade <= 1.7)
+```
+
+To select rows by an index or a vector of indeces, use the `slice` function:
+
+```{r}
+exam_results_tidy %>% 
+  # keep only entries from rows with an even index
+  slice(c(2,4,6))
 ```
 
 The function `select` allows to pick out a subset of columns. Interestingly, it can also be used to reorder columns, because the order in which column names are specified matches the order in the returned tibble.
 
 ```{r}
 exam_results_tidy %>% 
+  # select columns `grade` and `name`
   select(grade, exam)
 ```
 
@@ -286,6 +295,93 @@ exam_results_tidy %>%
   rename(participant = student)
 ```
 
+### Splitting and uniting columns
+
+Here is data from course homework:
+
+```{r}
+homework_results_untidy <- 
+  tribble(
+    ~student,      ~results,
+    "Rozz",        "1.0,2.3,3.0",
+    "Andrew",      "2.3,2.7,1.3",
+    "Siouxsie",    "1.7,4.0,1.0"
+  )
+```
+
+This is not a useful representation format. Results of three homework sets are mushed together in a single column. Each value is separated by a comma, but it's all stored as a character vector.
+
+To disentangle information in a single column, use the `separate` function:
+
+```{r}
+homework_results_untidy %>% 
+  separate(
+    # which column to split up
+    col = results,
+    # names of the new column to store results
+    into = str_c("HW_", 1:3),
+    # separate by which character / reg-exp
+    sep = ",",
+    # automatically (smart-)convert the type of the new cols
+    convert = T 
+    )
+```
+
+If you have reason to perform the reverse operation, i.e., join together several columns, use the `unite` function.
+
+
+### Sorting a data set
+
+If you want to indicate a fixed order of the recorring elements in a (character) vector, e.g., for plotting in a particular order, you should make this column an ordered factor. But if you want to order a data set along a column, e.g., for inspection or printing as a table, then you can do that using the `arrange` function. You can specify several columns to sort alpha-numerically in ascending order, and also indicate a descending order using the `desc` function:
+
+```{r}
+exam_results_tidy %>% 
+  arrange(desc(student), grade)
+```
+
+
+### Combining tibbles
+
+There are frequently occasions on which data from two separate variables needs to be combined. The simplest case is where two entirely disjoint data sets merely need to be glued together, either horizontally (binding columns together with function `rbind`) or vertically (binding rows together with function `cbind`).
+
+```{r}
+new_exam_results_tidy <- tribble(
+  ~student,    ~exam,      ~grade,
+  "Rozz",      "bonus",  1.7,
+  "Andrew",    "bonus",  2.3,
+  "Siouxsie",  "bonus",  1.0
+)
+rbind(
+  exam_results_tidy, 
+  new_exam_results_tidy
+)
+```
+
+If two data sets have information in common, and the combination should respect that commonality, the `join` family of functions is of great help. Consider the case of distributed information again that we looked at to understand the third constraint of the concept of "tidy data". There are two tibbles, both of which contain information about the same students. They share the column `student` (this does not necessarily have to be in the same order!) and we might want to join the information from both sources into a single (messy but almost tidy) representation, using `full_join`. We have seen an example already, which is repeated here:
+
+```{r}
+# same as before
+exam_results_tidy <- tribble(
+  ~student,    ~exam,      ~grade,
+  "Rozz",      "midterm",  1.3,
+  "Andrew",    "midterm",  2.0,
+  "Siouxsie",  "midterm",  1.7,
+  "Rozz",      "final",    2.3,
+  "Andrew",    "final",    1.7,
+  "Siouxsie",  "final",    1.0
+)
+# additional table with student numbers
+student_numbers <- tribble(
+  ~student,    ~student_number,
+  "Rozz",      "666",   
+  "Andrew",    "1969",
+  "Siouxsie",  "3.14"
+)
+full_join(exam_results_tidy, student_numbers, by = "student")
+```
+
+If two data sets are to be joined by a column that is not exactly shared by both sets (one contains entries in this columns that the other doesn't) then a `full_join` will retain all information from both. If that is not what you want, check out alternative functions like `right_join`, `semi_join` etc. using the [data wrangling cheat sheet](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf).
+
 ## Grouped operations {#Chap-02-02-data-grouping-nesting}
 
 A frequently occurring problem in data analysis is to obtain a summary statistic (see Section \@ref(Chap-02-03-summary-statistics)) for different subsets of data. For example, we might want to calculate the average score for each student in our class. We could do that by filtering like so (notice that `pull` gives you the column vector specified):
@@ -333,9 +429,17 @@ exam_results_tidy %>%
 
 The latter can sometimes be handy, for example when overlaying a plot of the data with grouped means, for instance.
 
+It may be important to remember that after a call of `group_by`, the resulting tibbles retains the grouping information for *all* subsequent operations. To remove grouping information, use the function `ungroup`.
+
+
 <!-- TODO: summarizing to return tibbles -->
+ 
 
 ## Case study: the King of France {#Chap-02-02-data-case-study-KoF}
+
+<div style = "float:right; width:12%;">
+<img src="visuals/skull_king.png" alt="badge-data-wrangling">  
+</div>  
 
 Let's go through one case study of data preprocessing. We look at the example introduced and fully worked out in Appendix \@ref(app-93-data-sets-king-of-france). (Please read Section \@ref(app-93-data-sets-king-of-france-background) to find out more about where this data set is coming from.)
 
@@ -396,17 +500,24 @@ data_KoF_raw <- data_KoF_raw %>%
 ```
 
 
-But even after pruning irrelevant columns, this data set is still not ideal. We need to preprocess it more thoroughly to make it more intuitively managable. For example, the information in column `trial_name` does not give the trial's name in an intuitive sense, but its type: whether it is a practice or a main trial. But this information, and more, is also represented in the column `trial_type`. We will therefore remove the column `trial_name` completely.
+But even after pruning irrelevant columns, this data set is still not ideal. We need to preprocess it more thoroughly to make it more intuitively managable. For example, the information in column `trial_name` does not give the trial's name in an intuitive sense, but its type: whether it is a practice or a main trial. But this information, and more, is also represented in the column `trial_type`. The column `item_version` contains information about the experimental condition. To see this (mess) the code below prints the selected information from the main trials of only one participant in an order that makes it easier to see what is what.
 
 ```{r}
-data_KoF_raw <- data_KoF_raw %>% 
-  select(-trial_name)
+data_KoF_raw %>% 
+  # ignore practice trials for the moment
+  # focus on one participant only
+  filter(trial_type != "practice", submission_id == 192) %>% 
+  select(trial_type, item_version, question) %>% 
+  arrange(desc(trial_type), item_version) %>% 
+  print(n = Inf)
 ```
 
-The column `item_version` contains information about the experimental condition. Indeed, we would like to have a column called `condition` and it should, ideally, also contain useful information for the cases where `trial_type` is not `main` or `special`. That is why we preprocess the data by creating an informative column `condition` in which we learn of every row whether it belongs to one of the 5 experimental conditions, and if not whether it is a filler or a "background check" (= special) trial.
+We see that the information in `item_version` specifies the critical condition. To make this more intuitively manageable, we would like to have a column called `condition` and it should, ideally, also contain useful information for the cases where `trial_type` is not `main` or `special`. That is why we will therefore remove the column `trial_name` completely, and create an informative column `condition` in which we learn of every row whether it belongs to one of the 5 experimental conditions, and if not whether it is a filler or a "background check" (= special) trial.
 
 ```{r}
 data_KoF_processed <-  data_KoF_raw %>% 
+  # drop redundant information in column `trial_name`
+  select(-trial_name) %>% 
   # discard practice trials
   filter(trial_type != "practice") %>% 
   mutate(
@@ -454,9 +565,6 @@ subject_error_rate <- data_KoF_processed %>%
   arrange(proportion_correct)
 ```
 
-
-
-
 Apply the cleaning step:
 
 ```{r}
@@ -473,7 +581,6 @@ d_cleaned <-
 
 ```{r}
 # exclude every critical trial whose 'background' test question was answered wrongly
-
 d_cleaned <- 
   d_cleaned %>% 
   # select only the 'background question' trials
