@@ -7,7 +7,7 @@
 <img src="visuals/badge-BLJM.png" alt="badge-BLJM">  
 </div>  
 
-This is a very short and non-serious experiment that gathers just three binary choice from each participants, namely their spontaneous preference for one of two presented options (biology vs logic, jazz vs metal and mountains vs beach). The data from this experiment will be analyzed and plotted and is particular useful to have a concise and hopefully entertaining self-generated data set with which to practice making contingency tables and to apply binomial tests and fun stuff like that.
+This is a very short and non-serious experiment that asks for just three binary decisions from each participant, namely their spontaneous preference for one of two presented options (biology vs logic, jazz vs metal and mountains vs beach). The data from this experiment will be analyzed and plotted. This is supposed to be a useful and hopefully entertaining self-generated data set with which to practice making contingency tables and to apply binomial tests and fun stuff like that.
 
 
 #### The experiment
@@ -38,7 +38,7 @@ The experiment was realized using [_magpie](https://magpie-ea.github.io/magpie-s
 
 #### Theoretical motivation & hypotheses
 
-This is a bogus experiment, and no sane person would advance a serious hypothesis about this. Except that, actually, the lecturer boldly stepped onto the scene with the hypothesis that appreciators of Metal music like logic more than Jazz-enthusiasts would (because Metal is cleaner and more mechanic, while Jazz is fuzzy and organic, obviously).^[Notice how easy it is to motivate any-old psychological theory. Somne other scientific disciplines are much better at smothering nonsensical ideas from the start.]
+This is a bogus experiment, and no sane person would advance a serious hypothesis about this. Except that, actually, the lecturer is careless enough to conjecture that appreciators of Metal music like logic more than Jazz-enthusiasts would (because Metal is cleaner and more mechanic, while Jazz is fuzzy and organic, obviously).^[Notice how easy it is to motivate any-old psychological theory. Somne other scientific disciplines are much better at smothering nonsensical ideas from the start.]
 
 ### Loading and preprocessing the data
 
@@ -54,7 +54,7 @@ data_BLJM_raw <- read_csv(url('https://raw.githubusercontent.com/michael-franke/
 ```
 
 
-And take a peak
+Take a peak:
 
 ```{r}
 glimpse(data_BLJM_raw)
@@ -67,7 +67,7 @@ The most important variables in this data set are:
 - `option1` and `option2`: what the choice options where
 - `response`: which of the two options was chosen
 
-Notice that there is no convenient column indicating which of the three critical conditions we are dealing with, so we create that, while also discarding everything we will not need:
+Notice that there is no convenient column indicating which of the three critical conditions we are dealing with, so we create that information from the information in columns `option1` and `option2`, while also discarding everything we will not need:
 
 ```{r}
 data_BLJM_processed <- 
@@ -76,11 +76,9 @@ data_BLJM_processed <-
     condition = str_c(str_sub(option2,1, 1), str_sub(option1,1, 1))
   ) %>% 
   select(submission_id, condition, response)
-data_BLJM_processed
-
 # write_csv(data_BLJM_processed, "../data_sets/bio-logic-jazz-metal-data-processed.csv")
+data_BLJM_processed
 ```
-
 
 ### Exploration: counts & plots
 
@@ -92,7 +90,9 @@ data_BLJM_processed %>%
   dplyr::count(condition, response)
 ```
 
-We will then have a closer look at the lecturer's conjecture that a preference for logic tends to go with a preference for metal: 
+Overall it seems taht mountains are preferred over beaches, Jazz is preferred over Metal and Biology is preferred over Logic.
+
+The overall counts, however, do not tell us anything about any potentially interesting relationship between preferences. So, let's have a closer look at the lecturer's conjecture that a preference for logic tends to go with a stronger preference for metal than a preference for biology does. To check this, we need to look at different counts, namely the number of people who selected which music-subject pair. We collect these counts in variable `BLJM_associated_counts`:
 
 ```{r}
 BLJM_associated_counts <- data_BLJM_processed %>% 
@@ -100,11 +100,19 @@ BLJM_associated_counts <- data_BLJM_processed %>%
   pivot_wider(names_from = condition, values_from = response) %>% 
   select(-BM) %>% 
   dplyr::count(JM,LB) 
+BLJM_associated_counts
+```
 
+Notice that this representation is tidy, but not as ideal for visual inspection. A more commonly seen format can be obtained by pivoting to a wider representation:
+
+```{r}
 # visually attractive table representation
 BLJM_associated_counts %>% 
   pivot_wider(names_from = LB, values_from = n)
 ```
+
+
+The tidy representation *is* ideal for plotting, though. Notice, however, that the code below plots proportions of choices, not raw counts:
 
 ```{r}
 BLJM_associated_counts %>% 
@@ -116,4 +124,4 @@ BLJM_associated_counts %>%
     y = "")
 ```
 
-The lecturer's conjecture might be correct. This does look like there could be an interaction.
+The lecturer's conjecture might be correct. This does look like there could be an interaction. While Jazz is preferred more generally, the preference for Jazz over Metal seems more pronounced for those participants who preferred Biology than for those who preferred Logic.
