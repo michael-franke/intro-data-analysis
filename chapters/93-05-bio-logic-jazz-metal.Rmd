@@ -1,0 +1,119 @@
+
+## Bio-Logic Jazz-Metal (and where to consume it) {#app-93-data-sets-BLJM}
+
+### Nature, origin and rationale of the data
+
+<div style = "float:right; width:24%;">
+<img src="visuals/badge-BLJM.png" alt="badge-BLJM">  
+</div>  
+
+This is a very short and non-serious experiment that gathers just three binary choice from each participants, namely their spontaneous preference for one of two presented options (biology vs logic, jazz vs metal and mountains vs beach). The data from this experiment will be analyzed and plotted and is particular useful to have a concise and hopefully entertaining self-generated data set with which to practice making contingency tables and to apply binomial tests and fun stuff like that.
+
+
+#### The experiment
+
+##### Participants
+
+We obtained data from 102 particpants of this very course. 
+
+##### Material 
+
+There were three critical trials (and nothing else). All trials had the same trailing question:
+
+> If you have to choose between the following two options, which one do you prefer?
+  
+Each critical trial then presented two options as buttons, one of which had to be clicked. 
+
+1. Biology vs Logic
+2. Jazz vs Metal
+3. Mountains vs Beach
+
+##### Procedure
+
+Each participant saw all three critical trials (and no other trials) in random order.
+
+##### Realization
+
+The experiment was realized using [_magpie](https://magpie-ea.github.io/magpie-site/index.html) and can be tried out [here](https://magpie-bio-logical-jazz-metal.netlify.com).
+
+#### Theoretical motivation & hypotheses
+
+This is a bogus experiment, and no sane person would advance a serious hypothesis about this. Except that, actually, the lecturer boldly stepped onto the scene with the hypothesis that appreciators of Metal music like logic more than Jazz-enthusiasts would (because Metal is cleaner and more mechanic, while Jazz is fuzzy and organic, obviously).^[Notice how easy it is to motivate any-old psychological theory. Somne other scientific disciplines are much better at smothering nonsensical ideas from the start.]
+
+### Loading and preprocessing the data
+
+First, load the data:
+
+```{r, echo = F}
+data_BLJM_raw <- read_csv('data_sets/bio-logic-jazz-metal-data-raw.csv')
+glimpse(data_BLJM_raw)
+```
+
+```{r, eval = F}
+data_BLJM_raw <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/bio-logic-jazz-metal-data-raw.csv'))
+```
+
+
+And take a peak
+
+```{r}
+glimpse(data_BLJM_raw)
+```
+
+
+The most important variables in this data set are:
+
+- `submission_id`: unique identifier for each participant
+- `option1` and `option2`: what the choice options where
+- `response`: which of the two options was chosen
+
+Notice that there is no convenient column indicating which of the three critical conditions we are dealing with, so we create that, while also discarding everything we will not need:
+
+```{r}
+data_BLJM_processed <- 
+  data_BLJM_raw %>% 
+  mutate(
+    condition = str_c(str_sub(option2,1, 1), str_sub(option1,1, 1))
+  ) %>% 
+  select(submission_id, condition, response)
+data_BLJM_processed
+
+# write_csv(data_BLJM_processed, "../data_sets/bio-logic-jazz-metal-data-processed.csv")
+```
+
+
+### Exploration: counts & plots
+
+We are interest in some counts. First, let's look at the overal choice rates in each condition:
+
+```{r}
+data_BLJM_processed %>% 
+  # function`count` is masked by another package, must call explicitly
+  dplyr::count(condition, response)
+```
+
+We will then have a closer look at the lecturer's conjecture that a preference for logic tends to go with a preference for metal: 
+
+```{r}
+BLJM_associated_counts <- data_BLJM_processed %>% 
+  select(submission_id, condition, response) %>% 
+  pivot_wider(names_from = condition, values_from = response) %>% 
+  select(-BM) %>% 
+  dplyr::count(JM,LB) 
+
+# visually attractive table representation
+BLJM_associated_counts %>% 
+  pivot_wider(names_from = LB, values_from = n)
+```
+
+```{r}
+BLJM_associated_counts %>% 
+  ggplot(aes(x = LB, y = n / sum(n), color = JM, shape = JM, group = JM)) +
+  geom_point(size = 3) + geom_line() +
+  labs(
+    title = "Proportion of choices of each music+subject pair",
+    x = "",
+    y = "")
+```
+
+The lecturer's conjecture might be correct. This does look like there could be an interaction.
