@@ -11,9 +11,9 @@ A **summary statistics** is a single number which represents one aspect of a pos
 
 Summary statistics are useful for understanding the data at hand, for communication about a data set, but also for subsequent statistical analyses. As we will see later on, many statistical tests look at a summary statistic $x$, which is a single value derived from data set $D$, and compare $x$ to an expectation of what $x$ should be like if the process that generated $D$ really had a particular property. For the moment, however, we use summary statistics only to get comfortable with data: understanding it better, and gaining competence to manipulate it.
 
-Chapter \@ref(Chap-02-03-summary-statistics-counts) first looks at a very intuitive class of summary statistics for categorical data, namely counts and proportions.
-Chapter \@ref(Chap-02-03-summary-statistics-1D) introduces summary statistics for simple, one dimensional vectors with numeric information. 
-Chapter \@ref(Chap-02-03-summary-statistics-2D) looks at measures of relation between two numerical vectors, namely *covariance* and *correlation*.
+Chapter \@ref(Chap-02-03-summary-statistics-counts) first uses the [Bio-Logic Jazz-Metal data set](app-93-data-sets-BLJM) to look at a very intuitive class of summary statistics for categorical data, namely counts and proportions.
+Chapter \@ref(Chap-02-03-summary-statistics-1D) introduces summary statistics for simple, one dimensional vectors with numeric information. In doing so we will also learn about nested tibbles.
+Chapter \@ref(Chap-02-03-summary-statistics-2D) looks at measures of relation between two numerical vectors, namely *covariance* and *correlation*. These last two chapters use the [avocado data set](app-93-data-sets-avocado).
 
 
 ```{block, type='infobox'}
@@ -37,7 +37,92 @@ The learning goals for this chapter are:
 
 ## Counts and proportions {#Chap-02-03-summary-statistics-counts}
 
-Very familiar instances of summary statistics are counts and frequencies.
+<div style = "float:right; width:24%;">
+<img src="visuals/badge-BLJM.png" alt="badge-BLJM">  
+</div>  
+
+Very familiar instances of summary statistics are counts and frequencies. While there is no conceptual difficulty in understanding these numerical measures, we have yet to see how to obtain counts for categorical data in R. The [Bio-Logic Jazz-Metal data set](app-93-data-sets-BLJM) provides nice material for doing so. If unfamiliar with the data and the experiment that generated it, please have a look at Appendix Chapter \@ref(app-93-data-sets-BLJM).
+
+### Loading and inspecting the data
+
+We load the proprocessed data immediately (Appendix Chapter \@ref(app-93-data-sets-BLJM) for details how this preprocessinig was performed).
+
+<!-- TODO uniform convention 'data' first? or source identifier first? -->
+
+```{r echo = F}
+data_BLJM_processed <- read_csv("data_sets/bio-logic-jazz-metal-data-processed.csv")
+```
+
+```{r, eval = F}
+data_BLJM_processed <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/bio-logic-jazz-metal-data-processed.csv'))
+```
+
+The preprocessed data lists, for each participant (in column `submission_id`) the binary choice (in column `response`) given for a particular condition (in column `condition`).
+
+```{r}
+head(data_BLJM_processed)
+```
+
+### Obtaining counts with `n`, `count` and `tally`
+
+To obtain counts, the `dplyr` package offers functions `n`, `count` and `tally`, among others. The function `n` does not take arguments and is useful for counting rows. It works inside of `summary` and `mutate` and is usually applied to grouped data set. For example, we can get a count of how many observations the data in `data_BLJM_processed` contains for each condition by first grouping by variable `condition` and then calling `n` (without arguments) inside of `summarise`:
+
+```{r}
+data_BLJM_processed %>% 
+  group_by(condition) %>% 
+  summarise(nr_observation_per_condition = n())
+```
+
+Notice that calling `n` without grouping just gives you the number of rows in the data set:
+
+```{r}
+data_BLJM_processed %>% summarize(n_rows = n())
+```
+
+This can also be obtained simply by (although in a different output format!):
+
+```{r}
+nrow(data_BLJM_processed)
+```
+
+`n` can be helpful also when getting acquainted with a data set, or when checking whether the data is complete. For example, we can verify that every participant in the experiment contributed three data points like so:
+
+```{r}
+data_BLJM_processed %>% 
+  group_by(submission_id) %>% 
+  summarise(nr_data_points = n())
+```
+
+The functions `tally` and `count` are essentially just convenience wrappers around `n`. While `tally` expects that the data is already grouped in the relevant way, `count` takes a column specification as an argument and does the grouping (and final ungrouping) implicitly. We will mostly be using `count`.
+
+For instance, the following code blocks produce the same output, one using `n`, the other using `count`, namely the total number of times a particular response has been given in a particular condition:
+
+```{r}
+data_BLJM_processed %>% 
+  group_by(condition, response) %>% 
+  summarise(n = n())
+```
+
+
+```{r}
+data_BLJM_processed %>% 
+  # function`count` is masked by another package, must call explicitly
+  dplyr::count(condition, response)
+```
+
+So, these counts suggest that there is an overall preference for mountains over beaches, Jazz over Metal and Biology over Logic. Who would have known!?
+
+These counts are overall numbers. They do not tell us anything about any potentially interesting relationship between preferences. So, let's have a closer look at the number of people who selected which music-subject pair. We collect these counts in variable `BLJM_associated_counts`. We first need to pivot the data, using `pivot_wider`, to make sure each participant's choices are associated with each other, and then take the counts of interest:
+
+```{r}
+BLJM_associated_counts <- data_BLJM_processed %>% 
+  select(submission_id, condition, response) %>% 
+  pivot_wider(names_from = condition, values_from = response) %>% 
+  select(-BM) %>% 
+  dplyr::count(JM,LB) 
+BLJM_associated_counts
+```
+
 
 ## Exploring numerical data in a one-dimensional vector {#Chap-02-03-summary-statistics-1D}
 

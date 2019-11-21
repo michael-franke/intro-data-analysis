@@ -3,11 +3,11 @@
 
 ### Nature, origin and rationale of the data
 
-<!-- <div style = "float:right; width:24%;"> -->
-<!-- <img src="visuals/badge-BLJM.png" alt="badge-BLJM">   -->
-<!-- </div>   -->
+<div style = "float:right; width:24%;">
+<img src="visuals/badge-avocado.png" alt="badge-avocado">
+</div>
 
-This data set has been plugged from [kaggle](https://www.kaggle.com). More information on it can be found [here](https://www.kaggle.com/neuromusic/avocado-prices). The data set includes information about the prices of (Hass) avocados and the amount sold (of different kinds) at different points in time. The data is originally from the Hass Avocado Board where the data is described as follows:
+This data set has been plucked from [kaggle](https://www.kaggle.com). More information on the origin and composition of this data set can be found on [kaggle's website covering the avocado data](https://www.kaggle.com/neuromusic/avocado-prices). The data set includes information about the prices of (Hass) avocados and the amount sold (of different kinds) at different points in time. The data is originally from the Hass Avocado Board where the data is described as follows:
 
 > The [data] represents weekly 2018 retail scan data for National retail volume (units) and price. Retail scan data comes directly from retailers’ cash registers based on actual retail sales of Hass avocados. Starting in 2013, the table below reflects an expanded, multi-outlet retail data set. Multi-outlet reporting includes an aggregation of the following channels: grocery, mass, club, drug, dollar and military. The Average Price (of avocados) in the table reflects a per unit (per avocado) cost, even when multiple units (avocados) are sold in bags. The Product Lookup codes (PLU’s) in the table are only for Hass avocados. Other varieties of avocados (e.g. greenskins) are not included in this table.
 
@@ -69,7 +69,7 @@ We are interested in the following summary statistics for the variables `total_a
 - variance
 - the bootstrapped 95% confidence interval of the mean
 
-To get these results we define a convenience function that calculates exactly these measures
+To get these results we define a convenience function that calculates exactly these measures:
 
 ```{r}
 summary_stats_convenience_fct <- function(numeric_data_vector) {
@@ -84,22 +84,12 @@ summary_stats_convenience_fct <- function(numeric_data_vector) {
 }
 ```
 
+We then apply this function once for the whole data set and once for each type of avocado (conventional or organic). We do this using a nested tibble in order to record the joint output of the convenience function (so that we only need to calculate the bootstrapped 95% confidence interval twice).
+
 
 ```{r}
-avocado_sum_stats_by_type <- avocado_data %>% 
-  select(type, average_price, total_volume_sold) %>% 
-  pivot_longer(
-    cols = c(total_volume_sold, average_price),
-    names_to  = 'variable',
-    values_to = 'value'
-  ) %>% 
-  group_by(type, variable) %>%
-  nest() %>% 
-  summarise(
-    summary_stats = map(data, function(d) summary_stats_convenience_fct(d$value))
-  ) %>% 
-  unnest(summary_stats)
 
+# summary stats for the whole data taken together
 avocado_sum_stats_total <- avocado_data %>% 
   select(type, average_price, total_volume_sold) %>% 
   pivot_longer(
@@ -117,9 +107,26 @@ avocado_sum_stats_total <- avocado_data %>%
   # reorder columns: moving `type` to second position
   select(1,type,everything())
 
+# summary stats for each type of avocado
+avocado_sum_stats_by_type <- avocado_data %>% 
+  select(type, average_price, total_volume_sold) %>% 
+  pivot_longer(
+    cols = c(total_volume_sold, average_price),
+    names_to  = 'variable',
+    values_to = 'value'
+  ) %>% 
+  group_by(type, variable) %>%
+  nest() %>% 
+  summarise(
+    summary_stats = map(data, function(d) summary_stats_convenience_fct(d$value))
+  ) %>% 
+  unnest(summary_stats)
+
+# joining the summary stats in a single tibble
 avocado_sum_stats <- 
   full_join(avocado_sum_stats_total, avocado_sum_stats_by_type)
-  
+
+# inspect the results  
 avocado_sum_stats
 ```
 
@@ -133,13 +140,14 @@ Here are plots of the distributions of `average_price` for different types of av
 ```{r}
 avocado_data %>% 
   ggplot(aes(x = average_price, fill = type)) +
-  geom_histogram() +
+  geom_histogram(binwidth = 0.01) +
   facet_wrap(~type, scales = "free") + 
   coord_flip() +
   geom_point(
     data = avocado_sum_stats_by_type %>% filter(variable == "average_price"),  
     aes(y = 0, x = mean)
-  )
+  ) +
+  theme(legend.position = "none")
 ```
 
 <!-- TODO: insert information about mean and 95% CI as linerange with y = 0 -->
@@ -161,8 +169,10 @@ And another scatter plot of the same quantities where the different types of avo
 ```{r}
 avocado_data %>% 
   ggplot(aes(x = log(total_volume_sold), y = average_price, group = type, fill = type, color = type)) +
-  geom_point(alpha = 0.3) +
+  geom_point(alpha = 0.1) +
   geom_smooth(color = "black", method = "lm") +
+  xlab('Logarithm of total volume sold') +
+  ylab('Average price') +
   ggtitle("Avocado prices plotted against the (log) amount sold per type")
 ```
 
