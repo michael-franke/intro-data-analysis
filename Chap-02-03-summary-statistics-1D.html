@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>5.2 Exploring numerical data in a one-dimensional vector | Introduction to Data Analysis</title>
+  <title>5.2 Central tendency and dispersion | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.15.2 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="5.2 Exploring numerical data in a one-dimensional vector | Introduction to Data Analysis" />
+  <meta property="og:title" content="5.2 Central tendency and dispersion | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="5.2 Exploring numerical data in a one-dimensional vector | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="5.2 Central tendency and dispersion | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -206,10 +206,16 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="5.1.1" data-path="Chap-02-03-summary-statistics-counts.html"><a href="Chap-02-03-summary-statistics-counts.html#loading-and-inspecting-the-data"><i class="fa fa-check"></i><b>5.1.1</b> Loading and inspecting the data</a></li>
 <li class="chapter" data-level="5.1.2" data-path="Chap-02-03-summary-statistics-counts.html"><a href="Chap-02-03-summary-statistics-counts.html#obtaining-counts-with-n-count-and-tally"><i class="fa fa-check"></i><b>5.1.2</b> Obtaining counts with <code>n</code>, <code>count</code> and <code>tally</code></a></li>
 </ul></li>
-<li class="chapter" data-level="5.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html"><i class="fa fa-check"></i><b>5.2</b> Exploring numerical data in a one-dimensional vector</a><ul>
-<li class="chapter" data-level="5.2.1" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#bootstrapped-95-confidence-intervals"><i class="fa fa-check"></i><b>5.2.1</b> Bootstrapped 95% confidence intervals</a></li>
+<li class="chapter" data-level="5.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html"><i class="fa fa-check"></i><b>5.2</b> Central tendency and dispersion</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#the-data-for-the-remainder-of-the-chapter"><i class="fa fa-check"></i><b>5.2.1</b> The data for the remainder of the chapter</a></li>
+<li class="chapter" data-level="5.2.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#measures-of-central-tendency"><i class="fa fa-check"></i><b>5.2.2</b> Measures of central tendency</a></li>
+<li class="chapter" data-level="5.2.3" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#measures-of-dispersion"><i class="fa fa-check"></i><b>5.2.3</b> Measures of dispersion</a></li>
+<li class="chapter" data-level="5.2.4" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#quantifying-confidence-with-bootstrapping"><i class="fa fa-check"></i><b>5.2.4</b> Quantifying confidence with bootstrapping</a></li>
 </ul></li>
-<li class="chapter" data-level="5.3" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html"><i class="fa fa-check"></i><b>5.3</b> Co-variance &amp; correlation</a></li>
+<li class="chapter" data-level="5.3" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html"><i class="fa fa-check"></i><b>5.3</b> Co-variance &amp; correlation</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#covariance"><i class="fa fa-check"></i><b>5.3.1</b> Covariance:</a></li>
+<li class="chapter" data-level="5.3.2" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#correlation"><i class="fa fa-check"></i><b>5.3.2</b> Correlation</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="data-plotting.html"><a href="data-plotting.html"><i class="fa fa-check"></i><b>6</b> Data Plotting</a><ul>
 <li class="chapter" data-level="6.1" data-path="motivating-example-anscombes-quartet.html"><a href="motivating-example-anscombes-quartet.html"><i class="fa fa-check"></i><b>6.1</b> Motivating example: Anscombe’s quartet</a></li>
@@ -364,81 +370,187 @@ code span.wa { color: #bf0303; } /* Warning */
 
             <section class="normal" id="section-">
 <div id="Chap-02-03-summary-statistics-1D" class="section level2">
-<h2><span class="header-section-number">5.2</span> Exploring numerical data in a one-dimensional vector</h2>
-<p>The first part of the Mental Chronometry experiment is a simple reaction time task.</p>
-<div class="sourceCode" id="cb225"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb225-1" data-line-number="1"><span class="co"># read a data set of reaction times (as a tibble)</span></a>
-<a class="sourceLine" id="cb225-2" data-line-number="2"><span class="co"># RTs &lt;- read_csv(&quot;https://tinyurl.com/y4jo8mox&quot;)</span></a>
-<a class="sourceLine" id="cb225-3" data-line-number="3">RT &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data_sets/ch-03-set-01-MC-RTs.csv&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT)</a>
-<a class="sourceLine" id="cb225-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb225-5" data-line-number="5"><span class="co"># check its content</span></a>
-<a class="sourceLine" id="cb225-6" data-line-number="6"><span class="kw">glimpse</span>(RT)</a></code></pre></div>
-<pre><code>##  num [1:3980] 5.61 5.32 5.36 5.67 5.37 ...</code></pre>
-<div id="bootstrapped-95-confidence-intervals" class="section level3">
-<h3><span class="header-section-number">5.2.1</span> Bootstrapped 95% confidence intervals</h3>
-<p><a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)">Bootstrapping</a> is an elegant way to obtain measures of confidence for summary statistics. These measures of confidence can be used for parameter inference, too. We will discuss parameter inference at length in Section <a href="#03-04-intro-learning-goals"><strong>??</strong></a>. In this course, we will not use bootstrapping as an alternative approach to parameter inference. We will, however, follow a common practice (at least in some areas of Cognitive Psychology) to use <strong>bootstrapped 95% confidence intervals of the mean</strong> as part of descriptive statistics, i.e., in summaries and plots of the data.</p>
+<h2><span class="header-section-number">5.2</span> Central tendency and dispersion</h2>
+<p>This section will look at two types of summary statistics: measures of central tendency and measures of dispersion.</p>
+<p><strong>Measures of central tendency</strong> map a vector of observations onto a single number that represents, roughly put, “the center”. Since what counts a “center” is ambiguous, there are several measures of central tendencies. Different measures of central tendencies can be more or less adequate for one purpose or another. We will visit three prominent measures of central tendency here: <em>(arithmetic) mean</em>, <em>median</em> and <em>mode</em>.</p>
+<p><strong>Measures of dispersion</strong> indicate how much the observations are spread out around, let’s say, “a center”. We will visit three prominent measures of dispersion: the <em>variance</em>, the <em>standard deviation</em> and <em>quantiles</em>.</p>
+<p>To illustrate these ideas, consider the case of a numeric vector of observations. Central tendency and dispersion together describe a (numeric) vector by giving indicative information about the point around which the observations spread, and how far away from that middle point they tend to lie. Fictitious examples of observation vectors with higher or lower central tendency and higher or lower dispersion are given in Figure <a href="Chap-02-03-summary-statistics-1D.html#fig:ch-02-03-dispersion-central-tendency">5.2</a>.</p>
+<div class="figure" style="text-align: center"><span id="fig:ch-02-03-dispersion-central-tendency"></span>
+<img src="I2DA_files/figure-html/ch-02-03-dispersion-central-tendency-1.png" alt="Fictitious data points with higher/lower central tendencies and higher/lower dispersion. NB: points are 'jittered' along the vertical dimension for better visibility; only the horizontal dimension is relevant here." width="672" />
+<p class="caption">
+Figure 5.2: Fictitious data points with higher/lower central tendencies and higher/lower dispersion. NB: points are ‘jittered’ along the vertical dimension for better visibility; only the horizontal dimension is relevant here.
+</p>
+</div>
+<div id="the-data-for-the-remainder-of-the-chapter" class="section level3">
+<h3><span class="header-section-number">5.2.1</span> The data for the remainder of the chapter</h3>
+<div style="float:right; width:24%;">
+<p><img src="visuals/badge-avocado.png" alt="badge-avocado"></p>
+</div>
+<p>In the remainder of this chapter we will use the <a href="app-93-data-sets-avocado.html#app-93-data-sets-avocado">avocado data set</a>, a very simple and theory-free example in which we can explore two metric variables: the average price at which avocados were sold during specific intervals of time and the total amount of avocados sold. Please check Appendix Chapter <a href="app-93-data-sets-avocado.html#app-93-data-sets-avocado">D.6</a> for more information on this data set.</p>
+<p>We load the data into a variable named <code>avocado_data</code> but also immediately rename some of the columns to have more convenient handles (see also Appendix Chapter <a href="app-93-data-sets-avocado.html#app-93-data-sets-avocado">D.6</a>):</p>
+<div class="sourceCode" id="cb227"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb227-1" data-line-number="1">avocado_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado.csv&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb227-2" data-line-number="2"><span class="st">  </span><span class="co"># remove currently irrelevant columns</span></a>
+<a class="sourceLine" id="cb227-3" data-line-number="3"><span class="st">  </span><span class="kw">select</span>( <span class="op">-</span>X1 , <span class="op">-</span><span class="st"> </span><span class="kw">contains</span>(<span class="st">&quot;Bags&quot;</span>), <span class="op">-</span><span class="st"> </span>year, <span class="op">-</span><span class="st"> </span>region) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb227-4" data-line-number="4"><span class="st">  </span><span class="co"># rename variables of interest for convenience</span></a>
+<a class="sourceLine" id="cb227-5" data-line-number="5"><span class="st">  </span><span class="kw">rename</span>(</a>
+<a class="sourceLine" id="cb227-6" data-line-number="6">    <span class="dt">total_volume_sold =</span> <span class="st">`</span><span class="dt">Total Volume</span><span class="st">`</span>,</a>
+<a class="sourceLine" id="cb227-7" data-line-number="7">    <span class="dt">average_price =</span> <span class="st">`</span><span class="dt">AveragePrice</span><span class="st">`</span>,</a>
+<a class="sourceLine" id="cb227-8" data-line-number="8">    <span class="dt">small  =</span> <span class="st">&#39;4046&#39;</span>,</a>
+<a class="sourceLine" id="cb227-9" data-line-number="9">    <span class="dt">medium =</span> <span class="st">&#39;4225&#39;</span>,</a>
+<a class="sourceLine" id="cb227-10" data-line-number="10">    <span class="dt">large  =</span> <span class="st">&#39;4770&#39;</span>,</a>
+<a class="sourceLine" id="cb227-11" data-line-number="11">  )</a></code></pre></div>
+<p>We can then take a glimpse:</p>
+<div class="sourceCode" id="cb228"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb228-1" data-line-number="1">avocado_data</a></code></pre></div>
+<pre><code>## # A tibble: 18,249 x 7
+##    Date       average_price total_volume_sold small  medium large type        
+##    &lt;date&gt;             &lt;dbl&gt;             &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       
+##  1 2015-12-27          1.33            64237. 1037.  54455.  48.2 conventional
+##  2 2015-12-20          1.35            54877.  674.  44639.  58.3 conventional
+##  3 2015-12-13          0.93           118220.  795. 109150. 130.  conventional
+##  4 2015-12-06          1.08            78992. 1132   71976.  72.6 conventional
+##  5 2015-11-29          1.28            51040.  941.  43838.  75.8 conventional
+##  6 2015-11-22          1.26            55980. 1184.  48068.  43.6 conventional
+##  7 2015-11-15          0.99            83454. 1369.  73673.  93.3 conventional
+##  8 2015-11-08          0.98           109428.  704. 101815.  80   conventional
+##  9 2015-11-01          1.02            99811. 1022.  87316.  85.3 conventional
+## 10 2015-10-25          1.07            74339.  842.  64757. 113   conventional
+## # … with 18,239 more rows</code></pre>
+<p>The columns that will interest us the most in this chapter are:</p>
+<ul>
+<li><code>average_price</code> - average price of a single avocado</li>
+<li><code>total_volume_sold</code> - Total number of avocados sold</li>
+<li><code>type</code> - whether the price/amount is for a conventional or an organic avocado</li>
+</ul>
+<p>In particular, we will look at summary statistics for the <code>average_price</code> and <code>total_volume_sold</code>, either for the whole data set or independently for each type of avocado. Notice that both of these variables are numeric. They are vectors of numbers, each representing an observation.</p>
+</div>
+<div id="measures-of-central-tendency" class="section level3">
+<h3><span class="header-section-number">5.2.2</span> Measures of central tendency</h3>
+<div id="the-arithmetic-mean" class="section level4">
+<h4><span class="header-section-number">5.2.2.1</span> The (arithmetic) mean</h4>
+<p>If <span class="math inline">\(\vec{x} = \langle x_1, \dots , x_n \rangle\)</span> is a vector of <span class="math inline">\(n\)</span> observations with <span class="math inline">\(x_i \in \mathbb{R}\)</span> for all <span class="math inline">\(1 \le i \le n\)</span>, the (arithmetic) mean of <span class="math inline">\(x\)</span>, written <span class="math inline">\(\mu_{\vec{x}}\)</span>, is defined as</p>
+<p><span class="math display">\[\mu_{\vec{x}} = \frac{1}{n}\sum_{i=1}^n x_i\,.\]</span></p>
+<p>The arithmetic mean can be understood intuitively as the center of gravity. If we place a marble on a wooden board for every <span class="math inline">\(x_i\)</span> such that every marble is equally heavy and the differences between all data measurements are identical to the distances between the marbles, the arithmetic mean is where you can balance the board with the tip of your finger.</p>
+<div class="infobox">
+<p><strong>Example.</strong> The mean of the vector <span class="math inline">\(\vec{x} = \langle 0, 3, 6, 7\rangle\)</span> is <span class="math inline">\(\mu_{\vec{x}} = \frac{0 + 3 + 6 + 7}{4} = \frac{16}{4} = 4\,.\)</span> The black dots in the graph below show the data observations and red cross indicates the mean. Notice that the mean is cleary <em>not</em> the mid-point between the maximum and the minimum (which here would be 3.5).</p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-131-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<p>To calculate the mean of a large vector, R has a built-in functioni <code>mean</code>, which we have in fact used frequently before. Let’s use it to calculate the mean of the variable <code>average_price</code> for different types of avocados:</p>
+<div class="sourceCode" id="cb230"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb230-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb230-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(type) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb230-3" data-line-number="3"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb230-4" data-line-number="4">    <span class="dt">mean_price =</span> <span class="kw">mean</span>(average_price)</a>
+<a class="sourceLine" id="cb230-5" data-line-number="5">  )</a></code></pre></div>
+<pre><code>## # A tibble: 2 x 2
+##   type         mean_price
+##   &lt;chr&gt;             &lt;dbl&gt;
+## 1 conventional       1.16
+## 2 organic            1.65</code></pre>
+<p>Unsurprsingly, the overal mean of the observed prices is (numerically) higher for organic avocados than for conventional ones.</p>
+
+<div class="infobox">
+<div style="float:right; width:20%;">
+<p><img src="visuals/fool.png" alt="kid-fool"></p>
+</div>
+<p><strong>Excursion</strong> It is also possible to conceptualize the arithmetic mean as the expected value when sampling from the observed data. This is useful for linking the mean to the expected value of a random variable, a concept we will introduce in Chapter <a href="Chap-03-01-probability.html#Chap-03-01-probability">7</a>. Suppose you have gathered the data <span class="math inline">\(\vec{x} = \langle 0, 3, 6, 7\rangle\)</span>. Now you will sample from this data. What value do you expect to gain from one sample? – What does that even mean?</p>
+<p>Suppose that some joker from around town invites you for a game. The game goes like this. The joker puts a ball in an urn, one for each data observation. You pay the joker a certain amount of money to be allowed to draw one ball from the urn. The balls are indistinguishable and the process of drawing is entirely fair. You receive the number corresponding the ball you drew paid out in silver coints.</p>
+How many silver coins would you maximally pay to play one round? Well, of course, no more than four (unless you value gaming on top of silver)! This is because every ball has a chance of <span class="math inline">\(0.25\)</span> of being drawn. So you can expect to earn 0 silver with a 25% chance, 3 with a 25% chance, 6 with a 25% chance and 7 with a 25% chance. In this sense, the mean is the expected value of sampling once from the observed data. (And if this is not helpful for you right now, maybe you reread it later or you forget about it completely. – End of excursion.)
+</div>
+
+</div>
+<div id="the-median" class="section level4">
+<h4><span class="header-section-number">5.2.2.2</span> The median</h4>
+<p>If <span class="math inline">\(\vec{x} = \langle x_1, \dots , x_n \rangle\)</span> is an ordered vector of <span class="math inline">\(n\)</span> data observations from an at least ordinal measure such that for all <span class="math inline">\(1 \le i &lt; n\)</span> we have <span class="math inline">\(x_i \le x_{i+1}\)</span>, the <strong>median</strong> is a value <span class="math inline">\(x_i\)</span> such that the number of data observations that are bigger or equal to <span class="math inline">\(x_i\)</span> and the number of data observations that are smaller or equal to <span class="math inline">\(x_i\)</span> are equal. Notice that this definition may yield no unique median. In that case different alternative stragies are used, depending on the data type at hand (ordinal or metric). (See also the example below.) The media corresponds to the 50% quartile.</p>
+<div class="infobox">
+<p><strong>Example.</strong> The median of the vector <span class="math inline">\(\vec{x} = \langle 1=0, 3, 6, 7\rangle\)</span> does not exist by the definition given above. However, for metric measures, where distances between measurements are meaningful, it is customary to take the two values “closests to where the median should be” and average them. In the example at hand, this would be <span class="math inline">\(\frac{3 + 6}{2} = 4.5\)</span>. The plot below shows the data points in black, the mean as a red cross (as before) and the median as a blue circle</p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-134-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<p>The function <code>median</code> from base R computes the median of a vector. It also takes an ordered factor as an argument.</p>
+<div class="sourceCode" id="cb232"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb232-1" data-line-number="1"><span class="kw">median</span>(<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">7</span> ))</a></code></pre></div>
+<pre><code>## [1] 4.5</code></pre>
+</div>
+<div id="the-mode" class="section level4">
+<h4><span class="header-section-number">5.2.2.3</span> The mode</h4>
+<p>The <strong>mode</strong> is the value that occured most frequently in the data. While the mean is only applicable to metric variables, and the median only to variables that are at least ordinal, the mode is only reasonable for variables that have a finite set of different possible observations (nominal or ordinal).</p>
+<p>There is no built-in function in R to return the mode of a (suitable) vector.</p>
+<!-- HW: write a function that returns the mode -->
+</div>
+</div>
+<div id="measures-of-dispersion" class="section level3">
+<h3><span class="header-section-number">5.2.3</span> Measures of dispersion</h3>
+<div id="variance" class="section level4">
+<h4><span class="header-section-number">5.2.3.1</span> Variance</h4>
+<p><span class="math display">\[\text{Var}(\vec{x}) = \frac{1}{n} \sum_{i=1}^n (x_i - \mu_{\vec{x}})^2\]</span></p>
+</div>
+<div id="standard-deviation" class="section level4">
+<h4><span class="header-section-number">5.2.3.2</span> Standard deviation</h4>
+<p><span class="math display">\[ \text{SD}(\vec{x}) = \sqrt{\text{Var}(\vec{x})} = \sqrt{\frac{1}{n} \sum_{i=1}^n (x_i - \mu_{\vec{x}})^2}\]</span></p>
+</div>
+</div>
+<div id="quantifying-confidence-with-bootstrapping" class="section level3">
+<h3><span class="header-section-number">5.2.4</span> Quantifying confidence with bootstrapping</h3>
+<p><a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)">Bootstrapping</a> is an elegant way to obtain measures of confidence for summary statistics. These measures of confidence can be used for parameter inference, too. We will discuss parameter inference at length in Section <a href="ch-03-04-parameter-inference.html#ch-03-04-parameter-inference">10</a>. In this course, we will not use bootstrapping as an alternative approach to parameter inference. We will, however, follow a common practice (at least in some areas of Cognitive Psychology) to use <strong>bootstrapped 95% confidence intervals of the mean</strong> as part of descriptive statistics, i.e., in summaries and plots of the data.</p>
 <p>The bootstrap is a method from a more general class of algorithms, namely so-called <strong>resampling methods</strong>. The general idea is, roughly put, that we treat the data at hand as the true representation of reality. We then imagine that we run an experiment on that (restricted, hypothetical) reality. We then ask ourselves: what would we estimate (e.g., as a mean) in any such hypothetical experiment. The more these hypothetical measures derived from hypothetical experiments based on a hypthetical reality differ, the less confident we are in the estimate. Sounds weird, but is mindblowingly elegant.</p>
 <p>An algorithm for constructing a 95% confidence interval of the mean of vector <span class="math inline">\(D\)</span> of numeric data with length <span class="math inline">\(k\)</span> looks as follows:</p>
 <ol style="list-style-type: decimal">
-<li>take <span class="math inline">\(k\)</span> samples from <span class="math inline">\(D\)</span> with replacement, call this <span class="math inline">\(D^{\textrm{rep}}\)</span><a href="#fn16" class="footnote-ref" id="fnref16"><sup>16</sup></a></li>
+<li>take <span class="math inline">\(k\)</span> samples from <span class="math inline">\(D\)</span> with replacement, call this <span class="math inline">\(D^{\textrm{rep}}\)</span><a href="#fn17" class="footnote-ref" id="fnref17"><sup>17</sup></a></li>
 <li>calculate the mean <span class="math inline">\(\mu(D^{\textrm{rep}})\)</span> of the newly sampled data</li>
 <li>repeat steps 1 and 2 to gather <span class="math inline">\(r\)</span> means of different resamples of <span class="math inline">\(D\)</span>; call the result vector <span class="math inline">\(\mu_{\textrm{sampled}}\)</span></li>
 <li>the boundaries of the 95% inner quantile of <span class="math inline">\(\mu_{\textrm{sampled}}\)</span> are the bootstrapped 95% confidence interval of the mean</li>
 </ol>
 <p>The higher <span class="math inline">\(r\)</span>, i.e., the more samples we take, the better the estimate. The higher <span class="math inline">\(k\)</span>, i.e., the more observations we have to begin with, the less variable the means <span class="math inline">\(\mu(D^{\textrm{rep}})\)</span> of the resampled data will usually be. Hence, usually, the higher <span class="math inline">\(k\)</span> the smaller the bootstrapped 95% confidence interval of the mean.</p>
 <p>Here is a convenience function that we will use throughout the book to produce bootstrapped 95% confidence intervals of the mean:</p>
-<div class="sourceCode" id="cb227"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb227-1" data-line-number="1">## takes a vector of numbers and returns bootstrapped 95% ConfInt</a>
-<a class="sourceLine" id="cb227-2" data-line-number="2">## for the mean, based on `n_resamples` re-samples (default: 1000)</a>
-<a class="sourceLine" id="cb227-3" data-line-number="3">bootstrapped_CI &lt;-<span class="st">  </span><span class="cf">function</span>(data_vector, <span class="dt">n_resamples =</span> <span class="dv">1000</span>) {</a>
-<a class="sourceLine" id="cb227-4" data-line-number="4">  resampled_means &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(<span class="dv">1</span><span class="op">:</span>n_resamples, <span class="cf">function</span>(i) {</a>
-<a class="sourceLine" id="cb227-5" data-line-number="5">       <span class="kw">mean</span>(<span class="kw">sample</span>(<span class="dt">x =</span> data_vector, </a>
-<a class="sourceLine" id="cb227-6" data-line-number="6">                   <span class="dt">size =</span> <span class="kw">length</span>(data_vector), </a>
-<a class="sourceLine" id="cb227-7" data-line-number="7">                   <span class="dt">replace =</span> T)</a>
-<a class="sourceLine" id="cb227-8" data-line-number="8">       )</a>
-<a class="sourceLine" id="cb227-9" data-line-number="9">    }</a>
-<a class="sourceLine" id="cb227-10" data-line-number="10">  )</a>
-<a class="sourceLine" id="cb227-11" data-line-number="11">  <span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb227-12" data-line-number="12">    <span class="st">&#39;lower&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.025</span>),</a>
-<a class="sourceLine" id="cb227-13" data-line-number="13">    <span class="st">&#39;mean&#39;</span>  =<span class="st"> </span><span class="kw">mean</span>(data_vector),</a>
-<a class="sourceLine" id="cb227-14" data-line-number="14">    <span class="st">&#39;upper&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.975</span>)</a>
-<a class="sourceLine" id="cb227-15" data-line-number="15">  ) </a>
-<a class="sourceLine" id="cb227-16" data-line-number="16">}</a></code></pre></div>
-<p>Applying this method to the vector of reaction times from above we get:</p>
-<div class="sourceCode" id="cb228"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb228-1" data-line-number="1"><span class="kw">bootstrapped_CI</span>(RT)</a></code></pre></div>
+<div class="sourceCode" id="cb234"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb234-1" data-line-number="1">## takes a vector of numbers and returns bootstrapped 95% ConfInt</a>
+<a class="sourceLine" id="cb234-2" data-line-number="2">## for the mean, based on `n_resamples` re-samples (default: 1000)</a>
+<a class="sourceLine" id="cb234-3" data-line-number="3">bootstrapped_CI &lt;-<span class="st">  </span><span class="cf">function</span>(data_vector, <span class="dt">n_resamples =</span> <span class="dv">1000</span>) {</a>
+<a class="sourceLine" id="cb234-4" data-line-number="4">  resampled_means &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(<span class="dv">1</span><span class="op">:</span>n_resamples, <span class="cf">function</span>(i) {</a>
+<a class="sourceLine" id="cb234-5" data-line-number="5">       <span class="kw">mean</span>(<span class="kw">sample</span>(<span class="dt">x =</span> data_vector, </a>
+<a class="sourceLine" id="cb234-6" data-line-number="6">                   <span class="dt">size =</span> <span class="kw">length</span>(data_vector), </a>
+<a class="sourceLine" id="cb234-7" data-line-number="7">                   <span class="dt">replace =</span> T)</a>
+<a class="sourceLine" id="cb234-8" data-line-number="8">       )</a>
+<a class="sourceLine" id="cb234-9" data-line-number="9">    }</a>
+<a class="sourceLine" id="cb234-10" data-line-number="10">  )</a>
+<a class="sourceLine" id="cb234-11" data-line-number="11">  <span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb234-12" data-line-number="12">    <span class="st">&#39;lower&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.025</span>),</a>
+<a class="sourceLine" id="cb234-13" data-line-number="13">    <span class="st">&#39;mean&#39;</span>  =<span class="st"> </span><span class="kw">mean</span>(data_vector),</a>
+<a class="sourceLine" id="cb234-14" data-line-number="14">    <span class="st">&#39;upper&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.975</span>)</a>
+<a class="sourceLine" id="cb234-15" data-line-number="15">  ) </a>
+<a class="sourceLine" id="cb234-16" data-line-number="16">}</a></code></pre></div>
+<p>Applying this method to the vector of average avocado prices we get:</p>
+<div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb235-1" data-line-number="1"><span class="kw">bootstrapped_CI</span>(avocado_data<span class="op">$</span>average_price)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 3
 ##   lower  mean upper
 ##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1  5.72  5.73  5.74</code></pre>
-<p>Notice that, since <code>RT</code> has length 3980, i.e., we have <span class="math inline">\(k = 3980\)</span> observations in the data, the bootstrapped 95% confidence interval is rather narrow. Compare this against a case of <span class="math inline">\(k = 30\)</span>:</p>
-<div class="sourceCode" id="cb230"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb230-1" data-line-number="1"><span class="co"># 30 samples from a standard normal</span></a>
-<a class="sourceLine" id="cb230-2" data-line-number="2">smaller_data =<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">30</span>, <span class="dt">mean =</span> <span class="dv">0</span>, <span class="dt">sd =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb230-3" data-line-number="3"><span class="kw">bootstrapped_CI</span>(smaller_data)</a></code></pre></div>
+## 1  1.40  1.41  1.41</code></pre>
+<p>Notice that, since <code>average_price</code> has length 18249, i.e., we have <span class="math inline">\(k = 18249\)</span> observations in the data, the bootstrapped 95% confidence interval is rather narrow. Compare this against a case of <span class="math inline">\(k = 300\)</span> obtained by only looking at the first 300 entries in <code>average_price</code>:</p>
+<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb237-1" data-line-number="1"><span class="co"># 30 samples from a standard normal</span></a>
+<a class="sourceLine" id="cb237-2" data-line-number="2">smaller_data =<span class="st"> </span><span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="dv">30</span>, <span class="dt">mean =</span> <span class="dv">0</span>, <span class="dt">sd =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb237-3" data-line-number="3"><span class="kw">bootstrapped_CI</span>(smaller_data)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 3
-##    lower  mean upper
-##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1 -0.238 0.116 0.471</code></pre>
-<p>To obtain summary statistics for different groups of a variable, we can use the function <code>bootstrapped_CI</code> conveniently in concert with nested tibbles, as demonstrated here on the Mental Chronometry data set (see Appendix <a href="app-93-data-sets-mental-chronometry.html#app-93-data-sets-mental-chronometry">D.1</a>:</p>
-<div class="sourceCode" id="cb232"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb232-1" data-line-number="1">mc_data_cleaned =<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data_sets/mental-chrono-data_cleaned.csv&quot;</span>) </a>
-<a class="sourceLine" id="cb232-2" data-line-number="2">mc_data_cleaned <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb232-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb232-4" data-line-number="4"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb232-5" data-line-number="5"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb232-6" data-line-number="6">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>RT))</a>
-<a class="sourceLine" id="cb232-7" data-line-number="7">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb232-8" data-line-number="8"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a></code></pre></div>
-<pre><code>## # A tibble: 3 x 4
-##   block          lower  mean upper
-##   &lt;chr&gt;          &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1 discrimination  480.  488.  495.
-## 2 goNoGo          420.  427.  435.
-## 3 reaction        296.  300.  304.</code></pre>
+##     lower  mean upper
+##     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 -0.0415 0.259 0.598</code></pre>
+<p>To obtain summary statistics for different groups of a variable, we can use the function <code>bootstrapped_CI</code> conveniently in concert with <strong>nested tibbles</strong>, as demonstrated here:</p>
+<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb239-1" data-line-number="1">mc_data_cleaned =<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data_sets/mental-chrono-data_cleaned.csv&quot;</span>) </a>
+<a class="sourceLine" id="cb239-2" data-line-number="2">avocado_data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb239-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(type) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb239-4" data-line-number="4"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb239-5" data-line-number="5"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb239-6" data-line-number="6">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>average_price))</a>
+<a class="sourceLine" id="cb239-7" data-line-number="7">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb239-8" data-line-number="8"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a></code></pre></div>
+<pre><code>## # A tibble: 2 x 4
+##   type         lower  mean upper
+##   &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 conventional  1.15  1.16  1.16
+## 2 organic       1.65  1.65  1.66</code></pre>
 <!-- Homework: -->
 <!-- - calculate bs 95% CI for vector [1,2,3] by hand! -->
 </div>
 </div>
 <div class="footnotes">
 <hr />
-<ol start="16">
-<li id="fn16"><p><span class="math inline">\(D^{\textrm{rep}}\)</span> is short for “repeated Data”. We will use this concept more later on. The idea is that we consider “hypothetical data” which we have not perceived, but which we might have. Repeated data is (usually) of the same shape and form as the original, observed data, which is also sometimes noted as <span class="math inline">\(D^{\textrm{obs}}\)</span> for clarity in comparison to <span class="math inline">\(D^{\textrm{rep}}\)</span>.<a href="Chap-02-03-summary-statistics-1D.html#fnref16" class="footnote-back">↩</a></p></li>
+<ol start="17">
+<li id="fn17"><p><span class="math inline">\(D^{\textrm{rep}}\)</span> is short for “repeated Data”. We will use this concept more later on. The idea is that we consider “hypothetical data” which we have not perceived, but which we might have. Repeated data is (usually) of the same shape and form as the original, observed data, which is also sometimes noted as <span class="math inline">\(D^{\textrm{obs}}\)</span> for clarity in comparison to <span class="math inline">\(D^{\textrm{rep}}\)</span>.<a href="Chap-02-03-summary-statistics-1D.html#fnref17" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>

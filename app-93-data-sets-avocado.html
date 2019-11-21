@@ -206,10 +206,16 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="5.1.1" data-path="Chap-02-03-summary-statistics-counts.html"><a href="Chap-02-03-summary-statistics-counts.html#loading-and-inspecting-the-data"><i class="fa fa-check"></i><b>5.1.1</b> Loading and inspecting the data</a></li>
 <li class="chapter" data-level="5.1.2" data-path="Chap-02-03-summary-statistics-counts.html"><a href="Chap-02-03-summary-statistics-counts.html#obtaining-counts-with-n-count-and-tally"><i class="fa fa-check"></i><b>5.1.2</b> Obtaining counts with <code>n</code>, <code>count</code> and <code>tally</code></a></li>
 </ul></li>
-<li class="chapter" data-level="5.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html"><i class="fa fa-check"></i><b>5.2</b> Exploring numerical data in a one-dimensional vector</a><ul>
-<li class="chapter" data-level="5.2.1" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#bootstrapped-95-confidence-intervals"><i class="fa fa-check"></i><b>5.2.1</b> Bootstrapped 95% confidence intervals</a></li>
+<li class="chapter" data-level="5.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html"><i class="fa fa-check"></i><b>5.2</b> Central tendency and dispersion</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#the-data-for-the-remainder-of-the-chapter"><i class="fa fa-check"></i><b>5.2.1</b> The data for the remainder of the chapter</a></li>
+<li class="chapter" data-level="5.2.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#measures-of-central-tendency"><i class="fa fa-check"></i><b>5.2.2</b> Measures of central tendency</a></li>
+<li class="chapter" data-level="5.2.3" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#measures-of-dispersion"><i class="fa fa-check"></i><b>5.2.3</b> Measures of dispersion</a></li>
+<li class="chapter" data-level="5.2.4" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#quantifying-confidence-with-bootstrapping"><i class="fa fa-check"></i><b>5.2.4</b> Quantifying confidence with bootstrapping</a></li>
 </ul></li>
-<li class="chapter" data-level="5.3" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html"><i class="fa fa-check"></i><b>5.3</b> Co-variance &amp; correlation</a></li>
+<li class="chapter" data-level="5.3" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html"><i class="fa fa-check"></i><b>5.3</b> Co-variance &amp; correlation</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#covariance"><i class="fa fa-check"></i><b>5.3.1</b> Covariance:</a></li>
+<li class="chapter" data-level="5.3.2" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#correlation"><i class="fa fa-check"></i><b>5.3.2</b> Correlation</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="data-plotting.html"><a href="data-plotting.html"><i class="fa fa-check"></i><b>6</b> Data Plotting</a><ul>
 <li class="chapter" data-level="6.1" data-path="motivating-example-anscombes-quartet.html"><a href="motivating-example-anscombes-quartet.html"><i class="fa fa-check"></i><b>6.1</b> Motivating example: Anscombe’s quartet</a></li>
@@ -388,19 +394,19 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="loading-and-preprocessing-the-data-3" class="section level3">
 <h3><span class="header-section-number">D.6.2</span> Loading and preprocessing the data</h3>
 <p>We load the data into a variable named <code>avocado_data</code> but also immediately rename some of the columns to have more convenient handles:</p>
-<div class="sourceCode" id="cb353"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb353-1" data-line-number="1">avocado_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado.csv&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb353-2" data-line-number="2"><span class="st">  </span><span class="co"># remove currently irrelevant columns</span></a>
-<a class="sourceLine" id="cb353-3" data-line-number="3"><span class="st">  </span><span class="kw">select</span>( <span class="op">-</span>X1 , <span class="op">-</span><span class="st"> </span><span class="kw">contains</span>(<span class="st">&quot;Bags&quot;</span>), <span class="op">-</span><span class="st"> </span>year, <span class="op">-</span><span class="st"> </span>region) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb353-4" data-line-number="4"><span class="st">  </span><span class="co"># rename variables of interest for convenience</span></a>
-<a class="sourceLine" id="cb353-5" data-line-number="5"><span class="st">  </span><span class="kw">rename</span>(</a>
-<a class="sourceLine" id="cb353-6" data-line-number="6">    <span class="dt">total_volume_sold =</span> <span class="st">`</span><span class="dt">Total Volume</span><span class="st">`</span>,</a>
-<a class="sourceLine" id="cb353-7" data-line-number="7">    <span class="dt">average_price =</span> <span class="st">`</span><span class="dt">AveragePrice</span><span class="st">`</span>,</a>
-<a class="sourceLine" id="cb353-8" data-line-number="8">    <span class="dt">small  =</span> <span class="st">&#39;4046&#39;</span>,</a>
-<a class="sourceLine" id="cb353-9" data-line-number="9">    <span class="dt">medium =</span> <span class="st">&#39;4225&#39;</span>,</a>
-<a class="sourceLine" id="cb353-10" data-line-number="10">    <span class="dt">large  =</span> <span class="st">&#39;4770&#39;</span>,</a>
-<a class="sourceLine" id="cb353-11" data-line-number="11">  )</a></code></pre></div>
+<div class="sourceCode" id="cb364"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb364-1" data-line-number="1">avocado_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado.csv&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb364-2" data-line-number="2"><span class="st">  </span><span class="co"># remove currently irrelevant columns</span></a>
+<a class="sourceLine" id="cb364-3" data-line-number="3"><span class="st">  </span><span class="kw">select</span>( <span class="op">-</span>X1 , <span class="op">-</span><span class="st"> </span><span class="kw">contains</span>(<span class="st">&quot;Bags&quot;</span>), <span class="op">-</span><span class="st"> </span>year, <span class="op">-</span><span class="st"> </span>region) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb364-4" data-line-number="4"><span class="st">  </span><span class="co"># rename variables of interest for convenience</span></a>
+<a class="sourceLine" id="cb364-5" data-line-number="5"><span class="st">  </span><span class="kw">rename</span>(</a>
+<a class="sourceLine" id="cb364-6" data-line-number="6">    <span class="dt">total_volume_sold =</span> <span class="st">`</span><span class="dt">Total Volume</span><span class="st">`</span>,</a>
+<a class="sourceLine" id="cb364-7" data-line-number="7">    <span class="dt">average_price =</span> <span class="st">`</span><span class="dt">AveragePrice</span><span class="st">`</span>,</a>
+<a class="sourceLine" id="cb364-8" data-line-number="8">    <span class="dt">small  =</span> <span class="st">&#39;4046&#39;</span>,</a>
+<a class="sourceLine" id="cb364-9" data-line-number="9">    <span class="dt">medium =</span> <span class="st">&#39;4225&#39;</span>,</a>
+<a class="sourceLine" id="cb364-10" data-line-number="10">    <span class="dt">large  =</span> <span class="st">&#39;4770&#39;</span>,</a>
+<a class="sourceLine" id="cb364-11" data-line-number="11">  )</a></code></pre></div>
 <p>We can then take a glimpse:</p>
-<div class="sourceCode" id="cb354"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb354-1" data-line-number="1"><span class="kw">glimpse</span>(avocado_data)</a></code></pre></div>
+<div class="sourceCode" id="cb365"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb365-1" data-line-number="1"><span class="kw">glimpse</span>(avocado_data)</a></code></pre></div>
 <pre><code>## Observations: 18,249
 ## Variables: 7
 ## $ Date              &lt;date&gt; 2015-12-27, 2015-12-20, 2015-12-13, 2015-12-06, 20…
@@ -421,100 +427,102 @@ code span.wa { color: #bf0303; } /* Warning */
 <li>the bootstrapped 95% confidence interval of the mean</li>
 </ul>
 <p>To get these results we define a convenience function that calculates exactly these measures:</p>
-<div class="sourceCode" id="cb356"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb356-1" data-line-number="1">summary_stats_convenience_fct &lt;-<span class="st"> </span><span class="cf">function</span>(numeric_data_vector) {</a>
-<a class="sourceLine" id="cb356-2" data-line-number="2">  bootstrap_results &lt;-<span class="st"> </span><span class="kw">bootstrapped_CI</span>(numeric_data_vector)</a>
-<a class="sourceLine" id="cb356-3" data-line-number="3">  <span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb356-4" data-line-number="4">    <span class="dt">CI_lower =</span> bootstrap_results<span class="op">$</span>lower,</a>
-<a class="sourceLine" id="cb356-5" data-line-number="5">    <span class="dt">mean =</span> bootstrap_results<span class="op">$</span>mean,</a>
-<a class="sourceLine" id="cb356-6" data-line-number="6">    <span class="dt">CI_upper =</span> bootstrap_results<span class="op">$</span>upper,</a>
-<a class="sourceLine" id="cb356-7" data-line-number="7">    <span class="dt">median =</span> <span class="kw">median</span>(numeric_data_vector),</a>
-<a class="sourceLine" id="cb356-8" data-line-number="8">    <span class="dt">var =</span> <span class="kw">var</span>(numeric_data_vector)</a>
-<a class="sourceLine" id="cb356-9" data-line-number="9">  )</a>
-<a class="sourceLine" id="cb356-10" data-line-number="10">}</a></code></pre></div>
+<div class="sourceCode" id="cb367"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb367-1" data-line-number="1">summary_stats_convenience_fct &lt;-<span class="st"> </span><span class="cf">function</span>(numeric_data_vector) {</a>
+<a class="sourceLine" id="cb367-2" data-line-number="2">  bootstrap_results &lt;-<span class="st"> </span><span class="kw">bootstrapped_CI</span>(numeric_data_vector)</a>
+<a class="sourceLine" id="cb367-3" data-line-number="3">  <span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb367-4" data-line-number="4">    <span class="dt">CI_lower =</span> bootstrap_results<span class="op">$</span>lower,</a>
+<a class="sourceLine" id="cb367-5" data-line-number="5">    <span class="dt">mean =</span> bootstrap_results<span class="op">$</span>mean,</a>
+<a class="sourceLine" id="cb367-6" data-line-number="6">    <span class="dt">CI_upper =</span> bootstrap_results<span class="op">$</span>upper,</a>
+<a class="sourceLine" id="cb367-7" data-line-number="7">    <span class="dt">median =</span> <span class="kw">median</span>(numeric_data_vector),</a>
+<a class="sourceLine" id="cb367-8" data-line-number="8">    <span class="dt">var =</span> <span class="kw">var</span>(numeric_data_vector)</a>
+<a class="sourceLine" id="cb367-9" data-line-number="9">  )</a>
+<a class="sourceLine" id="cb367-10" data-line-number="10">}</a></code></pre></div>
 <p>We then apply this function once for the whole data set and once for each type of avocado (conventional or organic). We do this using a nested tibble in order to record the joint output of the convenience function (so that we only need to calculate the bootstrapped 95% confidence interval twice).</p>
-<div class="sourceCode" id="cb357"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb357-1" data-line-number="1"><span class="co"># summary stats for the whole data taken together</span></a>
-<a class="sourceLine" id="cb357-2" data-line-number="2">avocado_sum_stats_total &lt;-<span class="st"> </span>avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-3" data-line-number="3"><span class="st">  </span><span class="kw">select</span>(type, average_price, total_volume_sold) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-4" data-line-number="4"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
-<a class="sourceLine" id="cb357-5" data-line-number="5">    <span class="dt">cols =</span> <span class="kw">c</span>(total_volume_sold, average_price),</a>
-<a class="sourceLine" id="cb357-6" data-line-number="6">    <span class="dt">names_to  =</span> <span class="st">&#39;variable&#39;</span>,</a>
-<a class="sourceLine" id="cb357-7" data-line-number="7">    <span class="dt">values_to =</span> <span class="st">&#39;value&#39;</span></a>
-<a class="sourceLine" id="cb357-8" data-line-number="8">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-9" data-line-number="9"><span class="st">  </span><span class="kw">group_by</span>(variable) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb357-10" data-line-number="10"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-11" data-line-number="11"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb357-12" data-line-number="12">    <span class="dt">summary_stats =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">summary_stats_convenience_fct</span>(d<span class="op">$</span>value))</a>
-<a class="sourceLine" id="cb357-13" data-line-number="13">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-14" data-line-number="14"><span class="st">  </span><span class="kw">unnest</span>(summary_stats) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-15" data-line-number="15"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">type =</span> <span class="st">&quot;both_together&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-16" data-line-number="16"><span class="st">  </span><span class="co"># reorder columns: moving `type` to second position</span></a>
-<a class="sourceLine" id="cb357-17" data-line-number="17"><span class="st">  </span><span class="kw">select</span>(<span class="dv">1</span>,type,<span class="kw">everything</span>())</a>
-<a class="sourceLine" id="cb357-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb357-19" data-line-number="19"><span class="co"># summary stats for each type of avocado</span></a>
-<a class="sourceLine" id="cb357-20" data-line-number="20">avocado_sum_stats_by_type &lt;-<span class="st"> </span>avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-21" data-line-number="21"><span class="st">  </span><span class="kw">select</span>(type, average_price, total_volume_sold) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-22" data-line-number="22"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
-<a class="sourceLine" id="cb357-23" data-line-number="23">    <span class="dt">cols =</span> <span class="kw">c</span>(total_volume_sold, average_price),</a>
-<a class="sourceLine" id="cb357-24" data-line-number="24">    <span class="dt">names_to  =</span> <span class="st">&#39;variable&#39;</span>,</a>
-<a class="sourceLine" id="cb357-25" data-line-number="25">    <span class="dt">values_to =</span> <span class="st">&#39;value&#39;</span></a>
-<a class="sourceLine" id="cb357-26" data-line-number="26">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-27" data-line-number="27"><span class="st">  </span><span class="kw">group_by</span>(type, variable) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb357-28" data-line-number="28"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-29" data-line-number="29"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb357-30" data-line-number="30">    <span class="dt">summary_stats =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">summary_stats_convenience_fct</span>(d<span class="op">$</span>value))</a>
-<a class="sourceLine" id="cb357-31" data-line-number="31">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-32" data-line-number="32"><span class="st">  </span><span class="kw">unnest</span>(summary_stats)</a>
-<a class="sourceLine" id="cb357-33" data-line-number="33"></a>
-<a class="sourceLine" id="cb357-34" data-line-number="34"><span class="co"># joining the summary stats in a single tibble</span></a>
-<a class="sourceLine" id="cb357-35" data-line-number="35">avocado_sum_stats &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb357-36" data-line-number="36"><span class="st">  </span><span class="kw">full_join</span>(avocado_sum_stats_total, avocado_sum_stats_by_type)</a>
-<a class="sourceLine" id="cb357-37" data-line-number="37"></a>
-<a class="sourceLine" id="cb357-38" data-line-number="38"><span class="co"># inspect the results  </span></a>
-<a class="sourceLine" id="cb357-39" data-line-number="39">avocado_sum_stats</a></code></pre></div>
+<div class="sourceCode" id="cb368"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb368-1" data-line-number="1"><span class="co"># summary stats for the whole data taken together</span></a>
+<a class="sourceLine" id="cb368-2" data-line-number="2">avocado_sum_stats_total &lt;-<span class="st"> </span>avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-3" data-line-number="3"><span class="st">  </span><span class="kw">select</span>(type, average_price, total_volume_sold) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-4" data-line-number="4"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
+<a class="sourceLine" id="cb368-5" data-line-number="5">    <span class="dt">cols =</span> <span class="kw">c</span>(total_volume_sold, average_price),</a>
+<a class="sourceLine" id="cb368-6" data-line-number="6">    <span class="dt">names_to  =</span> <span class="st">&#39;variable&#39;</span>,</a>
+<a class="sourceLine" id="cb368-7" data-line-number="7">    <span class="dt">values_to =</span> <span class="st">&#39;value&#39;</span></a>
+<a class="sourceLine" id="cb368-8" data-line-number="8">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-9" data-line-number="9"><span class="st">  </span><span class="kw">group_by</span>(variable) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb368-10" data-line-number="10"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-11" data-line-number="11"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb368-12" data-line-number="12">    <span class="dt">summary_stats =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">summary_stats_convenience_fct</span>(d<span class="op">$</span>value))</a>
+<a class="sourceLine" id="cb368-13" data-line-number="13">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-14" data-line-number="14"><span class="st">  </span><span class="kw">unnest</span>(summary_stats) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-15" data-line-number="15"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">type =</span> <span class="st">&quot;both_together&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-16" data-line-number="16"><span class="st">  </span><span class="co"># reorder columns: moving `type` to second position</span></a>
+<a class="sourceLine" id="cb368-17" data-line-number="17"><span class="st">  </span><span class="kw">select</span>(<span class="dv">1</span>,type,<span class="kw">everything</span>())</a>
+<a class="sourceLine" id="cb368-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb368-19" data-line-number="19"><span class="co"># summary stats for each type of avocado</span></a>
+<a class="sourceLine" id="cb368-20" data-line-number="20">avocado_sum_stats_by_type &lt;-<span class="st"> </span>avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-21" data-line-number="21"><span class="st">  </span><span class="kw">select</span>(type, average_price, total_volume_sold) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-22" data-line-number="22"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
+<a class="sourceLine" id="cb368-23" data-line-number="23">    <span class="dt">cols =</span> <span class="kw">c</span>(total_volume_sold, average_price),</a>
+<a class="sourceLine" id="cb368-24" data-line-number="24">    <span class="dt">names_to  =</span> <span class="st">&#39;variable&#39;</span>,</a>
+<a class="sourceLine" id="cb368-25" data-line-number="25">    <span class="dt">values_to =</span> <span class="st">&#39;value&#39;</span></a>
+<a class="sourceLine" id="cb368-26" data-line-number="26">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-27" data-line-number="27"><span class="st">  </span><span class="kw">group_by</span>(type, variable) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb368-28" data-line-number="28"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-29" data-line-number="29"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb368-30" data-line-number="30">    <span class="dt">summary_stats =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">summary_stats_convenience_fct</span>(d<span class="op">$</span>value))</a>
+<a class="sourceLine" id="cb368-31" data-line-number="31">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb368-32" data-line-number="32"><span class="st">  </span><span class="kw">unnest</span>(summary_stats)</a>
+<a class="sourceLine" id="cb368-33" data-line-number="33"></a>
+<a class="sourceLine" id="cb368-34" data-line-number="34"><span class="co"># joining the summary stats in a single tibble</span></a>
+<a class="sourceLine" id="cb368-35" data-line-number="35">avocado_sum_stats &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb368-36" data-line-number="36"><span class="st">  </span><span class="kw">full_join</span>(avocado_sum_stats_total, avocado_sum_stats_by_type)</a>
+<a class="sourceLine" id="cb368-37" data-line-number="37"></a>
+<a class="sourceLine" id="cb368-38" data-line-number="38"><span class="co"># inspect the results  </span></a>
+<a class="sourceLine" id="cb368-39" data-line-number="39">avocado_sum_stats</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 7
 ##   variable         type           CI_lower      mean  CI_upper   median      var
 ##   &lt;chr&gt;            &lt;chr&gt;             &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 average_price    both_togeth…       1.40    1.41e0    1.41e0   1.37e0 1.62e- 1
-## 2 total_volume_so… both_togeth…  798928.      8.51e5    9.01e5   1.07e5 1.19e+13
+## 2 total_volume_so… both_togeth…  797007.      8.51e5    9.03e5   1.07e5 1.19e+13
 ## 3 average_price    conventional       1.15    1.16e0    1.16e0   1.13e0 6.92e- 2
-## 4 total_volume_so… conventional 1557086.      1.65e6    1.75e6   4.08e5 2.25e+13
+## 4 total_volume_so… conventional 1563042.      1.65e6    1.75e6   4.08e5 2.25e+13
 ## 5 average_price    organic            1.65    1.65e0    1.66e0   1.63e0 1.32e- 1
-## 6 total_volume_so… organic        44971.      4.78e4    5.08e4   1.08e4 2.03e+10</code></pre>
+## 6 total_volume_so… organic        44717.      4.78e4    5.05e4   1.08e4 2.03e+10</code></pre>
 </div>
 <div id="plots" class="section level3">
 <h3><span class="header-section-number">D.6.4</span> Plots</h3>
 <p>Here are plots of the distributions of <code>average_price</code> for different types of avocados:</p>
 <!-- HOMEWORK: produce a facet plot for type AND size of the avocado -->
-<div class="sourceCode" id="cb359"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb359-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb359-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> average_price, <span class="dt">fill =</span> type)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb359-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth =</span> <span class="fl">0.01</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb359-4" data-line-number="4"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>type, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb359-5" data-line-number="5"><span class="st">  </span><span class="kw">coord_flip</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb359-6" data-line-number="6"><span class="st">  </span><span class="kw">geom_point</span>(</a>
-<a class="sourceLine" id="cb359-7" data-line-number="7">    <span class="dt">data =</span> avocado_sum_stats_by_type <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(variable <span class="op">==</span><span class="st"> &quot;average_price&quot;</span>),  </a>
-<a class="sourceLine" id="cb359-8" data-line-number="8">    <span class="kw">aes</span>(<span class="dt">y =</span> <span class="dv">0</span>, <span class="dt">x =</span> mean)</a>
-<a class="sourceLine" id="cb359-9" data-line-number="9">  ) <span class="op">+</span></a>
-<a class="sourceLine" id="cb359-10" data-line-number="10"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-203-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb370"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb370-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb370-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> average_price, <span class="dt">fill =</span> type)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb370-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth =</span> <span class="fl">0.01</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb370-4" data-line-number="4"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>type, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb370-5" data-line-number="5"><span class="st">  </span><span class="kw">coord_flip</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb370-6" data-line-number="6"><span class="st">  </span><span class="kw">geom_point</span>(</a>
+<a class="sourceLine" id="cb370-7" data-line-number="7">    <span class="dt">data =</span> avocado_sum_stats_by_type <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(variable <span class="op">==</span><span class="st"> &quot;average_price&quot;</span>),  </a>
+<a class="sourceLine" id="cb370-8" data-line-number="8">    <span class="kw">aes</span>(<span class="dt">y =</span> <span class="dv">0</span>, <span class="dt">x =</span> mean)</a>
+<a class="sourceLine" id="cb370-9" data-line-number="9">  ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb370-10" data-line-number="10"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb370-11" data-line-number="11"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&#39;Average price&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb370-12" data-line-number="12"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-213-1.png" width="672" style="display: block; margin: auto;" /></p>
 <!-- TODO: insert information about mean and 95% CI as linerange with y = 0 -->
 <p>Here is a scatter plot of the logarithm of <code>total_volume_sold</code> against <code>average_price</code>:</p>
-<div class="sourceCode" id="cb360"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb360-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb360-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(total_volume_sold), <span class="dt">y =</span> average_price)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb360-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">color =</span> <span class="st">&quot;darkgray&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.3</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb360-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb360-5" data-line-number="5"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&#39;Logarithm of total volume sold&#39;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb360-6" data-line-number="6"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;Average price&#39;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb360-7" data-line-number="7"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Avocado prices plotted against the (log) amount sold&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-204-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb371"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb371-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb371-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(total_volume_sold), <span class="dt">y =</span> average_price)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb371-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">color =</span> <span class="st">&quot;darkgray&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.3</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb371-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb371-5" data-line-number="5"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&#39;Logarithm of total volume sold&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb371-6" data-line-number="6"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;Average price&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb371-7" data-line-number="7"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Avocado prices plotted against the (log) amount sold&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-214-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>And another scatter plot of the same quantities where the different types of avocados are distinguished:</p>
-<div class="sourceCode" id="cb361"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb361-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb361-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(total_volume_sold), <span class="dt">y =</span> average_price, <span class="dt">group =</span> type, <span class="dt">fill =</span> type, <span class="dt">color =</span> type)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb361-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb361-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb361-5" data-line-number="5"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&#39;Logarithm of total volume sold&#39;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb361-6" data-line-number="6"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;Average price&#39;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb361-7" data-line-number="7"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Avocado prices plotted against the (log) amount sold per type&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-205-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb372"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb372-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb372-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(total_volume_sold), <span class="dt">y =</span> average_price, <span class="dt">group =</span> type, <span class="dt">fill =</span> type, <span class="dt">color =</span> type)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb372-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.1</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb372-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb372-5" data-line-number="5"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&#39;Logarithm of total volume sold&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb372-6" data-line-number="6"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&#39;Average price&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb372-7" data-line-number="7"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Avocado prices plotted against the (log) amount sold per type&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-215-1.png" width="672" style="display: block; margin: auto;" /></p>
 
 </div>
 </div>

@@ -206,10 +206,16 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="5.1.1" data-path="Chap-02-03-summary-statistics-counts.html"><a href="Chap-02-03-summary-statistics-counts.html#loading-and-inspecting-the-data"><i class="fa fa-check"></i><b>5.1.1</b> Loading and inspecting the data</a></li>
 <li class="chapter" data-level="5.1.2" data-path="Chap-02-03-summary-statistics-counts.html"><a href="Chap-02-03-summary-statistics-counts.html#obtaining-counts-with-n-count-and-tally"><i class="fa fa-check"></i><b>5.1.2</b> Obtaining counts with <code>n</code>, <code>count</code> and <code>tally</code></a></li>
 </ul></li>
-<li class="chapter" data-level="5.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html"><i class="fa fa-check"></i><b>5.2</b> Exploring numerical data in a one-dimensional vector</a><ul>
-<li class="chapter" data-level="5.2.1" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#bootstrapped-95-confidence-intervals"><i class="fa fa-check"></i><b>5.2.1</b> Bootstrapped 95% confidence intervals</a></li>
+<li class="chapter" data-level="5.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html"><i class="fa fa-check"></i><b>5.2</b> Central tendency and dispersion</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#the-data-for-the-remainder-of-the-chapter"><i class="fa fa-check"></i><b>5.2.1</b> The data for the remainder of the chapter</a></li>
+<li class="chapter" data-level="5.2.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#measures-of-central-tendency"><i class="fa fa-check"></i><b>5.2.2</b> Measures of central tendency</a></li>
+<li class="chapter" data-level="5.2.3" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#measures-of-dispersion"><i class="fa fa-check"></i><b>5.2.3</b> Measures of dispersion</a></li>
+<li class="chapter" data-level="5.2.4" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#quantifying-confidence-with-bootstrapping"><i class="fa fa-check"></i><b>5.2.4</b> Quantifying confidence with bootstrapping</a></li>
 </ul></li>
-<li class="chapter" data-level="5.3" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html"><i class="fa fa-check"></i><b>5.3</b> Co-variance &amp; correlation</a></li>
+<li class="chapter" data-level="5.3" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html"><i class="fa fa-check"></i><b>5.3</b> Co-variance &amp; correlation</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#covariance"><i class="fa fa-check"></i><b>5.3.1</b> Covariance:</a></li>
+<li class="chapter" data-level="5.3.2" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#correlation"><i class="fa fa-check"></i><b>5.3.2</b> Correlation</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="data-plotting.html"><a href="data-plotting.html"><i class="fa fa-check"></i><b>6</b> Data Plotting</a><ul>
 <li class="chapter" data-level="6.1" data-path="motivating-example-anscombes-quartet.html"><a href="motivating-example-anscombes-quartet.html"><i class="fa fa-check"></i><b>6.1</b> Motivating example: Anscombe’s quartet</a></li>
@@ -365,32 +371,33 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="Chap-02-03-summary-statistics-2D" class="section level2">
 <h2><span class="header-section-number">5.3</span> Co-variance &amp; correlation</h2>
-<p>Covariance:</p>
-<p><span class="math display">\[cov(x,y) = \frac{1}{n-1} \ \sum_{i=1}^n (x_i - \bar{x}) \ (y_i - \bar{y})\]</span></p>
+<div id="covariance" class="section level3">
+<h3><span class="header-section-number">5.3.1</span> Covariance:</h3>
+<p><span class="math display">\[\text{Cov}(\vec{x},\vec{y}) = \frac{1}{n-1} \ \sum_{i=1}^n (x_i - \mu_{\vec{x}}) \ (y_i - \mu_{\vec{y}})\]</span></p>
 <p>There is a visually intuitive geometric interpretation of covariance. To see this, let’s look at a short contrived example.</p>
-<div class="sourceCode" id="cb234"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb234-1" data-line-number="1">contrived_example &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb234-2" data-line-number="2"><span class="st">  </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb234-3" data-line-number="3">    <span class="op">~</span>x,   <span class="op">~</span>y,</a>
-<a class="sourceLine" id="cb234-4" data-line-number="4">    <span class="dv">2</span>,    <span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb234-5" data-line-number="5">    <span class="fl">2.5</span>,  <span class="dv">4</span>,</a>
-<a class="sourceLine" id="cb234-6" data-line-number="6">    <span class="fl">3.5</span>,  <span class="fl">2.5</span>,</a>
-<a class="sourceLine" id="cb234-7" data-line-number="7">    <span class="dv">4</span>,    <span class="fl">3.5</span></a>
-<a class="sourceLine" id="cb234-8" data-line-number="8">  )</a></code></pre></div>
+<div class="sourceCode" id="cb241"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb241-1" data-line-number="1">contrived_example &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb241-2" data-line-number="2"><span class="st">  </span><span class="kw">tribble</span>(</a>
+<a class="sourceLine" id="cb241-3" data-line-number="3">    <span class="op">~</span>x,   <span class="op">~</span>y,</a>
+<a class="sourceLine" id="cb241-4" data-line-number="4">    <span class="dv">2</span>,    <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb241-5" data-line-number="5">    <span class="fl">2.5</span>,  <span class="dv">4</span>,</a>
+<a class="sourceLine" id="cb241-6" data-line-number="6">    <span class="fl">3.5</span>,  <span class="fl">2.5</span>,</a>
+<a class="sourceLine" id="cb241-7" data-line-number="7">    <span class="dv">4</span>,    <span class="fl">3.5</span></a>
+<a class="sourceLine" id="cb241-8" data-line-number="8">  )</a></code></pre></div>
 <p>First, notice that the mean of <code>x</code> and <code>y</code> is 3:</p>
-<div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb235-1" data-line-number="1">means_contr_example &lt;-<span class="st"> </span><span class="kw">map_df</span>(contrived_example, mean)</a>
-<a class="sourceLine" id="cb235-2" data-line-number="2">means_contr_example</a></code></pre></div>
+<div class="sourceCode" id="cb242"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb242-1" data-line-number="1">means_contr_example &lt;-<span class="st"> </span><span class="kw">map_df</span>(contrived_example, mean)</a>
+<a class="sourceLine" id="cb242-2" data-line-number="2">means_contr_example</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 2
 ##       x     y
 ##   &lt;dbl&gt; &lt;dbl&gt;
 ## 1     3     3</code></pre>
 <p>We can then compute the covariance as follows:</p>
-<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb237-1" data-line-number="1">contrived_example &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb237-2" data-line-number="2"><span class="st">  </span>contrived_example <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb237-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb237-4" data-line-number="4">    <span class="dt">area_rectangle =</span>               (x<span class="op">-</span><span class="kw">mean</span>(x)) <span class="op">*</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y)),</a>
-<a class="sourceLine" id="cb237-5" data-line-number="5">    <span class="dt">covariance     =</span>  <span class="dv">1</span><span class="op">/</span><span class="st"> </span>(<span class="kw">n</span>()<span class="op">-</span><span class="dv">1</span>) <span class="op">*</span><span class="st"> </span><span class="kw">sum</span>((x<span class="op">-</span><span class="kw">mean</span>(x)) <span class="op">*</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y)))</a>
-<a class="sourceLine" id="cb237-6" data-line-number="6">  )</a>
-<a class="sourceLine" id="cb237-7" data-line-number="7">contrived_example</a></code></pre></div>
+<div class="sourceCode" id="cb244"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb244-1" data-line-number="1">contrived_example &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb244-2" data-line-number="2"><span class="st">  </span>contrived_example <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb244-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb244-4" data-line-number="4">    <span class="dt">area_rectangle =</span>               (x<span class="op">-</span><span class="kw">mean</span>(x)) <span class="op">*</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y)),</a>
+<a class="sourceLine" id="cb244-5" data-line-number="5">    <span class="dt">covariance     =</span>  <span class="dv">1</span><span class="op">/</span><span class="st"> </span>(<span class="kw">n</span>()<span class="op">-</span><span class="dv">1</span>) <span class="op">*</span><span class="st"> </span><span class="kw">sum</span>((x<span class="op">-</span><span class="kw">mean</span>(x)) <span class="op">*</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y)))</a>
+<a class="sourceLine" id="cb244-6" data-line-number="6">  )</a>
+<a class="sourceLine" id="cb244-7" data-line-number="7">contrived_example</a></code></pre></div>
 <pre><code>## # A tibble: 4 x 4
 ##       x     y area_rectangle covariance
 ##   &lt;dbl&gt; &lt;dbl&gt;          &lt;dbl&gt;      &lt;dbl&gt;
@@ -398,26 +405,45 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 2   2.5   4            -0.5        0.25
 ## 3   3.5   2.5          -0.25       0.25
 ## 4   4     3.5           0.5        0.25</code></pre>
-<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb239-1" data-line-number="1">contrived_example <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb239-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, y)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb239-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_rect</span>(</a>
-<a class="sourceLine" id="cb239-4" data-line-number="4">    <span class="kw">aes</span>(</a>
-<a class="sourceLine" id="cb239-5" data-line-number="5">      <span class="dt">xmin =</span> <span class="kw">map_dbl</span>(x, <span class="cf">function</span>(i) {<span class="kw">min</span>(i, means_contr_example<span class="op">$</span>x)}),</a>
-<a class="sourceLine" id="cb239-6" data-line-number="6">      <span class="dt">ymin =</span> <span class="kw">map_dbl</span>(y, <span class="cf">function</span>(i) {<span class="kw">min</span>(i, means_contr_example<span class="op">$</span>y)}),</a>
-<a class="sourceLine" id="cb239-7" data-line-number="7">      <span class="dt">xmax =</span> <span class="kw">map_dbl</span>(x, <span class="cf">function</span>(i) {<span class="kw">max</span>(i, means_contr_example<span class="op">$</span>x)}),</a>
-<a class="sourceLine" id="cb239-8" data-line-number="8">      <span class="dt">ymax =</span> <span class="kw">map_dbl</span>(y, <span class="cf">function</span>(i) {<span class="kw">max</span>(i, means_contr_example<span class="op">$</span>y)}),</a>
-<a class="sourceLine" id="cb239-9" data-line-number="9">      <span class="dt">fill =</span> area_rectangle</a>
-<a class="sourceLine" id="cb239-10" data-line-number="10">    )</a>
-<a class="sourceLine" id="cb239-11" data-line-number="11">  ) <span class="op">+</span></a>
-<a class="sourceLine" id="cb239-12" data-line-number="12"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">color =</span> <span class="st">&quot;darkorange&quot;</span>, <span class="dt">size =</span> <span class="dv">4</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb239-13" data-line-number="13"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> means_contr_example, <span class="dt">color =</span> <span class="st">&quot;white&quot;</span>, <span class="dt">size =</span> <span class="dv">10</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb239-14" data-line-number="14"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb239-15" data-line-number="15"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Rectangular areas contributing to the computation of covariance&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-135-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb246"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb246-1" data-line-number="1">contrived_example <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb246-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, y)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb246-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_rect</span>(</a>
+<a class="sourceLine" id="cb246-4" data-line-number="4">    <span class="kw">aes</span>(</a>
+<a class="sourceLine" id="cb246-5" data-line-number="5">      <span class="dt">xmin =</span> <span class="kw">map_dbl</span>(x, <span class="cf">function</span>(i) {<span class="kw">min</span>(i, means_contr_example<span class="op">$</span>x)}),</a>
+<a class="sourceLine" id="cb246-6" data-line-number="6">      <span class="dt">ymin =</span> <span class="kw">map_dbl</span>(y, <span class="cf">function</span>(i) {<span class="kw">min</span>(i, means_contr_example<span class="op">$</span>y)}),</a>
+<a class="sourceLine" id="cb246-7" data-line-number="7">      <span class="dt">xmax =</span> <span class="kw">map_dbl</span>(x, <span class="cf">function</span>(i) {<span class="kw">max</span>(i, means_contr_example<span class="op">$</span>x)}),</a>
+<a class="sourceLine" id="cb246-8" data-line-number="8">      <span class="dt">ymax =</span> <span class="kw">map_dbl</span>(y, <span class="cf">function</span>(i) {<span class="kw">max</span>(i, means_contr_example<span class="op">$</span>y)}),</a>
+<a class="sourceLine" id="cb246-9" data-line-number="9">      <span class="dt">fill =</span> area_rectangle</a>
+<a class="sourceLine" id="cb246-10" data-line-number="10">    )</a>
+<a class="sourceLine" id="cb246-11" data-line-number="11">  ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb246-12" data-line-number="12"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">color =</span> <span class="st">&quot;darkorange&quot;</span>, <span class="dt">size =</span> <span class="dv">4</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb246-13" data-line-number="13"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> means_contr_example, <span class="dt">color =</span> <span class="st">&quot;white&quot;</span>, <span class="dt">size =</span> <span class="dv">10</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb246-14" data-line-number="14"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb246-15" data-line-number="15"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Rectangular areas contributing to the computation of covariance&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-143-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We can, of course, also calculate covariance just with a built-in base R function, <code>cov</code>:</p>
-<div class="sourceCode" id="cb240"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb240-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cov</span>(x,y))</a></code></pre></div>
+<div class="sourceCode" id="cb247"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb247-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cov</span>(x,y))</a></code></pre></div>
 <pre><code>## [1] 0.25</code></pre>
+<ul>
+<li>covariance in avocado data</li>
+</ul>
+<div class="sourceCode" id="cb249"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb249-1" data-line-number="1"><span class="kw">with</span>(avocado_data, <span class="kw">cov</span>(<span class="kw">log</span>(total_volume_sold), average_price))</a></code></pre></div>
+<pre><code>## [1] -0.5388084</code></pre>
+</div>
+<div id="correlation" class="section level3">
+<h3><span class="header-section-number">5.3.2</span> Correlation</h3>
+<p>Bravais-Pearson correlation is covariance standardized by standard deviations:</p>
+<p><span class="math display">\[r_{\vec{x}\vec{y}} = \frac{\text{Cov}(\vec{x}, \vec{y})}{\text{SD}(\vec{x}) \ \text{SD}(\vec{y})}\]</span></p>
+<div class="sourceCode" id="cb251"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb251-1" data-line-number="1"><span class="kw">with</span>(avocado_data, <span class="kw">cor</span>(<span class="kw">log</span>(total_volume_sold), average_price))</a></code></pre></div>
+<pre><code>## [1] -0.5834087</code></pre>
+<div class="figure" style="text-align: center"><span id="fig:chap-02-03-avocado-scatter"></span>
+<img src="I2DA_files/figure-html/chap-02-03-avocado-scatter-1.png" alt="Scatter plot of avocado prices, plotted agains (logarithms of) the total amount sold. The black line is a linear regression line indicating the (negative) correlation between these measures (more in this later)." width="672" />
+<p class="caption">
+Figure 5.3: Scatter plot of avocado prices, plotted agains (logarithms of) the total amount sold. The black line is a linear regression line indicating the (negative) correlation between these measures (more in this later).
+</p>
+</div>
 
+</div>
 </div>
 <!-- </div> -->
             </section>
