@@ -1,0 +1,168 @@
+
+## Avocado prices {#app-93-data-sets-avocado}
+
+### Nature, origin and rationale of the data
+
+<!-- <div style = "float:right; width:24%;"> -->
+<!-- <img src="visuals/badge-BLJM.png" alt="badge-BLJM">   -->
+<!-- </div>   -->
+
+This data set has been plugged from [kaggle](https://www.kaggle.com). More information on it can be found [here](https://www.kaggle.com/neuromusic/avocado-prices). The data set includes information about the prices of (Hass) avocados and the amount sold (of different kinds) at different points in time. The data is originally from the Hass Avocado Board where the data is described as follows:
+
+> The [data] represents weekly 2018 retail scan data for National retail volume (units) and price. Retail scan data comes directly from retailers’ cash registers based on actual retail sales of Hass avocados. Starting in 2013, the table below reflects an expanded, multi-outlet retail data set. Multi-outlet reporting includes an aggregation of the following channels: grocery, mass, club, drug, dollar and military. The Average Price (of avocados) in the table reflects a per unit (per avocado) cost, even when multiple units (avocados) are sold in bags. The Product Lookup codes (PLU’s) in the table are only for Hass avocados. Other varieties of avocados (e.g. greenskins) are not included in this table.
+
+Columns of interest are:
+
++ `Date` - date of the observation
++ `AveragePrice` - average price of a single avocado
++ `Total Volume` - Total number of avocados sold
++ `type` - whether the price/amount is for conventional or organic
++ `4046` - Total number of small avocados sold (PLU 4046) 
++ `4225` - Total number of medium avocados sold  (PLU 4225) 
++ `4770` - Total number of large avocados  sold (PLU 4770)
+
+
+### Loading and preprocessing the data
+
+We load the data into a variable named `avocado_data` but also immediately rename some of the columns to have more convenient handles:
+
+```{r, echo = F}
+avocado_data <- read_csv('data_sets/avocado.csv') %>% 
+  # remove currently irrelevant columns
+  select( -X1 , - contains("Bags"), - year, - region) %>% 
+  # rename variables of interest for convenience
+  rename(
+    total_volume_sold = `Total Volume`,
+    average_price = `AveragePrice`,
+    small  = '4046',
+    medium = '4225',
+    large  = '4770',
+  )
+```
+
+```{r, eval = F}
+avocado_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado.csv')) %>% 
+  # remove currently irrelevant columns
+  select( -X1 , - contains("Bags"), - year, - region) %>% 
+  # rename variables of interest for convenience
+  rename(
+    total_volume_sold = `Total Volume`,
+    average_price = `AveragePrice`,
+    small  = '4046',
+    medium = '4225',
+    large  = '4770',
+  )
+```
+
+We can then take a glimpse:
+
+```{r}
+glimpse(avocado_data)
+```
+
+### Summary statistics
+
+We are interested in the following summary statistics for the variables `total_amount_sold` and `average_price` for the whole data and for each type of avocado seperately: 
+
+- mean
+- median
+- variance
+- the bootstrapped 95% confidence interval of the mean
+
+To get these results we define a convenience function that calculates exactly these measures
+
+```{r}
+summary_stats_convenience_fct <- function(numeric_data_vector) {
+  bootstrap_results <- bootstrapped_CI(numeric_data_vector)
+  tibble(
+    CI_lower = bootstrap_results$lower,
+    mean = bootstrap_results$mean,
+    CI_upper = bootstrap_results$upper,
+    median = median(numeric_data_vector),
+    var = var(numeric_data_vector)
+  )
+}
+```
+
+
+```{r}
+avocado_sum_stats_by_type <- avocado_data %>% 
+  select(type, average_price, total_volume_sold) %>% 
+  pivot_longer(
+    cols = c(total_volume_sold, average_price),
+    names_to  = 'variable',
+    values_to = 'value'
+  ) %>% 
+  group_by(type, variable) %>%
+  nest() %>% 
+  summarise(
+    summary_stats = map(data, function(d) summary_stats_convenience_fct(d$value))
+  ) %>% 
+  unnest(summary_stats)
+
+avocado_sum_stats_total <- avocado_data %>% 
+  select(type, average_price, total_volume_sold) %>% 
+  pivot_longer(
+    cols = c(total_volume_sold, average_price),
+    names_to  = 'variable',
+    values_to = 'value'
+  ) %>% 
+  group_by(variable) %>%
+  nest() %>% 
+  summarise(
+    summary_stats = map(data, function(d) summary_stats_convenience_fct(d$value))
+  ) %>% 
+  unnest(summary_stats) %>% 
+  mutate(type = "both_together") %>% 
+  # reorder columns: moving `type` to second position
+  select(1,type,everything())
+
+avocado_sum_stats <- 
+  full_join(avocado_sum_stats_total, avocado_sum_stats_by_type)
+  
+avocado_sum_stats
+```
+
+
+### Plots
+
+Here are plots of the distributions of `average_price` for different types of avocados:
+
+<!-- HOMEWORK: produce a facet plot for type AND size of the avocado -->
+
+```{r}
+avocado_data %>% 
+  ggplot(aes(x = average_price, fill = type)) +
+  geom_histogram() +
+  facet_wrap(~type, scales = "free") + 
+  coord_flip() +
+  geom_point(
+    data = avocado_sum_stats_by_type %>% filter(variable == "average_price"),  
+    aes(y = 0, x = mean)
+  )
+```
+
+<!-- TODO: insert information about mean and 95% CI as linerange with y = 0 -->
+
+Here is a scatter plot of the logarithm of `total_volume_sold` against `average_price`:
+
+```{r}
+avocado_data %>% 
+  ggplot(aes(x = log(total_volume_sold), y = average_price)) +
+  geom_point(color = "darkgray", alpha = 0.3) +
+  geom_smooth(color = "black", method = "lm") +
+  xlab('Logarithm of total volume sold') +
+  ylab('Average price') +
+  ggtitle("Avocado prices plotted against the (log) amount sold")
+```
+
+And another scatter plot of the same quantities where the different types of avocados are distinguished:
+
+```{r}
+avocado_data %>% 
+  ggplot(aes(x = log(total_volume_sold), y = average_price, group = type, fill = type, color = type)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(color = "black", method = "lm") +
+  ggtitle("Avocado prices plotted against the (log) amount sold per type")
+```
+
