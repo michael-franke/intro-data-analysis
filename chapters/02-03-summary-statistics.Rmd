@@ -347,6 +347,7 @@ avocado_data %>%
 ```
 
 <!-- TODO compare mean and median -> homework -->
+<!-- TODO: describe "how to mislead with statistics" problem in an "excursion box" -->
 
 #### The mode
 
@@ -433,6 +434,17 @@ The standard deviation $\text{SD}(\vec{x})$ or numeric vector $\vec{x}$ is just 
 
 $$ \text{SD}(\vec{x}) = \sqrt{\text{Var}(\vec{x})} = \sqrt{\frac{1}{n} \sum_{i=1}^n (x_i - \mu_{\vec{x}})^2}$$
 
+Let's calculate the (biased) variance and standard deviation for the `average_price` of different types of avocados:
+
+```{r}
+avocado_data %>% 
+  group_by(type) %>% 
+  summarize(
+    variance_price = var(average_price),
+    stddev_price   = sd(average_price),
+  )
+```
+
 
 #### Quantile
 
@@ -499,7 +511,7 @@ Notice that, since `average_price` has length `r length(avocado_data$average_pri
 
 ```{r}
 # first 300 observations of `average price` only
-smaller_data = avocado_data$average_price[1:300]
+smaller_data <- avocado_data$average_price[1:300]
 bootstrapped_CI(smaller_data)
 ```
 
@@ -508,7 +520,6 @@ The mean is different (because we are looking at earlier time points) but, impor
 To obtain summary statistics for different groups of a variable, we can use the function `bootstrapped_CI` conveniently in concert with **nested tibbles**, as demonstrated here:
 
 ```{r}
-mc_data_cleaned = read_csv("data_sets/mental-chrono-data_cleaned.csv") 
 avocado_data %>%
   group_by(type) %>%
   nest() %>% 
