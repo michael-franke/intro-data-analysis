@@ -480,6 +480,7 @@ How many silver coins would you maximally pay to play one round? Well, of course
 ## 1 conventional       1.16         1.13
 ## 2 organic            1.65         1.63</code></pre>
 <!-- TODO compare mean and median -> homework -->
+<!-- TODO: describe "how to mislead with statistics" problem in an "excursion box" -->
 </div>
 <div id="the-mode" class="section level4">
 <h4><span class="header-section-number">5.2.2.3</span> The mode</h4>
@@ -521,17 +522,29 @@ Figure 5.3: Geometrical interpretation of variance. Four data points (black does
 <h4><span class="header-section-number">5.2.3.2</span> Standard deviation</h4>
 <p>The standard deviation <span class="math inline">\(\text{SD}(\vec{x})\)</span> or numeric vector <span class="math inline">\(\vec{x}\)</span> is just the square root of the variance:</p>
 <p><span class="math display">\[ \text{SD}(\vec{x}) = \sqrt{\text{Var}(\vec{x})} = \sqrt{\frac{1}{n} \sum_{i=1}^n (x_i - \mu_{\vec{x}})^2}\]</span></p>
+<p>Let’s calculate the (biased) variance and standard deviation for the <code>average_price</code> of different types of avocados:</p>
+<div class="sourceCode" id="cb240"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb240-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb240-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(type) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb240-3" data-line-number="3"><span class="st">  </span><span class="kw">summarize</span>(</a>
+<a class="sourceLine" id="cb240-4" data-line-number="4">    <span class="dt">variance_price =</span> <span class="kw">var</span>(average_price),</a>
+<a class="sourceLine" id="cb240-5" data-line-number="5">    <span class="dt">stddev_price   =</span> <span class="kw">sd</span>(average_price),</a>
+<a class="sourceLine" id="cb240-6" data-line-number="6">  )</a></code></pre></div>
+<pre><code>## # A tibble: 2 x 3
+##   type         variance_price stddev_price
+##   &lt;chr&gt;                 &lt;dbl&gt;        &lt;dbl&gt;
+## 1 conventional         0.0692        0.263
+## 2 organic              0.132         0.364</code></pre>
 </div>
 <div id="quantile" class="section level4">
 <h4><span class="header-section-number">5.2.3.3</span> Quantile</h4>
 <p>For a vector <span class="math inline">\(\vec{x}\)</span> of at least ordinal measures, we can generalize the concept of a median to an arbitrary quantile. An <span class="math inline">\(k\)</span>% quantile is the element <span class="math inline">\(x_i\)</span> in <span class="math inline">\(\vec{x}\)</span> such that <span class="math inline">\(k\)</span>% of the data in <span class="math inline">\(\vec{x}\)</span> lies below <span class="math inline">\(x_i\)</span>. If this definition does not yield a unique element for some <span class="math inline">\(k\)</span>% threshold, similar methods to what we saw for the median are applied.</p>
 <p>We can use the base R function <code>quantile</code> to obtain the 10%, 25%, 50% and 85% quantiles (just arbitrary picks) for the <code>average_price</code> in the avocado data set:</p>
-<div class="sourceCode" id="cb240"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb240-1" data-line-number="1"><span class="kw">quantile</span>(</a>
-<a class="sourceLine" id="cb240-2" data-line-number="2">  <span class="co"># vector of observations</span></a>
-<a class="sourceLine" id="cb240-3" data-line-number="3">  <span class="dt">x =</span> avocado_data<span class="op">$</span>average_price, </a>
-<a class="sourceLine" id="cb240-4" data-line-number="4">  <span class="co"># which quantiles </span></a>
-<a class="sourceLine" id="cb240-5" data-line-number="5">  <span class="dt">probs =</span> <span class="kw">c</span>(<span class="fl">0.1</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.85</span>)</a>
-<a class="sourceLine" id="cb240-6" data-line-number="6">)</a></code></pre></div>
+<div class="sourceCode" id="cb242"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb242-1" data-line-number="1"><span class="kw">quantile</span>(</a>
+<a class="sourceLine" id="cb242-2" data-line-number="2">  <span class="co"># vector of observations</span></a>
+<a class="sourceLine" id="cb242-3" data-line-number="3">  <span class="dt">x =</span> avocado_data<span class="op">$</span>average_price, </a>
+<a class="sourceLine" id="cb242-4" data-line-number="4">  <span class="co"># which quantiles </span></a>
+<a class="sourceLine" id="cb242-5" data-line-number="5">  <span class="dt">probs =</span> <span class="kw">c</span>(<span class="fl">0.1</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.85</span>)</a>
+<a class="sourceLine" id="cb242-6" data-line-number="6">)</a></code></pre></div>
 <pre><code>##  10%  25%  50%  85% 
 ## 0.93 1.10 1.37 1.83</code></pre>
 <p>This tells us, for instance, that only about ten percent of the data observations had prices lower than $0.93.</p>
@@ -550,46 +563,45 @@ Figure 5.3: Geometrical interpretation of variance. Four data points (black does
 </ol>
 <p>The higher <span class="math inline">\(r\)</span>, i.e., the more samples we take, the better the estimate. The higher <span class="math inline">\(k\)</span>, i.e., the more observations we have to begin with, the less variable the means <span class="math inline">\(\mu(D^{\textrm{rep}})\)</span> of the resampled data will usually be. Hence, usually, the higher <span class="math inline">\(k\)</span> the smaller the bootstrapped 95% confidence interval of the mean.</p>
 <p>Here is a convenience function that we will use throughout the book to produce bootstrapped 95% confidence intervals of the mean:</p>
-<div class="sourceCode" id="cb242"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb242-1" data-line-number="1">## takes a vector of numbers and returns bootstrapped 95% ConfInt</a>
-<a class="sourceLine" id="cb242-2" data-line-number="2">## for the mean, based on `n_resamples` re-samples (default: 1000)</a>
-<a class="sourceLine" id="cb242-3" data-line-number="3">bootstrapped_CI &lt;-<span class="st">  </span><span class="cf">function</span>(data_vector, <span class="dt">n_resamples =</span> <span class="dv">1000</span>) {</a>
-<a class="sourceLine" id="cb242-4" data-line-number="4">  resampled_means &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(<span class="dv">1</span><span class="op">:</span>n_resamples, <span class="cf">function</span>(i) {</a>
-<a class="sourceLine" id="cb242-5" data-line-number="5">       <span class="kw">mean</span>(<span class="kw">sample</span>(<span class="dt">x =</span> data_vector, </a>
-<a class="sourceLine" id="cb242-6" data-line-number="6">                   <span class="dt">size =</span> <span class="kw">length</span>(data_vector), </a>
-<a class="sourceLine" id="cb242-7" data-line-number="7">                   <span class="dt">replace =</span> T)</a>
-<a class="sourceLine" id="cb242-8" data-line-number="8">       )</a>
-<a class="sourceLine" id="cb242-9" data-line-number="9">    }</a>
-<a class="sourceLine" id="cb242-10" data-line-number="10">  )</a>
-<a class="sourceLine" id="cb242-11" data-line-number="11">  <span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb242-12" data-line-number="12">    <span class="st">&#39;lower&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.025</span>),</a>
-<a class="sourceLine" id="cb242-13" data-line-number="13">    <span class="st">&#39;mean&#39;</span>  =<span class="st"> </span><span class="kw">mean</span>(data_vector),</a>
-<a class="sourceLine" id="cb242-14" data-line-number="14">    <span class="st">&#39;upper&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.975</span>)</a>
-<a class="sourceLine" id="cb242-15" data-line-number="15">  ) </a>
-<a class="sourceLine" id="cb242-16" data-line-number="16">}</a></code></pre></div>
+<div class="sourceCode" id="cb244"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb244-1" data-line-number="1">## takes a vector of numbers and returns bootstrapped 95% ConfInt</a>
+<a class="sourceLine" id="cb244-2" data-line-number="2">## for the mean, based on `n_resamples` re-samples (default: 1000)</a>
+<a class="sourceLine" id="cb244-3" data-line-number="3">bootstrapped_CI &lt;-<span class="st">  </span><span class="cf">function</span>(data_vector, <span class="dt">n_resamples =</span> <span class="dv">1000</span>) {</a>
+<a class="sourceLine" id="cb244-4" data-line-number="4">  resampled_means &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(<span class="dv">1</span><span class="op">:</span>n_resamples, <span class="cf">function</span>(i) {</a>
+<a class="sourceLine" id="cb244-5" data-line-number="5">       <span class="kw">mean</span>(<span class="kw">sample</span>(<span class="dt">x =</span> data_vector, </a>
+<a class="sourceLine" id="cb244-6" data-line-number="6">                   <span class="dt">size =</span> <span class="kw">length</span>(data_vector), </a>
+<a class="sourceLine" id="cb244-7" data-line-number="7">                   <span class="dt">replace =</span> T)</a>
+<a class="sourceLine" id="cb244-8" data-line-number="8">       )</a>
+<a class="sourceLine" id="cb244-9" data-line-number="9">    }</a>
+<a class="sourceLine" id="cb244-10" data-line-number="10">  )</a>
+<a class="sourceLine" id="cb244-11" data-line-number="11">  <span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb244-12" data-line-number="12">    <span class="st">&#39;lower&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.025</span>),</a>
+<a class="sourceLine" id="cb244-13" data-line-number="13">    <span class="st">&#39;mean&#39;</span>  =<span class="st"> </span><span class="kw">mean</span>(data_vector),</a>
+<a class="sourceLine" id="cb244-14" data-line-number="14">    <span class="st">&#39;upper&#39;</span> =<span class="st"> </span><span class="kw">quantile</span>(resampled_means, <span class="fl">0.975</span>)</a>
+<a class="sourceLine" id="cb244-15" data-line-number="15">  ) </a>
+<a class="sourceLine" id="cb244-16" data-line-number="16">}</a></code></pre></div>
 <p>Applying this method to the vector of average avocado prices we get:</p>
-<div class="sourceCode" id="cb243"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb243-1" data-line-number="1"><span class="kw">bootstrapped_CI</span>(avocado_data<span class="op">$</span>average_price)</a></code></pre></div>
+<div class="sourceCode" id="cb245"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb245-1" data-line-number="1"><span class="kw">bootstrapped_CI</span>(avocado_data<span class="op">$</span>average_price)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 3
 ##   lower  mean upper
 ##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1  1.40  1.41  1.41</code></pre>
 <p>Notice that, since <code>average_price</code> has length 18249, i.e., we have <span class="math inline">\(k = 18249\)</span> observations in the data, the bootstrapped 95% confidence interval is rather narrow. Compare this against a case of <span class="math inline">\(k = 300\)</span> obtained by only looking at the first 300 entries in <code>average_price</code>:</p>
-<div class="sourceCode" id="cb245"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb245-1" data-line-number="1"><span class="co"># first 300 observations of `average price` only</span></a>
-<a class="sourceLine" id="cb245-2" data-line-number="2">smaller_data =<span class="st"> </span>avocado_data<span class="op">$</span>average_price[<span class="dv">1</span><span class="op">:</span><span class="dv">300</span>]</a>
-<a class="sourceLine" id="cb245-3" data-line-number="3"><span class="kw">bootstrapped_CI</span>(smaller_data)</a></code></pre></div>
+<div class="sourceCode" id="cb247"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb247-1" data-line-number="1"><span class="co"># first 300 observations of `average price` only</span></a>
+<a class="sourceLine" id="cb247-2" data-line-number="2">smaller_data &lt;-<span class="st"> </span>avocado_data<span class="op">$</span>average_price[<span class="dv">1</span><span class="op">:</span><span class="dv">300</span>]</a>
+<a class="sourceLine" id="cb247-3" data-line-number="3"><span class="kw">bootstrapped_CI</span>(smaller_data)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 3
 ##   lower  mean upper
 ##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1  1.14  1.16  1.17</code></pre>
 <p>The mean is different (because we are looking at earlier time points) but, importantly, the interval is larger becase with only 300 observations we have less confidence in the estimate.</p>
 <p>To obtain summary statistics for different groups of a variable, we can use the function <code>bootstrapped_CI</code> conveniently in concert with <strong>nested tibbles</strong>, as demonstrated here:</p>
-<div class="sourceCode" id="cb247"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb247-1" data-line-number="1">mc_data_cleaned =<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data_sets/mental-chrono-data_cleaned.csv&quot;</span>) </a>
-<a class="sourceLine" id="cb247-2" data-line-number="2">avocado_data <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb247-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(type) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb247-4" data-line-number="4"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb247-5" data-line-number="5"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb247-6" data-line-number="6">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>average_price))</a>
-<a class="sourceLine" id="cb247-7" data-line-number="7">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb247-8" data-line-number="8"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a></code></pre></div>
+<div class="sourceCode" id="cb249"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb249-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb249-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(type) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb249-3" data-line-number="3"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb249-4" data-line-number="4"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb249-5" data-line-number="5">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>average_price))</a>
+<a class="sourceLine" id="cb249-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb249-7" data-line-number="7"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a></code></pre></div>
 <pre><code>## # A tibble: 2 x 4
 ##   type         lower  mean upper
 ##   &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
