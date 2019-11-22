@@ -150,7 +150,7 @@ BLJM_associated_counts %>%
 
 This section will look at two types of summary statistics: measures of central tendency and measures of dispersion.
 
- **Measures of central tendency** map a vector of observations onto a single number that represents, roughly put, "the center". Since what counts a "center" is ambiguous, there are several measures of central tendencies. Different measures of central tendencies can be more or less adequate for one purpose or another. We will visit three prominent measures of central tendency here: *(arithmetic) mean*, *median* and *mode*.
+ **Measures of central tendency** map a vector of observations onto a single number that represents, roughly put, "the center". Since what counts as a "center" is ambiguous, there are several measures of central tendencies. Different measures of central tendencies can be more or less adequate for one purpose or another. The type of variable (nominal, ordinal or metric, for instance) will also influence the choice of measure. We will visit three prominent measures of central tendency here: *(arithmetic) mean*, *median* and *mode*.
 
 **Measures of dispersion** indicate how much the observations are spread out around, let's say, "a center". We will visit three prominent measures of dispersion: the *variance*, the *standard deviation* and *quantiles*. 
 
@@ -177,6 +177,7 @@ samples <- tibble(
 samples %>% 
   ggplot(aes(x = x, y = 1)) +
   geom_jitter(alpha = 0.5, color = "skyblue") +  facet_grid(cent_tend ~ dispersion) +
+  xlab('') +
   theme(axis.title.y = element_blank(),
         axis.text.y  = element_blank(),
         axis.ticks.y = element_blank())
@@ -240,20 +241,20 @@ In particular, we will look at summary statistics for the `average_price` and `t
 
 #### The (arithmetic) mean
 
-If $\vec{x} = \langle x_1, \dots , x_n \rangle$ is a vector of $n$ observations with $x_i \in \mathbb{R}$ for all $1 \le i \le n$, the (arithmetic) mean of $x$, written $\mu_{\vec{x}}$, is defined as 
+If $\vec{x} = \langle x_1, \dots , x_n \rangle$ is a vector of $n$ observations with $x_i \in \mathbb{R}$ for all $1 \le i \le n$, the (arithmetic) **mean** of $x$, written $\mu_{\vec{x}}$, is defined as 
 
 $$\mu_{\vec{x}} = \frac{1}{n}\sum_{i=1}^n x_i\,.$$
 
-The arithmetic mean can be understood intuitively as the center of gravity. If we place a marble on a wooden board for every $x_i$ such that every marble is equally heavy and the differences between all data measurements are identical to the distances between the marbles, the arithmetic mean is where you can balance the board with the tip of your finger. 
+The arithmetic mean can be understood intuitively as **the center of gravity**. If we place a marble on a wooden board for every $x_i$ such that every marble is equally heavy and the differences between all data measurements are identical to the distances between the marbles, the arithmetic mean is where you can balance the board with the tip of your finger. 
 
 <div class="infobox">
-**Example.** The mean of the vector $\vec{x} = \langle 0, 3, 6, 7\rangle$ is $\mu_{\vec{x}} = \frac{0 + 3 + 6 + 7}{4} = \frac{16}{4} = 4\,.$ The black dots in the graph below show the data observations and red cross indicates the mean. Notice that the mean is cleary *not* the mid-point between the maximum and the minimum (which here would be 3.5).
+**Example.** The mean of the vector $\vec{x} = \langle 0, 3, 6, 7\rangle$ is $\mu_{\vec{x}} = \frac{0 + 3 + 6 + 7}{4} = \frac{16}{4} = 4\,.$ The black dots in the graph below show the data observations and the red cross indicates the mean. Notice that the mean is cleary *not* the mid-point between the maximum and the minimum (which here would be 3.5).
 
 ```{r, echo = F, fig.height=1.5}
 tibble(x = c(0, 3, 6, 7 ), mean = mean(x)) %>% 
   ggplot(aes(x = x, y = 0), size = 5) +
   ylim(-0.1,0.1) +
-  ylab('') + xlab('x') +
+  ylab('') + xlab('') +
   geom_point() + 
     theme(
       axis.title.y = element_blank(),
@@ -273,7 +274,7 @@ tibble(x = c(0, 3, 6, 7 ), mean = mean(x)) %>%
 
 </div>
 
-To calculate the mean of a large vector, R has a built-in functioni `mean`, which we have in fact used frequently before. Let's use it to calculate the mean of the variable `average_price` for different types of avocados:
+To calculate the mean of a large vector, R has a built-in function `mean`, which we have in fact used frequently before. Let's use it to calculate the mean of the variable `average_price` for different types of avocados:
 
 ```{r}
 avocado_data %>% 
@@ -289,16 +290,16 @@ Unsurprsingly, the overal mean of the observed prices is (numerically) higher fo
 <div style = "float:right; width:20%;">
 <img src="visuals/fool.png" alt="kid-fool">
 </div>
-**Excursion** It is also possible to conceptualize the arithmetic mean as the expected value when sampling from the observed data. This is useful for linking the mean to the expected value of a random variable, a concept we will introduce in Chapter \@ref(Chap-03-01-probability). Suppose you have gathered the data $\vec{x} = \langle 0, 3, 6, 7\rangle$. Now you will sample from this data. What value do you expect to gain from one sample? -- What does that even mean?
+**Excursion.** It is also possible to conceptualize the arithmetic mean as the **expected value** when sampling from the observed data. This is useful for linking the mean of a data sample to the expected value of a random variable, a concept we will introduce in Chapter \@ref(Chap-03-01-probability). Suppose you have gathered the data $\vec{x} = \langle 0, 3, 6, 7\rangle$. What is the expected value that you think you will obtain if you sample from this data vector once? -- Wait! What does that even mean? Expected value? Sampling once?
   
-Suppose that some joker from around town invites you for a game. The game goes like this. The joker puts a ball in an urn, one for each data observation.  You pay the joker a certain amount of money to be allowed to draw one ball from the urn. The balls are indistinguishable and the process of drawing is entirely fair. You receive the number corresponding the ball you drew paid out in silver coints. 
+Suppose that some joker from around town invites you for a game. The game goes like this. The joker puts a ball in an urn, one for each data observation. The joker writes the observed value on the ball corresponding to that value. You pay the joker a certain amount of money to be allowed to draw one ball from the urn. The balls are indistinguishable and the process of drawing is entirely fair. You receive the number corresponding the ball you drew paid out in silver coins. (For simplicity, we assume that all numbers are non-negative, but that is not crucial. If a negative number is drawn, you just have to pay the joker that amount.)
 
-How many silver coins would you maximally pay to play one round? Well, of course, no more than four (unless you value gaming on top of silver)! This is because every ball has a chance of $0.25$ of being drawn. So you can expect to earn 0 silver with a 25% chance, 3 with a 25% chance, 6 with a 25% chance and 7 with a 25% chance. In this sense, the mean is the expected value of sampling once from the observed data. (And if this is not helpful for you right now, maybe you reread it later or you forget about it completely. -- End of excursion.)
+How many silver coins would you maximally pay to play one round? Well, of course, no more than four (unless you value gaming on top of silver)! This is because 4 is the expected value of drawing once. This, in turn, is because every ball has a chance of $0.25$ of being drawn. So you can expect to earn 0 silver with a 25% chance, 3 with a 25% chance, 6 with a 25% chance and 7 with a 25% chance. In this sense, the mean is the expected value of sampling once from the observed data.
 ```
 
 #### The median
 
-If $\vec{x} = \langle x_1, \dots , x_n \rangle$ is an ordered vector of $n$ data observations from an at least ordinal measure such that for all $1 \le i < n$ we have $x_i \le x_{i+1}$, the **median** is a value $x_i$ such that the number of data observations that are bigger or equal to $x_i$ and the number of data observations that are smaller or equal to $x_i$ are equal. Notice that this definition may yield no unique median. In that case different alternative stragies are used, depending on the data type at hand (ordinal or metric). (See also the example below.) The media corresponds to the 50% quartile.
+If $\vec{x} = \langle x_1, \dots , x_n \rangle$ is a vector of $n$ data observations from an at least ordinal measure and if $\vec{x}$ is ordered such that for all $1 \le i < n$ we have $x_i \le x_{i+1}$, the **median** is the value $x_i$ such that the number of data observations that are bigger or equal to $x_i$ and the number of data observations that are smaller or equal to $x_i$ are equal. Notice that this definition may yield no unique median. In that case different alternative stragies are used, depending on the data type at hand (ordinal or metric). (See also the example below.) The median corresponds to the 50% quartile, a concept introduced below.
 
 <div class="infobox">
 **Example.** The median of the vector $\vec{x} = \langle 1=0, 3, 6, 7\rangle$ does not exist by the definition given above. However, for metric measures, where distances between measurements are meaningful, it is customary to take the two values "closests to where the median should be" and average them. In the example at hand, this would be $\frac{3 + 6}{2} = 4.5$. The plot below shows the data points in black, the mean as a red cross (as before) and the median as a blue circle
@@ -307,7 +308,7 @@ If $\vec{x} = \langle x_1, \dots , x_n \rangle$ is an ordered vector of $n$ data
 tibble(x = c(0, 3, 6, 7 ), mean = mean(x), median = median(x)) %>% 
   ggplot(aes(x = x, y = 0), size = 5) +
   ylim(-0.1,0.1) +
-  ylab('') + xlab('x') +
+  ylab('') + xlab('') +
   geom_point() + 
     theme(
       axis.title.y = element_blank(),
@@ -339,7 +340,7 @@ median(c(0, 3, 6, 7 ))
 
 The **mode** is the value that occured most frequently in the data. While the mean is only applicable to metric variables, and the median only to variables that are at least ordinal, the mode is only reasonable for variables that have a finite set of different possible observations (nominal or ordinal). 
 
-There is no built-in function in R to return the mode of a (suitable) vector.
+There is no built-in function in R to return the mode of a (suitable) vector, but it is easily retrieved by obtaining counts.
 
 <!-- HW: write a function that returns the mode -->
 
@@ -347,21 +348,97 @@ There is no built-in function in R to return the mode of a (suitable) vector.
 
 #### Variance
 
+Variance is a widely used and very useful measure of dispersion for metric data. The variance $\text{Var}(\vec{x})$ of a vector of metric observations $\vec{x}$ of length $n$ is defined as the average of the squared distances from the mean:
 
 $$\text{Var}(\vec{x}) = \frac{1}{n} \sum_{i=1}^n (x_i - \mu_{\vec{x}})^2$$
+
+<div class="infobox">
+**Example.** The variance of the vector $\vec{x} \ \langle 0, 3, 6, 7 \rangle$ is computed as:
+
+$$\text{Var}(\vec{x}) = \frac{1}{4} \ \left ( (0-4)^2 + (3-4)^2 + (6-4)^2 + (7-4)^2 \right ) = $$
+$$ \frac{1}{4} \ (16 + 1 + 4 + 9) = \frac{30}{4} = 7.5$$
+
+</div>
+
+
+Figure \@ref(fig:ch-02-03-variance-rectangles) shows a geometric interpretation of variance for the running example of the vector $\vec{x} \ \langle 0, 3, 6, 7 \rangle$. 
+
+```{r ch-02-03-variance-rectangles, echo = F, fig.cap="Geometrical interpretation of variance. Four data points (black does) and their mean (red cross) are shown, together with the squares whose sides are the differences between the observed data points and the mean. The numbers in white give the area of each square, which is also indicated by the coloring of each rectangle."}
+tibble(
+  x = c(0,3,7,6), 
+  y =0,
+  xmin = map_dbl(x, function(i) {min(i, mean(x))}),
+  ymin = y,
+  xmax = map_dbl(x, function(i) {max(i, mean(x))}),
+  ymax = abs(x - mean(x)) * c(1,-1,1,-1),
+  rect_area = abs(xmax - xmin) * abs(ymax - ymin),
+  x_label_pos = c(2, 3.5, 5, 5.5),
+  y_label_pos = c(2, -0.5, -1, 1.5)
+) %>% 
+  ggplot() +
+  geom_rect(
+    aes(
+      xmin = xmin,
+      ymin = ymin,
+      xmax = xmax,
+      ymax = ymax,
+      fill = - rect_area
+    )
+  ) +
+  geom_point(aes(x = x, y = 0), size = 5) +
+  geom_point(aes(x = mean(x), y = 0), shape = "X", color = "firebrick", size = 5) +
+  ylab('') +
+  geom_text(aes(x = x_label_pos, y = y_label_pos, label = rect_area), color = "white") +
+  ggtitle("Geometric visualization of variance") +
+  theme(
+    legend.pos = "none"
+  )
+```
+
+We can calculate the variance in R explicitly:
+
+```{r}
+x <- c(0, 3, 6, 7)
+sum((x - mean(x))^2) / length(x)
+```
+
+There is also a built-in function `var` from base R. Using this we get a different result though:
+
+```{r}
+x <- c(0, 3, 6, 7)
+var(x)
+```
+
+This is because `var` computes the variance by a slightly different formula to obtain an **unbiased estimator** of the variance for the case that the mean is not known but also estimated from the data. The formula for the unbiased estimator that R uses simply replaces the $n$ in the denominator by $n-1$:^[For current purpose it is not important what biased or unbiased estimator is and why this subtle change in the formula matters. We will come back to the issue of estimation in Chapter \@ref(ch-03-04-parameter-inference).]
+
+$$\text{Var}(\vec{x}) = \frac{1}{n-1} \sum_{i=1}^n (x_i - \mu_{\vec{x}})^2$$
+
 
 
 #### Standard deviation
 
+The standard deviation $\text{SD}(\vec{x})$ or numeric vector $\vec{x}$ is just the square root of the variance:
+
 $$ \text{SD}(\vec{x}) = \sqrt{\text{Var}(\vec{x})} = \sqrt{\frac{1}{n} \sum_{i=1}^n (x_i - \mu_{\vec{x}})^2}$$
 
 
+#### Quantile
+
+For a vector $\vec{x}$ of at least ordinal measures, we can generalize the concept of a median to an arbitrary quantile. An $k$% quantile is the element $x_i$ in $\vec{x}$ such that $k$% of the data in $\vec{x}$ lies below $x_i$. If this definition does not yield a unique element for some $k$% threshold, similar methods to what we saw for the median are applied. 
 
 
+We can use the base R function `quantile` to obtain the 10%, 25%, 50% and 85% quantiles (just arbitrary picks) for the `average_price` in the avocado data set:
 
+```{r}
+quantile(
+  # vector of observations
+  x = avocado_data$average_price, 
+  # which quantiles 
+  probs = c(0.1, 0.25, 0.5, 0.85)
+)
+```
 
-
-
+This tells us, for instance, that only about ten percent of the data observations had prices lower than \$0.93.
 
 ### Quantifying confidence with bootstrapping
 
@@ -409,10 +486,12 @@ bootstrapped_CI(avocado_data$average_price)
 Notice that, since `average_price` has length `r length(avocado_data$average_price)`, i.e., we have $k = `r length(avocado_data$average_price)`$ observations in the data, the bootstrapped 95% confidence interval is rather narrow. Compare this against a case of $k = 300$ obtained by only looking at the first 300 entries in `average_price`:
 
 ```{r}
-# 30 samples from a standard normal
-smaller_data = rnorm(n = 30, mean = 0, sd = 1)
+# first 300 observations of `average price` only
+smaller_data = avocado_data$average_price[1:300]
 bootstrapped_CI(smaller_data)
 ```
+
+The mean is different (because we are looking at earlier time points) but, importantly, the interval is larger becase with only 300 observations we have less confidence in the estimate.
 
 To obtain summary statistics for different groups of a variable, we can use the function `bootstrapped_CI` conveniently in concert with **nested tibbles**, as demonstrated here:
 
@@ -470,7 +549,7 @@ contrived_example
 ```
 
 
-```{r}
+```{r, echo = F}
 contrived_example %>% 
   ggplot(aes(x, y)) +
   geom_rect(
@@ -479,7 +558,7 @@ contrived_example %>%
       ymin = map_dbl(y, function(i) {min(i, means_contr_example$y)}),
       xmax = map_dbl(x, function(i) {max(i, means_contr_example$x)}),
       ymax = map_dbl(y, function(i) {max(i, means_contr_example$y)}),
-      fill = area_rectangle
+      fill = - area_rectangle
     )
   ) +
   geom_point(color = "darkorange", size = 4) +
