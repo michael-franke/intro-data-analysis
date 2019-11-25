@@ -1,12 +1,31 @@
-# Data Plotting
+# Data Plotting {#Chap-02-02-visualization}
 
 <hr>
 
-## Motivating example: Anscombe's quartet
+<div style = "float:right; width:45%;">
+<img src="visuals/badge-visualization.png" alt="badge-visualization">  
+</div>  
 
 Numerical summaries of complex data always incur information loss. Still lossy, but less so (if done well), is visualization. Any serious data analysis should start with a process in which the analyst becomes intimate with the data at hand. Visualization is an integral part of data-intimacy.
 
-Consider a famous dataset available in R [@anscombe1973]: 
+Section \@ref(Chap-02-04-Anscombe-example) demonstrates how summary statistics can be misleading and how a simple visualization can be much more revealing.
+Section \@ref(Chap-02-04-good-visualization) offers some reflection on what makes a data visualization successful.
+
+
+```{block, type='infobox'}
+The learning goals for this chapter are:
+
+- obtain a basic understanding of better/worse plotting
+- be able to produce hypothesis-driven plots of data
+- develop a basic understanding of the 'grammar of graphs"
+- be able to fine-tune graphs for better visualization
+
+```
+
+
+## Motivating example: Anscombe's quartet {#Chap-02-04-Anscombe-example}
+
+To see how summary statistics can be highly misleading, and how a simple plot can reveal a lot more, consider a famous dataset available in R [@anscombe1973]: 
 
 ```{r}
 glimpse(anscombe %>% as_tibble)
@@ -62,7 +81,69 @@ tidy_anscombe %>%
 <!-- for exercise check out the work of Jan Verhove: -->
 <!-- https://janhove.github.io/teaching/2016/11/21/what-correlations-look-like -->
 
-## Plotting for 'Mental Chronometry'
+
+## Visualization: the good, the bad and the ugly {#Chap-02-04-good-visualization}
+
+- often voiced rule is "minimize ink, maximize information"
+- It is unclear why ink is so important, but the ease with which a viewer is able to retrieve the relevant information most certainly is.
+
+```{block, type='infobox'}
+**The vague & defeasible rule of thump of good data visualization (according to the author).**
+
+"Mimize observer effort to obtain a maximal degree of relevant true information."
+
+```
+
+- we need conventions for communication
+
+Bad examples:
+
+- super long bars
+- pie charts (BLJM)
+- rectangle plots
+- 3D Plots
+
+Figure \@ref(fig:chap-02-04-bar-plot-3d-BLJM) does actually show the relevant information but is entirely useless for a human observer without a magnifying glass, professional measuring tools and a calculator.
+
+```{r chap-02-04-bar-plot-3d-BLJM, echo = F, fig.cap="Example of a frontrunner for the prize of today's most complete disaster in the visual communication of information."}
+knitr::include_graphics("visuals/bar-plot-3D-BLJM.png")
+```
+
+
+Subjectively, Figure \@ref(fig:chap-02-04-pie-chart-BLJM) is pretty much anything but pretty. Objectively, it is not useful for answering the question which we care about, namely whether logicians are more likely to prefer Jazz over Metal than biologists.
+
+```{r chap-02-04-pie-chart-BLJM, echo = F, fig.cap="Example of a rather unhelpful visual representation of the BLJM data (when the research question is whether logicians are more likely to prefer Jazz over Metal than biologists)."}
+knitr::include_graphics("visuals/pie-chart-BLJM.png")
+```
+
+We can produce a much more useful representation with the code below. (A similar visualization also appeared as Figure \@ref(fig:chap-02-03-BLJM-proportions) in the previous chapter.)
+
+```{r chap-02-04-BLJM-proportions, echo = T}
+BLJM_associated_counts %>% 
+  ggplot(
+    aes(
+      x = LB, 
+      y = n, 
+      color = JM, 
+      shape = JM, 
+      group = JM
+    )
+  ) +
+  geom_point(size = 3) + geom_line() +
+  labs(
+    title = "Counts of choices of each music+subject pair",
+    x = "",
+    y = ""
+  )
+```
+
+## Basic kinds of plots 
+
+### 
+
+## The gramar of graphs
+
+## Full example: Plotting for 'Mental Chronometry'
 
 ```{r}
 # read a data set of reaction times (as a tibble)
