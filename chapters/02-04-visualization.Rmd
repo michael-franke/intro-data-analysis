@@ -2,7 +2,7 @@
 
 <hr>
 
-<div style = "float:right; width:45%;">
+<div style = "float:right; width:35%;">
 <img src="visuals/badge-visualization.png" alt="badge-visualization">  
 </div>  
 
@@ -82,37 +82,76 @@ tidy_anscombe %>%
 <!-- https://janhove.github.io/teaching/2016/11/21/what-correlations-look-like -->
 
 
-## Visualization: the good, the bad and the ugly {#Chap-02-04-good-visualization}
+## Visualization: the good, the bad and the info-graphic {#Chap-02-04-good-visualization}
 
 - often voiced rule is "minimize ink, maximize information"
 - It is unclear why ink is so important, but the ease with which a viewer is able to retrieve the relevant information most certainly is.
+- data visualization is about communication; analogy to language and work of Grice
 
 ```{block, type='infobox'}
 **The vague & defeasible rule of thump of good data visualization (according to the author).**
 
-"Mimize observer effort to obtain a maximal degree of relevant true information."
+"Communicate a maximal degree of relevant true information in a way that minimizes the recipient's effort of retrieving this information."
 
 ```
 
 - we need conventions for communication
 
-Bad examples:
+Here are a few examples of bad plotting.^[For more disinspiration, see for example [this curated list of delightfully bad visualizations from actual publications](https://www.biostat.wisc.edu/~kbroman/topten_worstgraphs/).] To begin with, check out this fictitious data set:
 
-- super long bars
-- pie charts (BLJM)
-- rectangle plots
-- 3D Plots
+```{r}
+large_contrast_data <- tribble(
+  ~group, ~treatment, ~measurement,
+  "A",    "on",       1000,
+  "A",    "off",      1002,
+  "B",    "on",       992,
+  "B",    "off",      990
+)
+```
 
-Figure \@ref(fig:chap-02-04-bar-plot-3d-BLJM) does actually show the relevant information but is entirely useless for a human observer without a magnifying glass, professional measuring tools and a calculator.
+If we are interested in any potential influence of variables `group` and `treatment` on the measurement in question, the following graph is ruinously unhelpful because the large size of the bars renders the relativly small differences between them almost entirely unspottable. 
 
-```{r chap-02-04-bar-plot-3d-BLJM, echo = F, fig.cap="Example of a frontrunner for the prize of today's most complete disaster in the visual communication of information."}
+```{r}
+large_contrast_data %>% 
+  ggplot(aes(x = group, y = measurement, fill = treatment)) +
+  geom_bar(stat = "identity", position = "dodge")
+```
+
+A better visualization would be this:
+
+```{r}
+large_contrast_data %>% 
+  ggplot(aes(
+    x = group, 
+    y = measurement, 
+    shape = treatment, 
+    color = treatment,
+    group = treatment
+    )
+  ) +
+  geom_point() +
+  geom_line() +
+  scale_y_continuous(breaks = scales::pretty_breaks())
+```
+
+
+
+The following examples use the [Bio-Logic Jazz-Metal data set](), in particular the following derived table of counts or the derived table of proprtions:
+
+```{r}
+BLJM_associated_counts
+```
+
+It is probably hard to believe but Figure \@ref(fig:chap-02-04-bar-plot-3d-BLJM) was obtained without further intentional uglification just by choosing a default 3D bar plot display in Microsoft's Excel. It does actually show the relevant information but it is entirely useless for a human observer without a magnifying glass, professional measuring tools and a calculator.
+
+```{r chap-02-04-bar-plot-3d-BLJM, echo = F, out.width='80%', fig.cap="Example of a frontrunner for the prize of today's most complete disaster in the visual communication of information."}
 knitr::include_graphics("visuals/bar-plot-3D-BLJM.png")
 ```
 
 
-Subjectively, Figure \@ref(fig:chap-02-04-pie-chart-BLJM) is pretty much anything but pretty. Objectively, it is not useful for answering the question which we care about, namely whether logicians are more likely to prefer Jazz over Metal than biologists.
+It gets slightly better with the following pie chart of the same numerical information, also generated with Microsoft's Excel. Subjectively, Figure \@ref(fig:chap-02-04-pie-chart-BLJM) is pretty much anything but pretty. Objectively, it is better than the previous visualization in terms of 3D bar plots shown in Figure \@ref(fig:chap-02-04-bar-plot-3d-BLJM) but the pie chart is still not useful for answering the question which we care about, namely whether logicians are more likely to prefer Jazz over Metal than biologists.
 
-```{r chap-02-04-pie-chart-BLJM, echo = F, fig.cap="Example of a rather unhelpful visual representation of the BLJM data (when the research question is whether logicians are more likely to prefer Jazz over Metal than biologists)."}
+```{r chap-02-04-pie-chart-BLJM, echo = F, out.width='80%', fig.cap="Example of a rather unhelpful visual representation of the BLJM data (when the research question is whether logicians are more likely to prefer Jazz over Metal than biologists)."}
 knitr::include_graphics("visuals/pie-chart-BLJM.png")
 ```
 
@@ -136,6 +175,17 @@ BLJM_associated_counts %>%
     y = ""
   )
 ```
+
+<div class="infobox">
+**Info-Graphics.** Scientific communication with visualized data is different from other modes of communcation with visualized data. These other contexts come with different requirements for good data visualization. Good examples of highly successful *info-graphics* are produced by the famous illustrator Nigel Holmes, for instance. Figure \@ref(fig:chap-02-04-vampire-energy) is an example from Holmes' website showing different amounts of energy consumption for different household appliances. The purpose of this visualization is not (only) to communicate information about which of the listed household appliances is most energy intensive. It's main purpose is to raise awareness for the unexpectedly large energy consumption of housefold appliances in general (in stand-by mode).^[Image retrieved from [Nigel Holmes' website](http://www.nigelholmes.com) website on November 25 2019.]
+
+```{r chap-02-04-vampire-energy, echo = F, out.width='95%', fig.cap="Example of an infographic. While possibly considered 'chart junk' in a scientific context, the eye-catching and highly memorable (and pretty!) artwork serve a strong secondary purpose in contexts other than scientific ones where hypothesis-driven precise communication with visually presented data is key."}
+knitr::include_graphics("visuals/vampire-energy.png")
+```
+
+</div>
+
+
 
 ## Basic kinds of plots 
 
