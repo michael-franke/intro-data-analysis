@@ -213,7 +213,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="5.2.4" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#quantifying-confidence-with-bootstrapping"><i class="fa fa-check"></i><b>5.2.4</b> Quantifying confidence with bootstrapping</a></li>
 </ul></li>
 <li class="chapter" data-level="5.3" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html"><i class="fa fa-check"></i><b>5.3</b> Co-variance &amp; correlation</a><ul>
-<li class="chapter" data-level="5.3.1" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#covariance"><i class="fa fa-check"></i><b>5.3.1</b> Covariance:</a></li>
+<li class="chapter" data-level="5.3.1" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#covariance"><i class="fa fa-check"></i><b>5.3.1</b> Covariance</a></li>
 <li class="chapter" data-level="5.3.2" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#correlation"><i class="fa fa-check"></i><b>5.3.2</b> Correlation</a></li>
 </ul></li>
 </ul></li>
@@ -222,6 +222,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="6.2" data-path="Chap-02-04-good-visualization.html"><a href="Chap-02-04-good-visualization.html"><i class="fa fa-check"></i><b>6.2</b> Visualization: the good, the bad and the info-graphic</a></li>
 <li class="chapter" data-level="6.3" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html"><i class="fa fa-check"></i><b>6.3</b> Basics of <code>ggplot</code></a><ul>
 <li class="chapter" data-level="6.3.1" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#elements-in-the-layered-grammar-of-graphs"><i class="fa fa-check"></i><b>6.3.1</b> Elements in the layered grammar of graphs</a></li>
+<li class="chapter" data-level="6.3.2" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#customizing-a-plot"><i class="fa fa-check"></i><b>6.3.2</b> Customizing a plot</a></li>
 </ul></li>
 <li class="chapter" data-level="6.4" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html"><i class="fa fa-check"></i><b>6.4</b> A rendezvous with popular geons</a><ul>
 <li class="chapter" data-level="6.4.1" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html#scatter"><i class="fa fa-check"></i><b>6.4.1</b> Scatter</a></li>
@@ -609,21 +610,102 @@ Figure 5.3: Geometrical interpretation of variance. Four data points (black does
 ##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1  1.14  1.16  1.17</code></pre>
 <p>The mean is different (because we are looking at earlier time points) but, importantly, the interval is larger becase with only 300 observations we have less confidence in the estimate.</p>
+<div id="excursion-summary-functions-with-multiple-outputs-using-nested-tibbles" class="section level4">
+<h4><span class="header-section-number">5.2.4.1</span> Excursion: Summary functions with multiple outputs, using nested tibbles</h4>
 <p>To obtain summary statistics for different groups of a variable, we can use the function <code>bootstrapped_CI</code> conveniently in concert with <strong>nested tibbles</strong>, as demonstrated here:</p>
 <div class="sourceCode" id="cb249"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb249-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb249-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(type) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb249-3" data-line-number="3"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb249-4" data-line-number="4"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb249-5" data-line-number="5">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>average_price))</a>
-<a class="sourceLine" id="cb249-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb249-7" data-line-number="7"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a></code></pre></div>
+<a class="sourceLine" id="cb249-3" data-line-number="3"><span class="st">  </span><span class="co"># nest all columns except grouping-column &#39;type&#39; in a tibble</span></a>
+<a class="sourceLine" id="cb249-4" data-line-number="4"><span class="st">  </span><span class="co"># the name of the new column is &#39;price_tibbles&#39;</span></a>
+<a class="sourceLine" id="cb249-5" data-line-number="5"><span class="st">  </span><span class="kw">nest</span>(<span class="dt">.key =</span> <span class="st">&quot;price_tibbles&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb249-6" data-line-number="6"><span class="st">  </span><span class="co"># collect the summary statistics for each nested tibble</span></a>
+<a class="sourceLine" id="cb249-7" data-line-number="7"><span class="st">  </span><span class="co"># the outcome is a new column with nested tibbles</span></a>
+<a class="sourceLine" id="cb249-8" data-line-number="8"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb249-9" data-line-number="9">    <span class="dt">CIs =</span> <span class="kw">map</span>(price_tibbles, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>average_price))</a>
+<a class="sourceLine" id="cb249-10" data-line-number="10">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb249-11" data-line-number="11"><span class="st">  </span><span class="co"># unnest the newly created nested tibble</span></a>
+<a class="sourceLine" id="cb249-12" data-line-number="12"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a></code></pre></div>
 <pre><code>## # A tibble: 2 x 4
 ##   type         lower  mean upper
 ##   &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1 conventional  1.15  1.16  1.16
 ## 2 organic       1.65  1.65  1.66</code></pre>
-<!-- Homework: -->
-<!-- - calculate bs 95% CI for vector [1,2,3] by hand! -->
+<p>Using nesting in this case is helpful because we only want to run the bootstrap function once, but we need both of the numbers it returns. The following explains nesting based on this example.</p>
+<p>To understand what is going on with nested tibbles, notice that the <code>nest</code> function in this example creates a nested tibble with just two rows, one for each value of the variable <code>type</code>, each of which contains a tibble that contains all the data. The column <code>price_tibbles</code> in the first row contains the whole data for all observations for conventional avocado:</p>
+<div class="sourceCode" id="cb251"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb251-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb251-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(type) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb251-3" data-line-number="3"><span class="st">  </span><span class="co"># nest all columns except grouping-column &#39;type&#39; in a tibble</span></a>
+<a class="sourceLine" id="cb251-4" data-line-number="4"><span class="st">  </span><span class="co"># the name of the new column is &#39;price_tibbles&#39;</span></a>
+<a class="sourceLine" id="cb251-5" data-line-number="5"><span class="st">  </span><span class="kw">nest</span>(<span class="dt">.key =</span> <span class="st">&quot;price_tibbles&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb251-6" data-line-number="6"><span class="st">  </span><span class="co"># extract new column with tibble</span></a>
+<a class="sourceLine" id="cb251-7" data-line-number="7"><span class="st">  </span><span class="kw">pull</span>(price_tibbles) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb251-8" data-line-number="8"><span class="st">  </span><span class="co"># peak at the first entry in this vector</span></a>
+<a class="sourceLine" id="cb251-9" data-line-number="9"><span class="st">  </span>.[<span class="dv">1</span>] <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">head</span>()</a></code></pre></div>
+<pre><code>## &lt;list_of&lt;
+##   tbl_df&lt;
+##     Date             : date
+##     average_price    : double
+##     total_volume_sold: double
+##     small            : double
+##     medium           : double
+##     large            : double
+##   &gt;
+## &gt;[1]&gt;
+## [[1]]
+## # A tibble: 9,126 x 6
+##    Date       average_price total_volume_sold small  medium large
+##    &lt;date&gt;             &lt;dbl&gt;             &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
+##  1 2015-12-27          1.33            64237. 1037.  54455.  48.2
+##  2 2015-12-20          1.35            54877.  674.  44639.  58.3
+##  3 2015-12-13          0.93           118220.  795. 109150. 130. 
+##  4 2015-12-06          1.08            78992. 1132   71976.  72.6
+##  5 2015-11-29          1.28            51040.  941.  43838.  75.8
+##  6 2015-11-22          1.26            55980. 1184.  48068.  43.6
+##  7 2015-11-15          0.99            83454. 1369.  73673.  93.3
+##  8 2015-11-08          0.98           109428.  704. 101815.  80  
+##  9 2015-11-01          1.02            99811. 1022.  87316.  85.3
+## 10 2015-10-25          1.07            74339.  842.  64757. 113  
+## # … with 9,116 more rows</code></pre>
+<p>After nesting, we call the custom function <code>bootstrapped_CI</code> on the variable <code>average_price</code> inside of every nested tibble, so first for the conventional, then the organic avocados. The results is a nested tibble. If we now look inside the new column <code>CI</code>, we see that it’s cells contain tibbles with the output of each call of <code>bootstrapped_CI</code>:</p>
+<div class="sourceCode" id="cb253"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb253-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb253-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(type) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb253-3" data-line-number="3"><span class="st">  </span><span class="co"># nest all columns except grouping-column &#39;type&#39; in a tibble</span></a>
+<a class="sourceLine" id="cb253-4" data-line-number="4"><span class="st">  </span><span class="co"># the name of the new column is &#39;price_tibbles&#39;</span></a>
+<a class="sourceLine" id="cb253-5" data-line-number="5"><span class="st">  </span><span class="kw">nest</span>(<span class="dt">.key =</span> <span class="st">&quot;price_tibbles&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb253-6" data-line-number="6"><span class="st">  </span><span class="co"># collect the summary statistics for each nested tibble</span></a>
+<a class="sourceLine" id="cb253-7" data-line-number="7"><span class="st">  </span><span class="co"># the outcome is a new column with nested tibbles</span></a>
+<a class="sourceLine" id="cb253-8" data-line-number="8"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb253-9" data-line-number="9">    <span class="dt">CIs =</span> <span class="kw">map</span>(price_tibbles, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>average_price))</a>
+<a class="sourceLine" id="cb253-10" data-line-number="10">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb253-11" data-line-number="11"><span class="st">  </span><span class="co"># extract new column vector with nested tibbles</span></a>
+<a class="sourceLine" id="cb253-12" data-line-number="12"><span class="st">  </span><span class="kw">pull</span>(CIs) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb253-13" data-line-number="13"><span class="st">  </span><span class="co"># peak at the first entry</span></a>
+<a class="sourceLine" id="cb253-14" data-line-number="14"><span class="st">  </span>.[<span class="dv">1</span>] <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">head</span>()</a></code></pre></div>
+<pre><code>## [[1]]
+## # A tibble: 1 x 3
+##   lower  mean upper
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1  1.15  1.16  1.16</code></pre>
+<p>Finally, we unnest the new column <code>CIs</code> to obtain the final result (code repeated from above):</p>
+<div class="sourceCode" id="cb255"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb255-1" data-line-number="1">avocado_data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb255-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(type) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb255-3" data-line-number="3"><span class="st">  </span><span class="co"># nest all columns except grouping-column &#39;type&#39; in a tibble</span></a>
+<a class="sourceLine" id="cb255-4" data-line-number="4"><span class="st">  </span><span class="co"># the name of the new column is &#39;price_tibbles&#39;</span></a>
+<a class="sourceLine" id="cb255-5" data-line-number="5"><span class="st">  </span><span class="kw">nest</span>(<span class="dt">.key =</span> <span class="st">&quot;price_tibbles&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb255-6" data-line-number="6"><span class="st">  </span><span class="co"># collect the summary statistics for each nested tibble</span></a>
+<a class="sourceLine" id="cb255-7" data-line-number="7"><span class="st">  </span><span class="co"># the outcome is a new column with nested tibbles</span></a>
+<a class="sourceLine" id="cb255-8" data-line-number="8"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb255-9" data-line-number="9">    <span class="dt">CIs =</span> <span class="kw">map</span>(price_tibbles, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>average_price))</a>
+<a class="sourceLine" id="cb255-10" data-line-number="10">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb255-11" data-line-number="11"><span class="st">  </span><span class="co"># unnest the newly created nested tibble</span></a>
+<a class="sourceLine" id="cb255-12" data-line-number="12"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a></code></pre></div>
+<pre><code>## # A tibble: 2 x 4
+##   type         lower  mean upper
+##   &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 conventional  1.15  1.16  1.16
+## 2 organic       1.65  1.65  1.66</code></pre>
+<!-- HW compare bootstrapped CI with variance -->
+</div>
 </div>
 </div>
 <div class="footnotes">

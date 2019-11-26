@@ -213,7 +213,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="5.2.4" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#quantifying-confidence-with-bootstrapping"><i class="fa fa-check"></i><b>5.2.4</b> Quantifying confidence with bootstrapping</a></li>
 </ul></li>
 <li class="chapter" data-level="5.3" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html"><i class="fa fa-check"></i><b>5.3</b> Co-variance &amp; correlation</a><ul>
-<li class="chapter" data-level="5.3.1" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#covariance"><i class="fa fa-check"></i><b>5.3.1</b> Covariance:</a></li>
+<li class="chapter" data-level="5.3.1" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#covariance"><i class="fa fa-check"></i><b>5.3.1</b> Covariance</a></li>
 <li class="chapter" data-level="5.3.2" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#correlation"><i class="fa fa-check"></i><b>5.3.2</b> Correlation</a></li>
 </ul></li>
 </ul></li>
@@ -222,6 +222,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="6.2" data-path="Chap-02-04-good-visualization.html"><a href="Chap-02-04-good-visualization.html"><i class="fa fa-check"></i><b>6.2</b> Visualization: the good, the bad and the info-graphic</a></li>
 <li class="chapter" data-level="6.3" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html"><i class="fa fa-check"></i><b>6.3</b> Basics of <code>ggplot</code></a><ul>
 <li class="chapter" data-level="6.3.1" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#elements-in-the-layered-grammar-of-graphs"><i class="fa fa-check"></i><b>6.3.1</b> Elements in the layered grammar of graphs</a></li>
+<li class="chapter" data-level="6.3.2" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#customizing-a-plot"><i class="fa fa-check"></i><b>6.3.2</b> Customizing a plot</a></li>
 </ul></li>
 <li class="chapter" data-level="6.4" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html"><i class="fa fa-check"></i><b>6.4</b> A rendezvous with popular geons</a><ul>
 <li class="chapter" data-level="6.4.1" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html#scatter"><i class="fa fa-check"></i><b>6.4.1</b> Scatter</a></li>
@@ -388,50 +389,97 @@ code span.wa { color: #bf0303; } /* Warning */
 <h2><span class="header-section-number">6.3</span> Basics of <code>ggplot</code></h2>
 <p>In this section we will work towards a first plot with <code>ggplot</code>. It will be a scatter plot (more on different kinds of plots in Section <a href="Chap-02-04-geoms.html#Chap-02-04-geoms">6.4</a>) for the <a href="app-93-data-sets-avocado">avocado price data</a>.</p>
 <p>The “gg” in the package name <code>ggplot</code> is short for “grammar of graphs”. It provides functions for describing scientific data plots in a compositional manner, i.e., for dealing with different recurrent elements in a plot in an additive way. As a results of this approach, we will use the symbol <code>+</code> to <em>add</em> more and more elements (or to override the implicit defaults in previously evoked elements) to build a plot. For example, we can obtain a scatter plot for the <a href="app-93-data-sets-avocado">avocado price data</a> simply by first calling the function <code>ggplot</code>, which just creates an empty plot:</p>
-<div class="sourceCode" id="cb275"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb275-1" data-line-number="1">incrementally_built_plot &lt;-<span class="st"> </span><span class="kw">ggplot</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb289"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb289-1" data-line-number="1">incrementally_built_plot &lt;-<span class="st"> </span><span class="kw">ggplot</span>()</a></code></pre></div>
 <p>The plot stored in variable <code>incrementally_built_plot</code> is very boring. Take a look:</p>
-<div class="sourceCode" id="cb276"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb276-1" data-line-number="1">incrementally_built_plot</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-162-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb290"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb290-1" data-line-number="1">incrementally_built_plot</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-168-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>As you can see, you do not see anything except a (white) canvas. But we can add some stuff. Don’t get hung up on the details right now, just notice that we use <code>+</code> to add stuff to our plot:</p>
-<div class="sourceCode" id="cb277"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb277-1" data-line-number="1">incrementally_built_plot <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb277-2" data-line-number="2"><span class="st">  </span><span class="co"># add a geom of type `point` (=&gt; scatter plot)</span></a>
-<a class="sourceLine" id="cb277-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>(</a>
-<a class="sourceLine" id="cb277-4" data-line-number="4">    <span class="co"># what data to use</span></a>
-<a class="sourceLine" id="cb277-5" data-line-number="5">    <span class="dt">data =</span> avocado_data, </a>
-<a class="sourceLine" id="cb277-6" data-line-number="6">    <span class="co"># supply a mapping (in the form of an &#39;aesthetic&#39; (see below))</span></a>
-<a class="sourceLine" id="cb277-7" data-line-number="7">    <span class="dt">mapping =</span> <span class="kw">aes</span>(</a>
-<a class="sourceLine" id="cb277-8" data-line-number="8">      <span class="co"># which variable to map onto the x-axis</span></a>
-<a class="sourceLine" id="cb277-9" data-line-number="9">      <span class="dt">x =</span> total_volume_sold,</a>
-<a class="sourceLine" id="cb277-10" data-line-number="10">      <span class="co"># which variable to map onto the y-axis</span></a>
-<a class="sourceLine" id="cb277-11" data-line-number="11">      <span class="dt">y =</span> average_price</a>
-<a class="sourceLine" id="cb277-12" data-line-number="12">      )</a>
-<a class="sourceLine" id="cb277-13" data-line-number="13">  )</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-163-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb291"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb291-1" data-line-number="1">incrementally_built_plot <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb291-2" data-line-number="2"><span class="st">  </span><span class="co"># add a geom of type `point` (=&gt; scatter plot)</span></a>
+<a class="sourceLine" id="cb291-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>(</a>
+<a class="sourceLine" id="cb291-4" data-line-number="4">    <span class="co"># what data to use</span></a>
+<a class="sourceLine" id="cb291-5" data-line-number="5">    <span class="dt">data =</span> avocado_data, </a>
+<a class="sourceLine" id="cb291-6" data-line-number="6">    <span class="co"># supply a mapping (in the form of an &#39;aesthetic&#39; (see below))</span></a>
+<a class="sourceLine" id="cb291-7" data-line-number="7">    <span class="dt">mapping =</span> <span class="kw">aes</span>(</a>
+<a class="sourceLine" id="cb291-8" data-line-number="8">      <span class="co"># which variable to map onto the x-axis</span></a>
+<a class="sourceLine" id="cb291-9" data-line-number="9">      <span class="dt">x =</span> total_volume_sold,</a>
+<a class="sourceLine" id="cb291-10" data-line-number="10">      <span class="co"># which variable to map onto the y-axis</span></a>
+<a class="sourceLine" id="cb291-11" data-line-number="11">      <span class="dt">y =</span> average_price</a>
+<a class="sourceLine" id="cb291-12" data-line-number="12">      )</a>
+<a class="sourceLine" id="cb291-13" data-line-number="13">  )</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-169-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>You see that the function <code>geom_point</code> is what makes the points appear. You tell it which data to use and which mapping of variables from the data set to elements in the plot you like. That’s it, at least to begin with.</p>
 <div id="elements-in-the-layered-grammar-of-graphs" class="section level3">
 <h3><span class="header-section-number">6.3.1</span> Elements in the layered grammar of graphs</h3>
 <p>Let’s take a step back. Actually, the function <code>geom_point</code> is a convenience function that does a lot of things automatically for us. It helps to peak under the hood at least for a brief moment initially, if only to just realize where some of the terminology in and round the “grammar of graphs” comes from.</p>
-<p>The <code>ggplot</code> package defines a <strong>layerd grammar of graphs</strong> <span class="citation">(Wickham <a href="#ref-Wickham2010:A-Layered-Gramm">2010</a>)</span>. This is a structured description language for plots (relevant for data science). It uses a smart system of defaults so that it suffices to often just call a convenience wrapper like <code>geom_point</code>. But underneath there is the possibility of tinkering with all of the the (layered) elements and to change the defaults if need be.</p>
+<p>The <code>ggplot</code> package defines a <strong>layered grammar of graphs</strong> <span class="citation">(Wickham <a href="#ref-Wickham2010:A-Layered-Gramm">2010</a>)</span>. This is a structured description language for plots (relevant for data science). It uses a smart system of defaults so that it suffices to often just call a convenience wrapper like <code>geom_point</code>. But underneath there is the possibility of tinkering with all of the the (layered) elements and to change the defaults if need be.</p>
 <p>The process of mapping data onto a visualization essentially follows this route:</p>
 <blockquote>
 <p>data -&gt; transformation -&gt; geom. object -&gt; aesthetics</p>
 </blockquote>
 <p>You supply (tidy) data. The data is then transformed (e.g., summarized) in some way or another. This could just be an “identity map” in which case you get no summary at all. The resulting data representation is mapped onto some graphical (geometric) appearance, like a line, a dot or a surface. Finally, there is room to alter the specific asthetics of this mapping from data to visual object, like adjusting the size or the color etc.</p>
 <p>To make the steps implicitly carried out by <code>geom_points</code> in the example above explicit, here is a fully verbose equivalent sequence of commands that builds the same plot by defining all the basic components manually:</p>
-<div class="sourceCode" id="cb278"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb278-1" data-line-number="1"><span class="kw">ggplot</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb278-2" data-line-number="2"><span class="st">  </span><span class="kw">layer</span>(</a>
-<a class="sourceLine" id="cb278-3" data-line-number="3">    <span class="dt">data =</span> avocado_data,</a>
-<a class="sourceLine" id="cb278-4" data-line-number="4">    <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">x =</span> total_volume_sold, <span class="dt">y =</span> average_price),</a>
-<a class="sourceLine" id="cb278-5" data-line-number="5">    <span class="dt">geom =</span> <span class="st">&quot;point&quot;</span>,</a>
-<a class="sourceLine" id="cb278-6" data-line-number="6">    <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>,</a>
-<a class="sourceLine" id="cb278-7" data-line-number="7">    <span class="dt">position =</span> <span class="st">&quot;identity&quot;</span></a>
-<a class="sourceLine" id="cb278-8" data-line-number="8">  ) <span class="op">+</span></a>
-<a class="sourceLine" id="cb278-9" data-line-number="9"><span class="st">  </span><span class="kw">scale_x_continuous</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb278-10" data-line-number="10"><span class="st">  </span><span class="kw">scale_y_continuous</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb278-11" data-line-number="11"><span class="st">  </span><span class="kw">coord_cartesian</span>()</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-164-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb292"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb292-1" data-line-number="1"><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb292-2" data-line-number="2"><span class="st">  </span><span class="kw">layer</span>(</a>
+<a class="sourceLine" id="cb292-3" data-line-number="3">    <span class="dt">data =</span> avocado_data,</a>
+<a class="sourceLine" id="cb292-4" data-line-number="4">    <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">x =</span> total_volume_sold, <span class="dt">y =</span> average_price),</a>
+<a class="sourceLine" id="cb292-5" data-line-number="5">    <span class="dt">geom =</span> <span class="st">&quot;point&quot;</span>,</a>
+<a class="sourceLine" id="cb292-6" data-line-number="6">    <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>,</a>
+<a class="sourceLine" id="cb292-7" data-line-number="7">    <span class="dt">position =</span> <span class="st">&quot;identity&quot;</span></a>
+<a class="sourceLine" id="cb292-8" data-line-number="8">  ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb292-9" data-line-number="9"><span class="st">  </span><span class="kw">scale_x_continuous</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb292-10" data-line-number="10"><span class="st">  </span><span class="kw">scale_y_continuous</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb292-11" data-line-number="11"><span class="st">  </span><span class="kw">coord_cartesian</span>()</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-170-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>In this explicit call, we still need to specify the data and the mapping (which variable to map onto which axis). But we need to specify much more. We tell <code>ggplot</code> that we want standard (e.g., not log-transformed axis). We also tell it that our axis are continuous, that the data should not be transformed and that the visual shape (=geon) to which the data is to be mapped is a point (hence the name <code>geom_point</code>).</p>
 <p>It is not important to understand exactly all of these components right now. It is important to have seen them once, and to understand that <code>geom_point</code> is a wrapper around this call which assumes reasonable defaults (such as non-transformed axis, points for representation etc.).</p>
+</div>
+<div id="customizing-a-plot" class="section level3">
+<h3><span class="header-section-number">6.3.2</span> Customizing a plot</h3>
+<div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb293-1" data-line-number="1"><span class="co"># pipe data set into function `ggplot`</span></a>
+<a class="sourceLine" id="cb293-2" data-line-number="2">avocado_data <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb293-3" data-line-number="3"><span class="st">  </span><span class="co"># reverse factor level so that horizontal legend entries align with</span></a>
+<a class="sourceLine" id="cb293-4" data-line-number="4"><span class="st">  </span><span class="co"># the majority of observations of each group in the plot</span></a>
+<a class="sourceLine" id="cb293-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb293-6" data-line-number="6">    <span class="dt">type =</span> <span class="kw">fct_rev</span>(type)</a>
+<a class="sourceLine" id="cb293-7" data-line-number="7">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb293-8" data-line-number="8"><span class="st">  </span><span class="co"># initivalize the plot</span></a>
+<a class="sourceLine" id="cb293-9" data-line-number="9"><span class="st">  </span><span class="kw">ggplot</span>(</a>
+<a class="sourceLine" id="cb293-10" data-line-number="10">    <span class="co"># defined mapping</span></a>
+<a class="sourceLine" id="cb293-11" data-line-number="11">    <span class="dt">mapping =</span> <span class="kw">aes</span>(</a>
+<a class="sourceLine" id="cb293-12" data-line-number="12">      <span class="co"># which variable goes on the x-axis</span></a>
+<a class="sourceLine" id="cb293-13" data-line-number="13">      <span class="dt">x =</span> total_volume_sold, </a>
+<a class="sourceLine" id="cb293-14" data-line-number="14">      <span class="co"># which variable goes on the y-axis</span></a>
+<a class="sourceLine" id="cb293-15" data-line-number="15">      <span class="dt">y =</span> average_price, </a>
+<a class="sourceLine" id="cb293-16" data-line-number="16">      <span class="co"># which groups of variables to distinguish</span></a>
+<a class="sourceLine" id="cb293-17" data-line-number="17">      <span class="dt">group =</span> type, </a>
+<a class="sourceLine" id="cb293-18" data-line-number="18">      <span class="co"># color and fill to change by grouping variable</span></a>
+<a class="sourceLine" id="cb293-19" data-line-number="19">      <span class="dt">fill =</span> type, </a>
+<a class="sourceLine" id="cb293-20" data-line-number="20">      <span class="dt">color =</span> type</a>
+<a class="sourceLine" id="cb293-21" data-line-number="21">    )</a>
+<a class="sourceLine" id="cb293-22" data-line-number="22">  ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb293-23" data-line-number="23"><span class="st">  </span><span class="co"># declare that we want a scatter plot</span></a>
+<a class="sourceLine" id="cb293-24" data-line-number="24"><span class="st">  </span><span class="kw">geom_point</span>(</a>
+<a class="sourceLine" id="cb293-25" data-line-number="25">    <span class="co"># set low opacity for each point</span></a>
+<a class="sourceLine" id="cb293-26" data-line-number="26">    <span class="dt">alpha =</span> <span class="fl">0.1</span></a>
+<a class="sourceLine" id="cb293-27" data-line-number="27">  ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb293-28" data-line-number="28"><span class="st">  </span><span class="co"># add a linear model fit (for each group)</span></a>
+<a class="sourceLine" id="cb293-29" data-line-number="29"><span class="st">  </span><span class="kw">geom_smooth</span>(</a>
+<a class="sourceLine" id="cb293-30" data-line-number="30">    <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, </a>
+<a class="sourceLine" id="cb293-31" data-line-number="31">    <span class="dt">method =</span> <span class="st">&quot;lm&quot;</span></a>
+<a class="sourceLine" id="cb293-32" data-line-number="32">  ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb293-33" data-line-number="33"><span class="st">  </span><span class="co"># change the default (normal) of x-axis to log-scale</span></a>
+<a class="sourceLine" id="cb293-34" data-line-number="34"><span class="st">  </span><span class="kw">scale_x_log10</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb293-35" data-line-number="35"><span class="st">  </span><span class="co"># add dollar signs to y-axis labels</span></a>
+<a class="sourceLine" id="cb293-36" data-line-number="36"><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>dollar) <span class="op">+</span></a>
+<a class="sourceLine" id="cb293-37" data-line-number="37"><span class="st">  </span><span class="co"># change axis labels and plot title &amp; subtitle</span></a>
+<a class="sourceLine" id="cb293-38" data-line-number="38"><span class="st">  </span><span class="kw">labs</span>(</a>
+<a class="sourceLine" id="cb293-39" data-line-number="39">    <span class="dt">x =</span> <span class="st">&#39;Total volume sold (on a log scale)&#39;</span>,</a>
+<a class="sourceLine" id="cb293-40" data-line-number="40">    <span class="dt">y =</span> <span class="st">&#39;Average price&#39;</span>,</a>
+<a class="sourceLine" id="cb293-41" data-line-number="41">    <span class="dt">title =</span> <span class="st">&quot;Avocado prices plotted against the amount sold per type&quot;</span>,</a>
+<a class="sourceLine" id="cb293-42" data-line-number="42">    <span class="dt">subtitle =</span> <span class="st">&quot;With linear regression lines&quot;</span></a>
+<a class="sourceLine" id="cb293-43" data-line-number="43">  )</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-171-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <h3>References</h3>
