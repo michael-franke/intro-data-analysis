@@ -194,6 +194,76 @@ knitr::include_graphics("visuals/vampire-energy.png")
 
 ## Basics of `ggplot` {#Chap-02-04-ggplot}
 
+In this section we will work towards a first plot with `ggplot`. It will be a scatter plot (more on different kinds of plots in Section \@ref(Chap-02-04-geoms)) for the [avocado price data](app-93-data-sets-avocado).
+
+The "gg" in the package name `ggplot` is short for "grammar of graphs". It provides functions for describing scientific data plots in a compositional manner, i.e., for dealing with different recurrent elements in a plot in an additive way. As a results of this approach, we will use the symbol `+` to *add* more and more elements (or to override the implicit defaults in previously evoked elements) to build a plot. For example, we can obtain a scatter plot for the [avocado price data](app-93-data-sets-avocado) simply by first calling the function `ggplot`, which just creates an empty plot:
+
+```{r}
+incrementally_built_plot <- ggplot()
+```
+
+The plot stored in variable `incrementally_built_plot` is very boring. Take a look:
+
+```{r}
+incrementally_built_plot
+```
+
+As you can see, you do not see anything except a (white) canvas. But we can add some stuff. Don't get hung up on the details right now, just notice that we use `+` to add stuff to our plot:
+
+```{r}
+incrementally_built_plot + 
+  # add a geom of type `point` (=> scatter plot)
+  geom_point(
+    # what data to use
+    data = avocado_data, 
+    # supply a mapping (in the form of an 'aesthetic' (see below))
+    mapping = aes(
+      # which variable to map onto the x-axis
+      x = total_volume_sold,
+      # which variable to map onto the y-axis
+      y = average_price
+      )
+  )
+```
+
+You see that the function `geom_point` is what makes the points appear. You tell it which data to use and which mapping of variables from the data set to elements in the plot you like. That's it, at least to begin with.
+
+### Elements in the layered grammar of graphs
+
+Let's take a step back. Actually, the function `geom_point` is a convenience function that does a lot of things automatically for us. It helps to peak under the hood at least for a brief moment initially, if only to just realize where some of the terminology in and round the "grammar of graphs" comes from. 
+
+The `ggplot` package defines a **layerd grammar of graphs** [@Wickham2010:A-Layered-Gramm]. This is a structured description language for plots (relevant for data science). It uses a smart system of defaults so that it suffices to often just call a convenience wrapper like `geom_point`. But underneath there is the possibility of tinkering with all of the the (layered) elements and to change the defaults if need be. 
+
+The process of mapping data onto a visualization essentially follows this route:
+
+> data -> transformation -> geom. object -> aesthetics
+
+You supply (tidy) data. The data is then transformed (e.g., summarized) in some way or another. This could just be an "identity map" in which case you get no summary at all. The resulting data representation is mapped onto some graphical (geometric) appearance, like a line, a dot or a surface. Finally, there is room to alter the specific asthetics of this mapping from data to visual object, like adjusting the size or the color etc.
+
+To make the steps implicitly carried out by `geom_points` in the example above explicit, here is a fully verbose equivalent sequence of commands that builds the same plot by defining all the basic components manually:
+    
+
+```{r}
+ggplot() +
+  layer(
+    data = avocado_data,
+    mapping = aes(x = total_volume_sold, y = average_price),
+    geom = "point",
+    stat = "identity",
+    position = "identity"
+  ) +
+  scale_x_continuous() +
+  scale_y_continuous() +
+  coord_cartesian()
+```  
+
+In this explicit call, we still need to specify the data and the mapping (which variable to map onto which axis). But we need to specify much more. We tell `ggplot` that we want standard (e.g., not log-transformed axis). We also tell it that our axis are continuous, that the data should not be transformed and that the visual shape (=geon) to which the data is to be mapped is a point (hence the name `geom_point`).
+
+It is not important to understand exactly all of these components right now. It is important to have seen them once, and to understand that `geom_point` is a wrapper around this call which assumes reasonable defaults (such as non-transformed axis, points for representation etc.).
+
+
+
+
 ## A rendezvous with popular geons {#Chap-02-04-geoms}
 
 ### Scatter
