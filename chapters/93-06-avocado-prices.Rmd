@@ -166,15 +166,51 @@ avocado_data %>%
   ggtitle("Avocado prices plotted against the (log) amount sold")
 ```
 
-And another scatter plot of the same quantities where the different types of avocados are distinguished:
+And another scatter plot, using a log-scaled $x$-axis and distinguishing different types of avocados are:
 
 ```{r}
+# pipe data set into function `ggplot`
 avocado_data %>% 
-  ggplot(aes(x = log(total_volume_sold), y = average_price, group = type, fill = type, color = type)) +
-  geom_point(alpha = 0.1) +
-  geom_smooth(color = "black", method = "lm") +
-  xlab('Logarithm of total volume sold') +
-  ylab('Average price') +
-  ggtitle("Avocado prices plotted against the (log) amount sold per type")
+  # reverse factor level so that horizontal legend entries align with
+  # the majority of observations of each group in the plot
+  mutate(
+    type = fct_rev(type)
+  ) %>% 
+  # initivalize the plot
+  ggplot(
+    # defined mapping
+    mapping = aes(
+      # which variable goes on the x-axis
+      x = total_volume_sold, 
+      # which variable goes on the y-axis
+      y = average_price, 
+      # which groups of variables to distinguish
+      group = type, 
+      # color and fill to change by grouping variable
+      fill = type, 
+      color = type
+    )
+  ) +
+  # declare that we want a scatter plot
+  geom_point(
+    # set low opacity for each point
+    alpha = 0.1
+  ) +
+  # add a linear model fit (for each group)
+  geom_smooth(
+    color = "black", 
+    method = "lm"
+  ) +
+  # change the default (normal) of x-axis to log-scale
+  scale_x_log10() +
+  # add dollar signs to y-axis labels
+  scale_y_continuous(labels = scales::dollar) +
+  # change axis labels and plot title & subtitle
+  labs(
+    x = 'Total volume sold (on a log scale)',
+    y = 'Average price',
+    title = "Avocado prices plotted against the amount sold per type",
+    subtitle = "With linear regression lines"
+  )
 ```
 

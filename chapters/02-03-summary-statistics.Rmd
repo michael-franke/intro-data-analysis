@@ -517,25 +517,88 @@ bootstrapped_CI(smaller_data)
 
 The mean is different (because we are looking at earlier time points) but, importantly, the interval is larger becase with only 300 observations we have less confidence in the estimate.
 
+#### Excursion: Summary functions with multiple outputs, using nested tibbles
+
 To obtain summary statistics for different groups of a variable, we can use the function `bootstrapped_CI` conveniently in concert with **nested tibbles**, as demonstrated here:
 
 ```{r}
 avocado_data %>%
   group_by(type) %>%
-  nest() %>% 
+  # nest all columns except grouping-column 'type' in a tibble
+  # the name of the new column is 'price_tibbles'
+  nest(.key = "price_tibbles") %>% 
+  # collect the summary statistics for each nested tibble
+  # the outcome is a new column with nested tibbles
   summarise(
-    CIs = map(data, function(d) bootstrapped_CI(d$average_price))
+    CIs = map(price_tibbles, function(d) bootstrapped_CI(d$average_price))
   ) %>% 
+  # unnest the newly created nested tibble
   unnest(CIs)
 ```
 
-<!-- Homework: -->
-<!-- - calculate bs 95% CI for vector [1,2,3] by hand! -->
+
+Using nesting in this case is helpful because we only want to run the bootstrap function once, but we need both of the numbers it returns. The following explains nesting based on this example.
+
+To understand what is going on with nested tibbles, notice that the `nest` function in this example creates a nested tibble with just two rows, one for each value of the variable `type`, each of which contains a tibble that contains all the data. The column `price_tibbles` in the first row contains the whole data for all observations for conventional avocado:
+
+```{r, eval = T, warnings = FALSE, message=FALSE}
+avocado_data %>%
+  group_by(type) %>%
+  # nest all columns except grouping-column 'type' in a tibble
+  # the name of the new column is 'price_tibbles'
+  nest(.key = "price_tibbles") %>% 
+  # extract new column with tibble
+  pull(price_tibbles) %>% 
+  # peak at the first entry in this vector
+  .[1] %>%  head()
+```
+
+After nesting, we call the custom function `bootstrapped_CI` on the variable `average_price` inside of every nested tibble, so first for the conventional, then the organic avocados. The results is a nested tibble. If we now look inside the new column `CI`, we see that it's cells contain tibbles with the output of each call of `bootstrapped_CI`:
+
+```{r, eval = T}
+avocado_data %>%
+  group_by(type) %>%
+  # nest all columns except grouping-column 'type' in a tibble
+  # the name of the new column is 'price_tibbles'
+  nest(.key = "price_tibbles") %>% 
+  # collect the summary statistics for each nested tibble
+  # the outcome is a new column with nested tibbles
+  summarise(
+    CIs = map(price_tibbles, function(d) bootstrapped_CI(d$average_price))
+  ) %>%
+  # extract new column vector with nested tibbles
+  pull(CIs) %>% 
+  # peak at the first entry
+  .[1] %>%  head()
+```
+
+Finally, we unnest the new column `CIs` to obtain the final result (code repeated from above):
+
+
+```{r}
+avocado_data %>%
+  group_by(type) %>%
+  # nest all columns except grouping-column 'type' in a tibble
+  # the name of the new column is 'price_tibbles'
+  nest(.key = "price_tibbles") %>% 
+  # collect the summary statistics for each nested tibble
+  # the outcome is a new column with nested tibbles
+  summarise(
+    CIs = map(price_tibbles, function(d) bootstrapped_CI(d$average_price))
+  ) %>% 
+  # unnest the newly created nested tibble
+  unnest(CIs)
+```
+
+
+<!-- HW compare bootstrapped CI with variance -->
 
 
 ## Co-variance & correlation {#Chap-02-03-summary-statistics-2D}
 
-### Covariance:
+### Covariance
+
+Let $\vec{x}$ and $\vec{y}$ are two vectors of numeric data of the same length, such that all pairs of $x_i$ and $y_i$ are associated observation. For example: the vectors `avocado_data$total_volume_sold` and `avocado_data$average_price` would be such vectors. The covariance between $\vec{x}$ and $\vec{y}$ measures, intuitively put, the degree to which changes in one vector correspond with changes in the other. Formally, covariance is defined as follows (notice that we use $n-1$ in the denominator, to obtain an unbiased estimator if the means are unknown):
 
 $$\text{Cov}(\vec{x},\vec{y}) = \frac{1}{n-1} \ \sum_{i=1}^n (x_i - \mu_{\vec{x}}) \ (y_i - \mu_{\vec{y}})$$
 
@@ -565,14 +628,16 @@ We can then compute the covariance as follows:
 contrived_example <- 
   contrived_example %>% 
   mutate(
-    area_rectangle =               (x-mean(x)) * (y - mean(y)),
+    area_rectangle =                    (x-mean(x)) * (y - mean(y)),
     covariance     =  1/ (n()-1) * sum((x-mean(x)) * (y - mean(y)))
   )
 contrived_example
 ```
 
+Similar to what we did with variance, we can give a geometrical interpretation of covariance. Figure \@ref(fig:chap-02-03-covariance) shows the four summands contributing to the covariance of the `contrived_example`. What this graph clearly shows is that summands can have different signs. If $x_i$ and $y_i$ are both bigger than the mean, or if both are smaller than the mean, then the corresponding summand is positive. Otherwise, the corresponding summand is negative. This means that covariance captures the degree to which pairs $x_i$ and $y_i$ tend to deviate from the mean in the same general direction. A positive covariance is indicative of a positive general association between $\vec{x}$ and $\vec{y}$, while a negtive covariance suggests that as you increase $x_i$ the associated $y_i$ becomes smaller.
 
-```{r, echo = F}
+
+```{r chap-02-03-covariance, echo = F}
 contrived_example %>% 
   ggplot(aes(x, y)) +
   geom_rect(
@@ -587,8 +652,18 @@ contrived_example %>%
   geom_point(color = "darkorange", size = 4) +
   geom_point(data = means_contr_example, color = "white", size = 10) +
   theme(legend.position = "none") +
+  geom_text(
+    aes(
+      x = c(2.5, 2.75,  3.25, 3.5),
+      y = c(2.5,  3.5,  2.75, 3.25), 
+      label = area_rectangle
+    ), 
+    color = "white"
+  ) +
   ggtitle("Rectangular areas contributing to the computation of covariance")
 ```
+
+
 
 We can, of course, also calculate covariance just with a built-in base R function, `cov`:
 
@@ -597,24 +672,54 @@ with(contrived_example, cov(x,y))
 ```
 
 
-- covariance in avocado data
+And, using this function we can calculate the covariance between `total_volume_sold` and `average_price` in the avocado data:
 
 ```{r}
 with(avocado_data, cov(log(total_volume_sold), average_price))
 ```
 
+Interestingly, the negative covariance in this example suggests that that across all associated data pairs, the larger `total_volume_sold`, the lower `average_price`. It is important that this is a descriptive statistics, and that this is not to be interpreted as evidence or a causal relation between the two measures of interest. Not in this example, not in any other. Covariance describes associated data points; it is not evidence for causal relationships.
 
 ### Correlation
 
-Bravais-Pearson correlation is covariance standardized by standard deviations:
+The problem with covariance is that it is not invariant under linear transformation. Consider the `contrived_example` from above once more. The original data had the following covariance:
+
+```{r}
+with(contrived_example, cov(x,y))
+```
+
+But if we just linearly transform, say, vector `y` to `1000 * y + 500` (e.g., because we switch to an equivalent, but numerically different measuring scale), we obtain:
+
+```{r}
+with(contrived_example, cov(x,1000 * y + 500))
+```
+
+To compensate for this problem, we can look at **Bravais-Pearson correlation**, which is is covariance standardized by standard deviations:
 
 $$r_{\vec{x}\vec{y}} = \frac{\text{Cov}(\vec{x}, \vec{y})}{\text{SD}(\vec{x}) \ \text{SD}(\vec{y})}$$
+
+Let's check invariance under linear transformation, using the built-in function `cor`. The correlation coefficient for the original data is:
+
+```{r}
+with(contrived_example, cor(x,y))
+```
+
+The correlation coefficient for the data with linearly transformed `y` is:
+
+```{r}
+with(contrived_example, cor(x,1000 * y + 500))
+```
+
+Indeed, the correlation coefficient is nicely bounded to lie between -1 and 1. A correlation coefficient of 0 is to be interpreted as the absence of any correlation. A correlation coefficient of 1 is a perfect positive correlation (the higher $x_i$, the higher $y_i$) and -1 indicates a perfect negative correlation (the higher $x_i$ the lower $y_i$). Again, pronounced positive or negative correlations are *not* to be confused with strong evidence for a causal relation. It is just a descriptive statistic on properties of associated measurements.
+
+In the avocado data, the logarithm of `total_volume_sold` shows a noteworthy correlation with `average_price`. This is also visible in Figure \@ref(fig:chap-02-03-avocado-scatter).
 
 ```{r}
 with(avocado_data, cor(log(total_volume_sold), average_price))
 ```
 
-```{r chap-02-03-avocado-scatter, echo = F, fig.cap="Scatter plot of avocado prices, plotted agains (logarithms of) the total amount sold. The black line is a linear regression line indicating the (negative) correlation between these measures (more in this later)."}
+
+```{r chap-02-03-avocado-scatter, echo = F, fig.cap="Scatter plot of avocado prices, plotted agains (logarithms of) the total amount sold. The black line is a linear regression line indicating the (negative) correlation between these measures (more on this later)."}
 avocado_data %>% 
   ggplot(aes(x = log(total_volume_sold), y = average_price)) +
   geom_point(color = "darkgray", alpha = 0.3) +

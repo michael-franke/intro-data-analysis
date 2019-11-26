@@ -232,7 +232,7 @@ You see that the function `geom_point` is what makes the points appear. You tell
 
 Let's take a step back. Actually, the function `geom_point` is a convenience function that does a lot of things automatically for us. It helps to peak under the hood at least for a brief moment initially, if only to just realize where some of the terminology in and round the "grammar of graphs" comes from. 
 
-The `ggplot` package defines a **layerd grammar of graphs** [@Wickham2010:A-Layered-Gramm]. This is a structured description language for plots (relevant for data science). It uses a smart system of defaults so that it suffices to often just call a convenience wrapper like `geom_point`. But underneath there is the possibility of tinkering with all of the the (layered) elements and to change the defaults if need be. 
+The `ggplot` package defines a **layered grammar of graphs** [@Wickham2010:A-Layered-Gramm]. This is a structured description language for plots (relevant for data science). It uses a smart system of defaults so that it suffices to often just call a convenience wrapper like `geom_point`. But underneath there is the possibility of tinkering with all of the the (layered) elements and to change the defaults if need be. 
 
 The process of mapping data onto a visualization essentially follows this route:
 
@@ -261,7 +261,53 @@ In this explicit call, we still need to specify the data and the mapping (which 
 
 It is not important to understand exactly all of these components right now. It is important to have seen them once, and to understand that `geom_point` is a wrapper around this call which assumes reasonable defaults (such as non-transformed axis, points for representation etc.).
 
+### Customizing a plot
 
+```{r}
+# pipe data set into function `ggplot`
+avocado_data %>% 
+  # reverse factor level so that horizontal legend entries align with
+  # the majority of observations of each group in the plot
+  mutate(
+    type = fct_rev(type)
+  ) %>% 
+  # initivalize the plot
+  ggplot(
+    # defined mapping
+    mapping = aes(
+      # which variable goes on the x-axis
+      x = total_volume_sold, 
+      # which variable goes on the y-axis
+      y = average_price, 
+      # which groups of variables to distinguish
+      group = type, 
+      # color and fill to change by grouping variable
+      fill = type, 
+      color = type
+    )
+  ) +
+  # declare that we want a scatter plot
+  geom_point(
+    # set low opacity for each point
+    alpha = 0.1
+  ) +
+  # add a linear model fit (for each group)
+  geom_smooth(
+    color = "black", 
+    method = "lm"
+  ) +
+  # change the default (normal) of x-axis to log-scale
+  scale_x_log10() +
+  # add dollar signs to y-axis labels
+  scale_y_continuous(labels = scales::dollar) +
+  # change axis labels and plot title & subtitle
+  labs(
+    x = 'Total volume sold (on a log scale)',
+    y = 'Average price',
+    title = "Avocado prices plotted against the amount sold per type",
+    subtitle = "With linear regression lines"
+  )
+```
 
 
 ## A rendezvous with popular geons {#Chap-02-04-geoms}
