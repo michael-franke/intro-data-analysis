@@ -19,6 +19,9 @@
 ## Resource collection by Amy Perfors
   - https://psychologicalsciences.unimelb.edu.au/research/hubs/chdh/ccs/resources-and-readings
 
+## Predictive modeling (Eduardo García Portugués)
+  - https://bookdown.org/egarpor/PM-UC3M/
+  
 # Scripts
 
 ## Introduction to Probability and Statistics Using R (2018)
