@@ -1,4 +1,4 @@
-# Data Plotting {#Chap-02-02-visualization}
+# Data Visualization {#Chap-02-02-visualization}
 
 <hr>
 
@@ -20,7 +20,7 @@ The learning goals for this chapter are:
 - obtain a basic understanding of better/worse plotting
   - understand the idea of *hypothesis-driven visualization*
 - develop a basic understanding of the 'grammar of graphs'
-- understand the pros and cons of different frequent visualization strategies
+- get familiar with frequent visualization strategies
   - barplots, densities, violins, error bars etc.
 - be able to fine-tune graphs for better visualization
 
@@ -35,15 +35,18 @@ To see how summary statistics can be highly misleading, and how a simple plot ca
 glimpse(anscombe %>% as_tibble)
 ```
 
-There are four pairs of $x$ and $y$ coordinates. Unfortunately, these are stored in long format with two pieces of information buried inside of the column name: for instance, the name `x3` contains the information that this column contains the $x$ coordinates for the 3rd pair. This is rather untidy. But, after the last section on data wrangling, we can tidy up quickly:
+There are four pairs of $x$ and $y$ coordinates. Unfortunately, these are stored in long format with two pieces of information buried inside of the column name: for instance, the name `x3` contains the information that this column contains the $x$ coordinates for the 3rd pair. This is rather untidy. But, using tools from the `dplyr` package, we can tidy up quickly:
 
 ```{r}
 tidy_anscombe <- anscombe %>% as_tibble %>% 
   pivot_longer(
-    everything(),                  ## we want o pivot every column
-    names_pattern = "(.)(.)",      ## use reg-exps to capture 1st and 2nd character
-    names_to = c(".value", "grp")  ## assign names to new cols, using 1st part of
-                                   ##   what reg-exp captures as new column names
+    ## we want o pivot every column
+    everything(),
+    ## use reg-exps to capture 1st and 2nd character
+    names_pattern = "(.)(.)",      
+    ## assign names to new cols, using 1st part of
+    ##  what reg-exp captures as new column names
+    names_to = c(".value", "grp")  
   ) %>% 
   mutate(grp = paste0("Group ", grp))
 tidy_anscombe
@@ -61,7 +64,7 @@ tidy_anscombe %>%
     min_y     = min(y),
     max_x     = max(x),
     max_y     = max(y),
-    r_squared = cor(x,y)^2
+    crrltn    = cor(x,y)
   )
 ```
 
@@ -72,12 +75,14 @@ These numeric indicators suggest that each pair of $x$ and $y$ values is very si
 ```{r ch-02-anscombe, fig.cap="Anscombe's Quartet: four different data sets all of which receive the same correlation score."}
 tidy_anscombe %>% 
   ggplot(aes(x, y)) +
-    geom_smooth(method = lm, se = F, color = "black") +
+    geom_smooth(method = lm, se = F, color = "darkorange") +
     geom_point(color = project_colors[3], size = 2) +
     scale_y_continuous(breaks = scales::pretty_breaks()) +
     scale_x_continuous(breaks = scales::pretty_breaks()) +
-    labs(title = "Anscombe's Quartet", x = NULL, y = NULL,
-         subtitle = bquote(y == 0.5 * x + 3 ~ (R^2 %~~% .667) ~ "for all datasets")) +
+    labs(
+      title = "Anscombe's Quartet", x = NULL, y = NULL,
+      subtitle = bquote(y == 0.5 * x + 3 ~ (r %~~% .82) ~ "for all datasets")
+    ) +
     facet_wrap(~grp, ncol = 2, scales = "free_x") +
     theme(strip.background = element_rect(fill = "#f2f2f2", colour = "white"))
 ```
