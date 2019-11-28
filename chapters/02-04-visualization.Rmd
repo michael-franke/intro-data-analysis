@@ -784,6 +784,54 @@ avocado_data %>%
 
 ## Customization and other operations {#Chap-02-04-customization}
 
+There are many ways in which graphs can (and often: ought to) be tweaked further. The following can only cover a small, but hopefully useful selection.
+
+### Faceting
+
+If we have grouping information, sometimes it can just get too much to put all of the information in a single plot, even if we use colors, shapes or linetypes for disambiguation. Facets are a great way to seperately repeat the same kind of plot for different levels of relevant factors. 
+
+The functions `facet_grid` and `facet_wrap` are used for faceting. They both expect a formula-like syntax (we have not yet introduced formulas) using the notation `~` to separate factors. The difference between these functions shows most clearly when we have more than two factors. So let's introduce a new factor `early` to the avocado price data, representing whether a recorded measurement was no later than the median date or not. 
+
+```{r}
+avocado_data_early_late <- avocado_data %>% 
+  mutate(early = ifelse(Date <= median(Date), "early", "late"))
+```
+
+Using `facet_grid` we get a two-dimensional grid, and we can specify along which axis of this grid the different factor levels are to range by putting the factors in the formula notation like this: `row_factor ~ col_factor`.
+
+```{r}
+avocado_data_early_late %>% 
+  ggplot(aes(x = log(total_volume_sold), y = average_price)) +
+  geom_point(alpha = 0.3, color = "skyblue") +
+  geom_smooth(method = "lm", color = "darkorange") +
+  facet_grid(type ~ early)
+```
+
+The same kind of plot realized with `facet_wrap` looks slightly different. The different factor level combinations are mushed together into a pair.
+
+```{r}
+avocado_data_early_late %>% 
+  ggplot(aes(x = log(total_volume_sold), y = average_price)) +
+  geom_point(alpha = 0.3, color = "skyblue") +
+  geom_smooth(method = "lm", color = "darkorange") +
+  facet_wrap(type ~ early)
+```
+
+With facet_wrap it is possible to specify the desired number of columns or rows:
+
+```{r}
+avocado_data_early_late %>% 
+  ggplot(aes(x = log(total_volume_sold), y = average_price)) +
+  geom_point(alpha = 0.3, color = "skyblue") +
+  geom_smooth(method = "lm", color = "darkorange") +
+  facet_wrap(type ~ early, nrow = 1)
+```
+
+If measures in a given cell 
+
+- guides
+- themes
+- arranging different plots
 - axis (log etc.)
 
 
