@@ -11,6 +11,7 @@ suppressPackageStartupMessages(library(boot))  # bootstrapped (mainly: 95% CIs f
 suppressPackageStartupMessages(library(naniar)) # turn numbers (e.g. -5,99,..) into NA (handling of missing values in data sets)
 suppressPackageStartupMessages(library(latex2exp)) # for TeX in plots
 suppressPackageStartupMessages(library(cowplot)) # to arrange plots
+suppressPackageStartupMessages(library(scales)) # to massage scales in plots
 
 ## set defaults
 # hrbrthemes::import_public_sans()
