@@ -9,6 +9,8 @@ suppressPackageStartupMessages(library(extraDistr))  # create beta-binomial and 
 suppressPackageStartupMessages(library(boot))  # bootstrapped (mainly: 95% CIs for the mean)
 # suppressPackageStartupMessages(library(rethinking))
 suppressPackageStartupMessages(library(naniar)) # turn numbers (e.g. -5,99,..) into NA (handling of missing values in data sets)
+suppressPackageStartupMessages(library(latex2exp)) # for TeX in plots
+suppressPackageStartupMessages(library(cowplot)) # to arrange plots
 
 ## set defaults
 # hrbrthemes::import_public_sans()

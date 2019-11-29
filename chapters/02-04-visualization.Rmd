@@ -806,12 +806,50 @@ avocado_data %>%
   geom_rug(alpha = 0.2)
 ```
 
+### Annotation
 
-## Customization and other operations {#Chap-02-04-customization}
+It can be useful add further elements to a plot. We might want to add text, or specific geometrical shapes to highlight aspects of data. The most general function for doing this is `annotate`. The function `annotate` takes as a first argument a `geom` argument, e.g., `text` or `rectangle`. It is therefore not a wrapper function in the `geom_` family of functions, but the underlying function around which connvenience functions like `geom_text` or `geom_rectangle` are wrapped. The further arguments that `annotate` expects depend on the geom it is supposed to realize. 
 
-There are many ways in which graphs can (and often: ought to) be tweaked further. The following can only cover a small, but hopefully useful selection.
+Suppose we want to add textual information at a particular coordinate. We can do this with `annotate` as follows:
 
-### Faceting
+```{r}
+avocado_data %>% 
+  filter(type == "conventional") %>% 
+  ggplot(aes(x = total_volume_sold, y = average_price)) +
+  geom_point(alpha = 0.2) +
+  annotate(
+    geom = "text", 
+    # x and y coordinates for the text
+    x = 2e7,
+    y = 2,
+    # text to be displayed
+    label = "Bravo avocado!",
+    color = "firebrick",
+    size = 8
+  )
+```
+
+We can also single out some data points, like so:
+
+```{r}
+avocado_data %>% 
+  filter(type == "conventional") %>% 
+  ggplot(aes(x = total_volume_sold, y = average_price)) +
+  geom_point(alpha = 0.2) +
+  annotate(
+    geom = "rect", 
+    # coordinates for the rectangle
+    xmin = 2.1e7,
+    xmax = max(avocado_data$total_volume_sold) + 100,
+    ymin = 0.7,
+    ymax = 1.7,
+    color = "firebrick",
+    fill = "transparent",
+    size = 2
+  )
+```
+
+## Faceting {#Chap-02-04-faceting}
 
 If we have grouping information, sometimes it can just get too much to put all of the information in a single plot, even if we use colors, shapes or linetypes for disambiguation. Facets are a great way to seperately repeat the same kind of plot for different levels of relevant factors. 
 
@@ -853,37 +891,10 @@ avocado_data_early_late %>%
 ```
 
 
-### Guides
 
-When using grouped variables (by color, shape, linetype, group, ...) `ggplot` creates a legend automatically.
+## Customization etc. {#Chap-02-04-customization}
 
-```{r}
-avocado_data %>% 
-  ggplot(
-    mapping = aes(
-      x = log(total_volume_sold), 
-      y = average_price, 
-      color = type
-    )
-  ) +
-  geom_point(alpha = 0.5)
-```
-
-The legend can be suppressed with the `guides` command. It takes as arguments the different types of grouping variables (like `color`, `group`, etc,)
-
-```{r}
-avocado_data %>% 
-  ggplot(
-    mapping = aes(
-      x = log(total_volume_sold), 
-      y = average_price, 
-      color = type
-    )
-  ) +
-  geom_point(alpha = 0.5) +
-  # no legned for grouping by color
-  guides(color = "none")
-```
+There are many ways in which graphs can (and often: ought to) be tweaked further. The following can only cover a small, but hopefully useful selection.
 
 ### Themes 
 
@@ -927,11 +938,132 @@ More elaborate tweaking of a plot's layout can be achieved by the `theme` functi
 avocado_grid_plot + theme(plot.background = element_rect(fill = "darkgreen"))
 ```
 
+### Guides
 
-- arranging different plots
-- axis (log etc.)
-- labs
+When using grouped variables (by color, shape, linetype, group, ...) `ggplot` creates a legend automatically.
+
+```{r}
+avocado_data %>% 
+  ggplot(
+    mapping = aes(
+      x = log(total_volume_sold), 
+      y = average_price, 
+      color = type
+    )
+  ) +
+  geom_point(alpha = 0.5)
+```
+
+The legend can be suppressed with the `guides` command. It takes as arguments the different types of grouping variables (like `color`, `group`, etc,)
+
+```{r}
+avocado_data %>% 
+  ggplot(
+    mapping = aes(
+      x = log(total_volume_sold), 
+      y = average_price, 
+      color = type
+    )
+  ) +
+  geom_point(alpha = 0.5) +
+  # no legned for grouping by color
+  guides(color = "none")
+```
+
+### Axes, ticks and tick labels
+
+If you need to use a non-standard (Cartesian) axis, you can do so, e.g., to change the $x$-axis to a log scale (with base 10):
+
+```{r}
+avocado_data %>% 
+  ggplot(
+    mapping = aes(
+      x = total_volume_sold, 
+      y = average_price, 
+      color = type
+    )
+  ) +
+  geom_point(alpha = 0.5) +
+  scale_x_log10()
+```
 
 
+The `scales` package has a number of nice convenience functions for tweaking axis ticks (the places where axes are marked and possibly labelled) and tick labels (the labels applied to the tick marks). For example, we can add dollar signs to the price information, like so:
 
+```{r}
+avocado_data %>% 
+  ggplot(
+    mapping = aes(
+      x = total_volume_sold, 
+      y = average_price, 
+      color = type
+    )
+  ) +
+  geom_point(alpha = 0.5) +
+  scale_x_log10() +
+  scale_y_continuous(labels = scales::dollar)
+```
+
+
+### Labels
+
+To change any other kind of labeling information (aside from tick mark labels on axes), the `labs` function can be used. It is rather self-explanatory:
+
+```{r}
+avocado_data %>% 
+  ggplot(
+    mapping = aes(
+      x = total_volume_sold, 
+      y = average_price, 
+      color = type
+    )
+  ) +
+  geom_point(alpha = 0.5) +
+  scale_x_log10() +
+  scale_y_continuous(labels = scales::dollar) +
+    # change axis labels and plot title & subtitle
+  labs(
+    x = 'Total volume sold (on a log scale)',
+    y = 'Average price',
+    title = "Avocado prices plotted against the amount sold per type",
+    subtitle = "With linear regression lines",
+    caption = "This plot shows the total volume of avocados sold against the average price for many different points in time."
+  )
+```
+
+### Combining & arranging plots
+
+Presenting visual information in a tightly packed spatial arrangement can be helpful for the spectator. Everything is within a single easy saccade, so to speak. Therefore it can be useful to combine different plots into a single combined plot. The `cowplot` package helps with this, in particular the function `cowplot::plot_grid` as shown here:
+
+```{r}
+# create an avocado plot
+avocado_plot <- avocado_data %>% 
+  ggplot(aes(x = total_volume_sold, y = average_price)) +
+  geom_point(alpha = 0.5)
+
+# create a BLJM bar plot
+BLJM_plot <- data_BLJM_processed %>% 
+  ggplot(aes(x = response)) +
+  geom_bar()
+
+# combine both into one
+cowplot::plot_grid(
+  # plots to combine
+  avocado_plot, 
+  BLJM_plot,
+  # number columns
+  ncol = 1
+  )
+```
+
+### LaTeX expressions in plot labels
+
+If you are enthusiastic about LaTeX, you can also use it inside of plot labels. The `latex2exp` package is useful here, which provides the function `latex2exp::TeX` to allow you to include LaTeX formulas. Just make sure that you double all backslashes, as in the following example:
+
+```{r}
+avocado_data %>% 
+  ggplot(aes(x = total_volume_sold, y = average_price)) +
+  geom_point(alpha = 0.5) +
+  labs(title = latex2exp::TeX("We can use $\\LaTeX$ here: $\\sum_{i = 0}^n \\alpha^i$"))
+```
 
