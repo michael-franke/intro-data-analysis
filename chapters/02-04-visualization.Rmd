@@ -626,8 +626,9 @@ BLJM_associated_counts %>%
       group = JM
     )
   ) +
-  geom_line()
+  geom_line(size = 3)
 ```
+
 
 ### Barplot
 
@@ -851,12 +852,85 @@ avocado_data_early_late %>%
   facet_wrap(type ~ early, nrow = 1)
 ```
 
-If measures in a given cell 
 
-- guides
-- themes
+### Guides
+
+When using grouped variables (by color, shape, linetype, group, ...) `ggplot` creates a legend automatically.
+
+```{r}
+avocado_data %>% 
+  ggplot(
+    mapping = aes(
+      x = log(total_volume_sold), 
+      y = average_price, 
+      color = type
+    )
+  ) +
+  geom_point(alpha = 0.5)
+```
+
+The legend can be suppressed with the `guides` command. It takes as arguments the different types of grouping variables (like `color`, `group`, etc,)
+
+```{r}
+avocado_data %>% 
+  ggplot(
+    mapping = aes(
+      x = log(total_volume_sold), 
+      y = average_price, 
+      color = type
+    )
+  ) +
+  geom_point(alpha = 0.5) +
+  # no legned for grouping by color
+  guides(color = "none")
+```
+
+### Themes 
+
+The general appearance of a plot is governed by its **theme**. There are many ready-made themes already in the `ggplot` package, as listed [here](https://ggplot2.tidyverse.org/reference/ggtheme.html), and there are more in several other packages. If we store a plot in a variable we can look at how different themes affect it.
+
+```{r}
+avocado_grid_plot <- avocado_data_early_late %>% 
+  ggplot(aes(x = log(total_volume_sold), y = average_price)) +
+  geom_point(alpha = 0.3, color = "skyblue") +
+  geom_smooth(method = "lm", color = "darkorange") +
+  facet_grid(type ~ early)
+```
+
+
+```{r}
+avocado_grid_plot + theme_classic()
+```
+
+```{r}
+avocado_grid_plot + theme_void()
+```
+
+
+```{r}
+avocado_grid_plot + theme_dark()
+```
+
+The plots in this book use the theme `hrbrthemes::theme_ipsum` from the `hrbrthemes` package as a default. You can set the default theme for all subsequent plots using a command like this:
+
+```{r, eval = F}
+# set the 'void' theme as global default
+theme_set(
+  theme_void()
+)
+```
+
+
+More elaborate tweaking of a plot's layout can be achieved by the `theme` function. There are [many options](https://ggplot2.tidyverse.org/reference/theme.html). Some let you do crazy things:
+
+```{r}
+avocado_grid_plot + theme(plot.background = element_rect(fill = "darkgreen"))
+```
+
+
 - arranging different plots
 - axis (log etc.)
+- labs
 
 
 
