@@ -1,9 +1,18 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
-sudo: true
+sudo: false
+latex: false
 cache:
   packages: true
+  
+before_install:
+- |
+  # 1. Install TinyTex manually if not already in cache
+  # Travis creates $HOME/.TinyTex if nonexistent, so we check bin subdir
+  if [ ! -d $HOME/.TinyTex/bin ]; then
+    Rscript -e "tinytex::install_tinytex()"
+  fi
 
 script:
   - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::gitbook")'
