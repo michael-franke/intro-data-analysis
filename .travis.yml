@@ -2,11 +2,38 @@
 
 language: R
 sudo: false
+latex: false # we're going to use tinytex
 cache:
   packages: true
+  directories:
+    - $HOME/.fonts    # Where fonts are downloaded to & installed
+    - $HOME/.TinyTex  
+    - $TRAVIS_BUILD_DIR/_bookdown_files   # Rendered images cache
+
+apt_packages:
+  - fonts-oflb-asana-math # Asana Math font for, well, math
+  - fonts-roboto          # Roboto font family for a slightly more modern look
+  # - fonts-roboto-slab     # Serif-Roboto
+  # - fonts-firacode        # my go-to monospace font
+  
+before_install:
+- |
+  # 1. Install TinyTex manually if not already in cache
+  # Travis creates $HOME/.TinyTex if nonexistent, so we check bin subdir
+  if [ ! -d $HOME/.TinyTex/bin ]; then
+    Rscript -e "tinytex::install_tinytex()"
+  fi
+  
+before_script:
+- |
+  fc-cache -fv
+  # this should fix spaces in font names:
+  cp $HOME/.TinyTeX/texmf-var/fonts/conf/texlive-fontconfig.conf ~/.fonts.conf
 
 script:
   - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::gitbook")'
+  - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::epub_book")'
+  - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::pdf_book")'
 
 deploy:
   provider: pages
