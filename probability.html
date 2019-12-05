@@ -455,10 +455,47 @@ white balls. (There is at least one black and one white ball.) For a single rand
 our urn we have: <span class="math inline">\(\Omega_{\text{our urn}} = \left \{ \text{white}, \text{black} \right \}\)</span>. If we imagine an
 infinite sequence of single draws from our urn, putting whichever ball we drew back in after
 every draw, the limiting proportion with which we draw a black ball is
-<span class="math inline">\(\frac{k}{N}\)</span>. (If in doubt, execute this experiment. By hand or by computer.) This
+<span class="math inline">\(\frac{k}{N}\)</span>. (If in doubt, execute this experiment. By hand or by computer. See below.) This
 statement about frequency is what motivates saying that the probability of drawing a black ball
 on a single trial is (or should be<a href="#fn29" class="footnote-ref" id="fnref29"><sup>29</sup></a>)
 <span class="math inline">\(P(\text{black}) = \frac{k}{N}\)</span>.</p>
+<p>The following code demonstrates how the proportion of black balls drawn from an urn with <span class="math inline">\(k = 7\)</span> black balls and <span class="math inline">\(10\)</span> balls in total, gravitates to the probability 0.7 when we keep drawing and drawing.</p>
+<div class="sourceCode" id="cb343"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb343-1" data-line-number="1"><span class="co"># urn with 7 black and 3 white balls</span></a>
+<a class="sourceLine" id="cb343-2" data-line-number="2">urn &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
+<a class="sourceLine" id="cb343-3" data-line-number="3">  <span class="kw">rep</span>(<span class="st">&quot;black&quot;</span>, <span class="dv">7</span>),</a>
+<a class="sourceLine" id="cb343-4" data-line-number="4">  <span class="kw">rep</span>(<span class="st">&quot;white&quot;</span>, <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb343-5" data-line-number="5">)</a>
+<a class="sourceLine" id="cb343-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb343-7" data-line-number="7"><span class="co"># number of samples to take </span></a>
+<a class="sourceLine" id="cb343-8" data-line-number="8">n_samples &lt;-<span class="st"> </span><span class="dv">10000</span></a>
+<a class="sourceLine" id="cb343-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb343-10" data-line-number="10"><span class="co"># take a million samples from the urn (with replacement)</span></a>
+<a class="sourceLine" id="cb343-11" data-line-number="11">draws &lt;-<span class="st"> </span><span class="kw">sample</span>(</a>
+<a class="sourceLine" id="cb343-12" data-line-number="12">  <span class="co"># vector to sample from (default probability is uniform)</span></a>
+<a class="sourceLine" id="cb343-13" data-line-number="13">  <span class="dt">x =</span> urn, </a>
+<a class="sourceLine" id="cb343-14" data-line-number="14">  <span class="co"># take a million samples</span></a>
+<a class="sourceLine" id="cb343-15" data-line-number="15">  <span class="dt">size =</span> n_samples,</a>
+<a class="sourceLine" id="cb343-16" data-line-number="16">  <span class="co"># put balls back after drawing</span></a>
+<a class="sourceLine" id="cb343-17" data-line-number="17">  <span class="dt">replace =</span> <span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb343-18" data-line-number="18">)</a>
+<a class="sourceLine" id="cb343-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb343-20" data-line-number="20"><span class="co"># plotting the development of proportion &#39;black&#39;</span></a>
+<a class="sourceLine" id="cb343-21" data-line-number="21"><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb343-22" data-line-number="22">  <span class="dt">draw_nr =</span> <span class="dv">1</span><span class="op">:</span>n_samples,</a>
+<a class="sourceLine" id="cb343-23" data-line-number="23">  <span class="dt">draw =</span> draws,</a>
+<a class="sourceLine" id="cb343-24" data-line-number="24">  <span class="dt">prop_black =</span> <span class="kw">cumsum</span>(draw <span class="op">==</span><span class="st"> &quot;black&quot;</span>) <span class="op">/</span><span class="st"> </span>draw_nr</a>
+<a class="sourceLine" id="cb343-25" data-line-number="25">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb343-26" data-line-number="26"><span class="st">  </span><span class="kw">filter</span>(draw_nr <span class="op">%%</span><span class="st"> </span><span class="dv">10</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb343-27" data-line-number="27"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> draw_nr, <span class="dt">y =</span> prop_black)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb343-28" data-line-number="28"><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">color =</span> <span class="st">&quot;darkgray&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb343-29" data-line-number="29"><span class="st">  </span><span class="co"># add a red line for the true limiting probability </span></a>
+<a class="sourceLine" id="cb343-30" data-line-number="30"><span class="st">  </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept =</span> <span class="fl">0.7</span>), <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb343-31" data-line-number="31"><span class="st">  </span><span class="kw">labs</span>(</a>
+<a class="sourceLine" id="cb343-32" data-line-number="32">    <span class="dt">x =</span> <span class="st">&quot;number of draws&quot;</span>,</a>
+<a class="sourceLine" id="cb343-33" data-line-number="33">    <span class="dt">y =</span> <span class="st">&quot;proportion of &#39;black&#39; balls drawn&quot;</span>,</a>
+<a class="sourceLine" id="cb343-34" data-line-number="34">    <span class="dt">title =</span> <span class="st">&quot;Temporal development of the proportion of draws from an urn&quot;</span></a>
+<a class="sourceLine" id="cb343-35" data-line-number="35">  )</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-225-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div class="footnotes">
