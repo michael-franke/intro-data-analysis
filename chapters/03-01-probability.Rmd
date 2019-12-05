@@ -96,11 +96,54 @@ white balls. (There is at least one black and one white ball.) For a single rand
 our urn we have: $\Omega_{\text{our urn}} = \set{\text{white}, \text{black}}$. If we imagine an
 infinite sequence of single draws from our urn, putting whichever ball we drew back in after
 every draw, the limiting proportion with which we draw a black ball is
-$\frac{k}{N}$. (If in doubt, execute this experiment. By hand or by computer.) This
+$\frac{k}{N}$. (If in doubt, execute this experiment. By hand or by computer. See below.) This
 statement about frequency is what motivates saying that the probability of drawing a black ball
 on a single trial is (or should be^[If probabilities are subjective beliefs, a rational
   agent is, in a sense, normatively required to assign exactly this probability.])
 $P(\text{black}) = \frac{k}{N}$.
+
+The following code demonstrates how the proportion of black balls drawn from an urn with $k = 7$ black balls and $10$ balls in total, gravitates to the probability 0.7 when we keep drawing and drawing.
+
+```{r}
+# urn with 7 black and 3 white balls
+urn <- c(
+  rep("black", 7),
+  rep("white", 3)
+)
+
+# number of samples to take 
+n_samples <- 10000
+
+# take a million samples from the urn (with replacement)
+draws <- sample(
+  # vector to sample from (default probability is uniform)
+  x = urn, 
+  # take a million samples
+  size = n_samples,
+  # put balls back after drawing
+  replace = TRUE
+)
+
+# plotting the development of proportion 'black'
+tibble(
+  draw_nr = 1:n_samples,
+  draw = draws,
+  prop_black = cumsum(draw == "black") / draw_nr
+) %>% 
+  filter(draw_nr %% 10 == 0) %>% 
+  ggplot(aes(x = draw_nr, y = prop_black)) +
+  geom_line(color = "darkgray") +
+  # add a red line for the true limiting probability 
+  geom_hline(aes(yintercept = 0.7), color = "firebrick") +
+  labs(
+    x = "number of draws",
+    y = "proportion of 'black' balls drawn",
+    title = "Temporal development of the proportion of draws from an urn"
+  )
+
+  
+```
+
 
 ## Structured events & marginal distributions
 
