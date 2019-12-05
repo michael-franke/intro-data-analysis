@@ -109,7 +109,7 @@ $P(\text{black}) = \frac{k}{N}$.
 Suppose we have two urns. Both have $N=10$ balls. Urn 1 has $k_1=2$ black and $N-k_1 = 8$ white
 balls. Urn 2 has $k_2=4$ black and $N-k_2=6$ white balls. We sometimes draw from urn 1,
 sometimes from urn 2. To decide, we flip a fair coin. If it comes up heads, we draw from urn 1;
-if it comes up tails, we draw from urn 2.
+if it comes up tails, we draw from urn 2. The process is visualized in Figure XYZ below.
 
 An elementary outcome of this two-step process of flip-and-draw is a pair $\tuple{\text{outcome-flip}, \text{outcome-draw}}$. The set of all possible such outcomes is:
 
@@ -129,6 +129,12 @@ knitr::kable(
   escape = F
 )
 ```
+
+
+```{r 03-01-flip-and-draw, echo = F, fig.cap="The flip-and-draw scenario, with transition and full path probabilities."}
+knitr::include_graphics("visuals/flip-and-draw-scenario.png")
+```
+
 
 
 ### Structured events and joint-probability distributions
@@ -165,8 +171,8 @@ Conditional probabilities are only defined when $P(B) > 0$.^[Updating with event
 Algorithmically, conditional probability first rules out all events in which $B$ is not true
 and then simply renormalizes the probabilities assigned to the remaining events in such a way
 that the relative probabilities of surviving events remains unchanged. Given this, another way
-of interpreting conditional probability is that $P(A \mid B)$ is what a rational agent
-\emph{should} believe about $A$ after observing that $B$ is in fact true and nothing more. The
+of interpreting conditional probability is that $P(A \mid B)$ is what a rational agent should
+\emph{should} believe about $A$ after observing (nothing more than) that $B$ is true. The
 agent rules out, possibly hypothetically, that $B$ is false, but otherwise does not change
 opinion about the relative probabilities of anything that is compatible with $B$.
 
@@ -222,14 +228,22 @@ as likely as drawing a black ball from urn 1 (i.e., after seeing heads). Consequ
 seeing a black ball drawn, with equal probabilities of heads and tails, the probability that
 the coin landed tails is also twice as large as that it landed heads.
 
+```{block2, type="infobox"}
+**Excursion: Bayes rule for data analysis** In later chapters we will use Bayes rule for data analysis. The flip-and-draw scenario structurally "preflects" what will happen later. Think of the color of the ball drawn as the *data* $D$ which we observe. Think of the coin as a *latent parameter* $\theta$ of a statistical model. Bayes rule for data analysis then looks like this:
+  
+  $$P(\theta \mid D) = \frac{P(D \mid \theta) \ P(\theta)}{P(D)}$$
+  
+We will discuss this at length in Chapter \@ref(Chap-03-03-models) and thereafter.
+```
+
 ## Random variables {#Chap-03-01-probability-random-variables}
 
-We have so far define a probability distribution as a function that assigns a probability to
+We have so far defined a probability distribution as a function that assigns a probability to
 each subset of the space $\Omega$ of elementary outcomes. A special case occurs when we are
 interested in a space of numeric outcomes.
 
 A **random variable** is a function $X \ \colon \ \Omega \rightarrow \mathbb{R}$ that
-assigns to each elementary outcome a numerical value.
+assigns to each elementary outcome a numerical value. It is reasonable to think of this number as a **summary statistic**: a number that captures one aspect of relevance of what is actually a much more complex chunk of reality.
 
 ```{block2, type='infobox'}
 **Example.** For a single flip of a coin we have $\Omega_{\text{coin flip}} = \set{\text{heads}, \text{tails}}$. A usual way of mapping this onto numerical outcomes is to define $X_{\text{coin flip}} \ \colon \ \text{heads} \mapsto 1; \text{tails} \mapsto 0$. Less trivially, consider  flipping a coin two times. Elementary outcomes should be individuated by the outcome of the   first flip and the outcome of the second flip, so that we get:
@@ -275,7 +289,6 @@ binom.plot.data = expand.grid(n = 24, theta = c(0.25, 0.5), k = 0:24) %>%
     probability = dbinom(k,n,theta),
     theta = as.factor(theta)
   )
-
 ggplot(binom.plot.data, aes(x = k, y = probability, fill = theta)) +
   geom_bar(stat = "identity", position = "dodge") +
   scale_fill_manual(values = project_colors) +
@@ -288,7 +301,6 @@ binom.plot.data = expand.grid(n = 24, theta = c(0.25, 0.5), k = 0:24) %>%
     probability = pbinom(k,n,theta),
     theta = as.factor(theta)
   )
-
 ggplot(binom.plot.data, aes(x = k, y = probability, fill = theta)) +
   geom_bar(stat = "identity", position = "dodge") +
   scale_fill_manual(values = project_colors) +
@@ -325,7 +337,7 @@ ggplot(data.frame(x = c(-8, 8)), aes(x = x)) +
   scale_colour_manual("standard deviation",
                       breaks = c("4", "1"),
                       values = project_colors) +
-  ylab(bquote("Norm(X = x;" ~ mu == 0 * "," ~ sigma * ")"))
+  ylab(bquote("Norm(X = x;" ~ mu == 0 * "," ~ sigma * ")")) 
 ```
 
 ```{r ch-03-NormalDistribution-Cumulative, echo = F, fig.cap = "Examples of the cumulative normal distribution corresponding to the previous probability density functions."}
@@ -336,7 +348,7 @@ ggplot(data.frame(x = c(-8, 8)), aes(x = x)) +
                       breaks = c("4", "1"),
                       values = project_colors) +
   # ylab("Norm(X <= x ; mu = 0, sd")
-  ylab(bquote("Norm(X" <= "x;" ~ mu == 0 * "," ~ sigma * ")"))
+  ylab(bquote("Norm(X" <= "x;" ~ mu == 0 * "," ~ sigma * ")")) 
 ```
 
 </div>
