@@ -88,7 +88,9 @@ A statistical model is a **Bayesian model** if it also contains:
 
 The Bayesian prior over parameter values can be used to regularize inference and/or to represent any motivated and justifiable *a priori* assumptions about parameter values that are plausible given our knowledge so far.
 
-### Example: a single draw from an urn
+### First glimpse at some examples
+
+#### Example 1: a single draw from an urn {#Chap-03-03-models-general-urn-example}
 
 In front of us is an urn. We cannot see what is inside. We assume (!) that there are $N = 10$ balls in the urn and that any number $0 \le k \le 10$ is black, the rest white. Our data is minimal. There is only one variable, which therefore is also our dependent variable. We have drawn a ball from the urn once, and we observed that it is black.
 
@@ -113,9 +115,9 @@ $$ P_M(k = i) = \frac{1}{11} \text{; for all } \ i \in \{0, 1, \dots, 10\} $$
 
 
 
-### Example: avocado prices by type
+#### Example 2: avocado prices by type
 
-<div style = "float:right; width:15%;">
+<div style = "float:right; width:11%;">
 <img src="visuals/badge-avocado.png" alt="badge-avocado">
 </div>
 
@@ -149,7 +151,7 @@ avocado_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/i
   )
 ```
 
-We are interested in the random process that generates avocado prices. The data relevant for modeling this random process contains `average_price` as the dependent variable and `type` as the independent variable. To get a feeling for how the data to be modeled looks like, here are histograms for the price data for conventionally and organically grown avocados:
+We are interested in the random process that generates avocado prices. The data relevant for modeling this random process contains `average_price` as the dependent variable and `type` as the independent variable. We could also say that we are interested in predicting / explaining the average prices in terms of the avocado type.To get a feeling for how the data to be modeled looks like, here are histograms for the price data for conventionally and organically grown avocados:
 
 ```{r}
 avocado_data %>% 
@@ -162,40 +164,124 @@ avocado_data %>%
 ```
 
 
-Our model assumes that the data observations in `average_price` are samples from a normal distribution, whose mean and standard deviation are free paramters, which vary as a function of `type`. So, if $\vec{y}$ is the vector `average_price`, so that $y_i \in \mathbb{R}^+$ is the average price observed in row $i$, and if $\vec{x}$ is an indicator variable such that $x_i \in \{ 1, 0\}$ is the entry for the type of avocado in line $i$ where 1 represents conventionally grown and 0 represents organically grown, the likelihood function can be written as:
+Our model assumes that the data observations in `average_price` are samples from a normal distribution, whose mean $\mu$ and standard deviation $\sigma$ are free parameters, one pair of $\mu$ and $\sigma$ for each `type` of avocado. So, this model has four free parameters, which constitute the parameter vector $\theta = \langle \mu_c, \sigma_c, \mu_o, \sigma_o \rangle$. As for the likelihood function, if $\vec{y}$ is the vector `average_price`, so that $y_i \in \mathbb{R}^+$ is the average price observed in row $i$, and if $\vec{x}$ is an indicator variable such that $x_i \in \{ 1, 0\}$ is the entry for the type of avocado in line $i$ where 1 represents conventionally grown and 0 represents organically grown, and if there are $k$ rows in the data set, the likelihood function can be written as:
 
-$$ P_M(\vec{y} \mid \vec{x}, \mu_c, \sigma_c, \mu_o, \sigma_o) = 
+$$ P_M(\vec{y} \mid \vec{x}, \theta) = 
 \prod_{i = 1}^k x_i \ \text{Normal}(y_i, \mu_c, \sigma_c) \ + \ (1- x_i) \  \text{Normal}(y_i, \mu_o, \sigma_o)  $$
 
-The usual notation for this is more concise (see also Section \@ref(Chap-03-03-models-representation)), by identifying the free parameters as a vector $\theta = \langle \mu_c, \sigma_c, \mu_o, \sigma_o \rangle$, suppressing the independent variables, and using the `~` symbol in a manner so that "LHS ~ RHS" means that LHS is a sample from the distribution on the RHS.
+An alternative notation for this likelihood function achieves conciseness with the help of the `~` symbol, where "LHS ~ RHS" means that LHS is a sample from the distribution on the RHS (see also Section \@ref(Chap-03-03-models-representation)):
 
-$$ y_i \sim \begin{cases} \text{Normal}(y_i, \mu_c, \sigma_c) & \text{if} $x_i = 1$ \\ 
-\text{Normal}(y_i, \mu_0, \sigma_0) & \text{otherwise} \\ \end{cases} $$ 
+$$ y_i \sim \begin{cases} \text{Normal}(\mu_c, \sigma_c) & \text{if} \ x_i = 1 \\ 
+\text{Normal}(\mu_0, \sigma_0) & \text{otherwise} \\ \end{cases} $$ 
 
+If we aspire to handle a Bayesian model, we need to supply a prior for parameters $\theta$ as well. General strategies of fixing priors for Bayesian data analysis are discussed in the next subsection. To give a concrete example for this case, we could assume that all parameter vectors are independent of each other and assume that the means $\mu_c$ and $\mu_o$ are themselves normally distributed. We could use a *truncated normal distribution*^[A truncated normal distribution is like a normal distribution, but restricted to a certain range of possible values. In general, if $P$ is a continuous probability distribution on some interval which properly contains $[a;b]$, a truncated version of $P$ to the interval $[a;b]$ such that:
+$$ \text{Trunc-}P(x, \text{min} = a, \text{max} = b) = 
+\begin{cases} 
+\frac{P(x)}{\int_{a}^{b} P(x') \text{d}x'} & \text{ if } a \le x \le b \\
+0 & \text{otherwise}
+\end{cases} $$ 
+] as the priors for the standard deviations $\sigma_c$ and $\sigma_o$:
 
+$$ 
+\begin{align*}
+  P(\mu_c, \sigma_c, \mu_o, \sigma_o) & = P(\mu_c) \ P(\sigma_c) \ P(\mu_o) \ P(\sigma_o), \text{ where} \\
+  P(\mu_c) & = \text{Normal}(\mu_c, \mu = 1.5, \sigma = 0.25)  \\
+  P(\mu_o) & = \text{Normal}(\mu_o, \mu = 1.5, \sigma = 0.25)  \\
+  P(\sigma_c) &= \text{Trunc-Normal}(\sigma_c, \mu = 0.2, \sigma = 0.05, \text{lower} = 0) \\
+  P(\sigma_o) &= \text{Trunc-Normal}(\sigma_o, \mu = 0.25, \sigma = 0.1, \text{lower} = 0)
+\end{align*}
+$$
 
+## Three pillars of data analysis {#Chap-03-03-models-three-pillars}
 
-<span style = "color:white"> &nbsp; </span>
-<span style = "color:white"> &nbsp; </span>
-<span style = "color:white"> &nbsp; </span>
-<span style = "color:white"> &nbsp; </span>
+There are three main uses for models in statistical data analysis:
 
+1. **Parameter inference**: Based on model $M$ and data $D$, we can learn something about the parameter vector $\theta$. This can be quite insightful, especially if (some component of) $\theta$ is theoretically interesting.
+2. **Model comparison**: If we formulate at least two alternative models, we can ask which model better explains or better predicts some data. Reversedly, our research question could be whether a given data set provides evidence in favor of one model and against another other, and if so, how much.
+3. **Prediction**: Models can also be used to make predictions about future or hypothetical data observations. In fact, prediction and explanation are closely related, so that prediction and model comparison are tightly related.
 
-- prior, likelihood, data ...
-- free parameter
-  - how free is a "free"? - not all parameters are equally powerful
-- what to do with a model (3 pillars of DA):
-  - inference
-  - prediction
-  - comparison
+The frequentist and the Bayesian approach each have their own methods and techniques to do inference, comparison and prediction. Even within each approach (frequentist or Bayesian) and a particular goal (inference, comparison or prediction) there is not necessarily unanimity about the best method or technique. 
 
+Table \@ref(tab:ch-03-03-pillars-of-DA) lists the most common / salient methods used for each goal in the frequentist and Bayesian approach. Large part of the remainder of this course will be dedicated to understanding the methods name-dropped in this table, and to compare them against each other and further, as of yet unmentioned alternatives. We will learn more about prediction in this chapter (in Section XYZ). Chapter \@ref(Chap-03-06-model-comparison) deals with model comparison, Chapter \@ref(ch-03-04-parameter-inference). The second main goal of this course is to understand the relation between model-based data analysis, as summarized in Table \@ref(tab:ch-03-03-pillars-of-DA), to test-based approaches as described in Chapter \@ref(ch-03-05-hypothesis-testing) and Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
+
+```{r ch-03-03-pillars-of-DA, echo = F}
+table_data <- tribble(
+  ~goal, ~frequentist, ~Bayesian,
+  "inference", "MLE: $\\hat{\\theta} = \\arg \\max_{\\theta}\  P_M(D \\mid \\theta)$", "posterior: $P_M(\\theta \\mid D)$",
+  "comparison", "AIC, LR-test", "Bayes factor",
+  "prediction", "MLE-based: $P_M(D_{rep} \\mid \\hat{\\theta})$", "Posterior-based: $P_M(D_{rep} \\mid D)$"
+)
+knitr::kable(
+  table_data,
+  escape = F,
+  caption = "Most common/salient methods of frequentist and Bayesian approaches for the three major goals of model-based data analysis. The abbreviations used are: MLE for 'maximum likelihood estimate', AIC for 'Akaike information criterion', LR-test for 'likelihood-ratio test' and $D_{rep}$ for 'repeat data'.", 
+  booktabs = TRUE
+)
+```
 
 
 ## Notation & graphical representation {#Chap-03-03-models-representation}
 
-- iid
+If it is important to communicate the assumptions underlying a statistical argument, and if models are means of making formally explicit these assumptions, then it follows that efficient communication of models is important too. We here follow common practice of representing models using both a special purpose formulaic notation and, where useful, a graph-based visual display in which probabilistic dependencies are perspicuously represented.
 
-## Examples {#Chap-03-03-models-examples}
+The running example for this section is the **binomial model**, which is also included in the cast of main characters in Section \@ref(Chap-03-03-models-examples). The binomial model is a generalization of [the urn-model covered earlier in this chapter](Chap-03-03-models-general-urn-example). We imagine a flip of a coin with bias $\theta \in [0;1]$, which is flipped $N$ times. We are interested in the number $k$ of heads (represented as an outcome of 1). The likelihood function for this model is the [Binomial distribution](app-91-distributions-binomial):
+
+$$ P_M(k \mid \theta, N) = \text{Binomial}(k, N, \theta) = \binom{N}{k}\theta^k(1-\theta)^{N-k} $$
+
+The Beta distribution is the conjugate prior for the Binomial distribution, so our model 
+
+
+### Formula notation
+
+In the textual notation, first the prior assumptions (if the Bayesian perspective is taken) are described. For the coin flip example this is $\theta \sim Beta(1,1)$.
+The symbol "$\sim$" means "is distributed as", thus, the above equation says before seeing the data all possible values of $\theta$ between 0 and 1 are assumed to be equally likely.
+
+Subsequently, the descriptive model for the data has to be defined. As already described in the section above, it is assumed that the observed data (upcoming of heads $k$) are distributed as Binomial distribution with given $n$ (number of observations) and unknown $\theta$. This relation is denoted symbolically as
+$$k\sim Binomial(\theta|n).$$
+To summarize the current model (whereby the prior knowledge is only considered from a Bayesian perspective):
+$$\theta \sim Beta(1,1),$$
+$$k\sim Binomial(\theta|n).$$
+
+### Graphical notation
+
+When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. In the following the convention described in Wagenmakers and Lee's *Bayesian Cognitive Modelling* (2014) is used: The graph structure is used to indicate dependencies between the variables, with children depending on their parents [@leeWagen2014]. General conventions:
+
+* Nodes - problem relevant variables,
+* shaded nodes - observed variables,
+* unshaded nodes - unobserved variables,
+* circular nodes - continuous variables,
+* square nodes - discrete variables,
+* single line - stochastic dependency, and
+* double line - deterministic dependency.
+
+For the introductory example this indicates:
+
+* relevant variables: number of trials ($n$), number of success ($k$) and probability for a success ($\theta$),
+* observed variables: $n$ and $k$,
+* unobserved variables: $\theta$,
+* continuous variable: $\theta$,
+* discrete variables: $n$ and $k$.
+
+In the next step the dependencies have to be determined:
+
+The number of success $k$ depends on the probability of a success $\theta$ as well as on the number of trials $n$.
+
+Finally, the graphical structure together with the textual notation can be represented:
+
+![Graphical notation Beta-Binomial Model - One group](chapters/images/Graph-binom.png)
+
+
+## Parameters, priors and preditions
+
+- freq. vs Bayes
+- not every parameter is equally influential
+- different priors in Bayesian analysis
+  - conjugate, uninformative, improper, informed, objective
+- likelihood function can go both ways
+
+
+
+## Cast of main characters {#Chap-03-03-models-examples}
 
 
 
@@ -459,47 +545,6 @@ ggplot() +
 
 So far, the coin flip model is defined conceptually. In the following some notational considerations have to be made.
 
-### Notation
-
-#### Textual notation
-
-In the textual notation, first the prior assumptions (if the Bayesian perspective is taken) are described. For the coin flip example this is:
-$$\theta \sim Beta(1,1).$$
-The symbol "$\sim$" means "is distributed as", thus, the above equation says before seeing the data all possible values of $\theta$ between 0 and 1 are assumed to be equally likely.
-
-Subsequently, the descriptive model for the data has to be defined. As already described in the section above, it is assumed that the observed data (upcoming of heads $k$) are distributed as Binomial distribution with given $n$ (number of observations) and unknown $\theta$. This relation is denoted symbolically as
-$$k\sim Binomial(\theta|n).$$
-To summarize the current model (whereby the prior knowledge is only considered from a Bayesian perspective):
-$$\theta \sim Beta(1,1),$$
-$$k\sim Binomial(\theta|n).$$
-
-#### Graphical notation
-
-When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. In the following the convention described in Wagenmakers and Lee's *Bayesian Cognitive Modelling* (2014) is used: The graph structure is used to indicate dependencies between the variables, with children depending on their parents [@leeWagen2014]. General conventions:
-
-* Nodes - problem relevant variables,
-* shaded nodes - observed variables,
-* unshaded nodes - unobserved variables,
-* circular nodes - continuous variables,
-* square nodes - discrete variables,
-* single line - stochastic dependency, and
-* double line - deterministic dependency.
-
-For the introductory example this indicates:
-
-* relevant variables: number of trials ($n$), number of success ($k$) and probability for a success ($\theta$),
-* observed variables: $n$ and $k$,
-* unobserved variables: $\theta$,
-* continuous variable: $\theta$,
-* discrete variables: $n$ and $k$.
-
-In the next step the dependencies have to be determined:
-
-The number of success $k$ depends on the probability of a success $\theta$ as well as on the number of trials $n$.
-
-Finally, the graphical structure together with the textual notation can be represented:
-
-![Graphical notation Beta-Binomial Model - One group](chapters/images/Graph-binom.png)
 
 ### An outlook: Hierarchical models
 
