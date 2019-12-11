@@ -8,49 +8,196 @@
 
 Uninterpreted data is uninformative. We cannot generalize, draw inferences or attempt to make predictions unless we make (however minimal) assumptions about the data at hand: what it represents, how it came into existing, which parts relate to which other parts etc. One way of explicitly acknowledging these assumptions is to engage in model-based data analysis. A statistical model is a conventionally condensed formal representation of the assumptions we make about what the data is and how it might have been generated. In this way, model-based data analysis is more explicit about the analyst's assumptions than other approaches, such as test-based approaches, which we will encounter in Chapter \@ref(ch-03-05-hypothesis-testing). 
 
-There is room for divergence in how to think about a statistical model, the assumptions it encodes and truth. Some will want to reason with models using language like "if we assume that model $M$ is true, then ..." or "this shows convincingly that $M$ is likely to be the true model". Other feel very uncomfortable with such languague. In times of heavy discomfort they might wish to repeat a soothing mantra:
+There is room for divergence in how to think about a statistical model, the assumptions it encodes and truth. Some will want to reason with models using language like "if we assume that model $M$ is true, then ..." or "this shows convincingly that $M$ is likely to be the true model". Others feel very uncomfortable with such languague. In times of heavy discomfort they might wish to repeat a soothing mantra:
 
-> All models are wrong, but some of them are useful.
+> All models are wrong, but some are useful.
 > --- @Box1979:Robustness-in-t
 
-- what's a model?
-  - binomial distribution is a model
-  - normal distribution is a model too
-  - given a processing tree like model for some psychological data
-    - mental chronometry: adding processes (?)
-    - similarity-based classification?
-    - signal detection theory?
-- formal definition of model
-  - frequentist vs Bayes
-  - terminology: likelihood, prior, free parameters, predictive distributions
-    - i.i.d. data
-- graphical notation
-- examples
-  - binomial single group
-  - normal single group
-  - normal two groups
-  - normal three groups
-    - mental chronometry
-  - linear regression
-- first glimpse at hierarchical modeling:
-  - therapeutic touchers
+To become familiar with model-based data analysis, Section \@ref(Chap-03-03-models-general) introduces the concept of a **probabilisic statistical model** and explains key notions, such as *likelihood function*, *prior*, *free parameter* or *model predictions*. Section \@ref(Chap-03-03-models-representation) expands on the notation, both formulaic and graphical, which we will use in this book to communicate about models.
 
-<pre class="webppl">
-var bias = 0.9;
-viz(repeat(10000, function() {flip(bias)}))
-</pre>
+FILL ME
 
-<pre class=" CodeMirror-line " role="presentation">
-</pre>
+```{block, type='infobox'}
+The learning goals for this chapter are:
 
-# Probabilistic models in statistics {#Chap-03-03-models-general}
+- become acquainted with statistical models
+- meet pivotal exemplars:
+  - binomial model
+  - Gaussian model
+  - the "t-test" model
+  - simple linear regression
+  - naive Bayesian classifier
+- understand notation to communicate models
+  - formulas & graphs
+- become able to implement a model in R
+- become able to derive predictions from a model in R
 
-- 
+```
 
+
+
+<!-- - what's a model? -->
+<!--   - binomial distribution is a model -->
+<!--   - normal distribution is a model too -->
+<!--   - given a processing tree like model for some psychological data -->
+<!--     - mental chronometry: adding processes (?) -->
+<!--     - similarity-based classification? -->
+<!--     - signal detection theory? -->
+<!-- - formal definition of model -->
+<!--   - frequentist vs Bayes -->
+<!--   - terminology: likelihood, prior, free parameters, predictive distributions -->
+<!--     - i.i.d. data -->
+<!-- - graphical notation -->
+<!-- - examples -->
+<!--   - binomial single group -->
+<!--   - normal single group -->
+<!--   - normal two groups -->
+<!--   - normal three groups -->
+<!--     - mental chronometry -->
+<!--   - linear regression -->
+<!-- - first glimpse at hierarchical modeling: -->
+<!--   - therapeutic touchers -->
+
+
+
+## Probabilistic models in statistics {#Chap-03-03-models-general}
+
+In its most common natural sense, a "model" is a model *of* something. It intends to represent something else in a condensed, abstract and (for specific purposes) more practical form. Often that purpose is epistemic, i.e., related to knowledge gain or a deeper understanding of the world: even a model plane arguably serves the epistemic purpose of getting a better idea of what real planes look like; this is how it differs from an artists plane sculpture or toy plane, for instance.
+
+A statistical model is a model of (what we imagine to be) a random process $R$. In most common parlance, however, we often speak of "a model of the data" or of "modeling the data", but this is only sloppy slang for "a model of (what we assume is) a random process that could generate data of this kind".
+
+Let $D$ be (rectangular, tidy) data that represents the kind of data that random process $R$ is assumed to generate. A model $M$ for random process $R$ fixes which variables (columns) of $D$ are to be modelled as dependent and which are independent variables (and which do not matter at all). Let $D_{\text{DV}}$ by the subset of $D$ containing the depedendent variables and $D_{\text{IV}}$ the subset of $D$ containing the independent variables.^[Naturally, $D_{\text{DV}}$ and $D_{\text{IV}}$ are disjoint: it makes no sense to predict or explain $x$ based on an observation of $x$.] We want $D_{\text{DV}}$ to contain at least one variable. A model with empty $D_{\text{IV}}$ is fine.
+
+A model $M$ for data $D$ also fixes a **likelihood function** for $D_\text{DV}$. The likelihood function determines how likely any potential data observation $D_\text{DV}$ is, given the corresponding observations in $D_\text{IV}$. Most often, the likelihood function also has **free parameters**, represented by a parameter vector $\theta$. The basic (and yet rather uninformative) notation for a likelihood function of model $M$ for data $D$ with parameter vector $\theta$ is therefore:
+
+$$ P_M(D_\text{DV} \mid D_\text{IV}, \theta) $$ 
+
+*Bayesian models* have an additional component, namely a **prior distribution** over parameter values, commonly written as:
+
+$$ P_M(\theta) $$.
+
+
+In sum, let's adopt the following definition. A **statistical model** $M$ for data $D$ consists of:
+
+1. a selection of (disjoint) sets of dependent and independent variables $D_\text{DV}$ and $D_\text{IV}$, where the latter is possibly empty, but the former is not; and
+2. a parameterized likelihood function: $P_M(D_\text{DV} \mid D_\text{IV}, \theta)$.
+
+A statistical model is a **Bayesian model** if it also contains:
+
+3. a prior distribution: $P_M(\theta)$.
+
+The Bayesian prior over parameter values can be used to regularize inference and/or to represent any motivated and justifiable *a priori* assumptions about parameter values that are plausible given our knowledge so far.
+
+### Example: a single draw from an urn
+
+In front of us is an urn. We cannot see what is inside. We assume (!) that there are $N = 10$ balls in the urn and that any number $0 \le k \le 10$ is black, the rest white. Our data is minimal. There is only one variable, which therefore is also our dependent variable. We have drawn a ball from the urn once, and we observed that it is black.
+
+```{r}
+minimal_data_from_an_urn <- 
+  tribble(~ draw, c("black"))
+```
+
+So far, so boring. But what is a reasonable parameterized likelihood function for this case? -- Well, we do not know what the content of the urn is but, given our (modelling) assumptions, there are only eleven possible states of the world $k \in \{0, 1, \dots, 10\}$. If we assume (as part of the model structure) that the total number of balls $N$ in the urn is known $N = 10$, then the number $k$ of black balls in the urn straightforwardly entails the likelihood of the data:
+
+$$ P_M(D = \text{"black"} \mid k) = \frac{k}{N}$$
+
+```{block, type='beware'}
+It is important to realize that this (and any other likelihood function) defines the probability, not only of the observed data, but for the whole class of *observerable data*, including observations that are only logically conceivable, but possibly ruled out by the model.
+```
+
+The model of the single-draw random process has a single free parameter $k$, which feeds into the likelihood function. We naturally think of the likelihood of the data as probabilistically dependent on the parameter value $k$.
+
+A Bayesian model of this situation would additionally also include a *prior* over parameter values. There are only eleven possible values for $k$, so this is a discrete probability distribution. If we do not have any relevant *a priori* knowledge of the process, we might want to assign the same probability to each value of $k$:
+
+$$ P_M(k = i) = \frac{1}{11} \text{; for all } \ i \in \{0, 1, \dots, 10\} $$
+
+
+
+### Example: avocado prices by type
+
+<div style = "float:right; width:15%;">
+<img src="visuals/badge-avocado.png" alt="badge-avocado">
+</div>
+
+We must also consider a slightly less minimalistic example. The [avocado data set](#app-93-data-sets-avocado) is useful for that. As before, we load the data into a variable named `avocado_data` and do some minor data wrangling (see also Appendix Chapter \@ref(app-93-data-sets-avocado)):
+
+```{r, echo = F}
+avocado_data <- read_csv('data_sets/avocado.csv') %>% 
+  # remove currently irrelevant columns
+  select( -X1 , - contains("Bags"), - year, - region) %>% 
+  # rename variables of interest for convenience
+  rename(
+    total_volume_sold = `Total Volume`,
+    average_price = `AveragePrice`,
+    small  = '4046',
+    medium = '4225',
+    large  = '4770',
+  )
+```
+
+```{r, eval = F}
+avocado_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado.csv')) %>% 
+  # remove currently irrelevant columns
+  select( -X1 , - contains("Bags"), - year, - region) %>% 
+  # rename variables of interest for convenience
+  rename(
+    total_volume_sold = `Total Volume`,
+    average_price = `AveragePrice`,
+    small  = '4046',
+    medium = '4225',
+    large  = '4770',
+  )
+```
+
+We are interested in the random process that generates avocado prices. The data relevant for modeling this random process contains `average_price` as the dependent variable and `type` as the independent variable. To get a feeling for how the data to be modeled looks like, here are histograms for the price data for conventionally and organically grown avocados:
+
+```{r}
+avocado_data %>% 
+  ggplot(aes(x = average_price, fill = type)) +
+  geom_histogram(binwidth = 0.01) +
+  facet_wrap(type ~ ., ncol = 1) + 
+  ylab('') +
+  xlab('Average price') +
+  theme(legend.position = "none")
+```
+
+
+Our model assumes that the data observations in `average_price` are samples from a normal distribution, whose mean and standard deviation are free paramters, which vary as a function of `type`. So, if $\vec{y}$ is the vector `average_price`, so that $y_i \in \mathbb{R}^+$ is the average price observed in row $i$, and if $\vec{x}$ is an indicator variable such that $x_i \in \{ 1, 0\}$ is the entry for the type of avocado in line $i$ where 1 represents conventionally grown and 0 represents organically grown, the likelihood function can be written as:
+
+$$ P_M(\vec{y} \mid \vec{x}, \mu_c, \sigma_c, \mu_o, \sigma_o) = 
+\prod_{i = 1}^k x_i \ \text{Normal}(y_i, \mu_c, \sigma_c) \ + \ (1- x_i) \  \text{Normal}(y_i, \mu_o, \sigma_o)  $$
+
+The usual notation for this is more concise (see also Section \@ref(Chap-03-03-models-representation)), by identifying the free parameters as a vector $\theta = \langle \mu_c, \sigma_c, \mu_o, \sigma_o \rangle$, suppressing the independent variables, and using the `~` symbol in a manner so that "LHS ~ RHS" means that LHS is a sample from the distribution on the RHS.
+
+$$ y_i \sim \begin{cases} \text{Normal}(y_i, \mu_c, \sigma_c) & \text{if} $x_i = 1$ \\ 
+\text{Normal}(y_i, \mu_0, \sigma_0) & \text{otherwise} \\ \end{cases} $$ 
+
+
+
+
+<span style = "color:white"> &nbsp; </span>
+<span style = "color:white"> &nbsp; </span>
+<span style = "color:white"> &nbsp; </span>
+<span style = "color:white"> &nbsp; </span>
+
+
+- prior, likelihood, data ...
+- free parameter
+  - how free is a "free"? - not all parameters are equally powerful
 - what to do with a model (3 pillars of DA):
   - inference
   - prediction
   - comparison
+
+
+
+## Notation & graphical representation {#Chap-03-03-models-representation}
+
+- iid
+
+## Examples {#Chap-03-03-models-examples}
+
+
 
 ## Likelihood, Prior, \& Posterior
 
