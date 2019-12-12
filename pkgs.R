@@ -12,6 +12,9 @@ suppressPackageStartupMessages(library(naniar)) # turn numbers (e.g. -5,99,..) i
 suppressPackageStartupMessages(library(latex2exp)) # for TeX in plots
 suppressPackageStartupMessages(library(cowplot)) # to arrange plots
 suppressPackageStartupMessages(library(scales)) # to massage scales in plots
+suppressPackageStartupMessages(library(greta)) # probabilistic modeling package
+suppressPackageStartupMessages(library(ggmcmc)) # tidy Bayes samples
+
 
 ## set defaults
 # hrbrthemes::import_public_sans()

@@ -735,4 +735,48 @@ The abbreviation *iid* indicates that each value $y_i$ has the same probability 
 ### Notation Simple Regression model
 ![Graphical notation Simplre Regression model](chapters/images/Graph-SimpReg.png)
 
+## Greta
+
+```{r}
+## --- greta model code ---
+
+## --- --- data --- ---
+
+velocity  <- as_data(cars$speed)
+distance  <- as_data(cars$dist)
+
+## --- --- latent variables --- ---
+
+intercept <- normal(0, 10)
+slope     <- normal(0, 10)
+sigma     <- student(3, 0 , 1, truncation = c(0, Inf))
+
+# intercept <- variable()
+# slope     <- variable()
+# sigma     <- variable(lower = 0)
+
+mean_g <- intercept + slope * velocity
+
+## --- --- likelihood --- ---
+
+distribution(distance) <- normal(mean_g, sigma)
+
+## --- --- model --- ---
+
+m <- model(intercept, slope, sigma)
+
+# plot(m)
+
+## --- sampling ---
+
+draws <- mcmc(m, n_samples = 1000)
+
+tidy_draws = ggs(draws)
+
+tidy_draws %>% group_by(Parameter) %>%
+  summarise(mean = mean(value),
+            '|95%' = quantile(value, probs = 0.025),
+            '95|%' = quantile(value, probs = 0.975))
+```
+
 
