@@ -412,12 +412,46 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="webppl" class="section level2">
 <h2><span class="header-section-number">8.9</span> WebPPL</h2>
-<p>var theta = 0.2; var K = [20,80];
+<pre class="webppl">
+var theta = 0.2; var K = [20,80];
 ///fold:
 var N = 100;
-var n = 25;
-viz(repeat(10000, function() {uniformDraw([1,2,3])}))
-///</p>
+var n = 20;
+
+var factorial = function(x) {
+  if (x < 0) {return "input to factorial function must be non-negative"}
+  return x == 0 ? 1 : x * factorial(x-1)
+}
+
+var binom = function(a, b) {
+  var numerator = factorial(a)
+  var denominator = factorial(a-b) *  factorial(b)
+  return numerator / denominator
+}
+
+// urn contains N balls of which K are black
+// and N-K are white; we draw n balls at random
+// without replacement; what's the probability
+// of obtaining k black balls?
+var hypergeometricPMF = function(k,N,K,n) {
+  k > Math.min(n, K) ? 0 :
+  k < n+K-N ? 0 :       
+  binom(K,k) * binom(N-K, n-k) / binom(N,n)
+}
+
+var hypergeometricSample = function(N,K,n) {
+  var support = _.range(N+1) // possible values 0, ..., N
+  var PMF = map(function(k) {hypergeometricPMF(k,N,K,n)}, support)
+  categorical({vs: support, ps: PMF })    
+}
+viz(Infer({model: function() {var K_urn = K[flip(theta) ? 1 : 0];
+                              hypergeometricSample(N, K_urn, n)},
+           method: "forward",
+           samples: 1500}))
+///
+</pre>
+<pre class=" CodeMirror-line " role="presentation">
+</pre>
 
 </div>
 <!-- </div> -->
