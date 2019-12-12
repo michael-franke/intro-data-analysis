@@ -190,46 +190,96 @@ $$
 
 ## Parameters, priors, probability and preditions {#Chap-03-03-models-parameters-priors}
 
+We defined a model as containing a parameterized likelihood function, and, if it is a Bayesian model, also a prior distribution distribution:
 
+$$ 
+\begin{align*}
+  \text{Likelihood: } & P_M(D \mid \theta) \\
+  \text{Prior: } & P_M(\theta) \ \ \ \text{[if Bayesian]}
+\end{align*}
+$$ 
 
-- freq. vs Bayes
-- not every parameter is equally influential
-- different priors in Bayesian analysis
-  - conjugate, uninformative, improper, informed, objective
-- likelihood function can go both ways
+More needs to be said about what a parameter is, what a prior distribution $P_M(\theta)$ is, and what the difference is between a non-Bayesian / frequentist model without priors over $\theta$ and a Bayesian model with priors over $\theta$.
+
+The running example for this section is the **Binomial Model**, which is also included in the cast of main characters in Section \@ref(Chap-03-03-models-examples).^[We should actually speak of a class of (infinitely many) models, all sharing the same likelihood function. Sloppily, we still speak of "the" Binomial Model.] The Binomial Model is a generalization of [the urn-model covered in the previous section](Chap-03-03-models-general-urn-example). We imagine a flip of a coin with bias $\theta \in [0;1]$, which is flipped $N$ times. We are interested in the number $k$ of heads (represented as an outcome of 1). The likelihood function for this model is the [Binomial distribution](app-91-distributions-binomial):
+
+$$ P_M(k \mid \theta, N) = \text{Binomial}(k, N, \theta) = \binom{N}{k}\theta^k(1-\theta)^{N-k} $$
+
+As a concrete application case, we consider a case with $N=24$ flips and $k=7$ head outcomes.
+
+### What's a model parameter?
+
+Parameters are defined by their role: changing a model parameter changes the likelihood of the data. Figure \@ref{ch-03-02-LH-Binomial-Model} shows the likelihood function of the Binomial Model for $\theta \in [0;1]$. 
+
+```{r ch-03-02-LH-Binomial-Model, fig.cap= "Likelihood function for the Binomial Model, for $k=7$ and $N=24$.", echo = F}
+# data
+k <- 7
+N <- 24
+
+# plot LH-function
+tibble(
+  theta = seq(0,1, length.out = 401),
+  LH = dbinom(x = k, size = N, prob = theta)
+) %>% 
+  ggplot(aes(x = theta, y = LH)) +
+  geom_line(size = 3) +
+  labs(
+    x = latex2exp::TeX("Coin bias $\\theta$"),
+    y = latex2exp::TeX("likelihood $Binomial(k=7, N=24, \\theta)$")
+  )
+```
+
+Several things are important to note, even though their significance might only reveal itself in full much later. Firstly, since there is a direct influence of a model parameter on the likelihood of data observations, we might be able to express subjective beliefs about that parameter value, even if the paramter itself is not clearly interpretable in intuitive ways. In other words, we might hold beliefs about the likelihood of the data, and we might express these beliefs by beliefs about likelihood parameter vectors. Secondly, not all parameters are equal. Some parameters may have a much stronger effect on the likelihood than others (all else equal). Just counting the number of model parameters as an indicator of model complexity will therefore not be enough.
+
+### Priors over parameters
+
+The prior distribution over parameter values $P_M(\theta)$ is an integral part of a model, when we adopt a Bayesian approach to data analysis. This entails that two (Bayesian) models can share the same likelihood function, and yet ought to be considered as different models. 
+
+In Bayesian data analysis priors $P_M(\theta)$ are most saliently interpreted as encoding the modeller's prior beliefs about the parameters in question. As mentioned, this need not necessarily be beliefs derived from fundamental convictions about coin biases, means or standard deviations; these could be beliefs held because of the effects certain parameter values have on the likelihood of the data. Ideally, the beliefs that support the specification of a prior should be supported by argument, results of previous research or other clearly justifiable motivations. But these informed subjective priors are really just one way in which priors over parameters can be justified.
+
+There are three main types of motivations for priors $P_M(\theta)$, and it is possible that these motivations are mixed in the choice of a particular prior for a particular application:
+
+1. **Subjective priors** capture the modeller's subjective beliefs in the sense described above.
+2. **Objective priors** are priors that, as some argue, *should* be adopted for a given likelihood function to avoid conceptually paradoxical consequences.
+3. **Practical priors** are priors that are used because they simplify a mathematical calculation or a computer simulation.
+
+Orthogonally to the kind of motivation given for a prior, we can distinguish different priors based on how strongly they commit the modeller to a particular range of parameter values. The most extreme case are **uninformative priors** which assign the same level of credence to all paramter values. Uninformative priors are also called *flat priors* because they express themselves as flat lines for discrete probability distributions and continuous distributions defined over a finite (convex) interval. It is possible to maneuver uninformative priors also for continuous distributions defined over an unbounded interval, in which case we speak of *improper priors* (to remind ourselves that, mathematically, we are doing something tricky). Informative priors, on the other hand, can be weakly informative or strongly informative, depending on how much commitment they express. The most extreme case of commitment would be expressed in a **point-valued prior**, which puts all probabiliy on a single value of a parameter. Since this is no longer a respectable probability distribution, although it satisfies the definition, we speak of a *degenerate prior* here. 
+
+Figure \@ref(ch-03-02-models-types-of-priors) shows examples of objective, uninformative, as well as weakly or strongly informative priors for the Binomial Model.^[We will not go into the topic of objective priors in this course. This is a topic we must reserve for a follow-up course. It is therefore also not important to "see" from Figure \@ref(ch-03-02-models-types-of-priors) how or why the curve shown in an objective prior. For what it's worth, the objective prior shown here is given by $\theta \sim \text{Beta}(0.5,0.5)$.]
+
+```{r ch-03-02-models-types-of-priors, echo = F, fig.cap = "Examples of different kinds of Bayesian priors for the coin bias $\theta$ in the Binomial Model."}
+
+tibble(
+  theta = seq(0, 1, length.out = 401),
+  objective = dbeta(theta, 0.5, 0.5),
+  uninformative = dbeta(theta, 1, 1),
+  `weakly informative` = dbeta(theta, 2, 3),
+  `strongly informative` = dbeta(theta, 20, 30)
+) %>% 
+  pivot_longer(
+    cols = -1,
+    names_to = "prior_type",
+    values_to = "prior"
+  ) %>% 
+  ggplot(aes(x = theta, y = prior)) +
+  geom_line(size = 2) +
+  facet_wrap(~ prior_type, ncol = 2, scales = "free") +
+  labs(
+    x = latex2exp::TeX("Coin bias $\\theta$"),
+    y = latex2exp::TeX("Prior probability $P_{M_i}(\\theta)$"),
+    title = latex2exp::TeX("Different kinds of prior probability of coin bias $\\theta$ for the Binomial Model.")
+  ) 
+
+```
+
 
 ### Two notions of probability (revisited)
 
-What are probabilities?
-Two viewpoints can be distinguished: Probabilities exist "outside in the world" or they are "subjective beliefs" [@kruschke2015]. Although both notions imply different approaches how to deal with probabilities, the mathematical properties are quite similar [@kruschke2015].
+To understand why frequentist models do not have priors, but Bayesian models do, we need to revisit the interpretaion of the notion of probability, in particular frequentism and subjectivism. We should be reminded that although both notions imply different approaches how to deal with probabilities, the mathematical properties are quite similar [@kruschke2015].
 
-#### Frequentism --- Probabilities as properties of the world
+A crude and overly simplified version of why frequentist models do not contain priors is this. Extreme frequentism denies that a probability distribution over a latent parameter like $\theta$ is meaningful. It cannot be justified or defended in a scientifically rigorous manner. The only statements about probabilities that are conceptually sound, according to a frequentist interpretation, are those that derive from intuitions about limiting frequencies when (hypothetically) performing a random process (like throwing a dice or drawing a ball from an urn). Bluntly put, there is no ``(thought) experiment'' which can be repeated so that its objective results, on average, align with whatever subjective prior beliefs the Bayesian analysis needs. As a result, the frequentist approach to statistical inference needs alternative methods for parameter estimation --- methods that do \emph{not} rely on (subjective) priors $P(\theta)$.
 
-When thinking about probabilities as existing "outside in the world" one has to consider the random process that produces the observed data. A Frequentist imagine this random process being repeated a large number of times so that the probability of an outcome is the number of observed outcomes divided by the total number of observations $n$ [@dobson2008]. Frequentism is an approach that searches for relative frequencies in a large number of trials [@vallverdu2015].
-The parameter $\theta$, the probability of interest, is the value of the relative frequency when $n$ becomes infinitely large. Consequently, the parameter $\theta$ can be estimated from the observed data, $\hat{\theta}$, by maximizing the likelihood function (see section "Likelihood, Prior & Posterior") [@dobson2008].
-
-#### Bayesianism --- Probabilities as subjective beliefs
-
-Another notion of probabilities is to think of them as "beliefs" inside one's mind.
-
-\paragraph{Bayes' Theorem}
-The core of Bayesian methods is Bayes' theorem which describes how prior belief is combined with observed data:
-
-$$P(H|Data)=\frac{P(Data|H)*P(H)}{P(Data)}$$
-
-\begin{center}
-	or in plain language,
-\end{center}
-
-$$Posterior=\frac{Likelihood*Prior}{Marginal\textrm{ } Likelihood},$$
-
-The job of the "marginal Likelihood" in the denominator is to standardize the posterior and thus to ensure it sums up to one (integrates to one). Therefore, the key lesson of Bayes' theorem is [@mcelreath2015]:
-$$Posterior \propto Likelihood * Prior$$
-
-\paragraph{To summarize up:}
-A parameter in *Bayesian methods* is conceptualized as a random variable with its own distribution (the posterior) that summarizes the current state of knowledge. The expected value of the posterior is the best guess about the true value of the parameter and its variability reflects the amount of uncertainty [@kline2013].
-
-In *Frequentist statistics*, a parameter is seen as a constant that should be estimated with sample statistics [@kline2013].
+In contrast, a parameter in *Bayesian approaches* is conceptualized as a random variable with its own distribution (the posterior) that summarizes the current state of knowledge or a hypothetical state of belief which to assume serves good practical purposes. 
 
 ## Three pillars of data analysis {#Chap-03-03-models-three-pillars}
 
@@ -304,7 +354,7 @@ ggplot(likelihood_bern, aes(x = theta, y = likelihood_norm)) +
 
 If it is important to communicate the assumptions underlying a statistical argument, and if models are means of making formally explicit these assumptions, then it follows that efficient communication of models is important too. We here follow common practice of representing models using both a special purpose formulaic notation and, where useful, a graph-based visual display in which probabilistic dependencies are perspicuously represented.
 
-The running example for this section is the **binomial model**, which is also included in the cast of main characters in Section \@ref(Chap-03-03-models-examples). The binomial model is a generalization of [the urn-model covered earlier in this chapter](Chap-03-03-models-general-urn-example). We imagine a flip of a coin with bias $\theta \in [0;1]$, which is flipped $N$ times. We are interested in the number $k$ of heads (represented as an outcome of 1). The likelihood function for this model is the [Binomial distribution](app-91-distributions-binomial):
+The running example for this section is the **Binomial Model**, which is also included in the cast of main characters in Section \@ref(Chap-03-03-models-examples). The Binomial Model is a generalization of [the urn-model covered earlier in this chapter](Chap-03-03-models-general-urn-example). We imagine a flip of a coin with bias $\theta \in [0;1]$, which is flipped $N$ times. We are interested in the number $k$ of heads (represented as an outcome of 1). The likelihood function for this model is the [Binomial distribution](app-91-distributions-binomial):
 
 $$ P_M(k \mid \theta, N) = \text{Binomial}(k, N, \theta) = \binom{N}{k}\theta^k(1-\theta)^{N-k} $$
 
@@ -356,127 +406,8 @@ Finally, the graphical structure together with the textual notation can be repre
 
 
 
-## Likelihood, Prior, \& Posterior
 
-Before the topic of is introduced, some conceptual notions regarding likelihood, prior and posterior are necessary.
-
-### Probability density function vs. Likelihood function
-
-
-### Prior & Posterior
-
-The clearest difference between frequentist and Bayesian methods is the incorporation of *prior information* in the Bayesian framework. The posterior distribution results by combining the likelihood with the prior information:
-
-$$Posterior \propto Prior \cdot Likelihood,$$
-or
-$$P(B|A) \propto P(B) \cdot P(A|B).$$
-
-When an uninformative (e.g. uniform) prior $P(B)$ is used then the posterior $P(B|A)$ is completely dependent on the data (likelihood) $P(A|B)$. The influence of the prior on the posterior depends on their relative weighting. Remember, the posterior is the conditional distribution of the parameter given the data. The mathematical procedure behind it is depicted by *Bayes' Theorem*.
-
-Consider for example a beta distribution with the parameters a and b: $\theta \sim Beta(a,b)$ for expressing prior knowledge. Assume further that the observed data are derived from a coin flip experiment, thus, the likelihood function is a bernoulli likelihood. The parameters of a beta distribution can be interpreted as $a=$no. of heads and $b = $no. of tails, or in other words: $n=a+b$. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(5,5).
-
-```{r ch-03-03-prior-distributions, echo = FALSE, fig.cap = "Uninformative vs. informative beta prior distribution."}
-tibble(
-  theta = theta,
-  y1 = dbeta(theta, shape1 = 1, shape2 = 1),
-  y2 = dbeta(theta, shape1 = 10, shape2 = 10)
-) %>%
-  pivot_longer(cols = starts_with("y"),
-               names_to  = "parameter",
-               values_to = "y") %>%
-  mutate(
-    parameter = case_when(parameter == "y1" ~ "(1,1)",
-                          parameter == "y2" ~ "(10,10)")
-  ) %>%
-
-ggplot(aes(theta, y, color = parameter)) +
-  geom_line(size = 2) +
-  labs(color = "X ~ Beta distribution", y = "Density", x = expression(theta))
-```
-
-```{r ch-03-03-posterior-distributions, echo = FALSE, fig.cap = "Beta posterior distributions for different beta prior distributions and bernoulli likelihood."}
-
-tibble(
-  theta = theta,
-  y_prior1 = dbeta(theta, shape1 = 1, shape2 = 1),
-  y_prior2 = dbeta(theta, shape1 = 10, shape2 = 10),
-  likelihood = likelihood_bern$likelihood_norm,
-  y_likelihood = likelihood_bern$likelihood_norm, # only for legend
-  y_posterior1 = dbeta(theta, shape1 = likelihood_bern$k+1, shape2 = likelihood_bern$n-likelihood_bern$k+1),
-  y_posterior2 = dbeta(theta, shape1 = likelihood_bern$k+10, shape2 = likelihood_bern$n-likelihood_bern$k+10)
-) %>%
-  pivot_longer(cols = starts_with("y"),
-               names_to  = "parameter",
-               values_to = "y") %>%
-  mutate(
-    parameter = case_when(parameter == "y_prior1" ~ "Beta(1,1) - prior1",
-                          parameter == "y_prior2" ~ "Beta(10,10) - prior2",
-                          parameter == "y_likelihood" ~ "Bernoulli(18) - likelihood",
-                          parameter == "y_posterior1" ~ "Beta(19,13) - posterior1",
-                          parameter == "y_posterior2" ~ "Beta(28,22) - posterior2")
-  ) %>%
-
-ggplot() +
-  geom_line(aes(theta, y, color = parameter), size = 2) +
-  geom_line(aes(theta, likelihood), linetype = "dashed", size = 2, color = project_colors[2]) +
-  labs(x = expression(theta), y = "Density")
-
-```
-
-A lot of effort has been done in the area of "Objective Bayesian data analysis" in order to develop "uninformative prior distributions", because a lot of people feel uncomfortable using informative priors --- seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this [@dobson2008]. It is "just" important that the definition of the prior distributions make sense (at every stage) in the model.
-
-#### Exursos: Prior predictive distribution
-
-So far we have seen that the \emph{prior distribution} over parameters captures the initial assumptions or state of knowledge about the psychological variables they represent [@leeWagen2014], in the above example this variable is $\theta$.
-
-Considering these initial assumptions in terms of prior distributions allow to make predictions about what data we would expect given the model and current state of knowledge. This distribution is called *prior predictive distribution*. It is a distribution over data, and gives the relative probability of different observable outcomes before any data have been seen [@leeWagen2014].
-
-For the coin flip model we consider a flat prior distribution: Beta(1,1). The prior predictive distribution would therefore look like:
-
-```{r ch-03-03-prior-predictive-distribution, echo = FALSE, fig.cap = "Prior predictive distribution with Beta(1,1) prior for coin flip model"}
-
-tibble(
-  n = 1e5,
-  p = rbeta(n = n, shape1 = 1, shape2 = 1),
-  x = rbern(n = n, prob = p)
-) %>%
-  ggplot() +
-  geom_histogram(aes(x, y = (..count..)/sum(..count..))) +
-  scale_x_continuous(name = "number of heads", breaks = c(0.0,1.0), labels = c("0","1"), limits = c(-0.5,1.5)) +
-  scale_y_continuous(name = "Probability", limits = c(0,1))
-```
-
-## Modeling
-
-### Introductory example
-
-As introductory example we considered a coin flip experiment and asked if a particular coin is *biased*. In order to investigate this question a coin is flipped $x$ times (= trials) and the number of success (i.e. numbers of "head") $k$ is recorded. This is repeated $n$ times (=observations).
-
-```{r ch-03-03-coin-flip data set, echo = FALSE, fig.cap = "Simulating a coin flip experiment with n observations, x trials and k number of heads."}
-#simulate coin flip data set
-sample.space <- c(0, 1)
-theta <- 0.5              # "true" probability of a success (here: head)
-X <- 30                   # number of trials in the experiment
-n <- 10                   # number of observations
-k <- 0                    # number of heads [initialization]
-
-## repeat experiment N-times
-for (i in 1: n) {
-  k[i] <- sum(sample(sample.space, size = X, replace = TRUE,
-                     prob = c(theta, 1 - theta)))
-}
-
-## show results in a tibble
-coin.flip <- tibble("n" = seq(from=1, to=n, by=1),
-                    "k" = k,
-                    "x" = X
-) %>%
-  print()
-```
-
-The above table shows the observed outcome, but how the underlying probability of coming up *heads* can be derived from that data set?
-
-### Steps of Data Analysis
+## How to create a model
 
 The approach described here is based on [@mcelreath2015; @kruschke2015]. Although the approach is introduced in a Bayesian context, it can be used as a general guideline (with some caveats):
 
