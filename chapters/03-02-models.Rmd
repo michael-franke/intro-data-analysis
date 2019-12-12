@@ -358,51 +358,54 @@ The running example for this section is the **Binomial Model**, which is also in
 
 $$ P_M(k \mid \theta, N) = \text{Binomial}(k, N, \theta) = \binom{N}{k}\theta^k(1-\theta)^{N-k} $$
 
-The Beta distribution is the conjugate prior for the Binomial distribution, so our model 
+For purposes of illustration we use a [Beta distribution](app-91-distributions-beta) for the prior of $\theta$, but set its parameters so that the ensuing distribution is flat (uninformative priors):
 
+$$ P_M(\theta) = \text{Beta}(\theta, 1, 1) $$ 
 
 ### Formula notation
 
-In the textual notation, first the prior assumptions (if the Bayesian perspective is taken) are described. For the coin flip example this is $\theta \sim Beta(1,1)$.
-The symbol "$\sim$" means "is distributed as", thus, the above equation says before seeing the data all possible values of $\theta$ between 0 and 1 are assumed to be equally likely.
+To concisely represent models, we use a special notation, which is very intuitive when we think about sampling. Instead of the above notation for the prior we write:
 
-Subsequently, the descriptive model for the data has to be defined. As already described in the section above, it is assumed that the observed data (upcoming of heads $k$) are distributed as Binomial distribution with given $n$ (number of observations) and unknown $\theta$. This relation is denoted symbolically as
-$$k\sim Binomial(\theta|n).$$
-To summarize the current model (whereby the prior knowledge is only considered from a Bayesian perspective):
-$$\theta \sim Beta(1,1),$$
-$$k\sim Binomial(\theta|n).$$
+$$ \theta \sim \text{Beta}(1,1) $$ 
+
+The symbol "$\sim$" is often read as "is distributed as". You can also think of it as meaning that $\theta$ is sampled from a uniform distribution.
+
+Similarly, for the likelihood function, we would just write:
+
+$$k \sim \text{Binomial}(\theta, N).$$
 
 ### Graphical notation
 
-When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. In the following the convention described in Wagenmakers and Lee's *Bayesian Cognitive Modelling* (2014) is used: The graph structure is used to indicate dependencies between the variables, with children depending on their parents [@leeWagen2014]. General conventions:
+When models get very complex and incorporate many parameters it can be difficult to tease out all relations between the model components. In such a situation a graphical notation of a model might be helpful. We here adopt the convention described in Wagenmakers and Lee's *Bayesian Cognitive Modelling* (2014): the graph structure is used to indicate dependencies between the variables, with children depending on their parents [@leeWagen2014]. We represent every relevant variable as a node in a directed acyclic graph structure (a probabilistic network). In visualizing this, we use the following general conventions:
 
-* Nodes - problem relevant variables,
-* shaded nodes - observed variables,
-* unshaded nodes - unobserved variables,
-* circular nodes - continuous variables,
-* square nodes - discrete variables,
-* single line - stochastic dependency, and
-* double line - deterministic dependency.
+- known or unknown (= latent) variable
+  - *shaded nodes*: observed variables
+  - *unshaded nodes*: unobserved / latent variables
+  
+- kind of variable:  
+  - *circular nodes*: continuous variables
+  - *square nodes*: discrete variables
+  
+- kind of dependency:
+  - *single line*: stochastic dependency
+  - *double line*: deterministic dependency
 
-For the introductory example this indicates:
+For the Binomial Model this results in the relevant variables:
 
-* relevant variables: number of trials ($n$), number of success ($k$) and probability for a success ($\theta$),
-* observed variables: $n$ and $k$,
-* unobserved variables: $\theta$,
-* continuous variable: $\theta$,
-* discrete variables: $n$ and $k$.
+- number of trials ($N$)
+- number of success ($k$)
+- probability for a success ($\theta$)
 
-In the next step the dependencies have to be determined:
+Of these $N$ and $k$ are observed and discrete variables, and $\theta$ is a latent continuous variable. Clearly,the number of heads $k$ depends on the coin bias $\theta$ as well as on the number of trials $N$. This yields a graphical and formulaic notation as in Figure \@ref(ch-03-02-Binomial-Model).
 
-The number of success $k$ depends on the probability of a success $\theta$ as well as on the number of trials $n$.
-
-Finally, the graphical structure together with the textual notation can be represented:
-
-![Graphical notation Beta-Binomial Model - One group](chapters/images/Graph-binom.png)
-
+```{r ch-03-02-Binomial-Model, echo = F, fig.cap="The Binomial Model.", out.width = '30%'}
+knitr::include_graphics("visuals/binomial-model.png")
+```
 
 
 ## Strolling the zoo of models {#Chap-03-03-models-examples}
+
+Let's have a look at some more models. Some of the characters we will encounter here, will play leading roles in the plot to come. Some are for familiarization and exercise. All are pleasant.
 
 ### Flip-and-Draw Model
 
@@ -412,7 +415,7 @@ $$ \text{Categorical}(i) = \vec{p}_i $$
 
 Figure \@ref(fig:ch-03-02-FlipDraw-Model) gives a concise representation of the model.
 
-```{r ch-03-02-FlipDraw-Model, echo = F, fig.cap="The Flip-and-Draw Model.", out.width = '50%'}
+```{r ch-03-02-FlipDraw-Model, echo = F, fig.cap="The Flip-and-Draw Model.", out.width = '30%'}
 knitr::include_graphics("visuals/flip-and-draw-model.png")
 ```
 
@@ -424,9 +427,11 @@ $$ \text{Hypergeometric}(k \mid n, K, N) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{
 
 Suppose we keep the total number of urns fixed to $N = 100$ and always draw $n = 20$ balls. The two urns we have (indexed 0 and 1) hold $K_0 = 20$ and $K_1 = 80$ black balls. For a Bayesian model we could use a $\text{Beta}$ prior for $\theta$. Figure \@ref(fig:ch-03-02-FlipDraw-Hypergeometric) shows the model.
 
-```{r ch-03-02-FlipDraw-Hypergeometric, echo = F, fig.cap="The Flip-and-Draw-Hypergeometric Model."}
+```{r ch-03-02-FlipDraw-Hypergeometric, echo = F, out.width = '70%', fig.cap="The Flip-and-Draw-Hypergeometric Model."}
 knitr::include_graphics("visuals/flip-and-draw-hypergeometric.png")
 ```
+
+### T-Test Model: comparing two groups
 
 
 
