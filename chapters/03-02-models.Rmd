@@ -165,11 +165,6 @@ Our model assumes that the data observations in `average_price` are samples from
 $$ P_M(\vec{y} \mid \vec{x}, \theta) = 
 \prod_{i = 1}^k x_i \ \text{Normal}(y_i, \mu_c, \sigma_c) \ + \ (1- x_i) \  \text{Normal}(y_i, \mu_o, \sigma_o)  $$
 
-An alternative notation for this likelihood function achieves conciseness with the help of the `~` symbol, where "LHS ~ RHS" means that LHS is a sample from the distribution on the RHS (see also Section \@ref(Chap-03-03-models-representation)):
-
-$$ y_i \sim \begin{cases} \text{Normal}(\mu_c, \sigma_c) & \text{if} \ x_i = 1 \\ 
-\text{Normal}(\mu_0, \sigma_0) & \text{otherwise} \\ \end{cases} $$ 
-
 If we aspire to handle a Bayesian model, we need to supply a prior for parameters $\theta$ as well. General strategies of fixing priors for Bayesian data analysis are discussed in the next subsection. To give a concrete example for this case, we could assume that all parameter vectors are independent of each other and assume that the means $\mu_c$ and $\mu_o$ are themselves normally distributed. We could use a *truncated normal distribution*^[A truncated normal distribution is like a normal distribution, but restricted to a certain range of possible values. In general, if $P$ is a continuous probability distribution on some interval which properly contains $[a;b]$, a truncated version of $P$ to the interval $[a;b]$ such that:
 $$ \text{Trunc-}P(x, \text{min} = a, \text{max} = b) = 
 \begin{cases} 
@@ -402,6 +397,25 @@ Of these $N$ and $k$ are observed and discrete variables, and $\theta$ is a late
 knitr::include_graphics("visuals/binomial-model.png")
 ```
 
+### Multiple observations
+
+When we have several observations, like in the avocado price data set, we use indexed variables. For exmple, the likelihood function handled in Section XYZ for modeling avocado prices as a function the type of avocado was previously written like so:
+
+$$ P_M(\vec{y} \mid \vec{x}, \theta) = 
+\prod_{i = 1}^k x_i \ \text{Normal}(y_i, \mu_c, \sigma_c) \ + \ (1- x_i) \  \text{Normal}(y_i, \mu_o, \sigma_o)  $$
+
+An alternative notation for this likelihood function achieves conciseness with the help of the `~` symbol:
+
+$$ y_i \sim \begin{cases} \text{Normal}(\mu_c, \sigma_c) & \text{if} \ x_i = 1 \\ 
+\text{Normal}(\mu_0, \sigma_0) & \text{otherwise} \\ \end{cases} $$ 
+
+Notice that this latter notation makes clearer than the previous, that each observation in vector $\vec{y}$ is what is often written as "iid": **i**ndependent of all other observations and **i**dentically **d**istributed just like all other observations. Reversedly, when we see concise notatation like $y_i \sim \dots$ we understand that the likelihood of the whole data is to be calculated as the product of the likelihood of each individual observation.
+
+In the graphical representation, we may conveniently group variables with the same index together in dotted boxes, like shown below for the Linear Regression with Two Groups Model, which is introduced in the next section:
+
+```{r, echo = F, out.width = '60%'}
+knitr::include_graphics("visuals/linear-regression-with-groups.png")
+```
 
 ## Strolling the zoo of models {#Chap-03-03-models-examples}
 
@@ -441,7 +455,28 @@ knitr::include_graphics("visuals/flip-and-draw-hypergeometric.png")
 
 ### T-Test Model: comparing two groups
 
+Figure \@ref(fig:ch-03-02-Simple-Linear-Regression) shows the resulting model.
 
+```{r ch-03-02-T-Test-Model, echo = F, out.width = '60%', fig.cap="The T-Test Model."}
+knitr::include_graphics("visuals/t-test-model.png")
+```
+
+
+### Simple Linear Regression Model
+
+Figure \@ref(fig:ch-03-02-Simple-Linear-Regression) summarizes the full model.
+
+```{r ch-03-02-Simple-Linear-Regression, echo = F, out.width = '60%', fig.cap="The Simple Linear Regression Model."}
+knitr::include_graphics("visuals/linear-regression-model.png")
+```
+
+### Linear Regression with Two Groups
+
+The full model is shown in Figure \@ref(fig:ch-03-02-Linear-Regression-Groups).
+
+```{r ch-03-02-Linear-Regression-Groups, echo = F, out.width = '60%', fig.cap="The Linear Regression with Two Groups Model."}
+knitr::include_graphics("visuals/linear-regression-with-groups.png")
+```
 
 ## How to create a model
 
