@@ -276,7 +276,9 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="8.1.2" data-path="Chap-03-03-models-general.html"><a href="Chap-03-03-models-general.html#example-2-avocado-prices-by-type"><i class="fa fa-check"></i><b>8.1.2</b> Example 2: avocado prices by type</a></li>
 </ul></li>
 <li class="chapter" data-level="8.2" data-path="Chap-03-03-models-parameters-priors.html"><a href="Chap-03-03-models-parameters-priors.html"><i class="fa fa-check"></i><b>8.2</b> Parameters, priors, probability and preditions</a><ul>
-<li class="chapter" data-level="8.2.1" data-path="Chap-03-03-models-parameters-priors.html"><a href="Chap-03-03-models-parameters-priors.html#two-notions-of-probability-revisited"><i class="fa fa-check"></i><b>8.2.1</b> Two notions of probability (revisited)</a></li>
+<li class="chapter" data-level="8.2.1" data-path="Chap-03-03-models-parameters-priors.html"><a href="Chap-03-03-models-parameters-priors.html#whats-a-model-parameter"><i class="fa fa-check"></i><b>8.2.1</b> What’s a model parameter?</a></li>
+<li class="chapter" data-level="8.2.2" data-path="Chap-03-03-models-parameters-priors.html"><a href="Chap-03-03-models-parameters-priors.html#priors-over-parameters"><i class="fa fa-check"></i><b>8.2.2</b> Priors over parameters</a></li>
+<li class="chapter" data-level="8.2.3" data-path="Chap-03-03-models-parameters-priors.html"><a href="Chap-03-03-models-parameters-priors.html#two-notions-of-probability-revisited"><i class="fa fa-check"></i><b>8.2.3</b> Two notions of probability (revisited)</a></li>
 </ul></li>
 <li class="chapter" data-level="8.3" data-path="Chap-03-03-models-three-pillars.html"><a href="Chap-03-03-models-three-pillars.html"><i class="fa fa-check"></i><b>8.3</b> Three pillars of data analysis</a></li>
 <li class="chapter" data-level="8.4" data-path="Chap-03-03-models-representation.html"><a href="Chap-03-03-models-representation.html"><i class="fa fa-check"></i><b>8.4</b> Notation &amp; graphical representation</a><ul>
@@ -403,57 +405,66 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="Chap-03-03-models-parameters-priors" class="section level2">
 <h2><span class="header-section-number">8.2</span> Parameters, priors, probability and preditions</h2>
-<ul>
-<li>freq. vs Bayes</li>
-<li>not every parameter is equally influential</li>
-<li>different priors in Bayesian analysis
-<ul>
-<li>conjugate, uninformative, improper, informed, objective</li>
-</ul></li>
-<li>likelihood function can go both ways</li>
-</ul>
+<p>We defined a model as containing a parameterized likelihood function, and, if it is a Bayesian model, also a prior distribution distribution:</p>
+<p><span class="math display">\[ 
+\begin{align*}
+  \text{Likelihood: } &amp; P_M(D \mid \theta) \\
+  \text{Prior: } &amp; P_M(\theta) \ \ \ \text{[if Bayesian]}
+\end{align*}
+\]</span></p>
+<p>More needs to be said about what a parameter is, what a prior distribution <span class="math inline">\(P_M(\theta)\)</span> is, and what the difference is between a non-Bayesian / frequentist model without priors over <span class="math inline">\(\theta\)</span> and a Bayesian model with priors over <span class="math inline">\(\theta\)</span>.</p>
+<p>The running example for this section is the <strong>Binomial Model</strong>, which is also included in the cast of main characters in Section <a href="Chap-03-03-models-examples.html#Chap-03-03-models-examples">8.5</a>.<a href="#fn39" class="footnote-ref" id="fnref39"><sup>39</sup></a> The Binomial Model is a generalization of <a href="Chap-03-03-models-general-urn-example">the urn-model covered in the previous section</a>. We imagine a flip of a coin with bias <span class="math inline">\(\theta \in [0;1]\)</span>, which is flipped <span class="math inline">\(N\)</span> times. We are interested in the number <span class="math inline">\(k\)</span> of heads (represented as an outcome of 1). The likelihood function for this model is the <a href="app-91-distributions-binomial">Binomial distribution</a>:</p>
+<p><span class="math display">\[ P_M(k \mid \theta, N) = \text{Binomial}(k, N, \theta) = \binom{N}{k}\theta^k(1-\theta)^{N-k} \]</span></p>
+<p>As a concrete application case, we consider a case with <span class="math inline">\(N=24\)</span> flips and <span class="math inline">\(k=7\)</span> head outcomes.</p>
+<div id="whats-a-model-parameter" class="section level3">
+<h3><span class="header-section-number">8.2.1</span> What’s a model parameter?</h3>
+<p>Parameters are defined by their role: changing a model parameter changes the likelihood of the data. Figure @ref{ch-03-02-LH-Binomial-Model} shows the likelihood function of the Binomial Model for <span class="math inline">\(\theta \in [0;1]\)</span>.</p>
+<div class="figure" style="text-align: center"><span id="fig:ch-03-02-LH-Binomial-Model"></span>
+<img src="I2DA_files/figure-html/ch-03-02-LH-Binomial-Model-1.png" alt="Likelihood function for the Binomial Model, for $k=7$ and $N=24$." width="672" />
+<p class="caption">
+Figure 8.1: Likelihood function for the Binomial Model, for <span class="math inline">\(k=7\)</span> and <span class="math inline">\(N=24\)</span>.
+</p>
+</div>
+<p>Several things are important to note, even though their significance might only reveal itself in full much later. Firstly, since there is a direct influence of a model parameter on the likelihood of data observations, we might be able to express subjective beliefs about that parameter value, even if the paramter itself is not clearly interpretable in intuitive ways. In other words, we might hold beliefs about the likelihood of the data, and we might express these beliefs by beliefs about likelihood parameter vectors. Secondly, not all parameters are equal. Some parameters may have a much stronger effect on the likelihood than others (all else equal). Just counting the number of model parameters as an indicator of model complexity will therefore not be enough.</p>
+</div>
+<div id="priors-over-parameters" class="section level3">
+<h3><span class="header-section-number">8.2.2</span> Priors over parameters</h3>
+<p>The prior distribution over parameter values <span class="math inline">\(P_M(\theta)\)</span> is an integral part of a model, when we adopt a Bayesian approach to data analysis. This entails that two (Bayesian) models can share the same likelihood function, and yet ought to be considered as different models.</p>
+<p>In Bayesian data analysis priors <span class="math inline">\(P_M(\theta)\)</span> are most saliently interpreted as encoding the modeller’s prior beliefs about the parameters in question. As mentioned, this need not necessarily be beliefs derived from fundamental convictions about coin biases, means or standard deviations; these could be beliefs held because of the effects certain parameter values have on the likelihood of the data. Ideally, the beliefs that support the specification of a prior should be supported by argument, results of previous research or other clearly justifiable motivations. But these informed subjective priors are really just one way in which priors over parameters can be justified.</p>
+<p>There are three main types of motivations for priors <span class="math inline">\(P_M(\theta)\)</span>, and it is possible that these motivations are mixed in the choice of a particular prior for a particular application:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Subjective priors</strong> capture the modeller’s subjective beliefs in the sense described above.</li>
+<li><strong>Objective priors</strong> are priors that, as some argue, <em>should</em> be adopted for a given likelihood function to avoid conceptually paradoxical consequences.</li>
+<li><strong>Practical priors</strong> are priors that are used because they simplify a mathematical calculation or a computer simulation.</li>
+</ol>
+<p>Orthogonally to the kind of motivation given for a prior, we can distinguish different priors based on how strongly they commit the modeller to a particular range of parameter values. The most extreme case are <strong>uninformative priors</strong> which assign the same level of credence to all paramter values. Uninformative priors are also called <em>flat priors</em> because they express themselves as flat lines for discrete probability distributions and continuous distributions defined over a finite (convex) interval. It is possible to maneuver uninformative priors also for continuous distributions defined over an unbounded interval, in which case we speak of <em>improper priors</em> (to remind ourselves that, mathematically, we are doing something tricky). Informative priors, on the other hand, can be weakly informative or strongly informative, depending on how much commitment they express. The most extreme case of commitment would be expressed in a <strong>point-valued prior</strong>, which puts all probabiliy on a single value of a parameter. Since this is no longer a respectable probability distribution, although it satisfies the definition, we speak of a <em>degenerate prior</em> here.</p>
+<p>Figure <a href="#ch-03-02-models-types-of-priors"><strong>??</strong></a> shows examples of objective, uninformative, as well as weakly or strongly informative priors for the Binomial Model.<a href="#fn40" class="footnote-ref" id="fnref40"><sup>40</sup></a></p>
+<div class="figure" style="text-align: center"><span id="fig:ch-03-02-models-types-of-priors"></span>
+<img src="I2DA_files/figure-html/ch-03-02-models-types-of-priors-1.png" alt="Examples of different kinds of Bayesian priors for the coin bias $ heta$ in the Binomial Model." width="672" />
+<p class="caption">
+Figure 8.2: Examples of different kinds of Bayesian priors for the coin bias $ heta$ in the Binomial Model.
+</p>
+</div>
+</div>
 <div id="two-notions-of-probability-revisited" class="section level3">
-<h3><span class="header-section-number">8.2.1</span> Two notions of probability (revisited)</h3>
-<p>What are probabilities?
-Two viewpoints can be distinguished: Probabilities exist “outside in the world” or they are “subjective beliefs” <span class="citation">(Kruschke <a href="#ref-kruschke2015">2015</a>)</span>. Although both notions imply different approaches how to deal with probabilities, the mathematical properties are quite similar <span class="citation">(Kruschke <a href="#ref-kruschke2015">2015</a>)</span>.</p>
-<div id="frequentism-probabilities-as-properties-of-the-world" class="section level4">
-<h4><span class="header-section-number">8.2.1.1</span> Frequentism — Probabilities as properties of the world</h4>
-<p>When thinking about probabilities as existing “outside in the world” one has to consider the random process that produces the observed data. A Frequentist imagine this random process being repeated a large number of times so that the probability of an outcome is the number of observed outcomes divided by the total number of observations <span class="math inline">\(n\)</span> <span class="citation">(Dobson and Barnett <a href="#ref-dobson2008">2008</a>)</span>. Frequentism is an approach that searches for relative frequencies in a large number of trials <span class="citation">(Vallverdú <a href="#ref-vallverdu2015">2016</a>)</span>.
-The parameter <span class="math inline">\(\theta\)</span>, the probability of interest, is the value of the relative frequency when <span class="math inline">\(n\)</span> becomes infinitely large. Consequently, the parameter <span class="math inline">\(\theta\)</span> can be estimated from the observed data, <span class="math inline">\(\hat{\theta}\)</span>, by maximizing the likelihood function (see section “Likelihood, Prior &amp; Posterior”) <span class="citation">(Dobson and Barnett <a href="#ref-dobson2008">2008</a>)</span>.</p>
-</div>
-<div id="bayesianism-probabilities-as-subjective-beliefs" class="section level4">
-<h4><span class="header-section-number">8.2.1.2</span> Bayesianism — Probabilities as subjective beliefs</h4>
-<p>Another notion of probabilities is to think of them as “beliefs” inside one’s mind.</p>
-
-<p>The core of Bayesian methods is Bayes’ theorem which describes how prior belief is combined with observed data:</p>
-<p><span class="math display">\[P(H|Data)=\frac{P(Data|H)*P(H)}{P(Data)}\]</span></p>
-
-<p><span class="math display">\[Posterior=\frac{Likelihood*Prior}{Marginal\textrm{ } Likelihood},\]</span></p>
-<p>The job of the “marginal Likelihood” in the denominator is to standardize the posterior and thus to ensure it sums up to one (integrates to one). Therefore, the key lesson of Bayes’ theorem is <span class="citation">(McElreath <a href="#ref-mcelreath2015">2015</a>)</span>:
-<span class="math display">\[Posterior \propto Likelihood * Prior\]</span></p>
-
-<p>A parameter in <em>Bayesian methods</em> is conceptualized as a random variable with its own distribution (the posterior) that summarizes the current state of knowledge. The expected value of the posterior is the best guess about the true value of the parameter and its variability reflects the amount of uncertainty <span class="citation">(Kline <a href="#ref-kline2013">2013</a>)</span>.</p>
-<p>In <em>Frequentist statistics</em>, a parameter is seen as a constant that should be estimated with sample statistics <span class="citation">(Kline <a href="#ref-kline2013">2013</a>)</span>.</p>
-</div>
+<h3><span class="header-section-number">8.2.3</span> Two notions of probability (revisited)</h3>
+<p>To understand why frequentist models do not have priors, but Bayesian models do, we need to revisit the interpretaion of the notion of probability, in particular frequentism and subjectivism. We should be reminded that although both notions imply different approaches how to deal with probabilities, the mathematical properties are quite similar <span class="citation">(Kruschke <a href="#ref-kruschke2015">2015</a>)</span>.</p>
+<p>A crude and overly simplified version of why frequentist models do not contain priors is this. Extreme frequentism denies that a probability distribution over a latent parameter like <span class="math inline">\(\theta\)</span> is meaningful. It cannot be justified or defended in a scientifically rigorous manner. The only statements about probabilities that are conceptually sound, according to a frequentist interpretation, are those that derive from intuitions about limiting frequencies when (hypothetically) performing a random process (like throwing a dice or drawing a ball from an urn). Bluntly put, there is no ``(thought) experiment’’ which can be repeated so that its objective results, on average, align with whatever subjective prior beliefs the Bayesian analysis needs. As a result, the frequentist approach to statistical inference needs alternative methods for parameter estimation — methods that do  rely on (subjective) priors <span class="math inline">\(P(\theta)\)</span>.</p>
+<p>In contrast, a parameter in <em>Bayesian approaches</em> is conceptualized as a random variable with its own distribution (the posterior) that summarizes the current state of knowledge or a hypothetical state of belief which to assume serves good practical purposes.</p>
 </div>
 </div>
 <h3>References</h3>
 <div id="refs" class="references">
-<div id="ref-dobson2008">
-<p>Dobson, Annette J., and Adrian G. Barnett. 2008. <em>An Introduction to Generalized Linear Models</em>. Chapman; Hall/CRC.</p>
-</div>
-<div id="ref-kline2013">
-<p>Kline, Rex B. 2013. <em>Beyond Significance Testing: Statistics Reform in the Behavioral Sciences</em>. American Psychological Association.</p>
-</div>
 <div id="ref-kruschke2015">
 <p>Kruschke, John. 2015. <em>Doing Bayesian data analysis: A tutorial with R, JAGS, and Stan</em>. Academic Press.</p>
 </div>
-<div id="ref-mcelreath2015">
-<p>McElreath, Richard. 2015. <em>Statistical Rethinking: A Bayesian Course with Examples in R and Stan</em>. Chapman; Hall/CRC.</p>
 </div>
-<div id="ref-vallverdu2015">
-<p>Vallverdú, Jordi. 2016. <em>Bayesians Versus Frequentists: A Philosophical Debate on Statistical Reasoning</em>. Heidelberg: Springer.</p>
-</div>
+<div class="footnotes">
+<hr />
+<ol start="39">
+<li id="fn39"><p>We should actually speak of a class of (infinitely many) models, all sharing the same likelihood function. Sloppily, we still speak of “the” Binomial Model.<a href="Chap-03-03-models-parameters-priors.html#fnref39" class="footnote-back">↩</a></p></li>
+<li id="fn40"><p>We will not go into the topic of objective priors in this course. This is a topic we must reserve for a follow-up course. It is therefore also not important to “see” from Figure <a href="#ch-03-02-models-types-of-priors"><strong>??</strong></a> how or why the curve shown in an objective prior. For what it’s worth, the objective prior shown here is given by <span class="math inline">\(\theta \sim \text{Beta}(0.5,0.5)\)</span>.<a href="Chap-03-03-models-parameters-priors.html#fnref40" class="footnote-back">↩</a></p></li>
+</ol>
 </div>
             </section>
 
