@@ -49,6 +49,15 @@
 
 
 
+<!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
+<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
+
+<script src="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.js"></script>
+<script src="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.js"></script>
+<script src="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-v0.9.13.js" defer async></script>
+
+<link href="libs/tufte-css-2015.12.29/tufte.css" rel="stylesheet" />
+<link href="libs/tufte-css-2015.12.29/envisioned.css" rel="stylesheet" />
 
 
 <style type="text/css">
@@ -120,6 +129,7 @@ code span.wa { color: #bf0303; } /* Warning */
 </style>
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
+<link rel="stylesheet" href="webppl-editor.css" type="text/css" />
 </head>
 
 <body>
@@ -406,6 +416,47 @@ code span.wa { color: #bf0303; } /* Warning */
 <li><a href="http://docs.webppl.org/en/master/">documentation</a></li>
 <li><a href="https://mhtess.github.io/bdappl/">Bayesian Data Analysis using Probabilistic Programs: Statistics as pottery</a> by webbook on BDA with WebPPL by MH Tessler</li>
 </ul>
+<!-- webppl example
+<pre class="webppl">
+// data to explain
+var xs = [-10, -5, 2, 6, 10];
+var labels = [false, false, true, true, true];
+///fold:
+var model = function() {
+  var m = gaussian(0, 1);
+  var b = gaussian(0, 1);
+  var sigma = gamma(1, 1);
+
+  var y = function(x) {
+    return gaussian(m * x + b, sigma);
+  };
+  var sigmoid = function(x) {
+    return 1 / (1 + Math.exp(-1 * y(x)));
+  };
+
+  map2(
+    function(x, label) {
+      factor(Bernoulli({p: sigmoid(x)}).score(label));
+    },
+    xs,
+    labels);
+
+  return sigmoid(8);
+};
+
+viz.auto(Infer({method: 'MCMC', samples: 10000, burn: 2000}, model));
+///
+</pre>
+
+<pre class=" CodeMirror-line " role="presentation">
+</pre>
+
+
+<script>
+// find all <pre> elements and set up the editor on them
+var preEls = Array.prototype.slice.call(document.getElementsByClassName("webppl"));
+preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}); });
+</script> -->
 
 </div>
 <!-- </div> -->
@@ -430,16 +481,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
-"sharing": {
-"github": false,
-"facebook": true,
-"twitter": true,
-"linkedin": false,
-"weibo": false,
-"instapaper": false,
-"vk": false,
-"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
-},
+"sharing": false,
 "fontsettings": {
 "theme": "white",
 "family": "sans",
