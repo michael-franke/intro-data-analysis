@@ -396,7 +396,6 @@ ggplot(likelihood_bern, aes(x = theta, y = likelihood_norm)) +
 
 
 
-
 ## Notation & graphical representation {#Chap-03-03-models-representation}
 
 If it is important to communicate the assumptions underlying a statistical argument, and if models are means of making formally explicit these assumptions, then it follows that efficient communication of models is important too. We here follow common practice of representing models using both a special purpose formulaic notation and, where useful, a graph-based visual display in which probabilistic dependencies are perspicuously represented.
@@ -451,7 +450,7 @@ knitr::include_graphics("visuals/binomial-model.png")
 
 ### Multiple observations
 
-When we have several observations, like in the avocado price data set, we use indexed variables. For exmple, the likelihood function handled in Section XYZ for modeling avocado prices as a function the type of avocado was previously written like so:
+When we have several observations, like in the avocado price data set, we use indexed variables. For exmple, the likelihood function handled in Section \@ref(hap-03-03-models-general) for modeling avocado prices as a function the type of avocado was previously written like so:
 
 $$ P_M(\vec{y} \mid \vec{x}, \theta) = 
 \prod_{i = 1}^k x_i \ \text{Normal}(y_i, \mu_c, \sigma_c) \ + \ (1- x_i) \  \text{Normal}(y_i, \mu_o, \sigma_o)  $$
@@ -497,7 +496,7 @@ knitr::include_graphics("visuals/flip-and-draw-model.png")
 
 The Flip-and-Draw-Hypergeometric Model is exactly like the previous Flip-and-Draw Model, except that we allow ourselves to sample repeatedly *without replacement* from urn the coin flip selected for us. The probability of observing $k$ black balls when drawing $n$ balls from an urn which contains $N$ balls in total out of which $K$ balls are black, when we do not put each drawn ball back into the urn is described the the so-called [hypergeometric distribution](https://en.wikipedia.org/wiki/Hypergeometric_distribution). The hypergeometric distribution assigne to each $k \in \{\max(0, n+K-N), \dots, \min(n,K)\}$ the probability mass:
 
-$$ \text{Hypergeometric}(k \mid n, K, N) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}  $$ 
+$$ \text{Hypergeometric}(k \mid n, K, N) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}  $$
 
 Suppose we keep the total number of urns fixed to $N = 100$ and always draw $n = 20$ balls. The two urns we have (indexed 0 and 1) hold $K_0 = 20$ and $K_1 = 80$ black balls. For a Bayesian model we could use a $\text{Beta}$ prior for $\theta$. Figure \@ref(fig:ch-03-02-FlipDraw-Hypergeometric) shows the model.
 
@@ -505,343 +504,9 @@ Suppose we keep the total number of urns fixed to $N = 100$ and always draw $n =
 knitr::include_graphics("visuals/flip-and-draw-hypergeometric.png")
 ```
 
-### T-Test Model: comparing two groups
+Below is WebPPL code that allows you to test the models' predictions about data, You can manipulate the parameter values for $\theta$ and $K_1$ and $K_2$. The latter are represented in the array / vector `K = [K1, K2]` below.^[To learn about WebPPL the fast way, try [this tutorial](http://www.problang.org/chapters/app-06-intro-to-webppl.html).]
 
-Figure \@ref(fig:ch-03-02-Simple-Linear-Regression) shows the resulting model.
-
-```{r ch-03-02-T-Test-Model, echo = F, out.width = '60%', fig.cap="The T-Test Model."}
-knitr::include_graphics("visuals/t-test-model.png")
-```
-
-
-### Simple Linear Regression Model
-
-Figure \@ref(fig:ch-03-02-Simple-Linear-Regression) summarizes the full model.
-
-```{r ch-03-02-Simple-Linear-Regression, echo = F, out.width = '60%', fig.cap="The Simple Linear Regression Model."}
-knitr::include_graphics("visuals/linear-regression-model.png")
-```
-
-### Linear Regression with Two Groups
-
-The full model is shown in Figure \@ref(fig:ch-03-02-Linear-Regression-Groups).
-
-```{r ch-03-02-Linear-Regression-Groups, echo = F, out.width = '60%', fig.cap="The Linear Regression with Two Groups Model."}
-knitr::include_graphics("visuals/linear-regression-with-groups.png")
-```
-
-## How to create a model
-
-The approach described here is based on [@mcelreath2015; @kruschke2015]. Although the approach is introduced in a Bayesian context, it can be used as a general guideline (with some caveats):
-
-* Identify the relevant variables according to the hypothesis (Measurement scales, predicted vs. predictor variables).
-* Define the descriptive model for the relevant variables.
-  + likelihood distribution (distribution of each outcome variable that defines the plausibility of individual observations)
-  + parameters (define and name all parameters of the model in order to relate the likelihood to the predictor variable(s))
-* Bayesian context: Specify prior distribution(s).
-
-Further steps that will be subject of later chapters:
-
-* Inference and interpretation of the results.
-* Model checking (Is the defined model adequate?)
-
-*In the following we are interested in the question if a certain coin is biased.*
-
-**First step** is to *identify the relevant variables*. For the coin flip experiment a coin is flipped $n$ times, whereby each observation consists of $x$ trials. Imagine for example 10 people flip a coin 30 times, then $n=10$ and $x=30$. The variable *coin flip* $Y$ is dichotomous with the possible outcomes "head" and "tail". For each observation the outcome is recorded: "0" for coming up tail and "1" for coming up head. The data are summarized for each observation. The variable $k$ indicates the number of heads coming up in $x$ trials.
-
-In **the second step** a *descriptive model for the identified variables* has to be defined. An underlying probability $\theta$ is assumed, indicating the probability of heads coming up $p(y=1)$. The probability that the outcome is head, given a value of parameter $\theta$, is the value of $\theta$ [@kruschke2015, p.109]. Formally, this can be written as
-$$p(y=1|\theta)=\theta$$
-As only two outcomes of $Y$ exists, the probability that the outcome is tail is the complementary probability $1-\theta$. Both probabilities can be combined in one probability expression:
-$$Pr(Y|n,\theta)=\frac{n!}{y!(n-y)!}\theta^{y}(1-\theta)^{n-y}.$$
-This probability distribution is called the **Binomial distribution**. The fracture at the beginning indicates how many ordered sequences of $n$ outcomes a count $y$ have.
-
-```{r ch-03-03-binomial-distribution-coin-flip-example, echo = FALSE, fig.cap = "Binomial-distribution for different coin biases"}
-# how many trials
-trials = 30
-
-rv_binom <- tibble(
-  x = seq(0, trials),
-  y1 = dbinom(x, size = trials, p = 0.2),
-  y2 = dbinom(x, size = trials, p = 0.5),
-  y3 = dbinom(x, size = trials, p = 0.8)
-) %>%
-  pivot_longer(cols = starts_with("y"),
-               names_to  = "parameter",
-               values_to = "y") %>%
-  mutate(
-    parameter = case_when(parameter == "y1" ~ "(n,0.2)",
-                          parameter == "y2" ~ "(n,0.5)",
-                          parameter == "y3" ~ "(n,0.8)")
-  )
-
-# dist plot
-ggplot(rv_binom, aes(x, y, fill = parameter)) +
-  geom_col(position = "identity", alpha = 0.8) +
-  labs(fill = "X ~ Binomial", y = "Probability")
-
-```
-
-When the coin is flipped only once, then the probability can be written as:
-$$Pr(Y|\theta)=\theta^{y}(1-\theta)^{1-y}.$$
-This special variant of the Binomial distribution is the so-called **Bernoulli distribution**. To see the connection to the first considerations: When the outcome "head" is observed the equation reduces to $Pr(y=1|\theta)=\theta$ and when the outcome "tail" is observed the equation results in $Pr(y=0|\theta)=(1-\theta).$
-
-Accordingly, for the introductory example it can be noted that the coin flip variable $Y$ *is distributed as* Binomial distribution. (Note: For Bayes' rule the *likelihood function* is needed. Remember, the likelihood function treats $\theta$ as unknow and the data as known. This role of parameter is exchanged in a probability distribution.)
-
-```{r ch-03-03-binomial-likelihood-coin-flip-example, echo = FALSE, fig.cap = "Binomial likelihoods for different observed coin flip outcomes."}
-
-binomial.likelihood <- function(n, k, theta){theta^k*(1-theta)^(n-k)}
-
-tibble(
-  n = 10,
-  theta = seq(from=0, to=1, by=0.01),
-  y_1 = binomial.likelihood(n,2,theta),
-  y_2 = binomial.likelihood(n,5,theta),
-  y_3 = binomial.likelihood(n,8,theta)
-) %>%
-pivot_longer(cols = starts_with("y"),
-               names_to  = "parameter",
-               values_to = "y") %>%
-  mutate(
-    parameter = case_when(parameter == "y_1" ~ "(n=10,x=20,p)",
-                          parameter == "y_2" ~ "(n=10,x=50,p)",
-                          parameter == "y_3" ~ "(n=10,x=80,p)")
-  ) %>%
-ggplot(aes(theta, y, color = parameter)) +
-  geom_line(size = 2) +
-  labs(color = "X ~ Binomial", y = "Likelihood", x = expression(theta))
-```
-
-**The third step** is solely a *Bayesian idea*, that is the *incorporation of prior knowledge*. What do we believe about the coin bias $\theta$ before seeing the data? Assuming that no expectation about $\theta$ exists a priori, indicating that all values of $\theta$ between 0 and 1 are equally probable. This can be modeled by a uniform distribution or as already visualized as Beta distribution with parameters a=1 and b=1 (see following figure).
-
-```{r ch-03-03-prior-distribution-coin-flip-example, echo = FALSE, fig.cap = "Using uninformative prior distributions: The Uniform(0,1) and Beta(1,1) prior."}
-
-tibble(
-  x = seq(from = -0.01, to = 1.01, by = 0.01),
-  y_1 = dunif(x, min = 0, max = 1),
-  y_2 = dbeta(x, shape1 = 1, shape2 = 1), # only for legend
-  beta = dbeta(x, shape1 = 1, shape2 = 1)
-) %>%
-  pivot_longer(cols = starts_with("y"),
-               names_to  = "prior",
-               values_to = "y") %>%
-  mutate(
-    prior = case_when(prior == "y_1" ~ "Uniform(0,1)",
-                      prior == "y_2" ~ "Beta(1,1)")
-  ) %>%
-ggplot() +
-  geom_line(aes(x, y, color = prior), size = 2) +
-  geom_line(aes(x, beta), color = project_colors[2], size = 2, linetype = "dashed") +
-  labs(y = "Density", x = expression(theta)) +
-  ylim(0,1.5)
-```
-
-So far, the coin flip model is defined conceptually. In the following some notational considerations have to be made.
-
-
-### An outlook: Hierarchical models
-
-Often data can be considered as part of an overall structure. Single observations can be modelled belonging into different groups. These groups in turn are part of a superordinate group etc. Such information are presented in a model in form of a hierarchy.
-
-For example, consider again the coin flip experiment. The outcome of *head* is influenced by the probability $\theta$. Further, $\theta$ is assumed to be distributed as Beta(1,1). Remember that the parameter a and b of a Beta-distribution can be considered in this context as: $a=$number of heads and $b=$ number of tails, consequently, $n=a+b$.
-
-#### Reparameterization of a Beta distribution
-
-Probability distributions can be described by their *central tendency* and *spread* (or dispersion). The *mode* of a Beta distribution is defined as:
-
-$\omega=\frac{a-1}{a+b-2}$,
-
-and the concentration as:
-
-$\kappa=a+b.$
-
-The nice thing is, that the definition of the *mode* as well as of the *concentration* consists solely of the parameters a and b. Therefore, it is possible to re-express the parameters of a Beta density in terms of $\omega$ and $\kappa$, such that:
-
-$$Beta(a,b)=Beta\left(\omega(\kappa -2)+1, (1-\omega)(\kappa -2)+1\right).$$
-
-*Why this is useful? And what is its value in connection with hierarchical modeling?*
-
-Return back to the coin flip experiment. So far, the parameters of the prior on $\theta$ are fixed: $a=1$ and $b=1$. Assume that we get further information: The manufacturing process of the coins has a bias near $\omega$ (example taken from [@kruschke2015]). But how to incorporate this additional knowledge in the model?
-
-At this point, the hierarchy and the reparameterization come into play. Hierarchy because a further assumption is placed on top of the existing model and reparameterization, because we want to express the prior in terms of the mode $\omega$.
-
-Such that the model can be assumed as follows:
-
-![Graphical notation hierarchical Beta-Binomial Model - One group](chapters/images/binom-oneLevel.png)
-
-
-Now, the parameters of the hyperpriors (Gamma and Beta) are fixed, but they can be treated as parameters as well ... as such hierarchical models can be created with any degree of complexity:
-
-![Graphical notation hierarchical Beta-Binomial Model - One group](chapters/images/hierarchical-model.png)
-
-## Further examples
-
-### Difference between two groups
-
-In the introductory example we asked for the underlying probability $\theta$ of a single coin that was flipped repeatedly.
-Consider now, that a second coin $y_2$ is introduced. One question that arises might be for example: *How different are the biases of the two coins?*
-
-```{r}
-#simulate flips of two coins
-sample.space <- c(0,1)
-##First coin:
-theta1 <- 0.5              # probability of a success (here: head)
-X1 <- 30                   # number of trials in the experiment
-n1 <- 100                  # number of observations
-k1 <- 0                    # number of heads [initialization]
-
-for (i in 1: n1) {
-  k1[i] <- sum(sample(sample.space, size = X1, replace = TRUE,
-                     prob = c(theta1, 1 - theta1)))
-}
-##Second coin:
-theta2 <- 0.7              # probability of a success (here: head)
-X2 <- 30                   # number of trials in the experiment
-n2 <- 100                  # number of observations
-k2 <- 0                    # number of heads [initialization]
-
-## repeat experiment N-times
-for (i in 1: n2) {
-  k2[i] <- sum(sample(sample.space, size = X2, replace = TRUE,
-                     prob = c(theta2, 1 - theta2)))
-}
-
-## show results in a tibble
-coin.flip2 <- tibble("coin" = c(replicate(n1,"coin1"), replicate(n2,"coin2")),
-                     "n" = c(seq(from=1, to=n1, by=1), seq(from=1, to=n2, by=1)),
-                     "k" = c(k1,k2),
-                     "x" = c(replicate(n1,X1), replicate(n2,X2))
-) %>%
-  print()
-```
-
-```{r}
-#Plotting the observed results
-ggplot(data=coin.flip2,mapping = aes(x=k, fill=coin ))+
-          geom_histogram()
-```
-
-#### Conceptual steps for modeling
-
-We suppose that the underlying probabilities of the two coins correspond to *different* latent variables $\theta_1$ and $\theta_2$.
-
-**First step** is again the *identification of the relevant variables* according to the research question. As already indicated for the "one coin" example we have:
-
-* the observed number of heads $k_1$ and $k_2$ (for each coin, respectively), which is influenced by
-* the number of observations $n_1$ and $n_2$ and by
-* the underlying probabilities $\theta_1$ and $\theta_2$.
-
-Furthermore, from a conceptional perspective, we are interested in the *difference between the coin biases*. Therefore a further variable will be introduced $\delta$, defined by:
-$$\delta =\theta_1 - \theta_2.$$
-
-The *distributional assumptions*, according to the **second and third step**, can be adopted from the "one coin" example, such that the graphical notation (including the textual notation) can be denoted as follows:
-
-#### Notation Beta-Binomial Model - Two Groups
-
-![Graphical notation Beta-Binomial Model - Two groups](chapters/images/Graph-Factorial.png)
-
-### Simple linear regression with one metric predictor
-
-The following example originates from a data set in which speed of cars and the distance taken to stop was recorded. It is a simple data set good for introducing the basic ideas for simple linear regression.
-```{r}
-#The "cars" data set
-data(cars)
-#take a look at the variables included in the data set
-str(cars)
-```
-One possible question could be how much the stopping distance increases when the speed of a car increases.
-
-#### Conceptual steps for modeling
-
-First step is to **identify the relevant variables**. In this case these are "speed" measured in mph and "distance" measured in ft, thus, both variables are metric variables. As distance will be predicted from speed. The *predicted variable* is "distance" and the *predictor variable* is "speed". A scatter plot can visualize a possible relationship between both variables.
-```{r}
-plot(x=cars$speed,y=cars$dist, type="p", main="scatter plot of cars data set",
-     ylab="distance in ft", xlab="speed in mph")
-```
-
-Next step is to define a **descriptive model of the data**. According to the scatter plot it is not too absurd to think that distance might be proportional to speed. Therefore, a linear relationship between both variables can be assumed, where speed is used i order to predict distance. But how can the distribution of the predicted variable "distance" be described? The following plot shows in blue the density of the actual distance values.
-
-```{r, eval=FALSE}
-#density of distance values in blue
-#(in black simulation of a normal distribution)
-dens(cars$dist, col="blue", norm.comp = TRUE, main="Distribution of distance",
-     xlab="distance in ft")
-```
-
-Although the distribution of "distance" values is not identical to the corresponding normal distribution, it can be assumed that the values follow a *normal distribution*. The underlying consideration is that the distance values $y_i$ are distributed randomly according to a normal distribution around the predicted value $\hat{y}$ and with a standard deviation denoted with $\sigma$. This can be denoted as:
-$$y_i\sim Normal(\mu, \sigma).$$
-The index $i$ indicates each element (i.e. car) of the list $y$, which in turn is the list of distances.
-
-In the third step, a Bayesian perspective is taken the **prior knowlege** (before seeing the data) has to be defined. The parameters of the current model are the predicted value $\mu$ and the standard deviation $\sigma$. For the parameter $\mu$ a normal distribution can be assumend with parameters that reflect the estimated values from the sample.
-
-```{r}
-#descriptive statistics from the sample
-tibble(variables=c("speed", "distance"),
-       mean=c(mean(cars$speed),mean(cars$dist)),
-       sigma = c(sd(cars$speed), sd(cars$dist)))
-```
-
-$$\mu\sim Normal(43,26)$$
-
-For the standard deviation $\sigma$ a uniform distribution is assumed:
-$$\sigma\sim Uniform(0,40)$$
-
-#### Excursus: Identically and independently distributed (*iid*)
-
-The short model description $y_i\sim Normal(\mu, \sigma)$ incorporates often already an assumption about the distribution of distance-values: They are *identically and independently distributed*. Often the abbreviation *iid* can be found for this assumption:
-$$y_i\overset{\text{iid}}{\sim} Normal(\mu, \sigma).$$
-
-The abbreviation *iid* indicates that each value $y_i$ has the same probability function, independent of the other $y$ values and using the same parameters [@mcelreath2015]. This is hardly ever true (why hierarchical modeling is very attractive). For example, thinking about the cars in the current example data set. Some cars may be of different types or even the same type but different batches. But the question is: Is this underlying dependency relevant for the model? If yes, this information has to be added in the model (e.g. in form of a hierarchical model). Janyes states it as follows: "*The onus is always on the user to make sure that all information, which his common sense tells him is relevant to the problem, is actually incorporated into the equations, (...).*"[@jaynes2003,p.339]. But if one do not know any relevant underlying relationships the most conservative distribution to use is *iid*. Note, that the stated assumptions define how the model represents a problem and not how the world should be understood. For example, there might exist underlying correlations but on the overall distribution there influence tends towards zero. In such cases it remains usefull to assume iid [@mcelreath2015].
-
-### Notation Simple Regression model
-![Graphical notation Simplre Regression model](chapters/images/Graph-SimpReg.png)
-
-## Greta
-
-```{r, eval = F}
-## --- greta model code ---
-
-## --- --- data --- ---
-
-velocity  <- as_data(cars$speed)
-distance  <- as_data(cars$dist)
-
-## --- --- latent variables --- ---
-
-intercept <- normal(0, 10)
-slope     <- normal(0, 10)
-sigma     <- student(3, 0 , 1, truncation = c(0, Inf))
-
-# intercept <- variable()
-# slope     <- variable()
-# sigma     <- variable(lower = 0)
-
-mean_g <- intercept + slope * velocity
-
-## --- --- likelihood --- ---
-
-distribution(distance) <- normal(mean_g, sigma)
-
-## --- --- model --- ---
-
-m <- model(intercept, slope, sigma)
-
-# plot(m)
-
-## --- sampling ---
-
-draws <- mcmc(m, n_samples = 1000)
-
-tidy_draws = ggs(draws)
-
-tidy_draws %>% group_by(Parameter) %>%
-  summarise(mean = mean(value),
-            '|95%' = quantile(value, probs = 0.025),
-            '95|%' = quantile(value, probs = 0.975))
-```
-
-## WebPPL
-
-Here's a model in WebPPL. To learn WebPPL the fast way, try [this tutorial](http://www.problang.org/chapters/app-06-intro-to-webppl.html).
+<span style = "color:firebrick">WebPPL execution from inside the web-book is currently broken, but we are working on this. You can copy-paste the code into the code box at webppl.org. </span>
 
 <pre class="webppl">
 var theta = 0.2; var K = [20,80];
@@ -866,14 +531,14 @@ var binom = function(a, b) {
 // of obtaining k black balls?
 var hypergeometricPMF = function(k,N,K,n) {
   k > Math.min(n, K) ? 0 :
-  k < n+K-N ? 0 :       
+  k < n+K-N ? 0 :
   binom(K,k) * binom(N-K, n-k) / binom(N,n)
 }
 
 var hypergeometricSample = function(N,K,n) {
   var support = _.range(N+1) // possible values 0, ..., N
   var PMF = map(function(k) {hypergeometricPMF(k,N,K,n)}, support)
-  categorical({vs: support, ps: PMF })    
+  categorical({vs: support, ps: PMF })
 }
 viz(Infer({model: function() {var K_urn = K[flip(theta) ? 1 : 0];
                               hypergeometricSample(N, K_urn, n)},
@@ -885,8 +550,426 @@ viz(Infer({model: function() {var K_urn = K[flip(theta) ? 1 : 0];
 <pre class=" CodeMirror-line " role="presentation">
 </pre>
 
-<script>
-// find all <pre> elements and set up the editor on them
-var preEls = Array.prototype.slice.call(document.getElementsByClassName("webppl"));
-preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}); });
-</script>
+<!-- <script> -->
+<!-- // find all <pre> elements and set up the editor on them -->
+<!-- var preEls = Array.prototype.slice.call(document.getElementsByClassName("webppl")); -->
+<!-- preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}); }); -->
+<!-- </script> -->
+
+
+### T-Test Model: comparing two groups
+
+Figure \@ref(fig:ch-03-02-Simple-Linear-Regression) shows the resulting model.
+
+```{r ch-03-02-T-Test-Model, echo = F, out.width = '60%', fig.cap="The T-Test Model."}
+knitr::include_graphics("visuals/t-test-model.png")
+```
+
+
+### Simple Linear Regression Model
+
+In Section \@ref(Chap-02-04-ggplot) we plotted avocado prices in a scatter plot. In particular we plotted (the log of) `average_price` as a function of `total_amount_sold`, and we also added a regression line, like so:
+
+```{r, echo = F}
+avocado_data %>% 
+  ggplot(
+    mapping = aes(
+      # notice that we use the log (try without it to understand why)
+      x = log(total_volume_sold),
+      y = average_price
+    )
+  ) +
+  # add a scatter plot
+  geom_point(alpha = 0.3) +
+  # add a linear regression line
+  geom_smooth(method = "lm")
+```
+
+A simple linear regression tries to relate pairs of associated observations, frequently denoted as $x_i$ and $y_i$. Here, $i$ is an index over observations, $x_i$ is the (continuous) independent variable and $y_i$ is the (continuous) dependent variable. In our example, the vector $x$ is the logarithm of `total_amoount_sold` and $y$ is the vector `average_price`. The simple linear regression model assumes that there is a simple linear relationship between $x$ and $y$. A perfect linear relationship would exist if for all $i$:
+
+$$ y_i = \beta_0 + \beta_1 \ x_i $$
+
+Given measurement error and other lingering uncertainties, we rather handle a **linear relation with stochastic noise**, in which the linear relationship holds, but could be distorted by an $\epsilon$ error, which we assume is independently drawn for each $i$ from a normal distribution:
+
+$$ y_i = \beta_0 + \beta_1 \ x_i + \epsilon_1 \ \ \ \ \ \ \text{where} \ \ \ \ \epsilon_i \sim \text{Normal}(\mu=0, \sigma = \dots)$$
+
+An alternative formulation is to simply write: 
+
+$$ y_i \sim \text{Normal}(\mu=\beta_0 + \beta_1 \ x_i , \sigma = \dots)$$
+
+This is the likelihood function that the Simple Linear Regression Model assumes. Figure \@ref(fig:ch-03-02-Simple-Linear-Regression) summarizes the full model by also indicating roughly which kinds of prior distributions might be useful in a Bayesian analysis.
+
+```{r ch-03-02-Simple-Linear-Regression, echo = F, out.width = '60%', fig.cap="The Simple Linear Regression Model."}
+knitr::include_graphics("visuals/linear-regression-model.png")
+```
+
+### Linear Regression with Two Groups
+
+Section \@ref(Chap-02-04-ggplot) also plotted advocado prices against the total amount sold and distinguished the type of advocado, also adding a seperate regression line for each type. The result looked like this:
+
+```{r, echo = F}
+# pipe data set into function `ggplot`
+avocado_data %>% 
+  # reverse factor level so that horizontal legend entries align with
+  # the majority of observations of each group in the plot
+  mutate(
+    type = fct_rev(type)
+  ) %>% 
+  # initivalize the plot
+  ggplot(
+    # defined mapping
+    mapping = aes(
+      # which variable goes on the x-axis
+      x = total_volume_sold, 
+      # which variable goes on the y-axis
+      y = average_price, 
+      # which groups of variables to distinguish
+      group = type, 
+      # color and fill to change by grouping variable
+      fill = type, 
+      linetype = type,
+      color = type
+    )
+  ) +
+  # declare that we want a scatter plot
+  geom_point(
+    # set low opacity for each point
+    alpha = 0.1
+  ) +
+  # add a linear model fit (for each group)
+  geom_smooth(
+    color = "black", 
+    method = "lm"
+  ) +
+  # change the default (normal) of x-axis to log-scale
+  scale_x_log10() +
+  # add dollar signs to y-axis labels
+  scale_y_continuous(labels = scales::dollar) +
+  # change axis labels and plot title & subtitle
+  labs(
+    x = 'Total volume sold (on a log scale)',
+    y = 'Average price',
+    title = "Avocado prices against amount sold",
+    subtitle = "With linear regression lines"
+  )
+```
+
+Towards a model that computes these linear regression lines, one for each group, that is in line with the idea introduced above that, for the purposes of inference and testing, we might like to represent differences between groups as $\delta$ parameters in a model, let's assume that the type of advocado is our grouping variable $g_i$. The default group (say: conventional avocados) has $g_i = 0$, the other group has $g_i = 1$. The first group gets "its own" intercept $\beta_0$ and slope $\beta_1$. The second group gets additive offsets $\delta_0$ and $\delta_1$ for its slope and intercept, respectively. The full model is shown in Figure \@ref(fig:ch-03-02-Linear-Regression-Groups).
+
+```{r ch-03-02-Linear-Regression-Groups, echo = F, out.width = '70%', fig.cap="The Linear Regression with Two Groups Model."}
+knitr::include_graphics("visuals/linear-regression-with-groups.png")
+```
+
+
+
+<!-- ### Outlook: Hierarchical models -->
+
+<!-- Often data can be considered as part of an overall structure. Single observations can be modelled belonging into different groups. These groups in turn are part of a superordinate group etc. Such information are presented in a model in form of a hierarchy. -->
+
+<!-- For example, consider again the coin flip experiment. The outcome of *head* is influenced by the probability $\theta$. Further, $\theta$ is assumed to be distributed as Beta(1,1). Remember that the parameter a and b of a Beta-distribution can be considered in this context as: $a=$number of heads and $b=$ number of tails, consequently, $n=a+b$. -->
+
+<!-- #### Reparameterization of a Beta distribution -->
+
+<!-- Probability distributions can be described by their *central tendency* and *spread* (or dispersion). The *mode* of a Beta distribution is defined as: -->
+
+<!-- $\omega=\frac{a-1}{a+b-2}$, -->
+
+<!-- and the concentration as: -->
+
+<!-- $\kappa=a+b.$ -->
+
+<!-- The nice thing is, that the definition of the *mode* as well as of the *concentration* consists solely of the parameters a and b. Therefore, it is possible to re-express the parameters of a Beta density in terms of $\omega$ and $\kappa$, such that: -->
+
+<!-- $$Beta(a,b)=Beta\left(\omega(\kappa -2)+1, (1-\omega)(\kappa -2)+1\right).$$ -->
+
+<!-- *Why this is useful? And what is its value in connection with hierarchical modeling?* -->
+
+<!-- Return back to the coin flip experiment. So far, the parameters of the prior on $\theta$ are fixed: $a=1$ and $b=1$. Assume that we get further information: The manufacturing process of the coins has a bias near $\omega$ (example taken from [@kruschke2015]). But how to incorporate this additional knowledge in the model? -->
+
+<!-- At this point, the hierarchy and the reparameterization come into play. Hierarchy because a further assumption is placed on top of the existing model and reparameterization, because we want to express the prior in terms of the mode $\omega$. -->
+
+<!-- Such that the model can be assumed as follows: -->
+
+<!-- ![Graphical notation hierarchical Beta-Binomial Model - One group](chapters/images/binom-oneLevel.png) -->
+
+
+<!-- Now, the parameters of the hyperpriors (Gamma and Beta) are fixed, but they can be treated as parameters as well ... as such hierarchical models can be created with any degree of complexity: -->
+
+<!-- ![Graphical notation hierarchical Beta-Binomial Model - One group](chapters/images/hierarchical-model.png) -->
+
+<!-- ### Further examples -->
+
+<!-- #### Difference between two groups -->
+
+<!-- In the introductory example we asked for the underlying probability $\theta$ of a single coin that was flipped repeatedly. -->
+<!-- Consider now, that a second coin $y_2$ is introduced. One question that arises might be for example: *How different are the biases of the two coins?* -->
+
+<!-- ```{r} -->
+<!-- #simulate flips of two coins -->
+<!-- sample.space <- c(0,1) -->
+<!-- ##First coin: -->
+<!-- theta1 <- 0.5              # probability of a success (here: head) -->
+<!-- X1 <- 30                   # number of trials in the experiment -->
+<!-- n1 <- 100                  # number of observations -->
+<!-- k1 <- 0                    # number of heads [initialization] -->
+
+<!-- for (i in 1: n1) { -->
+<!--   k1[i] <- sum(sample(sample.space, size = X1, replace = TRUE, -->
+<!--                      prob = c(theta1, 1 - theta1))) -->
+<!-- } -->
+<!-- ##Second coin: -->
+<!-- theta2 <- 0.7              # probability of a success (here: head) -->
+<!-- X2 <- 30                   # number of trials in the experiment -->
+<!-- n2 <- 100                  # number of observations -->
+<!-- k2 <- 0                    # number of heads [initialization] -->
+
+<!-- ## repeat experiment N-times -->
+<!-- for (i in 1: n2) { -->
+<!--   k2[i] <- sum(sample(sample.space, size = X2, replace = TRUE, -->
+<!--                      prob = c(theta2, 1 - theta2))) -->
+<!-- } -->
+
+<!-- ## show results in a tibble -->
+<!-- coin.flip2 <- tibble("coin" = c(replicate(n1,"coin1"), replicate(n2,"coin2")), -->
+<!--                      "n" = c(seq(from=1, to=n1, by=1), seq(from=1, to=n2, by=1)), -->
+<!--                      "k" = c(k1,k2), -->
+<!--                      "x" = c(replicate(n1,X1), replicate(n2,X2)) -->
+<!-- ) %>% -->
+<!--   print() -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- #Plotting the observed results -->
+<!-- ggplot(data=coin.flip2,mapping = aes(x=k, fill=coin ))+ -->
+<!--           geom_histogram() -->
+<!-- ``` -->
+
+
+<!-- ## How to create a model -->
+
+<!-- The approach described here is based on [@mcelreath2015; @kruschke2015]. Although the approach is introduced in a Bayesian context, it can be used as a general guideline (with some caveats): -->
+
+<!-- * Identify the relevant variables according to the hypothesis (Measurement scales, predicted vs. predictor variables). -->
+<!-- * Define the descriptive model for the relevant variables. -->
+<!--   + likelihood distribution (distribution of each outcome variable that defines the plausibility of individual observations) -->
+<!--   + parameters (define and name all parameters of the model in order to relate the likelihood to the predictor variable(s)) -->
+<!-- * Bayesian context: Specify prior distribution(s). -->
+
+<!-- Further steps that will be subject of later chapters: -->
+
+<!-- * Inference and interpretation of the results. -->
+<!-- * Model checking (Is the defined model adequate?) -->
+
+<!-- *In the following we are interested in the question if a certain coin is biased.* -->
+
+<!-- **First step** is to *identify the relevant variables*. For the coin flip experiment a coin is flipped $n$ times, whereby each observation consists of $x$ trials. Imagine for example 10 people flip a coin 30 times, then $n=10$ and $x=30$. The variable *coin flip* $Y$ is dichotomous with the possible outcomes "head" and "tail". For each observation the outcome is recorded: "0" for coming up tail and "1" for coming up head. The data are summarized for each observation. The variable $k$ indicates the number of heads coming up in $x$ trials. -->
+
+<!-- In **the second step** a *descriptive model for the identified variables* has to be defined. An underlying probability $\theta$ is assumed, indicating the probability of heads coming up $p(y=1)$. The probability that the outcome is head, given a value of parameter $\theta$, is the value of $\theta$ [@kruschke2015, p.109]. Formally, this can be written as -->
+<!-- $$p(y=1|\theta)=\theta$$ -->
+<!-- As only two outcomes of $Y$ exists, the probability that the outcome is tail is the complementary probability $1-\theta$. Both probabilities can be combined in one probability expression: -->
+<!-- $$Pr(Y|n,\theta)=\frac{n!}{y!(n-y)!}\theta^{y}(1-\theta)^{n-y}.$$ -->
+<!-- This probability distribution is called the **Binomial distribution**. The fracture at the beginning indicates how many ordered sequences of $n$ outcomes a count $y$ have. -->
+
+<!-- ```{r ch-03-03-binomial-distribution-coin-flip-example, echo = FALSE, fig.cap = "Binomial-distribution for different coin biases"} -->
+<!-- # how many trials -->
+<!-- trials = 30 -->
+
+<!-- rv_binom <- tibble( -->
+<!--   x = seq(0, trials), -->
+<!--   y1 = dbinom(x, size = trials, p = 0.2), -->
+<!--   y2 = dbinom(x, size = trials, p = 0.5), -->
+<!--   y3 = dbinom(x, size = trials, p = 0.8) -->
+<!-- ) %>% -->
+<!--   pivot_longer(cols = starts_with("y"), -->
+<!--                names_to  = "parameter", -->
+<!--                values_to = "y") %>% -->
+<!--   mutate( -->
+<!--     parameter = case_when(parameter == "y1" ~ "(n,0.2)", -->
+<!--                           parameter == "y2" ~ "(n,0.5)", -->
+<!--                           parameter == "y3" ~ "(n,0.8)") -->
+<!--   ) -->
+
+<!-- # dist plot -->
+<!-- ggplot(rv_binom, aes(x, y, fill = parameter)) + -->
+<!--   geom_col(position = "identity", alpha = 0.8) + -->
+<!--   labs(fill = "X ~ Binomial", y = "Probability") -->
+
+<!-- ``` -->
+
+<!-- When the coin is flipped only once, then the probability can be written as: -->
+<!-- $$Pr(Y|\theta)=\theta^{y}(1-\theta)^{1-y}.$$ -->
+<!-- This special variant of the Binomial distribution is the so-called **Bernoulli distribution**. To see the connection to the first considerations: When the outcome "head" is observed the equation reduces to $Pr(y=1|\theta)=\theta$ and when the outcome "tail" is observed the equation results in $Pr(y=0|\theta)=(1-\theta).$ -->
+
+<!-- Accordingly, for the introductory example it can be noted that the coin flip variable $Y$ *is distributed as* Binomial distribution. (Note: For Bayes' rule the *likelihood function* is needed. Remember, the likelihood function treats $\theta$ as unknow and the data as known. This role of parameter is exchanged in a probability distribution.) -->
+
+<!-- ```{r ch-03-03-binomial-likelihood-coin-flip-example, echo = FALSE, fig.cap = "Binomial likelihoods for different observed coin flip outcomes."} -->
+
+<!-- binomial.likelihood <- function(n, k, theta){theta^k*(1-theta)^(n-k)} -->
+
+<!-- tibble( -->
+<!--   n = 10, -->
+<!--   theta = seq(from=0, to=1, by=0.01), -->
+<!--   y_1 = binomial.likelihood(n,2,theta), -->
+<!--   y_2 = binomial.likelihood(n,5,theta), -->
+<!--   y_3 = binomial.likelihood(n,8,theta) -->
+<!-- ) %>% -->
+<!-- pivot_longer(cols = starts_with("y"), -->
+<!--                names_to  = "parameter", -->
+<!--                values_to = "y") %>% -->
+<!--   mutate( -->
+<!--     parameter = case_when(parameter == "y_1" ~ "(n=10,x=20,p)", -->
+<!--                           parameter == "y_2" ~ "(n=10,x=50,p)", -->
+<!--                           parameter == "y_3" ~ "(n=10,x=80,p)") -->
+<!--   ) %>% -->
+<!-- ggplot(aes(theta, y, color = parameter)) + -->
+<!--   geom_line(size = 2) + -->
+<!--   labs(color = "X ~ Binomial", y = "Likelihood", x = expression(theta)) -->
+<!-- ``` -->
+
+<!-- **The third step** is solely a *Bayesian idea*, that is the *incorporation of prior knowledge*. What do we believe about the coin bias $\theta$ before seeing the data? Assuming that no expectation about $\theta$ exists a priori, indicating that all values of $\theta$ between 0 and 1 are equally probable. This can be modeled by a uniform distribution or as already visualized as Beta distribution with parameters a=1 and b=1 (see following figure). -->
+
+<!-- ```{r ch-03-03-prior-distribution-coin-flip-example, echo = FALSE, fig.cap = "Using uninformative prior distributions: The Uniform(0,1) and Beta(1,1) prior."} -->
+
+<!-- tibble( -->
+<!--   x = seq(from = -0.01, to = 1.01, by = 0.01), -->
+<!--   y_1 = dunif(x, min = 0, max = 1), -->
+<!--   y_2 = dbeta(x, shape1 = 1, shape2 = 1), # only for legend -->
+<!--   beta = dbeta(x, shape1 = 1, shape2 = 1) -->
+<!-- ) %>% -->
+<!--   pivot_longer(cols = starts_with("y"), -->
+<!--                names_to  = "prior", -->
+<!--                values_to = "y") %>% -->
+<!--   mutate( -->
+<!--     prior = case_when(prior == "y_1" ~ "Uniform(0,1)", -->
+<!--                       prior == "y_2" ~ "Beta(1,1)") -->
+<!--   ) %>% -->
+<!-- ggplot() + -->
+<!--   geom_line(aes(x, y, color = prior), size = 2) + -->
+<!--   geom_line(aes(x, beta), color = project_colors[2], size = 2, linetype = "dashed") + -->
+<!--   labs(y = "Density", x = expression(theta)) + -->
+<!--   ylim(0,1.5) -->
+<!-- ``` -->
+
+<!-- So far, the coin flip model is defined conceptually. In the following some notational considerations have to be made. -->
+
+
+
+<!-- #### Conceptual steps for modeling -->
+
+<!-- We suppose that the underlying probabilities of the two coins correspond to *different* latent variables $\theta_1$ and $\theta_2$. -->
+
+<!-- **First step** is again the *identification of the relevant variables* according to the research question. As already indicated for the "one coin" example we have: -->
+
+<!-- * the observed number of heads $k_1$ and $k_2$ (for each coin, respectively), which is influenced by -->
+<!-- * the number of observations $n_1$ and $n_2$ and by -->
+<!-- * the underlying probabilities $\theta_1$ and $\theta_2$. -->
+
+<!-- Furthermore, from a conceptional perspective, we are interested in the *difference between the coin biases*. Therefore a further variable will be introduced $\delta$, defined by: -->
+<!-- $$\delta =\theta_1 - \theta_2.$$ -->
+
+<!-- The *distributional assumptions*, according to the **second and third step**, can be adopted from the "one coin" example, such that the graphical notation (including the textual notation) can be denoted as follows: -->
+
+<!-- #### Notation Beta-Binomial Model - Two Groups -->
+
+<!-- ![Graphical notation Beta-Binomial Model - Two groups](chapters/images/Graph-Factorial.png) -->
+
+<!-- ### Simple linear regression with one metric predictor -->
+
+<!-- The following example originates from a data set in which speed of cars and the distance taken to stop was recorded. It is a simple data set good for introducing the basic ideas for simple linear regression. -->
+<!-- ```{r} -->
+<!-- #The "cars" data set -->
+<!-- data(cars) -->
+<!-- #take a look at the variables included in the data set -->
+<!-- str(cars) -->
+<!-- ``` -->
+<!-- One possible question could be how much the stopping distance increases when the speed of a car increases. -->
+
+<!-- #### Conceptual steps for modeling -->
+
+<!-- First step is to **identify the relevant variables**. In this case these are "speed" measured in mph and "distance" measured in ft, thus, both variables are metric variables. As distance will be predicted from speed. The *predicted variable* is "distance" and the *predictor variable* is "speed". A scatter plot can visualize a possible relationship between both variables. -->
+<!-- ```{r} -->
+<!-- plot(x=cars$speed,y=cars$dist, type="p", main="scatter plot of cars data set", -->
+<!--      ylab="distance in ft", xlab="speed in mph") -->
+<!-- ``` -->
+
+<!-- Next step is to define a **descriptive model of the data**. According to the scatter plot it is not too absurd to think that distance might be proportional to speed. Therefore, a linear relationship between both variables can be assumed, where speed is used i order to predict distance. But how can the distribution of the predicted variable "distance" be described? The following plot shows in blue the density of the actual distance values. -->
+
+<!-- ```{r, eval=FALSE} -->
+<!-- #density of distance values in blue -->
+<!-- #(in black simulation of a normal distribution) -->
+<!-- dens(cars$dist, col="blue", norm.comp = TRUE, main="Distribution of distance", -->
+<!--      xlab="distance in ft") -->
+<!-- ``` -->
+
+<!-- Although the distribution of "distance" values is not identical to the corresponding normal distribution, it can be assumed that the values follow a *normal distribution*. The underlying consideration is that the distance values $y_i$ are distributed randomly according to a normal distribution around the predicted value $\hat{y}$ and with a standard deviation denoted with $\sigma$. This can be denoted as: -->
+<!-- $$y_i\sim Normal(\mu, \sigma).$$ -->
+<!-- The index $i$ indicates each element (i.e. car) of the list $y$, which in turn is the list of distances. -->
+
+<!-- In the third step, a Bayesian perspective is taken the **prior knowlege** (before seeing the data) has to be defined. The parameters of the current model are the predicted value $\mu$ and the standard deviation $\sigma$. For the parameter $\mu$ a normal distribution can be assumend with parameters that reflect the estimated values from the sample. -->
+
+<!-- ```{r} -->
+<!-- #descriptive statistics from the sample -->
+<!-- tibble(variables=c("speed", "distance"), -->
+<!--        mean=c(mean(cars$speed),mean(cars$dist)), -->
+<!--        sigma = c(sd(cars$speed), sd(cars$dist))) -->
+<!-- ``` -->
+
+<!-- $$\mu\sim Normal(43,26)$$ -->
+
+<!-- For the standard deviation $\sigma$ a uniform distribution is assumed: -->
+<!-- $$\sigma\sim Uniform(0,40)$$ -->
+
+<!-- #### Excursus: Identically and independently distributed (*iid*) -->
+
+<!-- The short model description $y_i\sim Normal(\mu, \sigma)$ incorporates often already an assumption about the distribution of distance-values: They are *identically and independently distributed*. Often the abbreviation *iid* can be found for this assumption: -->
+<!-- $$y_i\overset{\text{iid}}{\sim} Normal(\mu, \sigma).$$ -->
+
+<!-- The abbreviation *iid* indicates that each value $y_i$ has the same probability function, independent of the other $y$ values and using the same parameters [@mcelreath2015]. This is hardly ever true (why hierarchical modeling is very attractive). For example, thinking about the cars in the current example data set. Some cars may be of different types or even the same type but different batches. But the question is: Is this underlying dependency relevant for the model? If yes, this information has to be added in the model (e.g. in form of a hierarchical model). Janyes states it as follows: "*The onus is always on the user to make sure that all information, which his common sense tells him is relevant to the problem, is actually incorporated into the equations, (...).*"[@jaynes2003,p.339]. But if one do not know any relevant underlying relationships the most conservative distribution to use is *iid*. Note, that the stated assumptions define how the model represents a problem and not how the world should be understood. For example, there might exist underlying correlations but on the overall distribution there influence tends towards zero. In such cases it remains usefull to assume iid [@mcelreath2015]. -->
+
+<!-- ### Notation Simple Regression model -->
+<!-- ![Graphical notation Simplre Regression model](chapters/images/Graph-SimpReg.png) -->
+
+<!-- ## Greta -->
+
+<!-- ```{r, eval = F} -->
+<!-- ## --- greta model code --- -->
+
+<!-- ## --- --- data --- --- -->
+
+<!-- velocity  <- as_data(cars$speed) -->
+<!-- distance  <- as_data(cars$dist) -->
+
+<!-- ## --- --- latent variables --- --- -->
+
+<!-- intercept <- normal(0, 10) -->
+<!-- slope     <- normal(0, 10) -->
+<!-- sigma     <- student(3, 0 , 1, truncation = c(0, Inf)) -->
+
+<!-- # intercept <- variable() -->
+<!-- # slope     <- variable() -->
+<!-- # sigma     <- variable(lower = 0) -->
+
+<!-- mean_g <- intercept + slope * velocity -->
+
+<!-- ## --- --- likelihood --- --- -->
+
+<!-- distribution(distance) <- normal(mean_g, sigma) -->
+
+<!-- ## --- --- model --- --- -->
+
+<!-- m <- model(intercept, slope, sigma) -->
+
+<!-- # plot(m) -->
+
+<!-- ## --- sampling --- -->
+
+<!-- draws <- mcmc(m, n_samples = 1000) -->
+
+<!-- tidy_draws = ggs(draws) -->
+
+<!-- tidy_draws %>% group_by(Parameter) %>% -->
+<!--   summarise(mean = mean(value), -->
+<!--             '|95%' = quantile(value, probs = 0.025), -->
+<!--             '95|%' = quantile(value, probs = 0.975)) -->
+<!-- ``` -->
+
