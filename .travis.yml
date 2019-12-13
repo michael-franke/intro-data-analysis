@@ -17,19 +17,19 @@ apt_packages:
   # - fonts-firacode        # my go-to monospace font
   
 before_install:
-- sudo apt-get update
-- |
-  # 1. Install TinyTex manually if not already in cache
-  # Travis creates $HOME/.TinyTex if nonexistent, so we check bin subdir
-  if [ ! -d $HOME/.TinyTex/bin ]; then
-    Rscript -e "tinytex::install_tinytex()"
-  fi
+  - sudo apt-get update
+  - |
+    # 1. Install TinyTex manually if not already in cache
+    # Travis creates $HOME/.TinyTex if nonexistent, so we check bin subdir
+    if [ ! -d $HOME/.TinyTex/bin ]; then
+      Rscript -e "tinytex::install_tinytex()"
+    fi
   
 before_script:
-- |
-  fc-cache -fv
-  # this should fix spaces in font names:
-  cp $HOME/.TinyTeX/texmf-var/fonts/conf/texlive-fontconfig.conf ~/.fonts.conf
+  - |
+    fc-cache -fv
+    # this should fix spaces in font names:
+    cp $HOME/.TinyTeX/texmf-var/fonts/conf/texlive-fontconfig.conf ~/.fonts.conf
 
 script:
   - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::gitbook")'
