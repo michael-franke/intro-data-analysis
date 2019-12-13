@@ -185,7 +185,7 @@ $$
 
 ## Parameters, priors, probability and preditions {#Chap-03-03-models-parameters-priors}
 
-We defined a model as containing a parameterized likelihood function, and, if it is a Bayesian model, also a prior distribution distribution:
+We defined a model as containing a parameterized likelihood function, and, if it is a Bayesian model, also a prior distribution over parameter values:
 
 $$ 
 \begin{align*}
@@ -196,15 +196,15 @@ $$
 
 More needs to be said about what a parameter is, what a prior distribution $P_M(\theta)$ is, and what the difference is between a non-Bayesian / frequentist model without priors over $\theta$ and a Bayesian model with priors over $\theta$.
 
-The running example for this section is the **Binomial Model**, which is also included in the cast of main characters in Section \@ref(Chap-03-03-models-examples).^[We should actually speak of a class of (infinitely many) models, all sharing the same likelihood function. Sloppily, we still speak of "the" Binomial Model.] The Binomial Model is a generalization of [the urn-model covered in the previous section](Chap-03-03-models-general-urn-example). We imagine a flip of a coin with bias $\theta \in [0;1]$, which is flipped $N$ times. We are interested in the number $k$ of heads (represented as an outcome of 1). The likelihood function for this model is the [Binomial distribution](app-91-distributions-binomial):
+The running example for this section is the **Binomial Model**, which is also included in the cast of fine characters in Section \@ref(Chap-03-03-models-examples).^[We should actually speak of a class of (infinitely many) models, all sharing the same likelihood function. Sloppily, we still speak of "the" Binomial Model.] The Binomial Model is a generalization of [the urn-model covered in the previous section](Chap-03-03-models-general-urn-example). We imagine a flip of a coin with bias $\theta \in [0;1]$, which is flipped $N$ times. We are interested in the number $k$ of heads (where each outcome of heads is represented as the number 1, and a tails outcome is represented by number 0). The likelihood function for this model is the [Binomial distribution](app-91-distributions-binomial):
 
 $$ P_M(k \mid \theta, N) = \text{Binomial}(k, N, \theta) = \binom{N}{k}\theta^k(1-\theta)^{N-k} $$
 
-As a concrete application case, we consider a case with $N=24$ flips and $k=7$ head outcomes.
+As a concrete example, we consider a case with $N=24$ flips and $k=7$ head outcomes.
 
 ### What's a model parameter?
 
-Parameters are defined by their role: changing a model parameter changes the likelihood of the data. Figure \@ref{ch-03-02-LH-Binomial-Model} shows the likelihood function of the Binomial Model for $\theta \in [0;1]$. 
+Parameters are defined by their role: changing a model parameter changes the likelihood of the data. Figure \@ref(ch-03-02-LH-Binomial-Model) shows the likelihood function of the Binomial Model for $\theta \in [0;1]$. 
 
 ```{r ch-03-02-LH-Binomial-Model, fig.cap= "Likelihood function for the Binomial Model, for $k=7$ and $N=24$.", echo = F}
 # data
@@ -224,7 +224,7 @@ tibble(
   )
 ```
 
-Several things are important to note, even though their significance might only reveal itself in full much later. Firstly, since there is a direct influence of a model parameter on the likelihood of data observations, we might be able to express subjective beliefs about that parameter value, even if the paramter itself is not clearly interpretable in intuitive ways. In other words, we might hold beliefs about the likelihood of the data, and we might express these beliefs by beliefs about likelihood parameter vectors. Secondly, not all parameters are equal. Some parameters may have a much stronger effect on the likelihood than others (all else equal). Just counting the number of model parameters as an indicator of model complexity will therefore not be enough.
+Several things are important to note, even though their significance might only reveal itself in full much later. Firstly, since there is a direct influence of a model parameter on the likelihood of data observations, we might be able to express subjective beliefs about that parameter value, even if the paramter itself is not clearly interpretable in intuitive ways. In other words, we might not have intuitions about numerical values of abstract paramters, but we might nonetheless hold beliefs about the likelihood of the data that results from setting abstract parameter values one way or another. Therefore, we might get access to our (implicit) beliefs about parameter values via (more explicable) intuitions about the data. Secondly, not all parameters are equal. Some parameters may have a much stronger effect on the likelihood than others (all else equal). Just counting the number of model parameters as an indicator of model complexity will therefore not be enough. (This will be important when we look at different ways of comparing models in Section \@ref(Chap-03-06-model-comparison).)
 
 ### Priors over parameters
 
@@ -238,9 +238,15 @@ There are three main types of motivations for priors $P_M(\theta)$, and it is po
 2. **Objective priors** are priors that, as some argue, *should* be adopted for a given likelihood function to avoid conceptually paradoxical consequences.
 3. **Practical priors** are priors that are used because they simplify a mathematical calculation or a computer simulation.
 
-Orthogonally to the kind of motivation given for a prior, we can distinguish different priors based on how strongly they commit the modeller to a particular range of parameter values. The most extreme case are **uninformative priors** which assign the same level of credence to all paramter values. Uninformative priors are also called *flat priors* because they express themselves as flat lines for discrete probability distributions and continuous distributions defined over a finite (convex) interval. It is possible to maneuver uninformative priors also for continuous distributions defined over an unbounded interval, in which case we speak of *improper priors* (to remind ourselves that, mathematically, we are doing something tricky). Informative priors, on the other hand, can be weakly informative or strongly informative, depending on how much commitment they express. The most extreme case of commitment would be expressed in a **point-valued prior**, which puts all probabiliy on a single value of a parameter. Since this is no longer a respectable probability distribution, although it satisfies the definition, we speak of a *degenerate prior* here. 
+Orthogonally to the kind of motivation given for a prior, we can distinguish different priors based on how strongly they commit the modeller to a particular range of parameter values. The most extreme case are **uninformative priors** which assign the same level of credence to all paramter values. Uninformative priors are also called *flat priors* because they express themselves as flat lines for discrete probability distributions and continuous distributions defined over an interval with finite lower and upper bounds. It is possible to maneuver uninformative priors also for continuous distributions defined over an unbounded interval, in which case we speak of *improper priors* (to remind ourselves that, mathematically, we are doing something tricky). Informative priors, on the other hand, can be *weakly informative* or *strongly informative*, depending on how much commitment they express. The most extreme case of commitment would be expressed in a **point-valued prior**, which puts all probabiliy on a single value of a parameter. Since this is no longer a respectable probability distribution, although it satisfies the definition, we speak of a *degenerate prior* here. 
 
-Figure \@ref(ch-03-02-models-types-of-priors) shows examples of objective, uninformative, as well as weakly or strongly informative priors for the Binomial Model.^[We will not go into the topic of objective priors in this course. This is a topic we must reserve for a follow-up course. It is therefore also not important to "see" from Figure \@ref(ch-03-02-models-types-of-priors) how or why the curve shown in an objective prior. For what it's worth, the objective prior shown here is given by $\theta \sim \text{Beta}(0.5,0.5)$.]
+Figure \@ref(fig:ch-03-02-models-types-of-priors) shows examples of objective, uninformative, as well as weakly or strongly informative priors for the Binomial Model.^[We will not go into the topic of objective priors in this course. This is a topic we must reserve for a follow-up course. It is therefore also not important to "see" from Figure \@ref(fig:ch-03-02-models-types-of-priors) how or why the curve shown in an objective prior.] The priors shown here (resulting in four different Bayesian models all falling inside the family of Binomial Models) are as follows:
+
+- *objective* : $\theta \sim \text{Beta}(0.5,0.5)$
+- *uninformative* : $\theta \sim \text{Beta}(1,1)$
+- *weakly informative* : $\theta \sim \text{Beta}(2,3)$
+- *strongly informative* : $\theta \sim \text{Beta}(20,30)$
+
 
 ```{r ch-03-02-models-types-of-priors, echo = F, fig.cap = "Examples of different kinds of Bayesian priors for the coin bias $\theta$ in the Binomial Model."}
 
@@ -262,7 +268,7 @@ tibble(
   labs(
     x = latex2exp::TeX("Coin bias $\\theta$"),
     y = latex2exp::TeX("Prior probability $P_{M_i}(\\theta)$"),
-    title = latex2exp::TeX("Different kinds of prior probability of coin bias $\\theta$ for the Binomial Model.")
+    title = latex2exp::TeX("Different kinds of priors over bias $\\theta$ (Binomial Model family).")
   ) 
 
 ```
@@ -270,11 +276,57 @@ tibble(
 
 ### Two notions of probability (revisited)
 
-To understand why frequentist models do not have priors, but Bayesian models do, we need to revisit the interpretaion of the notion of probability, in particular frequentism and subjectivism. We should be reminded that although both notions imply different approaches how to deal with probabilities, the mathematical properties are quite similar [@kruschke2015].
+To understand why frequentist models do not have priors, but Bayesian models do, we need to revisit the interpretaion of the notion of probability, in particular frequentism and subjectivism. We should be reminded that although both notions imply different approaches to the problem of how to deal with probabilities, the mathematical properties are quite similar [@kruschke2015].
 
-A crude and overly simplified version of why frequentist models do not contain priors is this. Extreme frequentism denies that a probability distribution over a latent parameter like $\theta$ is meaningful. It cannot be justified or defended in a scientifically rigorous manner. The only statements about probabilities that are conceptually sound, according to a frequentist interpretation, are those that derive from intuitions about limiting frequencies when (hypothetically) performing a random process (like throwing a dice or drawing a ball from an urn). Bluntly put, there is no ``(thought) experiment'' which can be repeated so that its objective results, on average, align with whatever subjective prior beliefs the Bayesian analysis needs. As a result, the frequentist approach to statistical inference needs alternative methods for parameter estimation --- methods that do \emph{not} rely on (subjective) priors $P(\theta)$.
+A crude and overly simplified version of why frequentist models do not contain priors is this. Extreme frequentism denies that a probability distribution over a latent parameter like $\theta$ is meaningful. It cannot be justified or defended in a scientifically rigorous manner. The only statements about probabilities that are conceptually sound, according to a fundamentalist frequentist interpretation, are those that derive from intuitions about limiting frequencies when (hypothetically) performing a random process (like throwing a dice or drawing a ball from an urn). Bluntly put, there is no ``(thought) experiment'' which can be repeated so that its objective results, on average, align with whatever subjective prior beliefs the Bayesian analysis needs. As a result, the frequentist approach to statistical inference needs alternative methods for parameter estimation --- methods that do \emph{not} rely on (subjective) priors $P(\theta)$.
 
-In contrast, a parameter in *Bayesian approaches* is conceptualized as a random variable with its own distribution (the posterior) that summarizes the current state of knowledge or a hypothetical state of belief which to assume serves good practical purposes. 
+Of course, the objections to the use of priors could be less fundamentalist. Researchers who have no metaphysical troubles with subjective priors in principle might reject the use of priors in data analysis because they feel that the necessity to specify priors is a burden or a spurious degree of freedom in empirical science that is best avoided in order to stay as objective, procedurally systematic, defaultist and streamlined as possible.
+
+In contrast, adopters of Bayesian practices see added value in using priors (expression of prior knowledge, practicality) that exceeds any conceptual or procedural difficulties they see in the process of specification of priors. When uncertain about a particular choice of prior, a good Bayesian practice is a *robustness analysis*: exploring how conclusions or decisions actually depend on the specification of the prior. As we will see, given enough data, the effect of prior specifications can be washed out. This is intuitive: no matter what you believe initially, given enough empirical evidence you will eventually be persuaded to leave your original beliefs behind.
+
+### Prior predictions
+
+The inclusion or omission of priors also has straightforward technical consequences. Bayesian models make predictions about how likely a particular data outcome is, even before having seen any data at all. Frequentist models do not (unless they assume uninformative priors implicitly, makinig them a Bayesian model).
+
+The (Bayesian) **prior predictive distribution** of model $M$ is a probability distribution over future or hypothetical data observations:
+
+$$ 
+\begin{align}
+P_M(D)  & = \sum_{\theta} P_M(D \mid \theta) \ P_M(\theta)  && \text{[discrete parameter space]} \\
+P_M(D)  & = \int P_M(D \mid \theta) \ P_M(\theta) \ \text{d}\theta  && \text{[continuous parameter space]}
+\end{align}
+
+$$
+
+The formula above is obtained by marginalization over parameter values (represented here as an integral for the continuous case). If we do not want to commit to any relative weighing of parameters, not even an uninformative equal weighing of all parameter values, there is no way in which we can derive predictions of a model. 
+
+In the case of the Binomial Model when we use a Beta prior over $\theta$, the prior predictive distribution is the prominent that it has its own name and fame. It's called the [Beta-binomial distribution](app-91-distributions-beta-binomial). Figure \@ref(fig:ch-03-02-models-prior-predictives-binomial) shows the prior predictives for the four kinds of priors we looked at before when $N = 24$.
+
+```{r ch-03-02-models-prior-predictives-binomial, echo = F, fig.cap = "Prior predicitive distributions for Binomial Models with different kind of Beta-priors."}
+
+tibble(
+  x = seq(from = 0, to = 24),
+  objective = dbbinom(x, size = trials, alpha = 0.5, beta = 0.5),
+  uninformative = dbbinom(x, size = trials, alpha = 0.5, beta = 0.5),
+  `weakly informative` = dbbinom(x, size = trials, alpha = 2, beta = 3),
+  `strongly informative` = dbbinom(x, size = trials, alpha = 20, beta = 30)
+) %>% 
+  pivot_longer(
+    cols = -1,
+    names_to  = "prior_type",
+    values_to = "prior"
+  ) %>% 
+  ggplot(aes(x = x, y = prior)) +
+  geom_col() +
+  facet_wrap(~ prior_type, ncol = 2, scales = "free") +
+  labs(
+    x = latex2exp::TeX("Number of heads $k$"),
+    y = latex2exp::TeX("Prior predictive probability $P_{M_i}(k)$"),
+    title = latex2exp::TeX("Prior predictives for different kinds Binomial Models.")
+  ) 
+
+```
+
 
 ## Three pillars of data analysis {#Chap-03-03-models-three-pillars}
 
@@ -290,10 +342,10 @@ Table \@ref(tab:ch-03-03-pillars-of-DA) lists the most common / salient methods 
 
 ```{r ch-03-03-pillars-of-DA, echo = F}
 table_data <- tribble(
-  ~goal, ~frequentist, ~Bayesian,
-  "inference", "MLE: $\\hat{\\theta} = \\arg \\max_{\\theta}\  P_M(D \\mid \\theta)$", "posterior: $P_M(\\theta \\mid D)$",
-  "comparison", "AIC, LR-test", "Bayes factor",
-  "prediction", "MLE-based: $P_M(D_{rep} \\mid \\hat{\\theta})$", "Posterior-based: $P_M(D_{rep} \\mid D)$"
+  ~goal, ~target, ~frequentist, ~Bayesian,
+  "inference", "$\\theta$",  "MLE: $\\hat{\\theta} = \\arg \\max_{\\theta}\  P_M(D \\mid \\theta)$", "posterior: $P_M(\\theta \\mid D)$",
+  "comparison", "$M$", "AIC, LR-test", "Bayes factor",
+  "prediction", "$D$", "MLE-based: $P_M(D_{rep} \\mid \\hat{\\theta})$", "Posterior-based: $P_M(D_{rep} \\mid D)$"
 )
 knitr::kable(
   table_data,
