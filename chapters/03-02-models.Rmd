@@ -13,25 +13,17 @@ There is room for divergence in how to think about a statistical model, the assu
 > All models are wrong, but some are useful.
 > --- @Box1979:Robustness-in-t
 
-To become familiar with model-based data analysis, Section \@ref(Chap-03-03-models-general) introduces the concept of a **probabilisic statistical model** and explains key notions, such as *likelihood function*, *prior*, *free parameter* or *model predictions*. Section \@ref(Chap-03-03-models-representation) expands on the notation, both formulaic and graphical, which we will use in this book to communicate about models.
-
-FILL ME
+To become familiar with model-based data analysis, Section \@ref(Chap-03-03-models-general) introduces the concept of a **probabilisic statistical model**. Section \@ref(Chap-03-03-models-parameters-priors) enlarges on the crucial aspects of parameters and priors. Section \@ref(Chap-03-03-models-three-pillars) introduces the three types of statistical goals that we can use models to help us with. Section \@ref(Chap-03-03-models-representation) expands on the notation, both formulaic and graphical, which we will use in this book to communicate about models. Finally, Section \@ref(Chap-03-03-models-examples) discusses examples of interesting models, some of which we will use frequently in the following chapters.
 
 ```{block, type='infobox'}
 The learning goals for this chapter are:
 
 - become acquainted with statistical models
+- understand what parameters are and what priors can do
 - meet pivotal exemplars:
-  - binomial model
-  - Gaussian model
-  - the "t-test" model
-  - simple linear regression
-  - naive Bayesian classifier
+  - Binomial Model, T-Test Model, Simple Linear Regression
 - understand notation to communicate models
   - formulas & graphs
-- become able to implement a model in R
-- become able to derive predictions from a model in R
-
 ```
 
 
@@ -236,7 +228,7 @@ There are three main types of motivations for priors $P_M(\theta)$, and it is po
 
 1. **Subjective priors** capture the modeller's subjective beliefs in the sense described above.
 2. **Objective priors** are priors that, as some argue, *should* be adopted for a given likelihood function to avoid conceptually paradoxical consequences.
-3. **Practical priors** are priors that are used because they simplify a mathematical calculation or a computer simulation.
+3. **Practical priors** are priors that are used pragmatically because of their specific usefulness, e.g., because they simplify a mathematical calculation or a computer simulation, or because they help in statistical reasoning, such as when *skeptical priors* are formulated that work against a particular conclusion.
 
 Orthogonally to the kind of motivation given for a prior, we can distinguish different priors based on how strongly they commit the modeller to a particular range of parameter values. The most extreme case are **uninformative priors** which assign the same level of credence to all paramter values. Uninformative priors are also called *flat priors* because they express themselves as flat lines for discrete probability distributions and continuous distributions defined over an interval with finite lower and upper bounds. It is possible to maneuver uninformative priors also for continuous distributions defined over an unbounded interval, in which case we speak of *improper priors* (to remind ourselves that, mathematically, we are doing something tricky). Informative priors, on the other hand, can be *weakly informative* or *strongly informative*, depending on how much commitment they express. The most extreme case of commitment would be expressed in a **point-valued prior**, which puts all probabiliy on a single value of a parameter. Since this is no longer a respectable probability distribution, although it satisfies the definition, we speak of a *degenerate prior* here. 
 
@@ -450,7 +442,7 @@ knitr::include_graphics("visuals/binomial-model.png")
 
 ### Multiple observations
 
-When we have several observations, like in the avocado price data set, we use indexed variables. For exmple, the likelihood function handled in Section \@ref(hap-03-03-models-general) for modeling avocado prices as a function the type of avocado was previously written like so:
+When we have several observations, like in the avocado price data set, we use indexed variables. For exmple, the likelihood function handled in Section \@ref(Chap-03-03-models-general) for modeling avocado prices as a function the type of avocado was previously written like so:
 
 $$ P_M(\vec{y} \mid \vec{x}, \theta) = 
 \prod_{i = 1}^k x_i \ \text{Normal}(y_i, \mu_c, \sigma_c) \ + \ (1- x_i) \  \text{Normal}(y_i, \mu_o, \sigma_o)  $$
@@ -569,11 +561,14 @@ In a Bayesian approach, the priors over parameter could use a normal distributio
 knitr::include_graphics("visuals/t-test-model.png")
 ```
 
+A point of general importance can be made in connection to this example. It is possible to built prior structures around the same likelihood function. Some parameterizations can be more useful for a given purpose than others. Some parameterization make it easier to formalize prior domain knowledge than others. To see this, consider the case at hand where we might be specifically interested in the question of how big the difference between the means is. We can therefore also level the model shown in Figure \@ref(fig:ch-03-02-T-Test-Model-Difference).
 
 
 ```{r ch-03-02-T-Test-Model-Difference, echo = F, out.width = '70%', fig.cap="A T-Test Model where one group is the default and the difference between group means is explicitly coded as a parameter."}
 knitr::include_graphics("visuals/t-test-model-difference.png")
 ```
+
+The variant of the T-Test Model, formulated in terms of differences betwen groups, in Figure \@ref(fig:ch-03-02-T-Test-Model-Difference) is what is usually used in common practice. The advantage is, for example, that it is easy to address the question whether the means are identical, a case which is represented by a single parameter value $\delta = 0$ (rather than an infinite set of pairs $\mu_0 = \mu_1$). It is also easier to specify beliefs about the differences between groups. The prior on $\delta$ in Figure \@ref(fig:ch-03-02-T-Test-Model-Difference) assumes that we expect *a priori* that $\delta = 0$, but specifying different standard deviations for this prior allows to formalize different degrees of certainty. We could for example use a *skeptical prior*, i.e., an initial model configuration that is skeptical about a group difference, if the standard deviation is set very low.
 
 ### Simple Linear Regression Model
 
@@ -665,7 +660,7 @@ avocado_data %>%
 
 Towards a model that computes these linear regression lines, one for each group, that is in line with the idea introduced above that, for the purposes of inference and testing, we might like to represent differences between groups as $\delta$ parameters in a model, let's assume that the type of advocado is our grouping variable $g_i$. The default group (say: conventional avocados) has $g_i = 0$, the other group has $g_i = 1$. The first group gets "its own" intercept $\beta_0$ and slope $\beta_1$. The second group gets additive offsets $\delta_0$ and $\delta_1$ for its slope and intercept, respectively. The full model is shown in Figure \@ref(fig:ch-03-02-Linear-Regression-Groups).
 
-```{r ch-03-02-Linear-Regression-Groups, echo = F, out.width = '70%', fig.cap="The Linear Regression with Two Groups Model."}
+```{r ch-03-02-Linear-Regression-Groups, echo = F, out.width = '80%', fig.cap="The Linear Regression with Two Groups Model."}
 knitr::include_graphics("visuals/linear-regression-with-groups.png")
 ```
 
