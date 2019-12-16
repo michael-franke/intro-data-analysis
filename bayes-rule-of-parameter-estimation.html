@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="ch-03-04-parameter-inference.html"/>
-<link rel="next" href="prior-posterior.html"/>
+<link rel="next" href="ch-03-05-hypothesis-testing.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -309,9 +309,8 @@ code span.wa { color: #bf0303; } /* Warning */
 </ul></li>
 <li class="chapter" data-level="9" data-path="ch-03-04-parameter-inference.html"><a href="ch-03-04-parameter-inference.html"><i class="fa fa-check"></i><b>9</b> Parameter estimation</a><ul>
 <li class="chapter" data-level="9.1" data-path="bayes-rule-of-parameter-estimation.html"><a href="bayes-rule-of-parameter-estimation.html"><i class="fa fa-check"></i><b>9.1</b> Bayes rule of parameter estimation</a><ul>
-<li class="chapter" data-level="9.1.1" data-path="bayes-rule-of-parameter-estimation.html"><a href="bayes-rule-of-parameter-estimation.html#the-effects-of-prior-and-likelihood"><i class="fa fa-check"></i><b>9.1.1</b> The effects of prior and likelihood</a></li>
+<li class="chapter" data-level="9.1.1" data-path="bayes-rule-of-parameter-estimation.html"><a href="bayes-rule-of-parameter-estimation.html#the-effects-of-prior-and-likelihood-on-the-posterior"><i class="fa fa-check"></i><b>9.1.1</b> The effects of prior and likelihood on the posterior</a></li>
 </ul></li>
-<li class="chapter" data-level="9.2" data-path="prior-posterior.html"><a href="prior-posterior.html"><i class="fa fa-check"></i><b>9.2</b> Prior &amp; Posterior</a></li>
 </ul></li>
 <li class="chapter" data-level="10" data-path="ch-03-05-hypothesis-testing.html"><a href="ch-03-05-hypothesis-testing.html"><i class="fa fa-check"></i><b>10</b> Hypothesis Testing</a></li>
 <li class="chapter" data-level="11" data-path="Chap-03-06-model-comparison.html"><a href="Chap-03-06-model-comparison.html"><i class="fa fa-check"></i><b>11</b> Model Comparison</a></li>
@@ -415,7 +414,7 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="bayes-rule-of-parameter-estimation" class="section level2">
 <h2><span class="header-section-number">9.1</span> Bayes rule of parameter estimation</h2>
-<p>Fix a Bayesian model <span class="math inline">\(M\)</span> with likelihood function <span class="math inline">\(P_M(D \mid \theta)\)</span> and prior over parameters <span class="math inline">\(P_M(\theta)\)</span>. Assume we observed data <span class="math inline">\(D\)</span>. We then update our prior beliefs <span class="math inline">\(P_M(\theta)\)</span> to obtained posterior beliefs by Bayes rule:</p>
+<p>Fix a Bayesian model <span class="math inline">\(M\)</span> with likelihood <span class="math inline">\(P_M(D \mid \theta)\)</span> for observed data <span class="math inline">\(D\)</span> and prior over parameters <span class="math inline">\(P_M(\theta)\)</span>. We then update our prior beliefs <span class="math inline">\(P_M(\theta)\)</span> to obtained posterior beliefs by Bayes rule:</p>
 <p><span class="math display">\[P(\theta \mid D) = \frac{P(D \mid \theta) \ P(\theta)}{P(D)}\]</span></p>
 <p>The ingredients of this equation are:</p>
 <ul>
@@ -428,15 +427,23 @@ beliefs about how likely each value of <span class="math inline">\(\theta\)</spa
 <li>the <strong>marginal likelihood</strong> <span class="math inline">\(P(k) = \int P(k \mid \theta) \times P(\theta) \ \text{d}\theta\)</span>
 specifying how likely an observation of <span class="math inline">\(k\)</span> is under our prior beliefs about <span class="math inline">\(\theta\)</span>.</li>
 </ul>
-<div id="the-effects-of-prior-and-likelihood" class="section level3">
-<h3><span class="header-section-number">9.1.1</span> The effects of prior and likelihood</h3>
 <p>A frequently used shorthand notation for probabilities is this:</p>
 <p><span class="math display">\[ P(\theta \mid D) \propto  P(D \mid \theta) \ P(\theta)\]</span></p>
 <p>where the “proportional to” sign <span class="math inline">\(\propto\)</span> indicates that the probabilities on the LHS are defined in terms of the quantity on the RHS after normalization. So, if <span class="math inline">\(F \colon x \mapsto \mathbb{R}^+\)</span> is a positive function of non-normalized probabilities, <span class="math inline">\(P(x) \propto F(x)\)</span> is equivalent to <span class="math inline">\(P(x) = \frac{F(x)}{\sum_{x&#39;} F(x&#39;)}\)</span>.</p>
 <p>This notation makes particularly clear that the posterior distribution is a “mix” of prior and likelihood. Let’s explore this first, before worrying how to compute posteriors concretely.</p>
-<p>Our running examples for this section is the case of flipping a coin with unknown bias <span class="math inline">\(\theta\)</span> a total of <span class="math inline">\(N\)</span> times and observig <span class="math inline">\(k\)</span> heads (= successes). We model this with the <strong>Binomial Model</strong> (see Section <a href="Chap-03-03-models-examples.html#Chap-03-03-models-examples">8.5</a>), using priors expressed with a <a href="app-91-distributions-beta">Beta distribution</a>, giving us a model specification as:</p>
-<p><span class="math display">\[ k \sim \text{Binomial}(N, \theta), \ \ \ \ \theta \sim \text{Beta}(\alpha, \beta) \]</span></p>
-<p>To study the impact of the liklihood function. Let’s compare two data sets. The first one is our running “24/7” example where <span class="math inline">\(N = 24\)</span> and <span class="math inline">\(k = 7\)</span>. The second example uses a much larger naturalistic data set stemming from the <a href="app-93-data-sets-king-of-france">King of France</a> example, namely <span class="math inline">\(k = 109\)</span> for <span class="math inline">\(N=311\)</span>. These numbers are the count of “true” responses for all conditions except for Condition 1, which did not involve a presupposition.</p>
+<div id="the-effects-of-prior-and-likelihood-on-the-posterior" class="section level3">
+<h3><span class="header-section-number">9.1.1</span> The effects of prior and likelihood on the posterior</h3>
+<p>We consider the case of flipping a coin with unknown bias <span class="math inline">\(\theta\)</span> a total of <span class="math inline">\(N\)</span> times and observig <span class="math inline">\(k\)</span> heads (= successes). This is modeled with the <strong>Binomial Model</strong> (see Section <a href="Chap-03-03-models-examples.html#Chap-03-03-models-examples">8.5</a>), using priors expressed with a <a href="app-91-distributions-beta">Beta distribution</a>, giving us a model specification as:</p>
+<p><span class="math display">\[ 
+\begin{aligned}
+k &amp; \sim \text{Binomial}(N, \theta) \\ 
+\theta &amp; \sim \text{Beta}(\alpha, \beta)
+\end{aligned}
+\]</span></p>
+<div style="float:right; width:8%;">
+<p><img src="visuals/skull_king.png" alt="badge-data-wrangling"></p>
+</div>
+<p>To study the impact of the likelihood function, we compare two data sets. The first one is the contrived “24/7” example where <span class="math inline">\(N = 24\)</span> and <span class="math inline">\(k = 7\)</span>. The second example uses a much larger naturalistic data set stemming from the <a href="app-93-data-sets-king-of-france">King of France</a> example, namely <span class="math inline">\(k = 109\)</span> for <span class="math inline">\(N=311\)</span>. These numbers are the count of “true” responses for all conditions except for Condition 1, which did not involve a presupposition.</p>
 <div class="sourceCode" id="cb356"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb356-1" data-line-number="1">data_KoF_cleaned &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/king-of-france_data_raw.csv&#39;</span>))</a></code></pre></div>
 <div class="sourceCode" id="cb357"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb357-1" data-line-number="1">data_KoF_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb357-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(condition <span class="op">!=</span><span class="st"> &quot;Condition 1&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
@@ -448,25 +455,33 @@ specifying how likely an observation of <span class="math inline">\(k\)</span> i
 ##   &lt;lgl&gt;    &lt;int&gt;
 ## 1 FALSE      202
 ## 2 TRUE       109</code></pre>
-<ul>
-<li>plot likelihood</li>
-</ul>
-<p>Picking up the example from Section <a href="Chap-03-03-models-parameters-priors.html#Chap-03-02-models-priors">8.2.2</a>, we willl consider the four types of priors in Figure <a href="#ch-03-03-estimation-types-of-priors"><strong>??</strong></a>.</p>
-<div class="figure" style="text-align: center"><span id="fig:ch-03-03-estimation-types-of-priors"></span>
-<img src="I2DA_files/figure-html/ch-03-03-estimation-types-of-priors-1.png" alt="Examples of different kinds of Bayesian priors for coin bias $ heta$ in the Binomial Model." width="672" />
+<p>We can plot the likelihood function for both data sets like so:</p>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-244"></span>
+<img src="I2DA_files/figure-html/unnamed-chunk-244-1.png" alt="Likelihood for the two examples of bimoial data." width="672" />
 <p class="caption">
-Figure 9.1: Examples of different kinds of Bayesian priors for coin bias $ heta$ in the Binomial Model.
+Figure 9.1: Likelihood for the two examples of bimoial data.
 </p>
 </div>
+<p>Picking up the example from Section <a href="Chap-03-03-models-parameters-priors.html#Chap-03-02-models-priors">8.2.2</a>, we willl consider the four types of priors show below:</p>
+<div class="figure" style="text-align: center"><span id="fig:ch-03-03-estimation-types-of-priors"></span>
+<img src="I2DA_files/figure-html/ch-03-03-estimation-types-of-priors-1.png" alt="Examples of different kinds of Bayesian priors for the Binomial Model." width="672" />
+<p class="caption">
+Figure 9.2: Examples of different kinds of Bayesian priors for the Binomial Model.
+</p>
+</div>
+<p>Combining the four different priors and the two different data sets, we see that the posterior is indeed a mix of prior and likelihood. In particular we see that the strong informative prior has only little effect if there are many data points (the KoF data).</p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-245-1.png" width="672" style="display: block; margin: auto;" /></p>
+
 </div>
 </div>
+<!-- </div> -->
             </section>
 
           </div>
         </div>
       </div>
 <a href="ch-03-04-parameter-inference.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="prior-posterior.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="ch-03-05-hypothesis-testing.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
