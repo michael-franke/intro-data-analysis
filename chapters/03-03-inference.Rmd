@@ -1,5 +1,11 @@
 # Parameter estimation {#ch-03-04-parameter-inference}
 
+<hr>
+
+<div style = "float:right; width:40%;">
+<img src="visuals/badge-estimation.png" alt="badge estimation">  
+</div>  
+
 Based on a model $M$ with parameters $\theta$, parameter estimation addresses the question of which values of $\theta$ are good estimates, given some data $D$. Bayesian and frequentist approaches differ in what they consider a good, or the best estimate. Bayesian approaches take the prior into account, frequentist approaches do not (unsurprisingly). 
 
 Parameter estimation is traditionally governed by two measures: (i) a point-estimate for the best parameter value, and (ii) an interval-estimate for a range of values that are considered "good enough". Table \@ref(tab:ch-03-03-estimation-overview) gives the most salient answers that each approach gives.
@@ -50,7 +56,7 @@ FILL ME: structure / learning goals
 
 ## Bayes rule of parameter estimation
 
-Fix a Bayesian model $M$ with likelihood function $P_M(D \mid \theta)$ and prior over parameters $P_M(\theta)$. Assume we observed data $D$. We then update our prior beliefs $P_M(\theta)$ to obtained posterior beliefs by Bayes rule:
+Fix a Bayesian model $M$ with likelihood $P_M(D \mid \theta)$ for observed data $D$ and prior over parameters $P_M(\theta)$. We then update our prior beliefs $P_M(\theta)$ to obtained posterior beliefs by Bayes rule:
 
 $$P(\theta \mid D) = \frac{P(D \mid \theta) \ P(\theta)}{P(D)}$$
 
@@ -65,8 +71,6 @@ The ingredients of this equation are:
 - the **marginal likelihood** $P(k) = \int P(k \mid \theta) \mult P(\theta) \ \text{d}\theta$
   specifying how likely an observation of $k$ is under our prior beliefs about $\theta$.
 
-### The effects of prior and likelihood
-
 A frequently used shorthand notation for probabilities is this:
 
 $$ P(\theta \mid D) \propto  P(D \mid \theta) \ P(\theta)$$
@@ -75,11 +79,25 @@ where the "proportional to" sign $\propto$ indicates that the probabilities on t
 
 This notation makes particularly clear that the posterior distribution is a "mix" of prior and likelihood. Let's explore this first, before worrying how to compute posteriors concretely.
 
-Our running examples for this section is the case of flipping a coin with unknown bias $\theta$ a total of $N$ times and observig $k$ heads (= successes). We model this with the  **Binomial Model** (see Section \@ref(Chap-03-03-models-examples)), using priors expressed with a [Beta distribution](app-91-distributions-beta), giving us a model specification as: 
+### The effects of prior and likelihood on the posterior
 
-$$ k \sim \text{Binomial}(N, \theta), \ \ \ \ \theta \sim \text{Beta}(\alpha, \beta) $$
 
-To study the impact of the liklihood function. Let's compare two data sets. The first one is our running "24/7" example where $N = 24$ and $k = 7$. The second example uses a much larger naturalistic data set stemming from the [King of France](app-93-data-sets-king-of-france) example, namely $k = 109$ for $N=311$. These numbers are the count of "true" responses for all conditions except for Condition 1, which did not involve a presupposition. 
+
+We consider the case of flipping a coin with unknown bias $\theta$ a total of $N$ times and observig $k$ heads (= successes). This is modeled with the  **Binomial Model** (see Section \@ref(Chap-03-03-models-examples)), using priors expressed with a [Beta distribution](app-91-distributions-beta), giving us a model specification as: 
+
+$$ 
+\begin{aligned}
+k & \sim \text{Binomial}(N, \theta) \\ 
+\theta & \sim \text{Beta}(\alpha, \beta)
+\end{aligned}
+$$
+
+<div style = "float:right; width:8%;">
+<img src="visuals/skull_king.png" alt="badge-data-wrangling">  
+</div>  
+
+To study the impact of the likelihood function, we compare two data sets. The first one is the contrived "24/7" example where $N = 24$ and $k = 7$. The second example uses a much larger naturalistic data set stemming from the [King of France](app-93-data-sets-king-of-france) example, namely $k = 109$ for $N=311$. These numbers are the count of "true" responses for all conditions except for Condition 1, which did not involve a presupposition. 
+
 
 ```{r, echo = F}
 data_KoF_cleaned <- read_csv('data_sets/king-of-france_data_cleaned.csv')
@@ -96,21 +114,48 @@ data_KoF_cleaned %>%
   dplyr::count()
 ```
 
-- plot likelihood
+
+We can plot the likelihood function for both data sets like so:
+
+```{r, echo = F, fig.cap = "Likelihood for the two examples of bimoial data."}
+lh_tibble <- 
+  tibble(
+  theta = seq(0,1, length.out = 401),
+  `24/5` = dbinom(7, 24, theta),
+  `King of France` = dbinom(109, 311, theta)
+) 
+
+lh_tibble %>% 
+  pivot_longer(
+    cols = -1,
+    names_to = "example",
+    values_to = "likelihood"
+  ) %>% 
+  ggplot(aes(x = theta, y = likelihood, color = example)) +
+  geom_line(size = 3) +
+  facet_wrap(.~example, nrow = 2, scales = "free") +
+  guides(color = F) +
+    labs(
+    x = latex2exp::TeX("Coin bias $\\theta$"),
+    y = latex2exp::TeX("Prior probability $P_{M_i}(\\theta)$"),
+    title = latex2exp::TeX("Binomial likelihood function for different data sets.")
+  )
+```
 
 
-Picking up the example from Section \@ref(Chap-03-02-models-priors), we willl consider the four types of priors in Figure \@ref(ch-03-03-estimation-types-of-priors).
+Picking up the example from Section \@ref(Chap-03-02-models-priors), we willl consider the four types of priors show below:
 
-```{r ch-03-03-estimation-types-of-priors, echo = F, fig.cap = "Examples of different kinds of Bayesian priors for coin bias $\theta$ in the Binomial Model."}
-
-tibble(
+```{r ch-03-03-estimation-types-of-priors, echo = F, fig.cap = "Examples of different kinds of Bayesian priors for the Binomial Model."}
+prior_tibble <- tibble(
   theta = seq(0, 1, length.out = 401),
   objective = dbeta(theta, 0.5, 0.5),
   uninformative = dbeta(theta, 1, 1),
-  `weakly informative` = dbeta(theta, 2, 3),
-  `strongly informative` = dbeta(theta, 20, 30)
-) %>% 
-  pivot_longer(
+  `weakly informative` = dbeta(theta, 5, 2),
+  `strongly informative` = dbeta(theta, 50, 20)
+) 
+
+prior_tibble %>% 
+    pivot_longer(
     cols = -1,
     names_to = "prior_type",
     values_to = "prior"
@@ -126,64 +171,36 @@ tibble(
 
 ```
 
-## Prior & Posterior
+Combining the four different priors and the two different data sets, we see that the posterior is indeed a mix of prior and likelihood. In particular we see that the strong informative prior has only little effect if there are many data points (the KoF data).
 
-The clearest difference between frequentist and Bayesian methods is the incorporation of *prior information* in the Bayesian framework. The posterior distribution results by combining the likelihood with the prior information:
-
-$$Posterior \propto Prior \cdot Likelihood,$$
-or
-$$P(B|A) \propto P(B) \cdot P(A|B).$$
-
-When an uninformative (e.g. uniform) prior $P(B)$ is used then the posterior $P(B|A)$ is completely dependent on the data (likelihood) $P(A|B)$. The influence of the prior on the posterior depends on their relative weighting. Remember, the posterior is the conditional distribution of the parameter given the data. The mathematical procedure behind it is depicted by *Bayes' Theorem*.
-
-Consider for example a beta distribution with the parameters a and b: $\theta \sim Beta(a,b)$ for expressing prior knowledge. Assume further that the observed data are derived from a coin flip experiment, thus, the likelihood function is a bernoulli likelihood. The parameters of a beta distribution can be interpreted as $a=$no. of heads and $b = $no. of tails, or in other words: $n=a+b$. Consequently, Beta(1,1) has a lower weight and thus influence on the posterior than Beta(5,5).
-
-```{r ch-03-03-prior-distributions, echo = FALSE, fig.cap = "Uninformative vs. informative beta prior distribution."}
-tibble(
-  theta = theta,
-  y1 = dbeta(theta, shape1 = 1, shape2 = 1),
-  y2 = dbeta(theta, shape1 = 10, shape2 = 10)
-) %>%
-  pivot_longer(cols = starts_with("y"),
-               names_to  = "parameter",
-               values_to = "y") %>%
+```{r, echo = F}
+full_join(lh_tibble, prior_tibble, by = 'theta') %>% 
+    pivot_longer(
+    cols = 2:3,
+    names_to = "example",
+    values_to = "likelihood"
+  ) %>% 
+  pivot_longer(
+    cols = 2:5,
+    names_to = "prior_type",
+    values_to = "prior"
+  ) %>% 
   mutate(
-    parameter = case_when(parameter == "y1" ~ "(1,1)",
-                          parameter == "y2" ~ "(10,10)")
-  ) %>%
-
-ggplot(aes(theta, y, color = parameter)) +
+    posterior = likelihood * prior
+  ) %>%  
+  filter( posterior != Inf) %>% 
+  group_by( example, prior_type) %>% 
+  mutate(
+    posterior = posterior/sum(posterior)
+  ) %>% 
+  ggplot(aes(x = theta, y = posterior, color = example)) +
   geom_line(size = 2) +
-  labs(color = "X ~ Beta distribution", y = "Density", x = expression(theta))
+  guides(color = F) +
+  facet_grid(example ~ prior_type, scales = "free") +
+  labs(
+    x = latex2exp::TeX("Coin bias $\\theta$"),
+    y = latex2exp::TeX("Posterioro probability $P_{M_i}(\\theta \\, | \\, D)$"),
+    title = latex2exp::TeX("Posterior beliefs in $\\theta$ for different priors and data.")
+  ) 
 ```
 
-```{r ch-03-03-posterior-distributions, echo = FALSE, fig.cap = "Beta posterior distributions for different beta prior distributions and bernoulli likelihood."}
-
-tibble(
-  theta = theta,
-  y_prior1 = dbeta(theta, shape1 = 1, shape2 = 1),
-  y_prior2 = dbeta(theta, shape1 = 10, shape2 = 10),
-  likelihood = likelihood_bern$likelihood_norm,
-  y_likelihood = likelihood_bern$likelihood_norm, # only for legend
-  y_posterior1 = dbeta(theta, shape1 = likelihood_bern$k+1, shape2 = likelihood_bern$n-likelihood_bern$k+1),
-  y_posterior2 = dbeta(theta, shape1 = likelihood_bern$k+10, shape2 = likelihood_bern$n-likelihood_bern$k+10)
-) %>%
-  pivot_longer(cols = starts_with("y"),
-               names_to  = "parameter",
-               values_to = "y") %>%
-  mutate(
-    parameter = case_when(parameter == "y_prior1" ~ "Beta(1,1) - prior1",
-                          parameter == "y_prior2" ~ "Beta(10,10) - prior2",
-                          parameter == "y_likelihood" ~ "Bernoulli(18) - likelihood",
-                          parameter == "y_posterior1" ~ "Beta(19,13) - posterior1",
-                          parameter == "y_posterior2" ~ "Beta(28,22) - posterior2")
-  ) %>%
-
-ggplot() +
-  geom_line(aes(theta, y, color = parameter), size = 2) +
-  geom_line(aes(theta, likelihood), linetype = "dashed", size = 2, color = project_colors[2]) +
-  labs(x = expression(theta), y = "Density")
-
-```
-
-A lot of effort has been done in the area of "Objective Bayesian data analysis" in order to develop "uninformative prior distributions", because a lot of people feel uncomfortable using informative priors --- seeing them as biased or unscientific. On the contrary, most people interpret results based on their prior experiences and in this light, prior information is just a way to quantify this [@dobson2008]. It is "just" important that the definition of the prior distributions make sense (at every stage) in the model.
