@@ -6,7 +6,7 @@
 <img src="visuals/badge-models.png" alt="badge models">  
 </div>  
 
-Uninterpreted data is uninformative. We cannot generalize, draw inferences or attempt to make predictions unless we make (however minimal) assumptions about the data at hand: what it represents, how it came into existing, which parts relate to which other parts etc. One way of explicitly acknowledging these assumptions is to engage in model-based data analysis. **A statistical model is a conventionally condensed formal representation of the assumptions we make about what the data is and how it might have been generated.** In this way, model-based data analysis is more explicit about the analyst's assumptions than other approaches, such as test-based approaches, which we will encounter in Chapter \@ref(ch-03-05-hypothesis-testing). 
+Uninterpreted data is uninformative. We cannot generalize, draw estimations or attempt to make predictions unless we make (however minimal) assumptions about the data at hand: what it represents, how it came into existing, which parts relate to which other parts etc. One way of explicitly acknowledging these assumptions is to engage in model-based data analysis. **A statistical model is a conventionally condensed formal representation of the assumptions we make about what the data is and how it might have been generated.** In this way, model-based data analysis is more explicit about the analyst's assumptions than other approaches, such as test-based approaches, which we will encounter in Chapter \@ref(ch-03-05-hypothesis-testing). 
 
 There is room for divergence in how to think about a statistical model, the assumptions it encodes and truth. Some will want to reason with models using language like "if we assume that model $M$ is true, then ..." or "this shows convincingly that $M$ is likely to be the true model". Others feel very uncomfortable with such language. In times of heavy discomfort they might repeat their soothing mantra:
 
@@ -218,7 +218,7 @@ tibble(
 
 Several things are important to note, even though their significance might only reveal itself in full much later. Firstly, since there is a direct influence of a model parameter on the likelihood of data observations, we might be able to express subjective beliefs about that parameter value, even if the paramter itself is not clearly interpretable in intuitive ways. In other words, we might not have intuitions about numerical values of abstract paramters, but we might nonetheless hold beliefs about the likelihood of the data that results from setting abstract parameter values one way or another. Therefore, we might get access to our (implicit) beliefs about parameter values via (more explicable) intuitions about the data. Secondly, not all parameters are equal. Some parameters may have a much stronger effect on the likelihood than others (all else equal). Just counting the number of model parameters as an indicator of model complexity will therefore not be enough. (This will be important when we look at different ways of comparing models in Section \@ref(Chap-03-06-model-comparison).)
 
-### Priors over parameters
+### Priors over parameters {#Chap-03-02-models-priors}
 
 The prior distribution over parameter values $P_M(\theta)$ is an integral part of a model, when we adopt a Bayesian approach to data analysis. This entails that two (Bayesian) models can share the same likelihood function, and yet ought to be considered as different models. 
 
@@ -323,18 +323,18 @@ tibble(
 
 There are three main uses for models in statistical data analysis:
 
-1. **Parameter inference**: Based on model $M$ and data $D$, we try to infer which value of the parameter vector $\theta$ we should believe in, or work with (e.g., base our decision on). Paremeter inference can also serve knowledge gain, especially if (some component of) $\theta$ is theoretically interesting.
+1. **Parameter estimation**: Based on model $M$ and data $D$, we try to infer which value of the parameter vector $\theta$ we should believe in, or work with (e.g., base our decision on). Paremeter estimation can also serve knowledge gain, especially if (some component of) $\theta$ is theoretically interesting.
 2. **Model comparison**: If we formulate at least two alternative models, we can ask which model better explains or better predicts some data. In some of its guises, model comparison helps with the question of whether a given data set provides evidence in favor of one model and against another other, and if so, how much.
 3. **Prediction**: Models can also be used to make predictions about future or hypothetical data observations. 
 
-The frequentist and the Bayesian approach each have their own methods and techniques to do inference, comparison and prediction. Even within each approach (frequentist or Bayesian) and a particular goal (inference, comparison or prediction) there is not necessarily unanimity about the best method or technique. 
+The frequentist and the Bayesian approach each have their own methods and techniques to do estimation, comparison and prediction. Even within each approach (frequentist or Bayesian) and a particular goal (estimation, comparison or prediction) there is not necessarily unanimity about the best method or technique. 
 
 Table \@ref(tab:ch-03-03-pillars-of-DA) lists the most common / salient methods used for each goal in the frequentist and Bayesian approach. Large part of the remainder of this course will be dedicated to understanding the methods name-dropped in this table, and to compare them against each other and further, as of yet unmentioned alternatives. Chapter \@ref(Chap-03-06-model-comparison) deals with model comparison, Chapter \@ref(ch-03-04-parameter-inference). The second main goal of this course is to understand the relation between model-based data analysis, as summarized in Table \@ref(tab:ch-03-03-pillars-of-DA), to test-based approaches as described in Chapter \@ref(ch-03-05-hypothesis-testing) and Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
 
 ```{r ch-03-03-pillars-of-DA, echo = F}
 table_data <- tribble(
   ~goal, ~target, ~frequentist, ~Bayesian,
-  "inference", "$\\theta$",  "MLE: $\\hat{\\theta} = \\arg \\max_{\\theta}\  P_M(D \\mid \\theta)$", "posterior: $P_M(\\theta \\mid D)$",
+  "estimation", "$\\theta$",  "MLE: $\\hat{\\theta} = \\arg \\max_{\\theta}\  P_M(D \\mid \\theta)$", "posterior: $P_M(\\theta \\mid D)$",
   "comparison", "$M$", "AIC, LR-test", "Bayes factor",
   "prediction", "$D$", "MLE-based: $P_M(D_{rep} \\mid \\hat{\\theta})$", "Posterior-based: $P_M(D_{rep} \\mid D)$"
 )
@@ -347,7 +347,7 @@ knitr::kable(
 ```
 
 
-The three pillars of data analysis mentioned above are tightly related, of course. For one, model comparison is often parasitic on prediction: whereas prediction asks which data is to be expected, given the model, model comparison looks at how well a given data set is or would have been predicted by different models. For another, parameter inference and data predictions are something like each other's reverse operations. Let's elaborate on the latter briefly.
+The three pillars of data analysis mentioned above are tightly related, of course. For one, model comparison is often parasitic on prediction: whereas prediction asks which data is to be expected, given the model, model comparison looks at how well a given data set is or would have been predicted by different models. For another, parameter estimation and data predictions are something like each other's reverse operations. Let's elaborate on the latter briefly.
 
 If we flip a coin flip once, the likelihood of each outcome $x \in X = \{0;1\}$ (representing heads or tails, encoded as 1 and 0, respectively) can be modeled with the **Bernoulli distribution** as follows, where $\theta \in [0;1]$ is the coins bias towards landing heads:
 
@@ -657,7 +657,7 @@ avocado_data %>%
   )
 ```
 
-Towards a model that computes these linear regression lines, one for each group, that is in line with the idea introduced above that, for the purposes of inference and testing, we might like to represent differences between groups as $\delta$ parameters in a model, let's assume that the type of advocado is our grouping variable $g_i$. The default group (say: conventional avocados) has $g_i = 0$, the other group has $g_i = 1$. The first group gets "its own" intercept $\beta_0$ and slope $\beta_1$. The second group gets additive offsets $\delta_0$ and $\delta_1$ for its slope and intercept, respectively. The full model is shown in Figure \@ref(fig:ch-03-02-Linear-Regression-Groups).
+Towards a model that computes these linear regression lines, one for each group, that is in line with the idea introduced above that, for the purposes of estimation and testing, we might like to represent differences between groups as $\delta$ parameters in a model, let's assume that the type of advocado is our grouping variable $g_i$. The default group (say: conventional avocados) has $g_i = 0$, the other group has $g_i = 1$. The first group gets "its own" intercept $\beta_0$ and slope $\beta_1$. The second group gets additive offsets $\delta_0$ and $\delta_1$ for its slope and intercept, respectively. The full model is shown in Figure \@ref(fig:ch-03-02-Linear-Regression-Groups).
 
 ```{r ch-03-02-Linear-Regression-Groups, echo = F, out.width = '80%', fig.cap="The Linear Regression with Two Groups Model."}
 knitr::include_graphics("visuals/linear-regression-with-groups.png")
@@ -760,7 +760,7 @@ knitr::include_graphics("visuals/linear-regression-with-groups.png")
 
 <!-- Further steps that will be subject of later chapters: -->
 
-<!-- * Inference and interpretation of the results. -->
+<!-- * estimation and interpretation of the results. -->
 <!-- * Model checking (Is the defined model adequate?) -->
 
 <!-- *In the following we are interested in the question if a certain coin is biased.* -->
@@ -976,3 +976,26 @@ knitr::include_graphics("visuals/linear-regression-with-groups.png")
 <!--             '95|%' = quantile(value, probs = 0.975)) -->
 <!-- ``` -->
 
+
+
+## Expressing hypotheses with models
+
+Statistical estimation is used to address research questions of interest. In common practice, these research questions are most often spelled out as specific hypotheses about the values of paramters in a statistical model. Take the case of the [mental chronometry data](app-93-data-sets-mental-chronometry). Figure \@ref(fig:ch03-02-models-mc-density) shows the distribution of reaction times for different conditions (= blocks) in the experiment. An obvious research question of interest is whether discrimination takes longer than 'go/no-go' responses. We can map this onto a T-Test Model, for example, by focusing on the data from these two conditions only, and asking whether the value of the $\delta$ parameter is equal to zero.
+
+```{r ch03-02-models-mc-density, echo = F, fig.cap = "Density plots of the reaction times in the cleaned [mental chronometry data](app-93-data-sets-mental-chronometry) for each type of response measure taken."}
+mc_data_cleaned %>% 
+  ggplot(aes(x = RT, color = block, fill = block)) +
+  geom_density(alpha = 0.3)
+```
+
+The **research hypothesis** in this case would be that there is a difference between the two conditions. But what we consider is its logical negation: the **null hypothesis** is that there is no difference between the two conditions. Using a model-based approach we can cast the null hypothesis as a statement about a single value of a single parameter.
+
+It is possible to formulate hypotheses also about values of parameter tuples. It is also possible to formulate hypothesis as expresssions about regions, such as intervals, e.g., asking whether $\delta > 0$. But the majority of applications focuses on point-valued null hypothesis about a single parameter value.
+
+Suppose $\theta$ is a single parameter of model $M$. Our single-parameter, point-valued null hypothesis is that $\theta = x$. There are several approaches to addressing this null hypothesis when we take a model-based approached. These correspond with [the three goals of data analysis](Chap-03-03-models-three-pillars) formualted previously. 
+
+Firstly, we can use parameter estimation. We check whether $\theta = x$ squares with the parameter values we infer, given the model $M$ and the data $D$. This is what we will do in the following Chapter \@ref(ch-03-04-parameter-estimation). 
+
+Secondly, we might want to use a prediction-based approach. In that case, we could ask, for instance, whether a model which assumes that $\theta = x$ would predict the data observed, reversedly, whether $D$ would appear rather unlikely given $D$ and the assumption that $\theta = x$. This is the logic of classical hypothesis testing, except that the classical procedures do not routinely make the statistical models explicit. Chapter \@ref(ch-03-05-hypothesis-testing) will deal with this in more detail.
+
+Finally, we can also use model comparison to test hypotheses. In that case, we might compare a model which fixes $\theta = x$ to a model which allows $\theta$ to take on other values as well. Chapter \@ref(Chap-03-06-model-comparison) covers model comparison.

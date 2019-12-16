@@ -1,4 +1,43 @@
-# Parameter inference {#ch-03-04-parameter-inference}
+# Parameter estimation {#ch-03-04-parameter-inference}
+
+Based on a model $M$ with parameters $\theta$, parameter estimation addresses the question of which values of $\theta$ are good estimates, given some data $D$. Bayesian and frequentist approaches differ in what they consider a good, or the best estimate. Bayesian approaches take the prior in to account, frequentist approaches do not (unsurprisingly). 
+
+Parameter estimation is traditionally governed by two measures: (i) a point-estimate for the best parameter value, and (ii) an interval-estimate for a range of values that are considered "good enough". Table \@ref(tab:ch-03-03-estimation-overview) gives the most salient answers that each approach gives.
+
+```{r ch-03-03-estimation-overview, echo = F}
+table_data <- tribble(
+  ~estimate, ~Bayesian, ~frequentist,
+  "best value", "mean of posterior  posterior", "maximum likelihood estimate",
+  "interval range", "credible interval (HDI)", "confidence interval"
+)
+knitr::kable(
+  table_data,
+  escape = F,
+  caption = "Most common/salient methods of frequentist and Bayesian approaches for the three major goals of model-based data analysis. The abbreviations used are: MLE for 'maximum likelihood estimate', AIC for 'Akaike information criterion', LR-test for 'likelihood-ratio test' and $D_{rep}$ for 'repeat data'.", 
+  booktabs = TRUE
+)
+```
+
+
+```{block, type='infobox'}
+The learning goals for this chapter are:
+
+- understand how Bayes rule applies to parameter estimation
+  - role of prior and likelihood
+  - understand notion of conjugate prior
+- become familiar with and able to compute point-valued estimators
+  - frequentist: MLE
+  - Bayes: mean of posterior
+- become familiar with interval-range estimators
+  - frequentist: confidence intervals
+  - Bayesian: credible intervals
+- become able to compute Bayesian cred.intervals from posterior samples
+- understand conceptual differences and relative advantages of both approaches
+- 
+```
+
+
+FILL ME: structure / learning goals
 
 - MLE vs posterior
 - confidence intervals
@@ -9,7 +48,83 @@
   - variational Bayes
   - mcmc
 
+## Bayes rule of parameter estimation
 
+Fix a Bayesian model $M$ with likelihood function $P_M(D \mid \theta)$ and prior over parameters $P_M(\theta)$. Assume we observed data $D$. We then update our prior beliefs $P_M(\theta)$ to obtained posterior beliefs by Bayes rule:
+
+$$P(\theta \mid D) = \frac{P(D \mid \theta) \ P(\theta)}{P(D)}$$
+
+The ingredients of this equation are:
+
+- the **posterior distribution** $P(\theta \mid k)$ specifying our beliefs about how
+  likely each value of $\theta$ is given fixed $k$;
+- the **likelihood function** $P(k \mid \theta)$ specifying how likely each observation
+  of $k$ is for a fixed $\theta$ (here given by the binomial distribution);
+- the **prior distribution** $P(\theta)$ specifying our initial (aka.~*a priori*)
+  beliefs about how likely each value of $\theta$ might be;
+- the **marginal likelihood** $P(k) = \int P(k \mid \theta) \mult P(\theta) \ \text{d}\theta$
+  specifying how likely an observation of $k$ is under our prior beliefs about $\theta$.
+
+### The effects of prior and likelihood
+
+A frequently used shorthand notation for probabilities is this:
+
+$$ P(\theta \mid D) \propto  P(D \mid \theta) \ P(\theta)$$
+
+where the "proportional to" sign $\propto$ indicates that the probabilities on the LHS are defined in terms of the quantity on the RHS after normalization. So, if $F \colon x \mapsto \mathbb{R}^+$ is a positive function of non-normalized probabilities, $P(x) \propto F(x)$ is equivalent to $P(x) = \frac{F(x)}{\sum_{x'} F(x')}$.
+
+This notation makes particularly clear that the posterior distribution is a "mix" of prior and likelihood. Let's explore this first, before worrying how to compute posteriors concretely.
+
+Our running examples for this section is the case of flipping a coin with unknown bias $\theta$ a total of $N$ times and observig $k$ heads (= successes). We model this with the  **Binomial Model** (see Section \@ref(Chap-03-03-models-examples)), using priors expressed with a [Beta distribution](app-91-distributions-beta), giving us a model specification as: 
+
+$$ k \sim \text{Binomial}(N, \theta), \ \ \ \ \theta \sim \text{Beta}(\alpha, \beta) $$
+
+To study the impact of the liklihood function. Let's compare two data sets. The first one is our running "24/7" example where $N = 24$ and $k = 7$. The second example uses a much larger naturalistic data set stemming from the [King of France](app-93-data-sets-king-of-france) example, namely $k = 109$ for $N=311$. These numbers are the count of "true" responses for all conditions except for Condition 1, which did not involve a presupposition. 
+
+```{r, echo = F}
+data_KoF_cleaned <- read_csv('data_sets/king-of-france_data_cleaned.csv')
+```
+
+```{r, eval = F}
+data_KoF_cleaned <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/king-of-france_data_raw.csv'))
+```
+
+```{r}
+data_KoF_cleaned %>% 
+  filter(condition != "Condition 1") %>% 
+  group_by(response) %>% 
+  dplyr::count()
+```
+
+- plot likelihood
+
+
+Picking up the example from Section \@ref(Chap-03-02-models-priors), we willl consider the four types of priors in Figure \@ref(ch-03-03-estimation-types-of-priors).
+
+```{r ch-03-03-estimation-types-of-priors, echo = F, fig.cap = "Examples of different kinds of Bayesian priors for coin bias $\theta$ in the Binomial Model."}
+
+tibble(
+  theta = seq(0, 1, length.out = 401),
+  objective = dbeta(theta, 0.5, 0.5),
+  uninformative = dbeta(theta, 1, 1),
+  `weakly informative` = dbeta(theta, 2, 3),
+  `strongly informative` = dbeta(theta, 20, 30)
+) %>% 
+  pivot_longer(
+    cols = -1,
+    names_to = "prior_type",
+    values_to = "prior"
+  ) %>% 
+  ggplot(aes(x = theta, y = prior)) +
+  geom_line(size = 2) +
+  facet_wrap(~ prior_type, ncol = 2, scales = "free") +
+  labs(
+    x = latex2exp::TeX("Coin bias $\\theta$"),
+    y = latex2exp::TeX("Prior probability $P_{M_i}(\\theta)$"),
+    title = latex2exp::TeX("Different kinds of priors over bias $\\theta$ (Binomial Model family).")
+  ) 
+
+```
 
 ## Prior & Posterior
 
