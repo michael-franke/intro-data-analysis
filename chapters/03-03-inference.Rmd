@@ -390,16 +390,176 @@ $$
 P(\theta \mid D) & = \frac{P(\theta) \ P(D \mid \theta)}{ \int P(\theta') \ P(D \mid \theta') \text{d}\theta'} \\
 & = \frac{P(\theta) \ P(D_1 \mid \theta) \ P(D_2 \mid \theta)}{ \int P(\theta') \ P(D_1 \mid \theta') \ P(D_2 \mid \theta') \text{d}\theta'} & \text{[from multiplicativity of likelihood]} \\
 & = \frac{P(\theta) \ P(D_1 \mid \theta) \ P(D_2 \mid \theta)}{ \frac{k}{k} \int P(\theta') \ P(D_1 \mid \theta') \ P(D_2 \mid \theta') \text{d}\theta'} & \text{[for random positive k]} \\
-& = \frac{\frac{P(\theta) \ P(D_1 \mid \theta)}{k} \ P(D_2 \mid \theta)}{\int \frac{P(\theta') \ P(D_1 \mid \theta')}{k} \ P(D_2 \mid \theta') \text{d}\theta'} & \text{[rules of integration & basic calculus]} \\
+& = \frac{\frac{P(\theta) \ P(D_1 \mid \theta)}{k} \ P(D_2 \mid \theta)}{\int \frac{P(\theta') \ P(D_1 \mid \theta')}{k} \ P(D_2 \mid \theta') \text{d}\theta'} & \text{[rules of integration; basic calculus]} \\
 & = \frac{P(\theta \mid D_1) \ P(D_2 \mid \theta)}{\int P(\theta' \mid D_1) \ P(D_2 \mid \theta') \text{d}\theta'} & \text{[Bayes rule with } k = \int P(\theta) P(D_1 \mid \theta) \text{d}\theta ]\\
 \end{aligned}
 $$
 ```
 
 
-
-
 &nbsp;
+
+
+## A frequentist approach to parameter estimation
+
+
+
+We pick up the "24/7" example again. As before, the goal is to draw inferences about the latent bias $\theta \in [0;1]$. Being a frequentist, we do that based only on likelihood function $P(k \mid \theta)$, given here by the binomial distribution as before. We will derive, from $P(k \mid \theta)$ alone, plausible point and interval estimates. There are several constructions for both point and interval estimates. We here only look at what seem to be the single most prominent exemplars in each category.
+
+### Maximum likelihood estimate
+
+The **maximum likelihood estimate (MLE)** is a point estimate based on the likelihood function alone. It specifies the value of $\theta$ for which the observed data is most likely. We often use the notation $\hat{\theta}$ to denote the MLE of $\theta$:
+
+$$
+\begin{aligned}
+  \hat{\theta} = \arg \max_{\theta} P(d \mid \theta)
+\end{aligned}
+$$
+
+For the binomial likelihood function, the maximum likelihood estimate is easy to calculate as $\frac{k}{N}$, yielding
+$\frac{7}{24} \approx 0.292$ for the running example. Figure \@ref(fig:ch-03-03-estimation-MLE) shows a graph of the non-normalized likelihood function and indicates the maximum likelihood estimate (the value that maximizes the curve).
+
+```{r ch-03-03-estimation-MLE, echo = F, fig.cap = "Non-normalized likelihood function for the observation of $k=7$ successes in $N=24$ flips, including maximum likelihood estimate."}
+plotdata_24_7_mle <- tibble(
+  theta = seq(0.01,1, by = 0.01),
+  lh = dbinom(x = 7, size = 24, prob = theta)
+  )
+expData_27_7_mle <- tibble(
+  theta = c(7/24,7/24),
+  lh = c(0,dbinom(x=7,size=24,prob=7/24))
+)
+ggplot(plotdata_24_7_mle, aes(x = theta, y = lh)) + xlim(0,1) +
+  geom_label(x = 0.52, y = dbinom(x=7,size=24,prob=7/24), label = "MLE: 0.292", color = project_colors[1], size = 5) +
+  geom_line(data = expData_27_7_mle, aes(x = theta, y = lh), color = project_colors[1], size = 1.25) +
+  geom_line(color = "black", size = 2) + ylab("likelihood")
+```
+
+
+
+### Confidence intervals
+
+The most commonly used interval estimate in frequentist analyses are *confidence intervals*. Although (frequentist) confidence intervals *can* coincide with (subjectivist) credible intervals in specific cases, they generally do not. And even when confidence and credible values yield the same numerical results, these notions are fundamentally different and ought not to be confused.
+
+Let's look at credible intervals to establish the proper contrast. Recall that part of the definition of a credible interval for a posterior distribution over $\theta$, captured here notationally in terms a random variable $\Theta$, was the probability $P(l \le \Theta \le u)$ that the value realized by random variable $\Theta$ lies in the interval $[l;u]$. This statement makes no sense to the frequentist. There cannot be any non-trivial value for $P(l \le \Theta \le u)$. The true value of $\theta$ is either in the interval $[l;u]$ or it is not. To speak of a probability that $\theta$ is in $[l;u]$ is to appeal to an ill-formed concept of probability which the frequentist denies.
+
+In order to give an interval estimate nonetheless, the frequentist appeals to probabilities that she can accept: probabilities derived from (hypothetical) repetitions of a genuine random event with objectively observable outcomes. Let $D$ be the random variable that captures the probability with which data $D=d$ is realized. We obtain a pair of derived random variables $X_l$ and $X_u$ from a pair of functions $g_{l,u} \colon d \mapsto \mathbb{R}$. A **$\gamma\%$ confidence interval** for observed data $d_{\text{obs}}$ is the interval $[g_l(d_{\text{obs}}), g_u(d_{\text{obs}})]$ whenever functions $g_{l,u}$ are constructed in such a way that
+
+$$
+\begin{aligned}
+  P(X_l \le \theta_{\text{true}} \le X_u) = \frac{\gamma}{100}
+\end{aligned}
+$$
+
+where $\theta_{\text{true}}$ is the unknown but fixed true value of $\theta$. In more intuitive words, a confidence interval is the outcome of a special construction (functions $g_{l,u}$) such that, when applying this procedure repeatedly to outcomes of the assumed data-generating process, the true value of parameter $\theta$ will lie inside of the computed confidence interval in exactly $\gamma$\% of the cases.
+
+In some complex cases, the frequentist analyst relies on functions $g_{l}$ and $g_{u}$ that are easy to compute but only approximately satisfy the condition $P(X_l \le \theta_{\text{true}} \le X_u) = \frac{\gamma}{100}$. For example, we might use an
+asymptotically correct calculation, based on the observation that, if $n$ grows to infinity, the binomial distribution approximates a normal distribution. We can then calculate a confidence interval, *as if* our binomial distribution actually was a normal distribution. If $n$ is not large enough, this will be increasingly imprecise. Rules of thumb are used to decide how big $n$ has to be to involve at best a tolerable amount of imprecision (see the Info Box below). 
+
+For our running example ($k = 7$, $n=24$), the rule of thumb mentioned in the Info Box below recommends *not* using the asymptotic calculation. If we did nonetheless, we would get a confidence interval of $[0.110; 0.474]$. For the binomial distribution also a more reliable calculation exist, which yields $[0.126; 0.511]$ for the running example. (We can use numeric simulation to explore how good/bad a particular approximate calculation is, as shown in the next section.) The more reliable construction, the so-called *exact method*, implemented in the function `binom.confint` of R package `binom`, revolves around the close relationship between confidence intervals and $p$-values. (To foreshadow a later discussion: the exact $\gamma\%$ confidence interval is the set of all parameter values for which an exact (binomial) test does not yield a significant test result as the level of $\alpha = 1-\frac{\gamma}{100}$.)
+
+
+```{block, type='infobox'}
+**Aymptotic approximation of a binomial confidence interval using a normal distribution.**
+
+Let $X$ be the random variable that determines the binomial distribution, i.e., the probability of seeing $k$ successes in $n$ flips. For large $n$, $X$ approximates a normal distribution with a mean $\mu = n \ \theta$ and a standard deviation of    $\sigma = \sqrt{n \ \theta \ (1 - \theta)}$. The random variable $U$:
+$$
+  U = \frac{X - \mu}{\sigma} = \frac{X - n \  \theta}{\sqrt{n \  \theta \  (1-\theta)}}
+$$
+Let $\hat{P}$ be the random variable that captures the distribution of our maximum likelihood estimates for an observed outcome $k$:
+$$
+  \hat{P} = \frac{X}{n}
+$$
+Since $X = \hat{P} \  n$ we obtain:
+$$
+  U = \frac{\hat{P} \  n - n \  \theta}{\sqrt{n \  \theta \  (1-\theta)}}
+$$
+We now look at the probability that $U$ is realized to lie in a symmetric interval $[-c,c]$, centered around zero --- a probability which we require to match our confidence level:
+$$
+  P(-c \le U \le c) = \frac{\gamma}{100}
+$$
+We now expand the definition of $U$ in terms of $\hat{P}$, equate $\hat{P}$ with the current best estimate $\hat{p} = \frac{k}{n}$ based on the observed $k$ and rearrange terms, yielding the asymptotic approximation of a binomial confidence interval:
+$$  
+  \left [ \hat{p} - \frac{c}{n} \  \sqrt{n \  \hat{p} \  (1-\hat{p})} ; \ \ 
+       \hat{p} + \frac{c}{n} \  \sqrt{n \  \hat{p} \  (1-\hat{p})} \right ]
+$$
+This approximation is conventionally considered precise enough when the *rule of thumb*
+
+$$
+n \ \hat{p} \ (1 - \hat{p}) > 9
+$$
+
+is met.
+```
+
+
+## Comparing Bayesian and frequentist estimates
+
+For Bayesians point-valued and interval-based estimates are just summary statistics to efficiently communicate about or reason with the main thing: the full posterior distribution. For the frequentist, the point-valued and interval-based estimates might be all there is. Computing a full posterior can be very hard. Computing point-estimates is usually much simpler. Yet, all the trouble of having to specify priors, and having to calculate a much more complex mathematical object, can pay off. An example which is intuitve enough is that of a likelihood function in a multi-dimensional parameter space where there is an infinite collection of parameter values that maximize the likelihood function (think of plateau). Asking a godly oracle for the (actually: an) MLE can be disastrously misleading. The full posterior will show the quirkiness.^[We will see such an example later for the case of linear regression with correlated independent variables, so-called collinearity.]
+
+Practical issues aside, there are also conceptual arguments that can be pinned against each other. Suppose you do not know the bias of a coin, you flip it once and it lands heads. The case in mathematical notation: $k=1$, $N=1$. As a frequentist, your "best" estimate of the coin's bias is that it is 100% rigged: it will *never* land tails. As a Bayesian, with uninformed priors, your "best" estimate is, following Laplace rule, $\frac{k+1}{N+2} = \frac{2}{3}$. Notice that, apparently, there might be different notions of what counts as "best" in place. Still, the frequentist "best" estimate seems rather extreme.
+
+What about interval-ranged estimates? Which is the better tool, confidence intervals or credible intervals? -- This is harder to answer. Numerical simulations can help answer these questions.^[Even if the math seems daunting, this method is much more tangible and applicable and requires only basic programming experience.] The idea is simple but immensely powerful. We simulate, repeatedly, a ground-truth and synthetic results for fictitious experiments, and then we apply the statistical tests/procedures to these fictitious data sets. Since we know the ground-truth, we can check which tests/procedures got it right.
+
+Let's look at a simulation, comparing credible intervals to confidence intervals, the latter of which calculated by asymptotic approximation or the so-called exact method. To do so, we repeatedly sample a ground-truth (e.g., a known coin bias $\theta_{\text{true}}$) from a flat distribution over $[0;1]$.^[This is already not innocuous. We are fixing, as it were, an assumption about how likely ground-truths should actually occur in the real world.]. We then simulate an experiment in a synthetic world with $\theta_{\text{true}}$, using a fixed value of $n$, here taken from the set $n \in \set{10, 25, 100, 1000}$. We then construct a confidence interval (either approximately or precisely) and a 95% credible interval; for each of the three interval estimates. We check whether the ground-truth $\theta_{\text{true}}$ is *not* included in any given interval estimate. We calculate the mean number of times such non-inclusion (errors!) happen for each kind of interval estimate. The coe below implements this and the figure below shows the results, based on 10,000 samples of $\theta_{\text{true}}$.
+
+```{r}
+# how many "true" thetas to sample
+n_samples <- 10000 
+# sample a "true" theta
+theta_true <- runif(n=n_samples)
+# create data frame to store results in
+results <- expand.grid(
+  theta_true = theta_true,
+  n_flips = c(10,25,100, 1000)
+) %>% 
+  as_tibble() %>% 
+  mutate(
+    outcome = 0,
+    norm_approx = 0,
+    exact = 0,
+    Bayes_HDI = 0
+  )
+  
+for (i in 1:nrow(results)) {
+  
+  # sample fictitious experimental outcome for current true theta
+  results$outcome[i] <- rbinom(n = 1, size = results$n_flips[i], prob = results$theta_true[i])
+  
+  # get CI based on asymptotic Gaussian
+  norm_approx_CI <- binom::binom.confint(results$outcome[i], results$n_flips[i], method = "asymptotic")
+  results$norm_approx[i] <- !(norm_approx_CI$lower <= results$theta_true[i] && norm_approx_CI$upper >= results$theta_true[i])
+  
+  # get CI based on exact method
+  exact_CI <- binom::binom.confint(results$outcome[i], results$n_flips[i], method = "exact")
+  results$exact[i] <- !(exact_CI$lower <= results$theta_true[i] && exact_CI$upper >= results$theta_true[i])
+  
+  # get 95% HDI (flat priors)
+  Bayes_HDI <- binom::binom.bayes(results$outcome[i], results$n_flips[i], type = "highest", prior.shape1 = 1, prior.shape2 = 1)
+  results$Bayes_HDI[i] <- !(Bayes_HDI$lower <= results$theta_true[i] && Bayes_HDI$upper >= results$theta_true[i])
+  
+}
+
+results %>% 
+  gather(key = "method", "Type_1", norm_approx, exact, Bayes_HDI) %>% 
+  group_by(method, n_flips) %>% 
+  dplyr::summarize(avg_type_1 = mean(Type_1)) %>% 
+  ungroup() %>% 
+  mutate(
+    method = factor(
+      method, 
+      ordered = T, 
+      levels = c("norm_approx", "Bayes_HDI", "exact")
+    )
+  ) %>% 
+  ggplot(aes(x = as.factor(n_flips), y = avg_type_1, color = method)) + 
+  geom_point() + geom_line(aes(group = method)) +
+  xlab("number of flips per experiment") +
+  ylab("proportion of exclusions of true theta")
+
+
+```
+
+
 
 ## Algorithms for parameter estimation {#Ch-03-03-estimation-algorithms}
 
