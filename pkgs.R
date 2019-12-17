@@ -14,6 +14,7 @@ suppressPackageStartupMessages(library(cowplot)) # to arrange plots
 suppressPackageStartupMessages(library(scales)) # to massage scales in plots
 suppressPackageStartupMessages(library(greta)) # probabilistic modeling package
 suppressPackageStartupMessages(library(ggmcmc)) # tidy Bayes samples
+suppressPackageStartupMessages(library(HDInterval)) # credible intervals
 
 
 ## set defaults

@@ -56,32 +56,30 @@ FILL ME: structure / learning goals
 
 ## Bayes rule of parameter estimation
 
-Fix a Bayesian model $M$ with likelihood $P_M(D \mid \theta)$ for observed data $D$ and prior over parameters $P_M(\theta)$. We then update our prior beliefs $P_M(\theta)$ to obtained posterior beliefs by Bayes rule:
+Fix a Bayesian model $M$ with likelihood $P(D \mid \theta)$ for observed data $D$ and prior over parameters $P_M(\theta)$. We then update our prior beliefs $P(\theta)$ to obtained posterior beliefs by Bayes rule:^[Since parameter estimation is only about one model, it should do not harm to omit the index $M$ in the probability notation. Moreover, since in many contexts the meaning will be  clear enough, we follow common practice and write $P(D \mid \theta)$ as a shortcut for $P(\mathcal{D} = D \mid \Theta = \theta)$. Here $\mathcal{D}$ is the class of all relevant observable data and $\Theta$ is the range of a possibly high-dimensional vector of parameter values. We diverge from common practice of using capital roman letters for random variables and small roman letters for values from these random variables, because parameter vectors are traditionally written as $\theta$ and the small letter $\textrm{d}$ (albeit non-italic) is reserved fro differentials.]
 
 $$P(\theta \mid D) = \frac{P(D \mid \theta) \ P(\theta)}{P(D)}$$
 
 The ingredients of this equation are:
 
-- the **posterior distribution** $P(\theta \mid k)$ specifying our beliefs about how
+- the **posterior distribution** $P(\theta \mid D)$ specifying our beliefs about how
   likely each value of $\theta$ is given fixed $k$;
-- the **likelihood function** $P(k \mid \theta)$ specifying how likely each observation
+- the **likelihood function** $P(D \mid \theta)$ specifying how likely each observation
   of $k$ is for a fixed $\theta$ (here given by the binomial distribution);
 - the **prior distribution** $P(\theta)$ specifying our initial (aka.~*a priori*)
   beliefs about how likely each value of $\theta$ might be;
-- the **marginal likelihood** $P(k) = \int P(k \mid \theta) \mult P(\theta) \ \text{d}\theta$
+- the **marginal likelihood** $P(D) = \int P(D \mid \theta) \ P(\theta) \ \text{d}\theta$
   specifying how likely an observation of $k$ is under our prior beliefs about $\theta$.
 
 A frequently used shorthand notation for probabilities is this:
 
-$$ P(\theta \mid D) \propto  P(D \mid \theta) \ P(\theta)$$
+$$\underbrace{P(\theta \, | \, D)}_{posterior} \propto \underbrace{P(\theta)}_{prior} \ \underbrace{P(D \, | \, \theta)}_{likelihood}$$
 
 where the "proportional to" sign $\propto$ indicates that the probabilities on the LHS are defined in terms of the quantity on the RHS after normalization. So, if $F \colon x \mapsto \mathbb{R}^+$ is a positive function of non-normalized probabilities, $P(x) \propto F(x)$ is equivalent to $P(x) = \frac{F(x)}{\sum_{x'} F(x')}$.
 
 This notation makes particularly clear that the posterior distribution is a "mix" of prior and likelihood. Let's explore this first, before worrying how to compute posteriors concretely.
 
 ### The effects of prior and likelihood on the posterior
-
-
 
 We consider the case of flipping a coin with unknown bias $\theta$ a total of $N$ times and observig $k$ heads (= successes). This is modeled with the  **Binomial Model** (see Section \@ref(Chap-03-03-models-examples)), using priors expressed with a [Beta distribution](app-91-distributions-beta), giving us a model specification as: 
 
@@ -173,7 +171,7 @@ prior_tibble %>%
 
 Combining the four different priors and the two different data sets, we see that the posterior is indeed a mix of prior and likelihood. In particular we see that the strong informative prior has only little effect if there are many data points (the KoF data).
 
-```{r, echo = F}
+```{r ch-03-03-estimation-posteriors-comparison, echo = F, fig.cap = "Posterior beliefs over coin biases under different priors and different data sets."}
 full_join(lh_tibble, prior_tibble, by = 'theta') %>% 
     pivot_longer(
     cols = 2:3,
@@ -199,8 +197,188 @@ full_join(lh_tibble, prior_tibble, by = 'theta') %>%
   facet_grid(example ~ prior_type, scales = "free") +
   labs(
     x = latex2exp::TeX("Coin bias $\\theta$"),
-    y = latex2exp::TeX("Posterioro probability $P_{M_i}(\\theta \\, | \\, D)$"),
+    y = latex2exp::TeX("Posterior probability $P_{M_i}(\\theta \\, | \\, D)$"),
     title = latex2exp::TeX("Posterior beliefs in $\\theta$ for different priors and data.")
   ) 
 ```
 
+### Posterior means and credible intervals
+
+Let's consider the "24/7" example with a flat prior again, concisely repeated in Figure \@ref(fig:ch-03-03-estimation-24-7-overview).
+
+```{r ch-03-03-estimation-24-7-overview, echo = F, fig.cap = "Prior (uninformative), likelihood and posterior for the 24/7 example.", fig.height = 12}
+
+prior_plot_24_7 <- 
+  tibble(
+    theta = seq(0.01,1, by = 0.01),
+    prior = dbeta(seq(0.01,1, by = 0.01), 1, 1 )
+  ) %>% 
+  ggplot(aes(x = theta, y = prior)) + 
+  xlim(0,1) + 
+  geom_line(color = project_colors[1], size = 2) + 
+  labs(
+    x = latex2exp::TeX("Coin bias $\\theta$"),
+    y = latex2exp::TeX("Prior probability $P_{M}(\\theta)$"),
+    title = "Prior"
+  )
+
+lh_plot_24_7 <- 
+  tibble(
+    theta = seq(0.01,1, by = 0.01),
+    lh = dbinom(x = 7, size = 24, prob = theta)
+  ) %>% 
+  ggplot(aes(x = theta, y = lh)) + 
+  xlim(0,1) + 
+  geom_line(color = project_colors[2], size = 2) + 
+  labs(
+    x = latex2exp::TeX("Coin bias $\\theta$"),
+    y = latex2exp::TeX("Likelihood $P_{M}(D \\, | \\, \\theta)$"),
+    title = "Likelihood"
+  )
+
+hdi = HDInterval::hdi(qbeta , shape1 = 8 , shape2 = 18 )
+hdiData <- tibble(
+  theta = rep(hdi, each = 2),
+  post = c(0,dbeta(hdi, 8, 18), 0)
+)
+expData <- tibble(
+  theta = c(8/26,8/26),
+  post = c(0,dbeta(8/26, 8, 18 ))
+)
+
+posterior_plot_24_7 <- 
+  tibble(
+    theta = seq(0.01,1, by = 0.01),
+    posterior = dbeta(seq(0.01,1, by = 0.01), 8, 18 )
+  ) %>% 
+  ggplot(aes(x = theta, y = posterior)) + 
+  xlim(0,1) + 
+  labs(
+    x = latex2exp::TeX("Coin bias $\\theta$"),
+    y = latex2exp::TeX("Posterior probability $P_{M}(\\theta \\, | \\, D)$"),
+    title = "Posterior"
+  ) +
+  geom_line(data = hdiData, aes(x = theta, y = post), color = "firebrick", size = 1.5) +
+  geom_label(x = 0.7, y = 0.5, label = "Cred.Int.: 0.14 - 0.48", color = "firebrick", size = 5) +
+  geom_line(data = expData, aes(x = theta, y = post), color = "darkblue", size = 1.5) +
+  geom_label(x = 0.52, y = dbeta(8/26, 8, 18 ), label = "expectation: 0.308", color = "darkblue", size = 5) +
+  geom_line(color = "black", size = 2)
+
+cowplot::plot_grid(
+  prior_plot_24_7,
+  lh_plot_24_7,
+  posterior_plot_24_7,
+  ncol = 1
+)
+```
+
+
+The posterior probability distribution in Figure \@ref(fig:ch-03-03-estimation-24-7-overview) contains rich information. It specifies how likely each value of $\theta$ is, obtained by updating the original prior beliefs with the observed data. Such rich information is difficult to process and communicate in language. It is therefore convenient to have conventional means of summarizing the rich information carried in a probability distribution like in Figure \@ref(fig:ch-03-03-estimation-24-7-overview). Customarily, we summarize in terms of a point-estimate and/or an interval estimate. The *point estimate* gives information about a "best value", i.e., a salient point, such as the expectation (in Bayesian approaches) or the most likely value (in frequentist approaches (see below)). The *interval estimate* gives, usually, an indication of how closely other *good values* are scattered around the *best value*.
+
+A common Bayesian point estimate of coin bias parameter $\theta$ is **the mean of the posterior distribution**. It gives the value of $\theta$ which we would expect to see, when basing out expectations on the posterior distribution:
+$$
+\begin{aligned}
+  \mathbb{E}_{P(\theta \mid D)} = \int \theta \ P(\theta \mid D) \ \text{d}\theta
+\end{aligned}
+$$
+If we start with flat beliefs, the expected value of $\theta$ after $k$ successes in $N$ flips
+can be calculated rather easily as $\frac{k+1}{n+2}$.^[This is also known as *Laplace's
+  rule*, or the *rule of succession*.] For our example case, we calculate the expected value of
+$\theta$ as $\frac{8}{26} \approx 0.308$ (see also Figure \@ref(fig:ch-03-03-estimation-24-7-overview)).
+
+```{block2, type="infobox"}
+**Remark: Maximum _a posteriori_** Another salient point-estimate to summarize a Bayesian posterior distribution is the MAP (maximum _a posteriori_). The map is the parameter value (tuple) that maximizes the posterior distribution:
+  
+$$ \text{MAP}(P(\theta \mid D)) =  \arg \max_\theta P(\theta \mid D) $$
+  
+While the mean of the posterior is "holisitic" in the sense that it depends on the whole distribution, the MAP does not. The mean is therefore more faithful to the Bayesian ideal of taking the full posterior distribution into account. Moreover, depending on how Bayesian posteriors are computed / approximated, the estimation of a mean can be more reliable than that of a MAP.
+```
+
+A common Bayesian interval estimate of coin bias parameter $\theta$ is a **credible interval**.^[Also frequently called "highest-density intervals", even when we are dealing not with density but probability mass.] An interval $[l;u]$ is a $\gamma\%$ credible interval for a random variable $X$ if two conditions hold, namely
+$$
+\begin{aligned}
+  P(l \le X \le u) = \frac{\gamma}{100}
+\end{aligned}
+$$
+and, secondly, for every $x \in[l;u]$ and $x' \not \in[l;u]$ we have $P(X=x) > P(X = x')$. Intuitively, a $95\%$ credible interval gives the range of values in which we believe with
+relatively high certainty that the true value resides. Figure \@ref(fig:ch-03-03-estimation-24-7-overview) indicates the $95\%$ credible interval, based on the posterior distribution $P(\theta \mid D)$ of $\theta$, for the 24/7 example.^[Not all random variables have a credible interval for a given $\gamma$, according to this definition. A bimodal distribution might not, for example. A bi-modal distribution has two regions of high probability. We can therefore generalize the concept to a finite set of disjoint convex *credible regions*, all of which have the second property of the definition above and all of which conjointly are realized with $\gamma\%$ probability. Unfortunately, common parlor uses the term "credible interval" to refer to credible regions as well. The same disaster occurs with alternative terms, such as "$\gamma\%$ highest-density intervals", which also often refers to what should better be called "highest-density regions".]
+
+### Computing Bayesian posteriors with conjugate priors
+
+Bayesian posterior distributions can be hard to compute. Usually, the prior $P(\theta)$ is easy to compute (otherwise we might choose a different one for practicality). Usually, the likelihood function $P(D \mid \theta)$ is also fast to compute. Everything seems innocuous when we just write:
+
+$$\underbrace{P(\theta \, | \, D)}_{posterior} \propto \underbrace{P(\theta)}_{prior} \ \underbrace{P(D \, | \, \theta)}_{likelihood}$$
+
+But the real pain is the normalizing constant, i.e., the marginalize likelihood a.k.a. the "integral of doom", which to compute can be intractable, especially if the parameter space is large and not well-behaved:
+
+$$P(D) = \int P(D \mid \theta) \ P(\theta) \ \text{d}\theta$$
+
+Section \@ref(Ch-03-03-estimation-algorithms) will therefore enlarge on methods to compute or approximate the posterior distribution efficiently.
+
+Foortunately, computing Bayesian posterior distributions need not always be intractable. If the prior and the likelihood function cooperate, so to speak, the computation of the posterior can be as simple as sleep. The nature of the data often prescribes which likelihood function is plausible. But we have more wiggle room in the choice of the priors. If prior $P(\theta)$ and posterior $P(\theta \, | \, D)$ are of the same family, i.e., if they are the same kind of distribution albeit possibly with different parameterizations, we say that they **conjugate**. In that case, the prior $P(\theta)$ is called **conjugate prior** for the likelihood function $P(D \, | \, \theta)$. from which the posterior $P(\theta \, | \, D)$ is derived.
+
+```{theorem, "Conjugacy-beta-binomial"}
+The Beta distribution is the conjugate prior of binomial likelihood. For $\theta \sim \text{Beta}(a,b)$ as prior and data $k$ and $N$, the posterior is $\theta \sim \text{Beta}(a+k, b+ N-k)$.
+```
+
+
+```{proof}
+By construction, the posterior is:
+$$P(\theta \mid \langle{k, n \rangle}) \propto \text{Binomial}(k ; n, \theta) \ \text{Beta}(\theta \, | \, a, b) $$
+
+
+We extend the RHS by definitions:
+
+$$
+\begin{aligned} 
+\text{Binomial}(k ; n, \theta) \ \text{Beta}(\theta \, | \, a, b) & = \theta^{k} \, (1-\theta)^{n-k} \, \theta^{a-1} \, (1-\theta)^{b-1}  \\  & = \theta^{k + a - 1} \, (1-\theta)^{n-k +b -1}
+\end{aligned}
+$$
+
+This latter expression is the non-normalized Beta-distribution for parameters $a + k$ and $b + N - k$, so that we conclude with what was to be shown:
+
+$$
+\begin{aligned} 
+P(\theta \mid \tuple{k, n}) & = \text{Beta}(\theta \, | \, a + k, b+ N-k)
+\end{aligned}
+$$
+```
+
+&nbsp;
+
+### Sequential updating
+
+Ancient wisdom has coined the widely popular proverb: "Today's posterior is tomorrow's prior." Suppose we collected data from an experiment, like $k = 7$ in $N = 24$. Using uninformative priors at the outset, our posterior belief after the experiment is $\theta \sim \text{Beta}(8,18)$. But now consider what happened at half-time. After half the experiment, we had $k = 2$ and $N = 12$, so our beliefs followed $\theta \sim \text{Beta}(3, 10)$ at this moment in time. But using these beliefs as priors, and observing the rest of the data would consequently result in updating the prior $\theta \sim \text{Beta}(3, 10)$ with another set of observations $k = 5$ and $N = 12$, giving us the same posterior belief as what we would have gotten if we updated in one swoop. Figure \@ref(fig:ch-03-03-estimation-sequential-updates) shows steps through belief space, starting uninformed, and observing one piece of data at a time (going right for each outcome of heads, down for each outcome of tails).
+
+```{r ch-03-03-estimation-sequential-updates, echo = F fig.cap = "Beta distributions for different parameters. Starting from an uninformative prior (top left), we arrive at the posterior distribution in the bottom left, in any sequence of sequentially updating with the data.", fig.height = 8}
+expand_grid(
+    theta = seq(0,1,length.out = 41),
+    a = 1:7,
+    b = 1:4
+  ) %>% 
+  as_tibble() %>% 
+  mutate(
+    probability = dbeta(theta, a, b),
+    parameters = str_c("a=", a, " b=", b)
+  ) %>% 
+  ggplot(aes(x = theta, y = probability)) +
+  geom_line() +
+  facet_wrap(~parameters, scales = "free", nrow = 7) +
+  theme(
+    axis.title.x=element_blank(),
+    axis.text.x=element_blank(),
+    axis.ticks.x=element_blank(),
+    axis.title.y=element_blank(),
+    axis.text.y=element_blank(),
+    axis.ticks.y=element_blank()
+  )
+```
+
+
+This sequential updating is not a peculiarity of the Beta-Binomial case or of conjugacy. It holds in general for Bayesian inference, and it is a very intuitive property which is not shared by all other forms of inference from data.
+
+
+## Algorithms for parameter estimation {#Ch-03-03-estimation-algorithms}
+
+- MLE
+- MCMC, variational etc.
