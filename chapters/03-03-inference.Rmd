@@ -375,8 +375,31 @@ expand_grid(
 ```
 
 
-This sequential updating is not a peculiarity of the Beta-Binomial case or of conjugacy. It holds in general for Bayesian inference, and it is a very intuitive property which is not shared by all other forms of inference from data.
+This sequential updating is not a peculiarity of the Beta-Binomial case or of conjugacy. It holds in general for Bayesian inference. Sequential updating is a very intuitive property, but it is not shared by all other forms of inference from data. That Bayesian inference is sequential and commutative follows from commutativity of multiplication of likelihoods (and the definition of Bayes rule).
 
+```{theorem, "Sequential-update"}
+Bayesian posterior inference is sequential and commutative in the sense that for a data set $D$ which is comprised of two mutually exclusive subsets $D_1$ and D_2$ such that $D_1 \cup D_2 = D$,we have:
+
+$$ P(\theta \mid D ) \propto P(\theta \mid D_1) \ P(D_2 \mid \theta) $$  
+
+```
+
+```{proof}
+$$
+\begin{aligned}
+P(\theta \mid D) & = \frac{P(\theta) \ P(D \mid \theta)}{ \int P(\theta') \ P(D \mid \theta') \text{d}\theta'} \\
+& = \frac{P(\theta) \ P(D_1 \mid \theta) \ P(D_2 \mid \theta)}{ \int P(\theta') \ P(D_1 \mid \theta') \ P(D_2 \mid \theta') \text{d}\theta'} & \text{[from multiplicativity of likelihood]} \\
+& = \frac{P(\theta) \ P(D_1 \mid \theta) \ P(D_2 \mid \theta)}{ \frac{k}{k} \int P(\theta') \ P(D_1 \mid \theta') \ P(D_2 \mid \theta') \text{d}\theta'} & \text{[for random positive k]} \\
+& = \frac{\frac{P(\theta) \ P(D_1 \mid \theta)}{k} \ P(D_2 \mid \theta)}{\int \frac{P(\theta') \ P(D_1 \mid \theta')}{k} \ P(D_2 \mid \theta') \text{d}\theta'} & \text{[rules of integration & basic calculus]} \\
+& = \frac{P(\theta \mid D_1) \ P(D_2 \mid \theta)}{\int P(\theta' \mid D_1) \ P(D_2 \mid \theta') \text{d}\theta'} & \text{[Bayes rule with } k = \int P(\theta) P(D_1 \mid \theta) \text{d}\theta ]\\
+\end{aligned}
+$$
+```
+
+
+
+
+&nbsp;
 
 ## Algorithms for parameter estimation {#Ch-03-03-estimation-algorithms}
 
