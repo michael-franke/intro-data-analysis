@@ -37,9 +37,7 @@ The learning goals for this chapter are:
 - become familiar with interval-range estimators
   - frequentist: confidence intervals
   - Bayesian: credible intervals
-- become able to compute Bayesian cred.intervals from posterior samples
-- understand conceptual differences and relative advantages of both approaches
-- 
+- be able to implement probabilistic models in `greta` and compute with posterior samples 
 ```
 
 
@@ -54,7 +52,7 @@ FILL ME: structure / learning goals
   - variational Bayes
   - mcmc
 
-## Bayes rule of parameter estimation
+## Bayes rule of parameter estimation  {#ch-03-03-estimation-bayes}
 
 Fix a Bayesian model $M$ with likelihood $P(D \mid \theta)$ for observed data $D$ and prior over parameters $P_M(\theta)$. We then update our prior beliefs $P(\theta)$ to obtained posterior beliefs by Bayes rule:^[Since parameter estimation is only about one model, it should do not harm to omit the index $M$ in the probability notation. Moreover, since in many contexts the meaning will be  clear enough, we follow common practice and write $P(D \mid \theta)$ as a shortcut for $P(\mathcal{D} = D \mid \Theta = \theta)$. Here $\mathcal{D}$ is the class of all relevant observable data and $\Theta$ is the range of a possibly high-dimensional vector of parameter values. We diverge from common practice of using capital roman letters for random variables and small roman letters for values from these random variables, because parameter vectors are traditionally written as $\theta$ and the small letter $\textrm{d}$ (albeit non-italic) is reserved fro differentials.]
 
@@ -400,7 +398,7 @@ $$
 &nbsp;
 
 
-## A frequentist approach to parameter estimation
+## A frequentist approach to parameter estimation {#ch-03-03-estimation-frequentist}
 
 
 
@@ -482,17 +480,15 @@ $$
   \left [ \hat{p} - \frac{c}{n} \  \sqrt{n \  \hat{p} \  (1-\hat{p})} ; \ \ 
        \hat{p} + \frac{c}{n} \  \sqrt{n \  \hat{p} \  (1-\hat{p})} \right ]
 $$
-This approximation is conventionally considered precise enough when the *rule of thumb*
+This approximation is conventionally considered precise enough when the following *rule of thumb* is met:
 
 $$
 n \ \hat{p} \ (1 - \hat{p}) > 9
 $$
-
-is met.
 ```
 
 
-## Comparing Bayesian and frequentist estimates
+## Comparing Bayesian and frequentist estimates {#ch-03-03-estimation-comparison}
 
 For Bayesians point-valued and interval-based estimates are just summary statistics to efficiently communicate about or reason with the main thing: the full posterior distribution. For the frequentist, the point-valued and interval-based estimates might be all there is. Computing a full posterior can be very hard. Computing point-estimates is usually much simpler. Yet, all the trouble of having to specify priors, and having to calculate a much more complex mathematical object, can pay off. An example which is intuitve enough is that of a likelihood function in a multi-dimensional parameter space where there is an infinite collection of parameter values that maximize the likelihood function (think of plateau). Asking a godly oracle for the (actually: an) MLE can be disastrously misleading. The full posterior will show the quirkiness.^[We will see such an example later for the case of linear regression with correlated independent variables, so-called collinearity.]
 
@@ -523,20 +519,46 @@ results <- expand.grid(
 for (i in 1:nrow(results)) {
   
   # sample fictitious experimental outcome for current true theta
-  results$outcome[i] <- rbinom(n = 1, size = results$n_flips[i], prob = results$theta_true[i])
+  results$outcome[i] <- rbinom(
+    n = 1, 
+    size = results$n_flips[i], 
+    prob = results$theta_true[i]
+  )
   
   # get CI based on asymptotic Gaussian
-  norm_approx_CI <- binom::binom.confint(results$outcome[i], results$n_flips[i], method = "asymptotic")
-  results$norm_approx[i] <- !(norm_approx_CI$lower <= results$theta_true[i] && norm_approx_CI$upper >= results$theta_true[i])
+  norm_approx_CI <- binom::binom.confint(
+    results$outcome[i], 
+    results$n_flips[i], 
+    method = "asymptotic"
+  )
+  results$norm_approx[i] <- !(
+    norm_approx_CI$lower <= results$theta_true[i] && 
+      norm_approx_CI$upper >= results$theta_true[i]
+    )
   
   # get CI based on exact method
-  exact_CI <- binom::binom.confint(results$outcome[i], results$n_flips[i], method = "exact")
-  results$exact[i] <- !(exact_CI$lower <= results$theta_true[i] && exact_CI$upper >= results$theta_true[i])
+  exact_CI <- binom::binom.confint(
+    results$outcome[i], 
+    results$n_flips[i], 
+    method = "exact"
+  )
+  results$exact[i] <- !(
+    exact_CI$lower <= results$theta_true[i] && 
+      exact_CI$upper >= results$theta_true[i]
+  )
   
   # get 95% HDI (flat priors)
-  Bayes_HDI <- binom::binom.bayes(results$outcome[i], results$n_flips[i], type = "highest", prior.shape1 = 1, prior.shape2 = 1)
-  results$Bayes_HDI[i] <- !(Bayes_HDI$lower <= results$theta_true[i] && Bayes_HDI$upper >= results$theta_true[i])
-  
+  Bayes_HDI <- binom::binom.bayes(
+    results$outcome[i], 
+    results$n_flips[i], 
+    type = "highest", 
+    prior.shape1 = 1, 
+    prior.shape2 = 1
+  )
+  results$Bayes_HDI[i] <- !(
+    Bayes_HDI$lower <= results$theta_true[i] && 
+      Bayes_HDI$upper >= results$theta_true[i]
+  )
 }
 
 results %>% 
@@ -560,8 +582,11 @@ results %>%
 ```
 
 
-
 ## Algorithms for parameter estimation {#Ch-03-03-estimation-algorithms}
 
 - MLE
 - MCMC, variational etc.
+
+## Writing models in greta {#ch-03-03-estimation-greta}
+
+- how greta works
