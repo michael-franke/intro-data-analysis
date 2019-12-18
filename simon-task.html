@@ -501,7 +501,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <div class="sourceCode" id="cb415"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb415-1" data-line-number="1">d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb415-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_RT, <span class="dt">y =</span> error_rate)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb415-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>()</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-270-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-269-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Here’s a crude way of branding outlier-participants:</p>
 <div class="sourceCode" id="cb416"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb416-1" data-line-number="1">d_individual_summary &lt;-<span class="st"> </span>d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb416-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">outlier =</span> <span class="kw">case_when</span>(mean_RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">350</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
@@ -513,7 +513,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <a class="sourceLine" id="cb416-8" data-line-number="8"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb416-9" data-line-number="9"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> <span class="kw">filter</span>(d_individual_summary, outlier <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>),</a>
 <a class="sourceLine" id="cb416-10" data-line-number="10">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="dt">shape =</span> <span class="st">&quot;square&quot;</span>, <span class="dt">size =</span> <span class="dv">5</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-271-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-270-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We then clean the data set in a first step by removing all participants identified as outlier-y:</p>
 <div class="sourceCode" id="cb417"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb417-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">full_join</span>(d, d_individual_summary, <span class="dt">by =</span> <span class="st">&quot;submission_id&quot;</span>) <span class="co"># merge the tibbles</span></a>
 <a class="sourceLine" id="cb417-2" data-line-number="2">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, outlier <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>)</a>
@@ -526,13 +526,13 @@ code span.wa { color: #bf0303; } /* Warning */
 <div class="sourceCode" id="cb419"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb419-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(RT))) <span class="op">+</span></a>
 <a class="sourceLine" id="cb419-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb419-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(RT), <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-273-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-272-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Let’s decide to exclude all trials that lasted longer than 1 second and also all trials with reaction times under 100 ms.</p>
 <div class="sourceCode" id="cb420"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb420-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">100</span> <span class="op">&amp;</span><span class="st"> </span>RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">1000</span>)</a>
 <a class="sourceLine" id="cb420-2" data-line-number="2">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb420-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb420-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-274-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-273-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="exploring-the-main-data" class="section level4">
@@ -560,7 +560,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <a class="sourceLine" id="cb423-5" data-line-number="5">             <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">xintercept =</span> mean_RT), </a>
 <a class="sourceLine" id="cb423-6" data-line-number="6">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>) <span class="op">+</span></a>
 <a class="sourceLine" id="cb423-7" data-line-number="7"><span class="st">  </span><span class="kw">facet_grid</span>(condition <span class="op">~</span><span class="st"> </span>correctness)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-276-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-275-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="analysis" class="section level3">
