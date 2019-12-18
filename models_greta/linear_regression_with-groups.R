@@ -23,35 +23,36 @@ avocado_data <- read_csv('data_sets/avocado.csv') %>%
   select(type, average_price, total_volume_sold)
 
 
+price_conv     <- as_data(avocado_data %>% filter(type == "conventional") %>% pull(average_price) )
 price_orga     <- as_data(avocado_data %>% filter(type == "organic") %>% pull(average_price) )
-price_conv     <- as_data(avocado_data$average_price)
-log_sold_orga  <- as_data(avocado_data$total_volume_sold %>% log)
-log_sold_conv  <- as_data(avocado_data$total_volume_sold %>% log)
+log_sold_conv  <- as_data(avocado_data %>% filter(type == "conventional") %>% pull(total_volume_sold) %>% log )
+log_sold_orga  <- as_data(avocado_data %>% filter(type == "organic") %>% pull(total_volume_sold) %>% log )
+
 ## --- --- latent variables --- ---
 
-intercept <- normal(0, 10)
-slope     <- normal(0, 10)
-sigma     <- student(3, 0 , 1, truncation = c(0, Inf))
+sigma     <- student(df = 3, mu = 0, sigma = 1, truncation = c(0, Inf))
+beta_0    <- student(df = 1, mu = 0, sigma = 10)
+beta_1    <- student(df = 1, mu = 0, sigma = 10)
+delta_0   <- student(df = 1, mu = 0, sigma = 10)
+delta_1   <- student(df = 1, mu = 0, sigma = 10)
 
-# intercept <- variable()
-# slope     <- variable()
-# sigma     <- variable(lower = 0)
 
 mean <- intercept + slope * log_sold
 
 ## --- --- likelihood --- ---
 
-distribution(price) <- normal(mean, sigma)
+distribution(price_conv) <- normal(beta_0 + log_sold_conv * beta_1, sigma)
+distribution(price_orga) <- normal(beta_0 + delta_0 + log_sold_orga * (delta_1 + beta_1), sigma)
 
 ## --- --- model --- ---
 
-m <- model(intercept, slope, sigma)
+m <- model(beta_0, beta_1, delta_0, delta_1, sigma)
 
 # plot(m)
 
 ## --- sampling ---
 
-draws <- mcmc(m, n_samples = 1000)
+draws <- mcmc(m, n_samples = 5000)
 
 # save data 
 saveRDS(draws, 'models_greta/linear_regression_simple_draws.rds')
