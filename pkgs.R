@@ -15,6 +15,7 @@ suppressPackageStartupMessages(library(scales)) # to massage scales in plots
 suppressPackageStartupMessages(library(greta)) # probabilistic modeling package
 suppressPackageStartupMessages(library(ggmcmc)) # tidy Bayes samples
 suppressPackageStartupMessages(library(HDInterval)) # credible intervals
+suppressPackageStartupMessages(library(binom)) # for binomial confidence intervals 
 
 
 ## set defaults
