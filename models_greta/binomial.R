@@ -29,7 +29,7 @@ m <- model(theta)
 
 ## --- sampling ---
 
-draws <- greta::mcmc(m, n_samples = 4000)
+draws <- greta::mcmc(m, n_samples = 1000)
 
 # save data 
 saveRDS(draws, 'models_greta/binomial_draws.rds')

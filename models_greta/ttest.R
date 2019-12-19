@@ -42,7 +42,7 @@ y1 <- as_data(RT_discrm)
 
 # regularizing priors that enable a good fit
 mean_0   <- normal(430, 50)
-delta    <- normal(0, 50)
+delta    <- normal(0, 100)
 sigma    <- normal(100, 10, truncation = c(0, Inf))
 # # mean_0 <- variable()
 # delta     <- variable()
@@ -69,7 +69,6 @@ saveRDS(draws, 'models_greta/ttest_draws.rds')
 
 # cast results (type 'mcmc.list') into tidy tibble
 tidy_draws = ggmcmc::ggs(draws)
-
 
 Bayes_estimates <- tidy_draws %>% 
   group_by(Parameter) %>%

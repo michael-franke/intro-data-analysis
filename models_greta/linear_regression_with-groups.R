@@ -60,7 +60,7 @@ m <- model(beta_0, beta_1, delta_0, delta_1)
 draws <- mcmc(m, n_samples = 1000)
 
 # save data 
-# saveRDS(draws, 'models_greta/linear_regression_simple_draws.rds')
+saveRDS(draws, 'models_greta/linear_regression_with_groups_draws.rds')
 # draws <- readRDS('models_greta/linear_regression_simple_draws.rds')
 
 # cast results (type 'mcmc.list') into tidy tibble

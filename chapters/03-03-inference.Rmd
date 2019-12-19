@@ -644,6 +644,217 @@ The sequence of trees visited by a single Child is a **sample chain**. Usually, 
 
 How could Nature be sure that the plan succeeded? If not even Nature knows the distribution $P(t)$, how can we be sure that the Children's list gives representative samples to work with? - Certainty is petty. Reduction of uncertainty is key. Since we send out several Children in parallel, and since each Child distributed many apples, we can compare the list of trees delivered by each Child (= the set of samples in each chain). We can use statistics and ask: is it plausible that the set of samples in each chain has been generated from the same probability distribution? - The answer to this question can help reduce uncertainty about the quality of the sampling process.
 
-## Writing models in greta {#ch-03-03-estimation-greta}
+## Probabilistic modeling with `greta` {#ch-03-03-estimation-greta}
 
-- how greta works
+There are a number of software solutions for Bayesian posterior approximation, all of which implement a form of MCMC sampling, and most of which also realize at least one other form of parameter estimation. Many of these use a special language to define the model, and rely on a different programming language (like R, python, Julia etc.) to communicate with the program that does the sampling. Some options are:
+
+- [WinBUGS](https://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/): a classic which has grown out of use a bit
+- [JAGS](http://mcmc-jags.sourceforge.net): another classic
+- [Stan](https://mc-stan.org): strongly developed current workhorse
+- [WebPPL](http://webppl.org): light-weight, browser-based full probabilistic programming language
+- [pyro](http://pyro.ai): for probabilistic (deep) machine learning, based on pytorch
+- [greta](https://greta-stats.org): R-only probabilistic modeling package, based on Python and tensoflow
+
+We will be using `greta` to look at explicitly formulated models. Later, when focusing on regression models, we will use an R package called `brms`, which relies on Stan, but we will not actively engage with Stan in this course.
+
+### Basics of `greta`
+
+In order to approximate a posterior distribution over parameters for a model, given some data, using an MCMC algorithm, we need to specify the model for the sampler. In particular we must tell it about (i) the parameters, (ii) their priors, (iii) the likelihood function. The R-package `greta` allows us to specify this model inside of an R script in a syntax that looks like we are using regular R functions, even if in fact we are not. 
+
+For more information on `greta`, see the [greta starting guide](https://greta-stats.org/articles/get_started.html).
+
+### Binomial Model
+
+Figure \@ref(fig:ch-03-03-Binomial-Model-repeated) shows the Binomial model for coin flips, as discussed before. We are going to implement it in `greta`.
+
+```{r ch-03-03-Binomial-Model-repeated, echo = F, fig.cap="The Binomial Model (repeated from before).", out.width = '40%'}
+knitr::include_graphics("visuals/binomial-model.png")
+```
+
+We data from the [King of France example](app-93-data-sets-king-of-france), where we are interested in the number $k = 109$ of "true" responses to sentences with a false presuppsition over all $N = 311$ relevant observations. The research question of interest is whether the idea that the parameter $\theta$ which models to overal disposition to answer "true" for these sentences could plausibly be fixed to $\theta = 0.5$. We declare the relevant counts using the `greta` function `as_data`. In this way all subsequent calculations with `k` and `N` will make it clear that we are defining `greta`-objects as part of a (so far) static model definition.
+
+
+```{r, eval = F}
+# greta data 
+k <- as_data(109)
+N <- as_data(311)
+```
+
+Next, we need to tell the model what the prior for the latent parameter `theta` is. We use an uninformative Beta distribution here, $\theta \sim \text{Beta}(1,1)$. This is realized with the function `beta` from the `greta` package. Notice that `beta` is *not* a function defined in R!
+
+```{r, eval = F}
+# coin bias & prior (here: uninformative)
+theta   <- beta(1,1)
+```
+
+Finally, we tell `greta` about the likelihood of the data. This uses the `greta` functions `distribution` and `binomial`. By using `distribution` for the already defined and given data in variable `k` we inform `greta` that this line is (part of) the definition of the likelihood function.
+
+```{r, eval = F}
+# likelihood of data given theta
+distribution(k) <- binomial(N, theta)
+```
+
+It remains to tell `greta` that the model definition is done and which parameters the MCMC sampler should return information about (here: `theta`).
+
+```{r, eval = F}
+# declare the greta model
+m <- model(theta)
+```
+
+We can then call an the `greta` function `mcmcm` which draws samples using an MCMC algorithm (the default is Hamiltonian Monte Carlo). We can specify additional parameters to tweak the sampler, such as the length of the warm-up period, the number of samples, chains, etc.
+
+```{r, eval = F}
+# take 4 chains of 1000 samples
+draws <- greta::mcmc(
+  model = m, 
+  n_samples = 1000,
+  warmup = 1000,
+  chains = 4
+)
+```
+
+```{r, echo = F}
+# saveRDS(draws, 'models_greta/binomial_draws.rds')
+draws <- readRDS('models_greta/binomial_draws.rds')
+```
+
+The resulting `draws` object is a special kind of object, an `MCMC.list` as defined in the `coda` package. This is not very important for us, however, we simply transform the samples to a tidy representation, using the function `ggs` from the `ggmcmc` package:
+
+```{r}
+# cast results (type 'mcmc.list') into tidy tibble
+tidy_draws = ggmcmc::ggs(draws)
+tidy_draws
+```
+
+We can use these samples to compute Bayesian point- and interval estimates, for example:
+
+```{r, eval = T}
+# obtain Bayesian point and interval estimates
+Bayes_estimates <- tidy_draws %>% 
+  group_by(Parameter) %>%
+  summarise(
+    '|95%' = HDInterval::hdi(value)[1],
+    mean = mean(value),
+    '95|%' = HDInterval::hdi(value)[2]
+  )
+Bayes_estimates
+```
+
+Using the (controversial) metod of inspecting posterior estimates, we would conclude that $\theta = 0$ is not an *a posteriori* credible value for the inclination to judge the truth of sentences with a false presupposition. 
+
+Figure \@ref(fig:ch-03-03-binomial-posterior) moreover shows a density plot derived from the MCMC samples, together with the estimated 95% HDI and the true posterior distribution (in back), as derived by conjugacy.
+
+```{r ch-03-03-binomial-posterior, echo = F, fig.cap = "Posterior over coin bias $\\theta$ given $k=109$ and $N=311$ approximated by samples from `greta`, with estimated 95% credible interval (red area). The black curve shows the true posterior, derived through conjugacy."}
+# get density estimates from samples
+dens <- filter(tidy_draws, Parameter == "theta") %>% pull(value) %>% 
+  density()
+# plot estimated density with true posterior
+tibble(
+  parameter = dens$x,
+  density = dens$y
+) %>% 
+  ggplot(aes(x = parameter, y = density)) +
+  geom_line(color = "firebrick") +
+  geom_area(aes(x = ifelse(parameter > Bayes_estimates[1,2] %>% as.numeric & parameter < Bayes_estimates[1,4] %>% as.numeric , parameter, 0)),
+            fill = "firebrick", alpha = 0.5) +
+  ylim(0, max(dens$y)) +
+  xlim(min(dens$x), max(dens$x)) +
+  geom_line(
+    data = tibble(
+      parameter = seq(0,1, length.out = 401),
+      density = dbeta(parameter, 109, 311-109)
+    ),
+    color = "black"
+  ) + 
+  ylim(c(0,15.6)) + 
+  labs(
+    x = latex2exp::TeX("Parameter $\\theta$")
+  )
+```
+
+### T-Test Model for Mental Chronometry
+
+<div style = "float:right; width:15%;">
+<img src="visuals/badge-mental-chronometry.png" alt="badge-mental-chronometry">  
+</div>  
+
+We will use the [Mental Chronometry](app-93-data-sets-mental-chronometry) data to compare the reaction times in the "go/No-go" condition to the reaction times in the "discrimination" condition. First we read in the data and get some handy summary statistics from the data:
+
+
+```{r}
+mc_data_cleaned <- read_csv('data_sets/mental-chrono-data_cleaned.csv')
+means_and_diffs <- 
+mc_data_cleaned %>%
+  filter(block != "reaction") %>% 
+  group_by(block) %>% 
+  summarise(
+    mean_RT = mean(RT)
+  ) %>% 
+  pivot_wider(
+    names_from = block,
+    values_from = mean_RT
+  ) %>% 
+  mutate(
+    `discr - gng` = discrimination - goNoGo
+  )
+means_and_diffs
+```
+
+The model we will use for this situation is the T-Test model shown in Figure \@ref(fig:ch-03-03-T-Test-Model-Difference), repeated from the previous Chapter. We use the model which explicitly codes the difference between means (the variable $\delta$) to directly address the question of whether $\delta = 0$ is a plausible point-value for this parameter.
+
+```{r ch-03-03-T-Test-Model-Difference, echo = F, out.width = '70%', fig.cap="A T-Test Model where one group is the default and the difference between group means is explicitly coded as a parameter."}
+knitr::include_graphics("visuals/t-test-model-difference.png")
+```
+
+We extract the relevant data and declare it as a `greta` object:
+
+```{r, eval = F}
+# isolate data vectors
+RT_goNoGo <- mc_data_cleaned %>% filter(group == "goNoGo") %>% pull(RT)
+RT_discrm <- mc_data_cleaned %>% filter(group == "discrimination") %>% pull(RT)
+# declare as greta data arrays
+y0 <- as_data(RT_goNoGo)
+y1 <- as_data(RT_discrm)
+```
+
+We then define the model, using weakly informative, partly regularizing priors, i.e., priors that are informed by the data to ensure swift convergence (expecting valus of `mean_0` to lie in plausible region), but that are not very biased to allow a large impact of the likelihood function (using relatively large standard deviations).
+
+```{r, eval = F}
+# priors 
+mean_0   <- normal(430, 50)
+delta    <- normal(0, 100)
+sigma    <- normal(100, 10, truncation = c(0, Inf))
+# derived prameters
+mean_1   <- mean_0 + delta
+# likelihood
+distribution(y0) <- normal(mean_0, sigma)
+distribution(y1) <- normal(mean_1, sigma)
+# model 
+m <- model(mean_0, mean_1, delta, sigma)## --- sampling ---
+draws <- greta::mcmc(m, warmup = 2000, n_samples = 4000)
+```
+
+```{r, echo = F}
+# saveRDS(draws, '../models_greta/ttest_draws.rds')
+draws <- readRDS('models_greta/ttest_draws.rds')
+```
+
+Bayesian point- and interval-estimates can be calculated from the posterior samples, including 
+
+```{r, echo = T}
+tidy_draws = ggmcmc::ggs(draws)
+Bayes_estimates <- tidy_draws %>% 
+  group_by(Parameter) %>%
+  summarise(mean = mean(value),
+            '|95%' = HDInterval::hdi(value)[1],
+            '95|%' = HDInterval::hdi(value)[2])
+Bayes_estimates
+```
+
+The Bayesian point-estimates for means and the difference correspond closely to the summary statistics we derived previously:
+
+```{r}
+means_and_diffs
+```
+
+But we also now get indications of credible ranges of parameter values. Most intrestingly, we obtain a 95% creidble interval for the $\delta$ parameter, the difference between the means, which quite clearly does not include the case $\delta = 0$. The lower bound of the estimated 95% credible interval is more than 40 ms. We could conclude from this that, given this data set and the model used here, it is plausible that the difference in mean reaction times between the "discrimination" condition and the "go/no-go" condition is at least 40ms.
