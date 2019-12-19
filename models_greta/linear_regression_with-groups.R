@@ -22,6 +22,11 @@ avocado_data <- read_csv('data_sets/avocado.csv') %>%
   ) %>% 
   select(type, average_price, total_volume_sold)
 
+## --- --- GLM for comparison --- ---
+
+glm_fit <- glm(average_price ~ type * log(total_volume_sold), data = avocado_data)
+
+## --- --- Greta data --- ---
 
 price_conv     <- as_data(avocado_data %>% filter(type == "conventional") %>% pull(average_price) )
 price_orga     <- as_data(avocado_data %>% filter(type == "organic") %>% pull(average_price) )
@@ -46,16 +51,16 @@ distribution(price_orga) <- normal(beta_0 + delta_0 + log_sold_orga * (delta_1 +
 
 ## --- --- model --- ---
 
-m <- model(beta_0, beta_1, delta_0, delta_1, sigma)
+m <- model(beta_0, beta_1, delta_0, delta_1)
 
 # plot(m)
 
 ## --- sampling ---
 
-draws <- mcmc(m, n_samples = 5000)
+draws <- mcmc(m, n_samples = 1000)
 
 # save data 
-saveRDS(draws, 'models_greta/linear_regression_simple_draws.rds')
+# saveRDS(draws, 'models_greta/linear_regression_simple_draws.rds')
 # draws <- readRDS('models_greta/linear_regression_simple_draws.rds')
 
 # cast results (type 'mcmc.list') into tidy tibble
@@ -67,7 +72,7 @@ Bayes_estimates <- tidy_draws %>%
             '|95%' = HDInterval::hdi(value)[1],
             '95|%' = HDInterval::hdi(value)[2])
 
-dens <- filter(tidy_draws, Parameter == "slope") %>% pull(value) %>% 
+dens <- filter(tidy_draws, Parameter == "delta_0") %>% pull(value) %>% 
   density()
 
 tibble(
