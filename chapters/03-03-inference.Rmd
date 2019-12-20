@@ -439,6 +439,12 @@ $$
 
 where $\theta_{\text{true}}$ is the unknown but fixed true value of $\theta$. In more intuitive words, a confidence interval is the outcome of a special construction (functions $g_{l,u}$) such that, when applying this procedure repeatedly to outcomes of the assumed data-generating process, the true value of parameter $\theta$ will lie inside of the computed confidence interval in exactly $\gamma$\% of the cases.
 
+It is easier to think of the definition of a confidence interval in terms of computer code and sampling (see Figure \@ref(fig:03-03-estimation-confidence-interval-scheme)). Suppose Grandma gives you computer code, a `magic_function` which takes as input data observations, and returns an interval estimate for the parameter of interest. We sample a value for the parameter of interest repeatedly, and consider it the "true parameter" for the time being. For each sampled "true parameter", we generate data repeatedly. We apply Grandma's `magic_function`, obtain an interval estimate and check if the true value that triggered the whole process is included in the interval. Grandma's `magic_function` is a $\gamma\%$ confidence interval if the proportion of inclusions (the checkmarks in Figure \@ref(fig:03-03-estimation-confidence-interval-scheme)) is $\gamma\%$.
+
+```{r 03-03-estimation-confidence-interval-scheme, echo = F, fig.cap="Schematic representation of what a confidence interval does: think of it as a magic function which returns intervals that contain the true value in $\\gamma$ percent of the cases."}
+knitr::include_graphics("visuals/tidyverse-overview.png")
+```
+
 In some complex cases, the frequentist analyst relies on functions $g_{l}$ and $g_{u}$ that are easy to compute but only approximately satisfy the condition $P(X_l \le \theta_{\text{true}} \le X_u) = \frac{\gamma}{100}$. For example, we might use an
 asymptotically correct calculation, based on the observation that, if $n$ grows to infinity, the binomial distribution approximates a normal distribution. We can then calculate a confidence interval, *as if* our binomial distribution actually was a normal distribution. If $n$ is not large enough, this will be increasingly imprecise. Rules of thumb are used to decide how big $n$ has to be to involve at best a tolerable amount of imprecision (see the Info Box below). 
 
@@ -479,7 +485,7 @@ $$
 
 ## Addressing point-valued hypotheses with parameter estimation {#ch-03-03-estimation-testing}
 
-Using interval-based estimates, we can address research questions formulated as point-valued hypotheses about a parameter of interest. Let $\Theta$ be the parameter space of a model $M$. We are interested in some component $\Theta_i$ and our hypothesis is $\Theta_i = \theta^*_i$ for some specific value $\theta^*_i$. A simple (but crude and controversial) way of addressing this point-valued hypothesis based on observed data $D$ is to look at whether $\theta^*_i$ lies inside the interval-estimate for parameter $Theta_i$ based on observed data $D$. This would apply for frequentist confidence intervals and Bayesian credible intervals alike. 
+Using interval-based estimates, we can address research questions formulated as point-valued hypotheses about a parameter of interest. Let $\Theta$ be the parameter space of a model $M$. We are interested in some component $\Theta_i$ and our hypothesis is $\Theta_i = \theta^*_i$ for some specific value $\theta^*_i$. A simple (but crude and controversial) way of addressing this point-valued hypothesis based on observed data $D$ is to look at whether $\theta^*_i$ lies inside the interval-estimate for parameter $\Theta_i$ based on observed data $D$. This would apply for frequentist confidence intervals and Bayesian credible intervals alike. 
 
 @kruschke2015 extends this approach to addressing point-valued hypothesis. He argues that we should *not* be concerned with point-valued hypotheses, but rather with intervals constructed around the point-value of interest. Kruschke therefore suggests to look at a **region of practical equivalence** (ROPE), usually defined by some $\epsilon$-region around $\theta^*_i$:
 
@@ -521,18 +527,24 @@ estimates_24_7 %>%
   ggplot(aes(x = approach, y = point, ymin = lower, ymax = upper, color = approach)) +
   geom_point(size = 4, color = "black") + 
   geom_rect(
-    aes(xmin = 0, xmax = 3, ymin = 0.49, ymax = 0.51), 
+    aes(xmin = 0.5, xmax = 2.5, ymin = 0.49, ymax = 0.51), 
     fill = "firebrick", 
     color = "gray", alpha = 0.3
   ) +
+    geom_rect(
+    aes(xmin = 0.5, xmax = 2.5, ymin = 0.49999, ymax = 0.50001), 
+    fill = "firebrick", 
+    color = "firebrick", alpha = 1
+  ) +
+  # geom_hline(aes(yintercept = 0.5), color = "firebrick") +
   geom_linerange(size = 1.5) + 
   geom_point(size = 4, color = "black") + 
   coord_flip() + 
   ylim(c(0.1 ,0.55)) +
   guides(color = "none") +
   labs(
-    x = latex2exp::TeX("Parameter $\\theta$"),
-    y = ""
+    y = latex2exp::TeX("Parameter $\\theta$"),
+    x = ""
   )
 ```
 
