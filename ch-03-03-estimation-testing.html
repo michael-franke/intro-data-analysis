@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>11 Model Comparison | Introduction to Data Analysis</title>
+  <title>9.3 Addressing point-valued hypotheses with parameter estimation | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.16.5 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="11 Model Comparison | Introduction to Data Analysis" />
+  <meta property="og:title" content="9.3 Addressing point-valued hypotheses with parameter estimation | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="11 Model Comparison | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="9.3 Addressing point-valued hypotheses with parameter estimation | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="ch-03-05-hypothesis-testing.html"/>
-<link rel="next" href="ch-03-07-hypothesis-testing-Bayes.html"/>
+<link rel="prev" href="ch-03-03-estimation-frequentist.html"/>
+<link rel="next" href="ch-03-03-estimation-comparison.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -430,22 +430,60 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="Chap-03-06-model-comparison" class="section level1">
-<h1><span class="header-section-number">11</span> Model Comparison</h1>
+<div id="ch-03-03-estimation-testing" class="section level2">
+<h2><span class="header-section-number">9.3</span> Addressing point-valued hypotheses with parameter estimation</h2>
+<p>Using interval-based estimates, we can address research questions formulated as point-valued hypotheses about a parameter of interest. Let <span class="math inline">\(\Theta\)</span> be the parameter space of a model <span class="math inline">\(M\)</span>. We are interested in some component <span class="math inline">\(\Theta_i\)</span> and our hypothesis is <span class="math inline">\(\Theta_i = \theta^*_i\)</span> for some specific value <span class="math inline">\(\theta^*_i\)</span>. A simple (but crude and controversial) way of addressing this point-valued hypothesis based on observed data <span class="math inline">\(D\)</span> is to look at whether <span class="math inline">\(\theta^*_i\)</span> lies inside the interval-estimate for parameter <span class="math inline">\(Theta_i\)</span> based on observed data <span class="math inline">\(D\)</span>. This would apply for frequentist confidence intervals and Bayesian credible intervals alike.</p>
+<p><span class="citation">Kruschke (<a href="#ref-kruschke2015">2015</a>)</span> extends this approach to addressing point-valued hypothesis. He argues that we should <em>not</em> be concerned with point-valued hypotheses, but rather with intervals constructed around the point-value of interest. Kruschke therefore suggests to look at a <strong>region of practical equivalence</strong> (ROPE), usually defined by some <span class="math inline">\(\epsilon\)</span>-region around <span class="math inline">\(\theta^*_i\)</span>:</p>
+<p><span class="math display">\[\text{ROPE}(\theta^*_i) = [\theta^*_i- \epsilon, \theta^*_i+ \epsilon]\]</span></p>
+<p>The choice of <span class="math inline">\(\epsilon\)</span> is context-dependent and requires an understanding of the scale at which parameter values <span class="math inline">\(\Theta_i\)</span> differ. If the parameter of interest is, for example, the difference <span class="math inline">\(\delta\)</span> in the means of reaction times, like in the Mental Chronometry example, this parameter is intuitively interpretable. We can say, for instance, that an <span class="math inline">\(\epsilon\)</span>-region of <span class="math inline">\(\pm 5\text{ms}\)</span> is really so short that any value in <span class="math inline">\([-5\text{ms}; 5\text{ms}]\)</span> would be regarded as identical to <span class="math inline">\(0\)</span> for all practical purposes, because of what we know about reaction times and their potential differences. However, with paramters that are less clearly anchored to a concrete physical measurement about which we have solid distributional knowledge and/or reliable intuitions, fixing the size of the ROPE can be more difficult. For the bias of a coin flip, for instance, which we want to test at the piont value <span class="math inline">\(\theta^* = 0.5\)</span> (testing the coin for fairness), we might want to consider a ROPE like <span class="math inline">\([0.49; 0.51]\)</span>, although this choice may be less objectively defensible without previous experimental evidence from similar situations.</p>
+<p><span class="citation">Kruschke (<a href="#ref-kruschke2015">2015</a>)</span> advances the ROPE approach for Bayesian hypothesis testing, based on parameter estimation and credible intervals. The rationale for using a ROPE could, in principle, also be extended to frequentist approaches, using confidence intervals instead of credible intervals It would, however, undermine the frequentist rationale for confidence intervals to use a ROPE, because we would lose the tight hand on error control, which is built into frequentist testing, and also confidence intervals. (More on this in Chapter <a href="ch-03-05-hypothesis-testing.html#ch-03-05-hypothesis-testing">10</a>). That is why the frequentist approach does not use ROPEs, or equivalently only considers <span class="math inline">\(\epsilon = 0\)</span>.</p>
+<p>In Kruschke’s ROPE-based approach where <span class="math inline">\(\epsilon \ge 0\)</span>, the decision about a point-valued hypothesis becomes ternary. If <span class="math inline">\([l;u]\)</span> is an interval-based estimate of parameter <span class="math inline">\(\Theta_i\)</span> and <span class="math inline">\([\theta^*_i - \epsilon; \theta^*_i + \epsilon]\)</span> is the ROPE around the point-value of interest, then we would:</p>
 <ul>
-<li>AIC</li>
-<li>likelihood ratio test</li>
-<li>Bayes factor</li>
+<li><strong>accept</strong> the point-valued hypothesis iff <span class="math inline">\([\theta^*_i - \epsilon; \theta^*_i + \epsilon]\)</span> is contained entirely in <span class="math inline">\([l;u]\)</span>;</li>
+<li><strong>reject</strong> the point-valued hypothesis iff <span class="math inline">\([\theta^*_i - \epsilon; \theta^*_i + \epsilon]\)</span> and <span class="math inline">\([l;u]\)</span> have no overlap; and</li>
+<li><strong>withhold judgement</strong> otherwise.</li>
 </ul>
-
+<p>Consider the 25/7 example, where the point-valued hypothesis of interest is <span class="math inline">\(\theta^* = 0.5\)</span> (testing the coin for fairness) and the ROPE is <span class="math inline">\([0.49; 0.51]\)</span> (<span class="math inline">\(\epsilon = 0.1\)</span>, arbitrarily set here). The point- and interval-estimates for Bayesian and frequentist approaches are as follows:</p>
+<div class="sourceCode" id="cb359"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb359-1" data-line-number="1">estimates_<span class="dv">24</span>_<span class="dv">7</span> &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb359-2" data-line-number="2">  <span class="st">`</span><span class="dt">lower_Bayes</span><span class="st">`</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(<span class="cf">function</span>(x) <span class="kw">qbeta</span>(x, <span class="dv">8</span>,<span class="dv">18</span>))[<span class="dv">1</span>],</a>
+<a class="sourceLine" id="cb359-3" data-line-number="3">  <span class="st">`</span><span class="dt">point_Bayes</span><span class="st">`</span> =<span class="st"> </span><span class="dv">8</span><span class="op">/</span><span class="dv">18</span>,</a>
+<a class="sourceLine" id="cb359-4" data-line-number="4">  <span class="st">`</span><span class="dt">upper_Bayes</span><span class="st">`</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(<span class="cf">function</span>(x) <span class="kw">qbeta</span>(x, <span class="dv">8</span>,<span class="dv">18</span>))[<span class="dv">2</span>],</a>
+<a class="sourceLine" id="cb359-5" data-line-number="5">  <span class="st">`</span><span class="dt">lower_frequentist</span><span class="st">`</span>  =<span class="st"> </span>binom<span class="op">::</span><span class="kw">binom.exact</span>(<span class="dv">7</span>,<span class="dv">24</span>)<span class="op">$</span>lower,</a>
+<a class="sourceLine" id="cb359-6" data-line-number="6">  <span class="st">`</span><span class="dt">point_frequentist</span><span class="st">`</span>  =<span class="st"> </span><span class="dv">7</span><span class="op">/</span><span class="dv">17</span>,</a>
+<a class="sourceLine" id="cb359-7" data-line-number="7">  <span class="st">`</span><span class="dt">upper_frequentist</span><span class="st">`</span>  =<span class="st"> </span>binom<span class="op">::</span><span class="kw">binom.exact</span>(<span class="dv">7</span>,<span class="dv">24</span>)<span class="op">$</span>upper</a>
+<a class="sourceLine" id="cb359-8" data-line-number="8">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb359-9" data-line-number="9"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
+<a class="sourceLine" id="cb359-10" data-line-number="10">    <span class="kw">everything</span>(),</a>
+<a class="sourceLine" id="cb359-11" data-line-number="11">    <span class="dt">names_pattern =</span> <span class="st">&quot;(.*)_(.*)&quot;</span>,</a>
+<a class="sourceLine" id="cb359-12" data-line-number="12">    <span class="dt">names_to =</span> <span class="kw">c</span>(<span class="st">&quot;.value&quot;</span>, <span class="st">&quot;approach&quot;</span>)</a>
+<a class="sourceLine" id="cb359-13" data-line-number="13">  )</a>
+<a class="sourceLine" id="cb359-14" data-line-number="14">estimates_<span class="dv">24</span>_<span class="dv">7</span></a></code></pre></div>
+<pre><code>## # A tibble: 2 x 4
+##   approach    lower point upper
+##   &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Bayes       0.141 0.444 0.483
+## 2 frequentist 0.126 0.412 0.511</code></pre>
+<p>Figure <a href="ch-03-03-estimation-testing.html#fig:ch-03-03-estimation-ROPE-24-7">9.7</a> shows these estimates next to the ROPE. We see that the Bayesian 95% credible interval has no overlap with the ROPE, so that we would <em>reject</em> the null-hypothesis of <span class="math inline">\(\theta^* = 0.5\)</span> by the ROPE+estimation logic of statistical decision making. If we were to illegitimately (!) apply this approach to frequentist confidence intervals, we would <em>accept</em> this point-valued hypotheses instead. However, as stressed above, this is <em>not</em> an accepted move in frequentist statistics. The frequenists would <em>not</em> consider a ROPE, or equivalently set <span class="math inline">\(\epsilon = 0\)</span> in each case. The frequentist would also not accept the point-valued hypothesis in case the critical value is included in the confidence interval. It would then merely withhold judgement, i.e., <em>not reject</em> the point hypothesis. (More on this in Chapter <a href="ch-03-05-hypothesis-testing.html#ch-03-05-hypothesis-testing">10</a>.)</p>
+<div class="figure" style="text-align: center"><span id="fig:ch-03-03-estimation-ROPE-24-7"></span>
+<img src="I2DA_files/figure-html/ch-03-03-estimation-ROPE-24-7-1.png" alt="Comparing point- and interval-estimates (Bayesian credible intervals and frequentist confidence intervals) against a ROPE of $[0.49; 0.51]$ (red shaded area) around the point-valued hypothesis of interest is $\theta^* = 0.5$." width="672" />
+<p class="caption">
+Figure 9.7: Comparing point- and interval-estimates (Bayesian credible intervals and frequentist confidence intervals) against a ROPE of <span class="math inline">\([0.49; 0.51]\)</span> (red shaded area) around the point-valued hypothesis of interest is <span class="math inline">\(\theta^* = 0.5\)</span>.
+</p>
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references">
+<div id="ref-kruschke2015">
+<p>Kruschke, John. 2015. <em>Doing Bayesian data analysis: A tutorial with R, JAGS, and Stan</em>. Academic Press.</p>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="ch-03-05-hypothesis-testing.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="ch-03-07-hypothesis-testing-Bayes.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="ch-03-03-estimation-frequentist.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="ch-03-03-estimation-comparison.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
