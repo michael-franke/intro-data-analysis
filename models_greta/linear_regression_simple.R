@@ -27,9 +27,9 @@ log_sold  <- as_data(avocado_data$total_volume_sold %>% log)
 
 ## --- --- latent variables --- ---
 
-intercept <- normal(0, 10)
-slope     <- normal(0, 10)
-sigma     <- student(3, 0 , 1, truncation = c(0, Inf))
+intercept <- student(df= 1, mu = 0, sigma = 10)
+slope     <- student(df= 1, mu = 0, sigma = 10)
+sigma     <- normal(0 , 5, truncation = c(0, Inf))
 
 # intercept <- variable()
 # slope     <- variable()
@@ -49,7 +49,7 @@ m <- model(intercept, slope, sigma)
 
 ## --- sampling ---
 
-draws <- mcmc(m, n_samples = 1000)
+draws <- greta::mcmc(m, n_samples = 2000, chains = 4, warmup = 1000)
 
 # save data 
 saveRDS(draws, 'models_greta/linear_regression_simple_draws.rds')
