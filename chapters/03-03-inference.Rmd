@@ -497,19 +497,19 @@ The choice of $\epsilon$ is context-dependent and requires an understanding of t
 
 In Kruschke's ROPE-based approach where $\epsilon \ge 0$, the decision about a point-valued hypothesis becomes ternary. If $[l;u]$ is an interval-based estimate of parameter $\Theta_i$ and $[\theta^*_i - \epsilon; \theta^*_i + \epsilon]$ is the ROPE around the point-value of interest, then we would:
 
-- **accept** the point-valued hypothesis iff $[\theta^*_i - \epsilon; \theta^*_i + \epsilon]$ is contained entirely in $[l;u]$;
-- **reject** the point-valued hypothesis iff $[\theta^*_i - \epsilon; \theta^*_i + \epsilon]$ and $[l;u]$ have no overlap; and
+- **accept** the point-valued hypothesis iff $[l;u]$ is contained entirely in $[\theta^*_i - \epsilon; \theta^*_i + \epsilon]$;
+- **reject** the point-valued hypothesis iff $[l;u]$ and $[\theta^*_i - \epsilon; \theta^*_i + \epsilon]$ have no overlap; and
 - **withhold judgement** otherwise.
 
-Consider the 25/7 example, where the point-valued hypothesis of interest is $\theta^* = 0.5$ (testing the coin for fairness) and the ROPE is $[0.49; 0.51]$ ($\epsilon = 0.1$, arbitrarily set here). The point- and interval-estimates for Bayesian and frequentist approaches are as follows:
+Consider the 24/7 example, where the point-valued hypothesis of interest is $\theta^* = 0.5$ (testing the coin for fairness) and the ROPE is $[0.49; 0.51]$ ($\epsilon = 0.1$, arbitrarily set here). The point- and interval-estimates for Bayesian and frequentist approaches are as follows:
 
 ```{r}
 estimates_24_7 <- tibble(
   `lower_Bayes` = HDInterval::hdi(function(x) qbeta(x, 8,18))[1],
-  `point_Bayes` = 8/18,
+  `point_Bayes` = 8/25,
   `upper_Bayes` = HDInterval::hdi(function(x) qbeta(x, 8,18))[2],
   `lower_frequentist`  = binom::binom.exact(7,24)$lower,
-  `point_frequentist`  = 7/17,
+  `point_frequentist`  = 7/24,
   `upper_frequentist`  = binom::binom.exact(7,24)$upper
 ) %>% 
   pivot_longer(
@@ -520,7 +520,7 @@ estimates_24_7 <- tibble(
 estimates_24_7
 ```
 
-Figure \@ref(fig:ch-03-03-estimation-ROPE-24-7) shows these estimates next to the ROPE. We see that the Bayesian 95% credible interval has no overlap with the ROPE, so that we would *reject* the null-hypothesis of $\theta^* = 0.5$ by the ROPE+estimation logic of statistical decision making. If we were to illegitimately (!) apply this approach to frequentist confidence intervals, we would *accept* this point-valued hypotheses instead. However, as stressed above, this is *not* an accepted move in frequentist statistics. The frequenists would *not* consider a ROPE, or equivalently set $\epsilon = 0$ in each case. The frequentist would also not accept the point-valued hypothesis in case the critical value is included in the confidence interval. It would then merely withhold judgement, i.e., *not reject* the point hypothesis. (More on this in Chapter \@ref(ch-03-05-hypothesis-testing).)
+Figure \@ref(fig:ch-03-03-estimation-ROPE-24-7) shows these estimates next to the ROPE. We see that the Bayesian 95% credible interval has no overlap with the ROPE, so that we would *reject* the null-hypothesis of $\theta^* = 0.5$ by the ROPE+estimation logic of statistical decision making. If we were to illegitimately (!) apply this approach to frequentist confidence intervals, we would *accept* this point-valued hypothesis instead. However, as stressed above, this is *not* an accepted move in frequentist statistics. The frequenists would *not* consider a ROPE with $\epsilon > 0$. The frequentist would also not accept the point-valued hypothesis in case the critical value is included in the confidence interval. They would merely withhold judgement, i.e., *not reject* the point hypothesis. (More on this in Chapter \@ref(ch-03-05-hypothesis-testing).)
 
 ```{r ch-03-03-estimation-ROPE-24-7, fig.cap = "Comparing point- and interval-estimates (Bayesian credible intervals and frequentist confidence intervals) against a ROPE of $[0.49; 0.51]$ (red shaded area) around the point-valued hypothesis of interest is $\\theta^* = 0.5$.", echo = F}
 estimates_24_7 %>% 
