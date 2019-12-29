@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>4.3 Data manipulation: the basics | Introduction to Data Analysis</title>
+  <title>8.6 Expressing hypotheses with models | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.16.5 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="4.3 Data manipulation: the basics | Introduction to Data Analysis" />
+  <meta property="og:title" content="8.6 Expressing hypotheses with models | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="4.3 Data manipulation: the basics | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="8.6 Expressing hypotheses with models | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Chap-02-02-data-tidy-data.html"/>
-<link rel="next" href="Chap-02-02-data-grouping-nesting.html"/>
+<link rel="prev" href="Chap-03-03-models-examples.html"/>
+<link rel="next" href="ch-03-04-parameter-inference.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -437,301 +437,31 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="Chap-02-02-data-preprocessing-cleaning" class="section level2">
-<h2><span class="header-section-number">4.3</span> Data manipulation: the basics</h2>
-<div id="pivoting" class="section level3">
-<h3><span class="header-section-number">4.3.1</span> Pivoting</h3>
-<p>The tidyverse strongly encourages the use of tidy data, or at least almost tidy data. If your data is (almost) tidy, you can be reasonably sure that you can plot and analyze the data without additional wrangling. If your data is not (almost) tidy because it is too wide or too long (see below), what is required is a joyful round of pivoting. There are two directions of pivoting: making data longer, and making data wider.</p>
-<div id="making-too-wide-data-longer-with-pivot_longer" class="section level4">
-<h4><span class="header-section-number">4.3.1.1</span> Making too wide data longer with <code>pivot_longer</code></h4>
-<p>Consider the previous example of messy data again:</p>
-<div class="sourceCode" id="cb158"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb158-1" data-line-number="1">exam_results_visual &lt;-<span class="st"> </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb158-2" data-line-number="2">  <span class="op">~</span>exam,       <span class="op">~</span><span class="st">&quot;Rozz&quot;</span>,   <span class="op">~</span><span class="st">&quot;Andrew&quot;</span>,   <span class="op">~</span><span class="st">&quot;Siouxsie&quot;</span>,</a>
-<a class="sourceLine" id="cb158-3" data-line-number="3">  <span class="st">&quot;midterm&quot;</span>,   <span class="st">&quot;1.3&quot;</span>,     <span class="st">&quot;2.0&quot;</span>,       <span class="st">&quot;1.7&quot;</span>,</a>
-<a class="sourceLine" id="cb158-4" data-line-number="4">  <span class="st">&quot;final&quot;</span>  ,   <span class="st">&quot;2.3&quot;</span>,     <span class="st">&quot;1.7&quot;</span>,       <span class="st">&quot;1.0&quot;</span></a>
-<a class="sourceLine" id="cb158-5" data-line-number="5">)</a>
-<a class="sourceLine" id="cb158-6" data-line-number="6">exam_results_visual</a></code></pre></div>
-<pre><code>## # A tibble: 2 x 4
-##   exam    Rozz  Andrew Siouxsie
-##   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;   
-## 1 midterm 1.3   2.0    1.7     
-## 2 final   2.3   1.7    1.0</code></pre>
-<p>This data is “too wide”. We can make it longer with the function <code>pivot_longer</code> from the <code>tidyr</code> package. Check out the example below before we plunge into a description of <code>pivot_longer</code>.</p>
-<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb160-1" data-line-number="1">exam_results_visual <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb160-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
-<a class="sourceLine" id="cb160-3" data-line-number="3">    <span class="co"># pivot every column except the first </span></a>
-<a class="sourceLine" id="cb160-4" data-line-number="4">    <span class="dt">cols =</span> <span class="op">-</span><span class="st"> </span><span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb160-5" data-line-number="5">    <span class="co"># name of new column which contains the</span></a>
-<a class="sourceLine" id="cb160-6" data-line-number="6">    <span class="co"># names of the columns to be &quot;gathered&quot;</span></a>
-<a class="sourceLine" id="cb160-7" data-line-number="7">    <span class="dt">names_to =</span> <span class="st">&quot;student&quot;</span>,</a>
-<a class="sourceLine" id="cb160-8" data-line-number="8">    <span class="co"># name of new column which contains the values</span></a>
-<a class="sourceLine" id="cb160-9" data-line-number="9">    <span class="co"># of the cells which now form a new column</span></a>
-<a class="sourceLine" id="cb160-10" data-line-number="10">    <span class="dt">values_to =</span> <span class="st">&quot;grade&quot;</span></a>
-<a class="sourceLine" id="cb160-11" data-line-number="11">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb160-12" data-line-number="12"><span class="st">  </span><span class="co"># optional reordering of columns (to make </span></a>
-<a class="sourceLine" id="cb160-13" data-line-number="13"><span class="st">  </span><span class="co"># the output exactly like `exam_results_tidy`)</span></a>
-<a class="sourceLine" id="cb160-14" data-line-number="14"><span class="st">  </span><span class="kw">select</span>(student, exam, grade)</a></code></pre></div>
-<pre><code>## # A tibble: 6 x 3
-##   student  exam    grade
-##   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;
-## 1 Rozz     midterm 1.3  
-## 2 Andrew   midterm 2.0  
-## 3 Siouxsie midterm 1.7  
-## 4 Rozz     final   2.3  
-## 5 Andrew   final   1.7  
-## 6 Siouxsie final   1.0</code></pre>
-<p>What <code>pivot_longer</code> does, in general, is take a bunch of columns and gather the values of all cells in these columns into a single, new column, the so-called <em>value column</em>, i.e., the column with the values of the cells to be gathered. If <code>pivot_longer</code> stopped here, we would loose information about which cell values belonged to which original column. Therefore, <code>pivot_longer</code> also creates a second new column, the so-called <em>name column</em>, i.e., the column with the names of the original columns that we gathered together. Consequently, in order to do its job, <code>pivot_longer</code> minimally needs three pieces of information:<a href="#fn15" class="footnote-ref" id="fnref15"><sup>15</sup></a></p>
-<ol style="list-style-type: decimal">
-<li>which columns to spin around (function argument <code>cols</code>)</li>
-<li>the name of the to-be-created new value column (function argument <code>values_to</code>)</li>
-<li>the name of the to-be-created new name column (function argument <code>names_to</code>)</li>
-</ol>
-<p>For different ways of selecting columns to pivot around, see Section <a href="Chap-02-02-data-preprocessing-cleaning.html#Chap-02-02-tidy-selection">4.3.3</a> below.</p>
+<div id="Chap-03-03-models-hypotheses" class="section level2">
+<h2><span class="header-section-number">8.6</span> Expressing hypotheses with models</h2>
+<p>Statistical estimation is used to address research questions of interest. In common practice, these research questions are most often spelled out as specific hypotheses about the values of paramters in a statistical model. Take the case of the <a href="app-93-data-sets-mental-chronometry">mental chronometry data</a>. Figure <a href="Chap-03-03-models-hypotheses.html#fig:ch03-02-models-mc-density">8.13</a> shows the distribution of reaction times for different conditions (= blocks) in the experiment. An obvious research question of interest is whether discrimination takes longer than ‘go/no-go’ responses. We can map this onto a T-Test Model, for example, by focusing on the data from these two conditions only, and asking whether the value of the <span class="math inline">\(\delta\)</span> parameter is equal to zero.</p>
+<div class="figure" style="text-align: center"><span id="fig:ch03-02-models-mc-density"></span>
+<img src="I2DA_files/figure-html/ch03-02-models-mc-density-1.png" alt="Density plots of the reaction times in the cleaned [mental chronometry data](app-93-data-sets-mental-chronometry) for each type of response measure taken." width="672" />
+<p class="caption">
+Figure 8.13: Density plots of the reaction times in the cleaned <a href="app-93-data-sets-mental-chronometry">mental chronometry data</a> for each type of response measure taken.
+</p>
 </div>
-<div id="making-too-long-data-wider-with-pivot_wider" class="section level4">
-<h4><span class="header-section-number">4.3.1.2</span> Making too long data wider with <code>pivot_wider</code></h4>
-<p>Consider the following example of data which is untidy because it is too long:</p>
-<div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb162-1" data-line-number="1">mixed_results_too_long &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb162-2" data-line-number="2"><span class="st">  </span><span class="kw">tibble</span>(<span class="dt">student =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&#39;Rozz&#39;</span>, <span class="st">&#39;Andrew&#39;</span>, <span class="st">&#39;Siouxsie&#39;</span>), <span class="dt">times =</span> <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb162-3" data-line-number="3">         <span class="dt">what =</span>    <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&#39;grade&#39;</span>, <span class="st">&#39;participation&#39;</span>), <span class="dt">each =</span> <span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb162-4" data-line-number="4">         <span class="dt">howmuch =</span> <span class="kw">c</span>(<span class="fl">2.7</span>, <span class="fl">2.0</span>, <span class="fl">1.0</span>, <span class="dv">75</span>, <span class="dv">93</span>, <span class="dv">33</span>))</a>
-<a class="sourceLine" id="cb162-5" data-line-number="5">mixed_results_too_long</a></code></pre></div>
-<pre><code>## # A tibble: 6 x 3
-##   student  what          howmuch
-##   &lt;chr&gt;    &lt;chr&gt;           &lt;dbl&gt;
-## 1 Rozz     grade             2.7
-## 2 Andrew   grade             2  
-## 3 Siouxsie grade             1  
-## 4 Rozz     participation    75  
-## 5 Andrew   participation    93  
-## 6 Siouxsie participation    33</code></pre>
-<p>This data is untidy because it lumps two types of different measurements (a course grade, and the percentage of participation) in a single column. These are different variables, and so should be represented in different columns.</p>
-<p>To fix a data representation that is too long, we can make it wider with the help of the <code>pivot_wider</code> function from the <code>tidyr</code> package. We look at an example before looking at the general behavior of the <code>pivot_wider</code> function.</p>
-<div class="sourceCode" id="cb164"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb164-1" data-line-number="1">mixed_results_too_long <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb164-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_wider</span>(</a>
-<a class="sourceLine" id="cb164-3" data-line-number="3">    <span class="co"># column containing the names of the new columns</span></a>
-<a class="sourceLine" id="cb164-4" data-line-number="4">    <span class="dt">names_from =</span> what,</a>
-<a class="sourceLine" id="cb164-5" data-line-number="5">    <span class="co"># column containing the values of the new columns</span></a>
-<a class="sourceLine" id="cb164-6" data-line-number="6">    <span class="dt">values_from =</span> howmuch</a>
-<a class="sourceLine" id="cb164-7" data-line-number="7">  )</a></code></pre></div>
-<pre><code>## # A tibble: 3 x 3
-##   student  grade participation
-##   &lt;chr&gt;    &lt;dbl&gt;         &lt;dbl&gt;
-## 1 Rozz       2.7            75
-## 2 Andrew     2              93
-## 3 Siouxsie   1              33</code></pre>
-<p>In general, <code>pivot_wider</code> picks out two columns, one column of values to distribute into new to-be-created columns, and one vector of names or groups which contains the information about the, well, names of the to-be-created new columns. There are more refined options for <code>pivot_wider</code> some of which we will encounter in the context of concrete cases of application.</p>
+<p>The <strong>research hypothesis</strong> in this case would be that there is a difference between the two conditions. But what we consider is its logical negation: the <strong>null hypothesis</strong> is that there is no difference between the two conditions. Using a model-based approach we can cast the null hypothesis as a statement about a single value of a single parameter.</p>
+<p>It is possible to formulate hypotheses also about values of parameter tuples. It is also possible to formulate hypothesis as expresssions about regions, such as intervals, e.g., asking whether <span class="math inline">\(\delta &gt; 0\)</span>. But the majority of applications focuses on point-valued null hypothesis about a single parameter value.</p>
+<p>Suppose <span class="math inline">\(\theta\)</span> is a single parameter of model <span class="math inline">\(M\)</span>. Our single-parameter, point-valued null hypothesis is that <span class="math inline">\(\theta = x\)</span>. There are several approaches to addressing this null hypothesis when we take a model-based approached. These correspond with <a href="Chap-03-03-models-three-pillars">the three goals of data analysis</a> formualted previously.</p>
+<p>Firstly, we can use parameter estimation. We check whether <span class="math inline">\(\theta = x\)</span> squares with the parameter values we infer, given the model <span class="math inline">\(M\)</span> and the data <span class="math inline">\(D\)</span>. This is what we will do in the following Chapter <a href="#ch-03-04-parameter-estimation"><strong>??</strong></a>.</p>
+<p>Secondly, we might want to use a prediction-based approach. In that case, we could ask, for instance, whether a model which assumes that <span class="math inline">\(\theta = x\)</span> would predict the data observed, reversedly, whether <span class="math inline">\(D\)</span> would appear rather unlikely given <span class="math inline">\(D\)</span> and the assumption that <span class="math inline">\(\theta = x\)</span>. This is the logic of classical hypothesis testing, except that the classical procedures do not routinely make the statistical models explicit. Chapter <a href="ch-03-05-hypothesis-testing.html#ch-03-05-hypothesis-testing">10</a> will deal with this in more detail.</p>
+<p>Finally, we can also use model comparison to test hypotheses. In that case, we might compare a model which fixes <span class="math inline">\(\theta = x\)</span> to a model which allows <span class="math inline">\(\theta\)</span> to take on other values as well. Chapter <a href="Chap-03-06-model-comparison.html#Chap-03-06-model-comparison">11</a> covers model comparison.</p>
+
 </div>
-</div>
-<div id="subsetting-row-columns" class="section level3">
-<h3><span class="header-section-number">4.3.2</span> Subsetting row &amp; columns</h3>
-<p>If a data set contains too much information for your current purposes, you can discard irrelevant (or unhelpful) rows and columns. The function <code>filter</code> takes a Boolean expression and returns only those rows of which the Boolean expression is true:</p>
-<div class="sourceCode" id="cb166"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb166-1" data-line-number="1">exam_results_tidy <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb166-2" data-line-number="2"><span class="st">  </span><span class="co"># keep only entries with grades better than 1.7</span></a>
-<a class="sourceLine" id="cb166-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(grade <span class="op">&lt;=</span><span class="st"> </span><span class="fl">1.7</span>)</a></code></pre></div>
-<pre><code>## # A tibble: 4 x 3
-##   student  exam    grade
-##   &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
-## 1 Rozz     midterm   1.3
-## 2 Siouxsie midterm   1.7
-## 3 Andrew   final     1.7
-## 4 Siouxsie final     1</code></pre>
-<p>To select rows by an index or a vector of indeces, use the <code>slice</code> function:</p>
-<div class="sourceCode" id="cb168"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb168-1" data-line-number="1">exam_results_tidy <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb168-2" data-line-number="2"><span class="st">  </span><span class="co"># keep only entries from rows with an even index</span></a>
-<a class="sourceLine" id="cb168-3" data-line-number="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">slice</span>(<span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>)) <span class="co"># explicit call to avoid name clash (package &#39;greta&#39;)</span></a></code></pre></div>
-<pre><code>## # A tibble: 3 x 3
-##   student  exam    grade
-##   &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
-## 1 Andrew   midterm   2  
-## 2 Rozz     final     2.3
-## 3 Siouxsie final     1</code></pre>
-<p>The function <code>select</code> allows to pick out a subset of columns. Interestingly, it can also be used to reorder columns, because the order in which column names are specified matches the order in the returned tibble.</p>
-<div class="sourceCode" id="cb170"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb170-1" data-line-number="1">exam_results_tidy <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb170-2" data-line-number="2"><span class="st">  </span><span class="co"># select columns `grade` and `name`</span></a>
-<a class="sourceLine" id="cb170-3" data-line-number="3"><span class="st">  </span><span class="kw">select</span>(grade, exam)</a></code></pre></div>
-<pre><code>## # A tibble: 6 x 2
-##   grade exam   
-##   &lt;dbl&gt; &lt;chr&gt;  
-## 1   1.3 midterm
-## 2   2   midterm
-## 3   1.7 midterm
-## 4   2.3 final  
-## 5   1.7 final  
-## 6   1   final</code></pre>
-</div>
-<div id="Chap-02-02-tidy-selection" class="section level3">
-<h3><span class="header-section-number">4.3.3</span> Tidy selection of column names</h3>
-<p>To select the colums in several functions within the tidyverse, such as <code>pivot_longer</code> or <code>select</code>, there are useful helper functions from the <code>tidyselect</code> package. Here are some examples:<a href="#fn16" class="footnote-ref" id="fnref16"><sup>16</sup></a></p>
-<div class="sourceCode" id="cb172"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb172-1" data-line-number="1"><span class="co"># bogus code for illustration of possibilities!</span></a>
-<a class="sourceLine" id="cb172-2" data-line-number="2">SOME_DATA <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb172-3" data-line-number="3"><span class="st">  </span><span class="kw">select</span>( ... <span class="co"># could be one of the following</span></a>
-<a class="sourceLine" id="cb172-4" data-line-number="4">        <span class="co"># all columns indexed 2, 3, ..., 10</span></a>
-<a class="sourceLine" id="cb172-5" data-line-number="5">        <span class="dv">2</span><span class="op">:</span><span class="dv">10</span></a>
-<a class="sourceLine" id="cb172-6" data-line-number="6">        <span class="co"># all columns except the one called &quot;COLNAME&quot;</span></a>
-<a class="sourceLine" id="cb172-7" data-line-number="7">        <span class="op">-</span><span class="st"> </span>COLNAME</a>
-<a class="sourceLine" id="cb172-8" data-line-number="8">        <span class="co"># all columns with names starting with &quot;STRING&quot;</span></a>
-<a class="sourceLine" id="cb172-9" data-line-number="9">       ... <span class="kw">starts_with</span>(<span class="st">&quot;STRING&quot;</span>)</a>
-<a class="sourceLine" id="cb172-10" data-line-number="10">       <span class="co"># all columns with names ending with &quot;STRING&quot;</span></a>
-<a class="sourceLine" id="cb172-11" data-line-number="11">       ... <span class="kw">ends_with</span>(<span class="st">&quot;STRING&quot;</span>)</a>
-<a class="sourceLine" id="cb172-12" data-line-number="12">       <span class="co"># all columns with names containing &quot;STRING&quot;</span></a>
-<a class="sourceLine" id="cb172-13" data-line-number="13">       ... <span class="kw">contains</span>(<span class="st">&quot;STRING&quot;</span>)</a>
-<a class="sourceLine" id="cb172-14" data-line-number="14">       <span class="co"># all columns with names of the form &quot;Col_i&quot; with i = 1, ..., 10</span></a>
-<a class="sourceLine" id="cb172-15" data-line-number="15">       ... <span class="kw">num_range</span>(<span class="st">&quot;Col_&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb172-16" data-line-number="16">  )</a></code></pre></div>
-</div>
-<div id="adding-changing-and-renaming-columns" class="section level3">
-<h3><span class="header-section-number">4.3.4</span> Adding, changing and renaming columns</h3>
-<p>To add a new column, or to change an existing one use function <code>mutate</code>, like so:</p>
-<div class="sourceCode" id="cb173"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb173-1" data-line-number="1">exam_results_tidy <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb173-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb173-3" data-line-number="3">    <span class="co"># add a new column called &#39;passed&#39; depending on grade</span></a>
-<a class="sourceLine" id="cb173-4" data-line-number="4">    <span class="co"># [NB: severe passing conditions in this class!!]</span></a>
-<a class="sourceLine" id="cb173-5" data-line-number="5">    <span class="dt">passed =</span> grade <span class="op">&lt;=</span><span class="st"> </span><span class="fl">1.7</span>, </a>
-<a class="sourceLine" id="cb173-6" data-line-number="6">    <span class="co"># change an existing column; here: change</span></a>
-<a class="sourceLine" id="cb173-7" data-line-number="7">    <span class="co"># character column &#39;exam&#39; to ordered factor</span></a>
-<a class="sourceLine" id="cb173-8" data-line-number="8">    <span class="dt">exam =</span> <span class="kw">factor</span>(exam, <span class="dt">ordered =</span> T)</a>
-<a class="sourceLine" id="cb173-9" data-line-number="9">  )</a></code></pre></div>
-<pre><code>## # A tibble: 6 x 4
-##   student  exam    grade passed
-##   &lt;chr&gt;    &lt;ord&gt;   &lt;dbl&gt; &lt;lgl&gt; 
-## 1 Rozz     midterm   1.3 TRUE  
-## 2 Andrew   midterm   2   FALSE 
-## 3 Siouxsie midterm   1.7 TRUE  
-## 4 Rozz     final     2.3 FALSE 
-## 5 Andrew   final     1.7 TRUE  
-## 6 Siouxsie final     1   TRUE</code></pre>
-<p>If you want to rename a column, function <code>rename</code> is what you want:</p>
-<div class="sourceCode" id="cb175"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb175-1" data-line-number="1">exam_results_tidy <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb175-2" data-line-number="2"><span class="st">  </span><span class="co"># rename existing colum &quot;student&quot; to new name &quot;participant&quot;</span></a>
-<a class="sourceLine" id="cb175-3" data-line-number="3"><span class="st">  </span><span class="co"># [NB: rename takes the new name first]</span></a>
-<a class="sourceLine" id="cb175-4" data-line-number="4"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">participant =</span> student)</a></code></pre></div>
-<pre><code>## # A tibble: 6 x 3
-##   participant exam    grade
-##   &lt;chr&gt;       &lt;chr&gt;   &lt;dbl&gt;
-## 1 Rozz        midterm   1.3
-## 2 Andrew      midterm   2  
-## 3 Siouxsie    midterm   1.7
-## 4 Rozz        final     2.3
-## 5 Andrew      final     1.7
-## 6 Siouxsie    final     1</code></pre>
-</div>
-<div id="splitting-and-uniting-columns" class="section level3">
-<h3><span class="header-section-number">4.3.5</span> Splitting and uniting columns</h3>
-<p>Here is data from course homework:</p>
-<div class="sourceCode" id="cb177"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb177-1" data-line-number="1">homework_results_untidy &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb177-2" data-line-number="2"><span class="st">  </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb177-3" data-line-number="3">    <span class="op">~</span>student,      <span class="op">~</span>results,</a>
-<a class="sourceLine" id="cb177-4" data-line-number="4">    <span class="st">&quot;Rozz&quot;</span>,        <span class="st">&quot;1.0,2.3,3.0&quot;</span>,</a>
-<a class="sourceLine" id="cb177-5" data-line-number="5">    <span class="st">&quot;Andrew&quot;</span>,      <span class="st">&quot;2.3,2.7,1.3&quot;</span>,</a>
-<a class="sourceLine" id="cb177-6" data-line-number="6">    <span class="st">&quot;Siouxsie&quot;</span>,    <span class="st">&quot;1.7,4.0,1.0&quot;</span></a>
-<a class="sourceLine" id="cb177-7" data-line-number="7">  )</a></code></pre></div>
-<p>This is not a useful representation format. Results of three homework sets are mushed together in a single column. Each value is separated by a comma, but it’s all stored as a character vector.</p>
-<p>To disentangle information in a single column, use the <code>separate</code> function:</p>
-<div class="sourceCode" id="cb178"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb178-1" data-line-number="1">homework_results_untidy <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb178-2" data-line-number="2"><span class="st">  </span><span class="kw">separate</span>(</a>
-<a class="sourceLine" id="cb178-3" data-line-number="3">    <span class="co"># which column to split up</span></a>
-<a class="sourceLine" id="cb178-4" data-line-number="4">    <span class="dt">col =</span> results,</a>
-<a class="sourceLine" id="cb178-5" data-line-number="5">    <span class="co"># names of the new column to store results</span></a>
-<a class="sourceLine" id="cb178-6" data-line-number="6">    <span class="dt">into =</span> <span class="kw">str_c</span>(<span class="st">&quot;HW_&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb178-7" data-line-number="7">    <span class="co"># separate by which character / reg-exp</span></a>
-<a class="sourceLine" id="cb178-8" data-line-number="8">    <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>,</a>
-<a class="sourceLine" id="cb178-9" data-line-number="9">    <span class="co"># automatically (smart-)convert the type of the new cols</span></a>
-<a class="sourceLine" id="cb178-10" data-line-number="10">    <span class="dt">convert =</span> T </a>
-<a class="sourceLine" id="cb178-11" data-line-number="11">    )</a></code></pre></div>
-<pre><code>## # A tibble: 3 x 4
-##   student   HW_1  HW_2  HW_3
-##   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1 Rozz       1     2.3   3  
-## 2 Andrew     2.3   2.7   1.3
-## 3 Siouxsie   1.7   4     1</code></pre>
-<p>If you have reason to perform the reverse operation, i.e., join together several columns, use the <code>unite</code> function.</p>
-</div>
-<div id="sorting-a-data-set" class="section level3">
-<h3><span class="header-section-number">4.3.6</span> Sorting a data set</h3>
-<p>If you want to indicate a fixed order of the reoccurring elements in a (character) vector, e.g., for plotting in a particular order, you should make this column an ordered factor. But if you want to order a data set along a column, e.g., for inspection or printing as a table, then you can do that using the <code>arrange</code> function. You can specify several columns to sort alpha-numerically in ascending order, and also indicate a descending order using the <code>desc</code> function:</p>
-<div class="sourceCode" id="cb180"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb180-1" data-line-number="1">exam_results_tidy <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb180-2" data-line-number="2"><span class="st">  </span><span class="kw">arrange</span>(<span class="kw">desc</span>(student), grade)</a></code></pre></div>
-<pre><code>## # A tibble: 6 x 3
-##   student  exam    grade
-##   &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
-## 1 Siouxsie final     1  
-## 2 Siouxsie midterm   1.7
-## 3 Rozz     midterm   1.3
-## 4 Rozz     final     2.3
-## 5 Andrew   final     1.7
-## 6 Andrew   midterm   2</code></pre>
-</div>
-<div id="combining-tibbles" class="section level3">
-<h3><span class="header-section-number">4.3.7</span> Combining tibbles</h3>
-<p>There are frequently occasions on which data from two separate variables needs to be combined. The simplest case is where two entirely disjoint data sets merely need to be glued together, either horizontally (binding columns together with function <code>cbind</code>) or vertically (binding rows together with function <code>rbind</code>).</p>
-<div class="sourceCode" id="cb182"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb182-1" data-line-number="1">new_exam_results_tidy &lt;-<span class="st"> </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb182-2" data-line-number="2">  <span class="op">~</span>student,    <span class="op">~</span>exam,      <span class="op">~</span>grade,</a>
-<a class="sourceLine" id="cb182-3" data-line-number="3">  <span class="st">&quot;Rozz&quot;</span>,      <span class="st">&quot;bonus&quot;</span>,  <span class="fl">1.7</span>,</a>
-<a class="sourceLine" id="cb182-4" data-line-number="4">  <span class="st">&quot;Andrew&quot;</span>,    <span class="st">&quot;bonus&quot;</span>,  <span class="fl">2.3</span>,</a>
-<a class="sourceLine" id="cb182-5" data-line-number="5">  <span class="st">&quot;Siouxsie&quot;</span>,  <span class="st">&quot;bonus&quot;</span>,  <span class="fl">1.0</span></a>
-<a class="sourceLine" id="cb182-6" data-line-number="6">)</a>
-<a class="sourceLine" id="cb182-7" data-line-number="7"><span class="kw">rbind</span>(</a>
-<a class="sourceLine" id="cb182-8" data-line-number="8">  exam_results_tidy, </a>
-<a class="sourceLine" id="cb182-9" data-line-number="9">  new_exam_results_tidy</a>
-<a class="sourceLine" id="cb182-10" data-line-number="10">)</a></code></pre></div>
-<pre><code>## # A tibble: 9 x 3
-##   student  exam    grade
-##   &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
-## 1 Rozz     midterm   1.3
-## 2 Andrew   midterm   2  
-## 3 Siouxsie midterm   1.7
-## 4 Rozz     final     2.3
-## 5 Andrew   final     1.7
-## 6 Siouxsie final     1  
-## 7 Rozz     bonus     1.7
-## 8 Andrew   bonus     2.3
-## 9 Siouxsie bonus     1</code></pre>
-<p>If two data sets have information in common, and the combination should respect that commonality, the <code>join</code> family of functions is of great help. Consider the case of distributed information again that we looked at to understand the third constraint of the concept of “tidy data”. There are two tibbles, both of which contain information about the same students. They share the column <code>student</code> (this does not necessarily have to be in the same order!) and we might want to join the information from both sources into a single (messy but almost tidy) representation, using <code>full_join</code>. We have seen an example already, which is repeated here:</p>
-<div class="sourceCode" id="cb184"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb184-1" data-line-number="1"><span class="co"># same as before</span></a>
-<a class="sourceLine" id="cb184-2" data-line-number="2">exam_results_tidy &lt;-<span class="st"> </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb184-3" data-line-number="3">  <span class="op">~</span>student,    <span class="op">~</span>exam,      <span class="op">~</span>grade,</a>
-<a class="sourceLine" id="cb184-4" data-line-number="4">  <span class="st">&quot;Rozz&quot;</span>,      <span class="st">&quot;midterm&quot;</span>,  <span class="fl">1.3</span>,</a>
-<a class="sourceLine" id="cb184-5" data-line-number="5">  <span class="st">&quot;Andrew&quot;</span>,    <span class="st">&quot;midterm&quot;</span>,  <span class="fl">2.0</span>,</a>
-<a class="sourceLine" id="cb184-6" data-line-number="6">  <span class="st">&quot;Siouxsie&quot;</span>,  <span class="st">&quot;midterm&quot;</span>,  <span class="fl">1.7</span>,</a>
-<a class="sourceLine" id="cb184-7" data-line-number="7">  <span class="st">&quot;Rozz&quot;</span>,      <span class="st">&quot;final&quot;</span>,    <span class="fl">2.3</span>,</a>
-<a class="sourceLine" id="cb184-8" data-line-number="8">  <span class="st">&quot;Andrew&quot;</span>,    <span class="st">&quot;final&quot;</span>,    <span class="fl">1.7</span>,</a>
-<a class="sourceLine" id="cb184-9" data-line-number="9">  <span class="st">&quot;Siouxsie&quot;</span>,  <span class="st">&quot;final&quot;</span>,    <span class="fl">1.0</span></a>
-<a class="sourceLine" id="cb184-10" data-line-number="10">)</a>
-<a class="sourceLine" id="cb184-11" data-line-number="11"><span class="co"># additional table with student numbers</span></a>
-<a class="sourceLine" id="cb184-12" data-line-number="12">student_numbers &lt;-<span class="st"> </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb184-13" data-line-number="13">  <span class="op">~</span>student,    <span class="op">~</span>student_number,</a>
-<a class="sourceLine" id="cb184-14" data-line-number="14">  <span class="st">&quot;Rozz&quot;</span>,      <span class="st">&quot;666&quot;</span>,   </a>
-<a class="sourceLine" id="cb184-15" data-line-number="15">  <span class="st">&quot;Andrew&quot;</span>,    <span class="st">&quot;1969&quot;</span>,</a>
-<a class="sourceLine" id="cb184-16" data-line-number="16">  <span class="st">&quot;Siouxsie&quot;</span>,  <span class="st">&quot;3.14&quot;</span></a>
-<a class="sourceLine" id="cb184-17" data-line-number="17">)</a>
-<a class="sourceLine" id="cb184-18" data-line-number="18"><span class="kw">full_join</span>(exam_results_tidy, student_numbers, <span class="dt">by =</span> <span class="st">&quot;student&quot;</span>)</a></code></pre></div>
-<pre><code>## # A tibble: 6 x 4
-##   student  exam    grade student_number
-##   &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;         
-## 1 Rozz     midterm   1.3 666           
-## 2 Andrew   midterm   2   1969          
-## 3 Siouxsie midterm   1.7 3.14          
-## 4 Rozz     final     2.3 666           
-## 5 Andrew   final     1.7 1969          
-## 6 Siouxsie final     1   3.14</code></pre>
-<p>If two data sets are to be joined by a column that is not exactly shared by both sets (one contains entries in this columns that the other doesn’t) then a <code>full_join</code> will retain all information from both. If that is not what you want, check out alternative functions like <code>right_join</code>, <code>semi_join</code> etc. using the <a href="https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf">data wrangling cheat sheet</a>.</p>
-</div>
-</div>
-<div class="footnotes">
-<hr />
-<ol start="15">
-<li id="fn15"><p>There are alternative possibilities for specifying names of the value and name column, which allow for more dynamic construction of strings. We will not cover all of these details here, but we will use some of these alternative specifications in subsequent examples.<a href="Chap-02-02-data-preprocessing-cleaning.html#fnref15" class="footnote-back">↩</a></p></li>
-<li id="fn16"><p>The helpers from the <code>tidyselect</code> package also accept regular expressions.<a href="Chap-02-02-data-preprocessing-cleaning.html#fnref16" class="footnote-back">↩</a></p></li>
-</ol>
-</div>
+<!-- </div> -->
             </section>
 
           </div>
         </div>
       </div>
-<a href="Chap-02-02-data-tidy-data.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="Chap-02-02-data-grouping-nesting.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="Chap-03-03-models-examples.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="ch-03-04-parameter-inference.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

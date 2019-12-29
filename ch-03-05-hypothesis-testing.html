@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="ch-03-03-estimation-greta.html"/>
-<link rel="next" href="Chap-03-06-model-comparison.html"/>
+<link rel="next" href="p-values.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -305,7 +305,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="8.5.5" data-path="Chap-03-03-models-examples.html"><a href="Chap-03-03-models-examples.html#simple-linear-regression-model"><i class="fa fa-check"></i><b>8.5.5</b> Simple Linear Regression Model</a></li>
 <li class="chapter" data-level="8.5.6" data-path="Chap-03-03-models-examples.html"><a href="Chap-03-03-models-examples.html#linear-regression-with-two-groups"><i class="fa fa-check"></i><b>8.5.6</b> Linear Regression with Two Groups</a></li>
 </ul></li>
-<li class="chapter" data-level="8.6" data-path="expressing-hypotheses-with-models.html"><a href="expressing-hypotheses-with-models.html"><i class="fa fa-check"></i><b>8.6</b> Expressing hypotheses with models</a></li>
+<li class="chapter" data-level="8.6" data-path="Chap-03-03-models-hypotheses.html"><a href="Chap-03-03-models-hypotheses.html"><i class="fa fa-check"></i><b>8.6</b> Expressing hypotheses with models</a></li>
 </ul></li>
 <li class="chapter" data-level="9" data-path="ch-03-04-parameter-inference.html"><a href="ch-03-04-parameter-inference.html"><i class="fa fa-check"></i><b>9</b> Parameter estimation</a><ul>
 <li class="chapter" data-level="9.1" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html"><i class="fa fa-check"></i><b>9.1</b> Bayes rule of parameter estimation</a><ul>
@@ -330,7 +330,14 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="9.6.3" data-path="ch-03-03-estimation-greta.html"><a href="ch-03-03-estimation-greta.html#t-test-model-for-mental-chronometry"><i class="fa fa-check"></i><b>9.6.3</b> T-Test Model for Mental Chronometry</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="10" data-path="ch-03-05-hypothesis-testing.html"><a href="ch-03-05-hypothesis-testing.html"><i class="fa fa-check"></i><b>10</b> Hypothesis Testing</a></li>
+<li class="chapter" data-level="10" data-path="ch-03-05-hypothesis-testing.html"><a href="ch-03-05-hypothesis-testing.html"><i class="fa fa-check"></i><b>10</b> Hypothesis Testing</a><ul>
+<li class="chapter" data-level="10.1" data-path="p-values.html"><a href="p-values.html"><i class="fa fa-check"></i><b>10.1</b> <span class="math inline">\(p\)</span>-values</a></li>
+<li class="chapter" data-level="10.2" data-path="some-results.html"><a href="some-results.html"><i class="fa fa-check"></i><b>10.2</b> Some results</a><ul>
+<li class="chapter" data-level="10.2.1" data-path="some-results.html"><a href="some-results.html#law-of-large-numbers"><i class="fa fa-check"></i><b>10.2.1</b> Law of Large Numbers</a></li>
+<li class="chapter" data-level="10.2.2" data-path="some-results.html"><a href="some-results.html#central-limit-theorem"><i class="fa fa-check"></i><b>10.2.2</b> Central Limit Theorem</a></li>
+<li class="chapter" data-level="10.2.3" data-path="some-results.html"><a href="some-results.html#uniform-distribution-of-p-values"><i class="fa fa-check"></i><b>10.2.3</b> Uniform distribution of <span class="math inline">\(p\)</span>-values</a></li>
+</ul></li>
+</ul></li>
 <li class="chapter" data-level="11" data-path="Chap-03-06-model-comparison.html"><a href="Chap-03-06-model-comparison.html"><i class="fa fa-check"></i><b>11</b> Model Comparison</a></li>
 <li class="chapter" data-level="12" data-path="ch-03-07-hypothesis-testing-Bayes.html"><a href="ch-03-07-hypothesis-testing-Bayes.html"><i class="fa fa-check"></i><b>12</b> Bayesian hypothesis testing</a></li>
 <li class="chapter" data-level="13" data-path="Chap-03-08-model-criticism.html"><a href="Chap-03-08-model-criticism.html"><i class="fa fa-check"></i><b>13</b> Model criticism</a></li>
@@ -432,13 +439,31 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="ch-03-05-hypothesis-testing" class="section level1">
 <h1><span class="header-section-number">10</span> Hypothesis Testing</h1>
+<p>Hypothesis testing is the workhorse of much of frequentist statistics.^A more precise but less elegant heading for this section would be: ``Null-hypothesis significance testing with controlled <span class="math inline">\(\alpha\)</span>-errors.’’}
+Researchers hold a research hypothesis <span class="math inline">\(H_1\)</span>, such as discrimination takes longer than go/no-go decisions in the <a href="app-93-data-sets-mental-chronometry">mental chronometry experiment</a>.
+The hypothesis that is tested is the logical negation of <span class="math inline">\(H_1\)</span>, usually referred to as the null-hypothesis <span class="math inline">\(H_0\)</span>, e.g., that there is zero difference in reaction times between discrimination and the go/no-go task.
+If empirical observations are sufficiently <em>un</em>likely from the point of view of the null-hypothesis <span class="math inline">\(H_0\)</span>, this is treated as evidence in favor of the research hypothesis <span class="math inline">\(H_1\)</span>.
+A measure, perhaps approximate, of how unlikely the data is in the light of <span class="math inline">\(H_0\)</span> is the <span class="math inline">\(p\)</span>-value.
+A conventional threshold on <span class="math inline">\(p\)</span>-values governs a categorical decision whether to reject or not reject the null-hypothesis. This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null-hypothesis when it is in fact true (a so-called type-1 error or <span class="math inline">\(\alpha\)</span>-error).
+In the following we will fill these general ideas with life.<a href="#fn49" class="footnote-ref" id="fnref49"><sup>49</sup></a></p>
+<ul>
+<li>error control Fisher/Neyman-Pearson</li>
+<li><span class="math inline">\(p\)</span>-values (based on binomial example)</li>
+<li>tests to cover
 <ul>
 <li>binomial test</li>
+<li>Chi-squared test</li>
 <li>t-test</li>
 <li>ANOVA</li>
 <li>linear regression</li>
-</ul>
-
+</ul></li>
+</ul> 
+</div>
+<div class="footnotes">
+<hr />
+<ol start="49">
+<li id="fn49"><p>Null-hypothesis significance testing is superficially related to Popperian falsificationism. It is, however, quite the opposite when looked at more carefully. Popper famously denied that empirical observation could constitute positive evidence in favor of a research hypothesis. Research hypotheses can only be refuted, viz., when their logically consequences are logically incompatible with the observed data. In a Popperian science, what is refuted are research hypotheses; frequentist statistics instead seeks to refute null-hypotheses and counts successful refutation of a null-hypothesis as evidence in favor of a research hypothesis.<a href="ch-03-05-hypothesis-testing.html#fnref49" class="footnote-back">↩</a></p></li>
+</ol>
 </div>
             </section>
 
@@ -446,7 +471,7 @@ code span.wa { color: #bf0303; } /* Warning */
         </div>
       </div>
 <a href="ch-03-03-estimation-greta.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="Chap-03-06-model-comparison.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="p-values.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
