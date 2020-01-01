@@ -6,9 +6,16 @@
 <img src="visuals/badge-testing.png" alt="badge testing">  
 </div>  
 
-Hypothesis testing is the workhorse of much of frequentist statistics.^[A more precise but less elegant heading for this section would be: ``Null-hypothesis significance testing with controlled $\alpha$-errors.'']
-Researchers hold a research hypothesis $H_1$, such as discrimination takes longer than go/no-go decisions in the [mental chronometry experiment](app-93-data-sets-mental-chronometry).
-The hypothesis that is tested is the logical negation of $H_1$, usually referred to as the null-hypothesis $H_0$, e.g., that there is zero difference in reaction times between discrimination and the go/no-go task.
+Hypothesis testing is the workhorse of much of frequentist statistics.
+Researchers hold a **research hypothesis**, such as: 
+
+- "discrimination takes longer than go/no-go decisions" (a claim about data from the [mental chronometry experiment](app-93-data-sets-mental-chronometry)); or: 
+- "truth-value judgements are at chance level for sentences with false presupositions" (a claim about dat from the [King of France experiment](app-93-data-sets-king-of-france)).
+
+The hypothesis that is tested is, usually, **a point-valued null hypothesis** $H_0$ (see the earlier chapter "[Expressing hypotheses with models](Chap-03-03-models-hypotheses)"), which assumes that some model parameter takes a single fixed value.
+The null-hypothesis can be the research hypothesis, as in the case of the King of France example above.
+Most commonly, the research hypothesis is a statement about the existence of a difference or an effect of an experimental manipulation, and in this case the null-hypothesis is opposed to the research hypothesis, e.g., the null-hypothesis would state that there is *no* difference in reaction times between discrimination and the go/no-go task.^[The null-hypothesis is often fixed as the logical negation of the research hypothesis. But with directed research hypotheses like "reaction times are higher in condition B than in condition A", this leads to interval-based null-hypotheses, which are slightly more complicated than point-valued null-hypotheses. In practice, therefore not infrequently a point-valued null hypothesis is used even when the research question is about a specific direction of the effect in question.]
+
 If empirical observations are sufficiently *un*likely from the point of view of the null-hypothesis $H_0$, this is treated as evidence in favor of the research hypothesis $H_1$. 
 A measure, perhaps approximate, of how unlikely the data is in the light of $H_0$ is the $p$-value.
 A conventional threshold on $p$-values governs a categorical decision whether to reject or not reject the null-hypothesis. This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null-hypothesis when it is in fact true (a so-called type-1 error or $\alpha$-error). 
@@ -24,7 +31,7 @@ In the following we will fill these general ideas with life.^[Null-hypothesis si
   - ANOVA
   - linear regression
 
-## $p$-values
+## *p*-values
 
 As before we fix a parameterized likelihood function $P(D \mid \theta)$, such as the binomial distribution in the [Binomial Model](Chap-03-03-models-examples). As described in Section \@ref(Chap-03-03-models-hypotheses), we may think of a research hypothesis as a statement about the parameter (vector) $\theta$ in a given model. In the most common case, the **null-hypothesis** fixes a single parameter of interest to a point-value.^[It may be objected that it makes no sense to conceive of a point-value null-hypothesis in the first place. The probability that the coin is exactly fair has no non-trivial measure. Indeed, it is also possible to consider interval-valued null-hypotheses in frequentist testing, but this is the exception and not the norm. Most formal results also apply to point-valued null hypotheses, not necessarily interval-based null hypotheses.] 
 
@@ -47,7 +54,7 @@ A special case obtains when the model used in the background makes no further as
 <div class="infobox">
 **Example.**  A coin was flipped $N = 24$ times and landed heads $k = 7$ times. To calculate the associated exact $p$-value under the null-hypothesis $\theta = 0.5$, we consult the likelihood function in Figure \@ref(fig:ch-03-04-testing-binomial-p-value), note the likelihood of the observed data (on the $x$-axis at $k = 7$) in comparison to all other conceivable outcomes of the flip-$N=24$-times experiment, and sum the probabilities of all events which are at least as unlikely as the observed $k=7$. This yields the value $p \approx 0.06391$.
 
-```{r ch-03-04-testing-binomial-p-value, echo = F, fig.cap = "Binomial likelihood function and exact $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null-hypothesis $\\theta = 0.5$."}
+```{r ch-03-04-testing-binomial-p-value, echo = F, fig.cap = "Binomial likelihood function and $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null-hypothesis $\\theta = 0.5$."}
 plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
 plotData2 = data.frame(x = c(0:7, 17:24), y = dbinom(c(0:7, 17:24), 24, 0.5))
 ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
@@ -56,11 +63,9 @@ ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray
   # geom_text(data.frame(x = 3, y = 0.05, label = paste0("p = " , round(1-sum(dbinom(8:16, 24, 0.5)),3), collapse = "")), aes(x = x, y = y, label = label))
   geom_label(x = 3, y = 0.03, label = paste0("p(k=7) = " , round(1-sum(dbinom(8:16, 24, 0.5)),5), collapse = "")) +
   labs(
-    x = latex2exp::TeX("$k$"),
+    x = latex2exp::TeX("bias $k$"),
     y = latex2exp::TeX("$Binomial(k \\, | \\, n = 24, \\theta = 0.5)$")
-  )
-  
-
+  ) 
 ```
 
 Here is custom-made code to obtain this result:

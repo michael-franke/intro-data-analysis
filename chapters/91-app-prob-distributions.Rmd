@@ -245,18 +245,19 @@ $$I(z,a,b)=\frac{1}{B(a,b)} \cdot \int_0^z t^{a-1}(1-t)^{b-1} dt.$$
 knitr::include_app("https://istats.shinyapps.io/FDist/", height = "800px")
 ```
 
-### Student t-distribution 
-The t or student-t distribution was discovered by William S. Gosset in 1908 [@vallverdu2015], who published his work under the pseudonym "student". He worked at the Guinness factory and had to deal with the problem of small sample sizes. This challenge resulted finally in the t distribution. Accordingly, this distribution is used in particular when the sample size is small and the variance unknown, which is often the case in reality. Its shape ressembles the normal bell shape and has a peak at zero, but the t distribution is a bit lower and wider (bigger tails) than the normal distribution. 
+### Student's *t*-distribution 
 
-The t distribution consists of a standard normal distributed random variable $X\sim Normal(0,1)$ and a $\chi^2$-distributed random variable $Y\sim \chi^2(n)$ (X and Y are independent):
+The $t$ or Student's $t$ distribution was discovered by William S. Gosset in 1908 [@vallverdu2015], who published his work under the pseudonym "Student". He worked at the Guinness factory and had to deal with the problem of small sample sizes, where using a normal distribution as an approximation can be too crude. To overcome this problem Gosset conceived of the $t$ distribution. Accordingly, this distribution is used in particular when the sample size is small and the variance unknown, which is often the case in reality. Its shape ressembles the normal bell shape and has a peak at zero, but the $t$ distribution is a bit lower and wider (bigger tails) than the normal distribution. 
 
-$$T = \frac{X}{\sqrt{\frac{Y}{n}}}.$$
-The t distribution has range $(-\infty,+\infty)$ and one parameter $n$, the degrees of freedom. The degrees of freedom can be calculated by the sample size $n$ minus one:
-$$X \sim t(n).$$
+The $t$ distribution consists of a standard-normally distributed random variable $X \sim \text{Normal}(0,1)$ and a $\chi^2$-distributed random variable $Y \sim \chi^2(n)$ ($X$ and $Y$ are independent):
 
-Fig.~\ref{fig:ch-app-01-t-distribution-density} shows the probability density function of three t distributed random variables with different parameters. Notice that for small degrees of freedom $n$, the t-distribution has bigger tails. This is because the t distribution was specially designed to provide more conservative test results when analyzing small samples. When the degrees of freedom increases, the t distribution approaches a normal distribution. For $n \geq 30$ this approximation is quite good. Fig.~\ref{fig:ch-app-01-t-distribution-cumulative} shows the corresponding cumulative function of the three t density distributions.
+$$T = \frac{X}{\sqrt{Y / n}}.$$
+The $t$ distribution has range $(-\infty,+\infty)$ and one parameter $\nu$, the degrees of freedom. The degrees of freedom can be calculated by the sample size $n$ minus one:
+$$t \sim \text{Student-}t(\nu = n -1).$$
+
+Fig.~\@ref(fig:ch-app-01-t-distribution-density) shows the probability density function of three $t$-distributed random variables with different parameters, and Fig.~\@ref(fig:ch-app-01-t-distribution-cumulative) shows the corresponding cumulative function of the three $t$ density distributions. Notice that for small degrees of freedom $\nu$, the $t$-distribution has bigger tails. This is because the $t$ distribution was specially designed to provide more conservative test results when analyzing small samples. When the degrees of freedom increases, the $t$-distribution approaches a normal distribution. For $\nu \geq 30$ this approximation is quite good. 
  
-```{r, ch-app-01-t-distribution-density, fig.cap = "Examples of probability density function of t distributions."}
+```{r, ch-app-01-t-distribution-density, fig.cap = "Examples of probability density functions of $t$ distribution."}
 rv_student <- tibble(
   x = seq(from = -6, to = 6, by = .01),
   y1 = dt(x, df = 1),
@@ -278,7 +279,7 @@ ggplot(rv_student, aes(x, y, color = parameter)) +
   labs(color = "X ~ t", y = "Density")
 ```
 
-```{r, ch-app-01-t-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of t distributions corresponding to the previous probability density functions."}
+```{r, ch-app-01-t-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of $t$ distributions corresponding to the previous probability density functions."}
 rv_student %>% 
   group_by(parameter) %>% 
   mutate(
@@ -291,13 +292,13 @@ rv_student %>%
 ```
 
 **Probability density function**
-$$ f(x)=\frac{\Gamma(\frac{n+1}{2})}{\sqrt{n\pi} \cdot \Gamma(\frac{n}{2})}\left(1+\frac{x^2}{n}\right)^{-\frac{n+1}{2}},$$
+$$ f(x, \nu)=\frac{\Gamma(\frac{\nu+1}{2})}{\sqrt{\nu\pi} \cdot \Gamma(\frac{\nu}{2})}\left(1+\frac{x^2}{\nu}\right)^{-\frac{\nu+1}{2}},$$
 with $\Gamma(x)$ denoting the gamma function.
 
 **Cumulative distribution function**
-$$F(x)=I\left(\frac{x+\sqrt{x^2+n}}{2\sqrt{x^2+n}},\frac{n}{2},\frac{n}{2}\right),$$
+$$F(x, \nu)=I\left(\frac{x+\sqrt{x^2+\nu}}{2\sqrt{x^2+\nu}},\frac{\nu}{2},\frac{\nu}{2}\right),$$
 where $I(z,a,b)$ denotes the regularized incomplete beta function:
-$$I(z,a,b)=\frac{1}{B(a,b)} \cdot \int_0^z t^{a-1}(1-t)^{b-1} dt.$$
+$$I(z,a,b)=\frac{1}{B(a,b)} \cdot \int_0^z t^{a-1}(1-t)^{b-1} \text{d}t.$$
 
 **Expected value** $E(X) = 0$
 
