@@ -97,10 +97,10 @@ binom.test(
 
 The Law of Large Numbers justifies why taking (large) samples from a random variable sufficiently approximates a mean (the most prominent Bayesian estimator).
 
-```{theorem "Law-of-Large-Numbers"}
-**Law of Large Numbers.** Let $X_1, \dots, X_n$ be a sequence of $n$ differentiable random variables with equal mean, such that $\mathbb{E}_{X_i} = \mu_X$ for all $1 \le i \le n$.^[Though the result is more general, it is convenient to think of a natural application as the case where all $X_i$ are samples from the exact same distribution.] As the number of samples $n$ goes to infinity the mean of any tuple of samples, one from each $X_i$, convergences almost surely to $\mu_X$:
+```{theorem label = "Law-of-Large-Numbers", name = "Law of Large Numbers"}
+Let $X_1, \dots, X_n$ be a sequence of $n$ differentiable random variables with equal mean, such that $\mathbb{E}_{X_i} = \mu_X$ for all $1 \le i \le n$.^[Though the result is more general, it is convenient to think of a natural application as the case where all $X_i$ are samples from the exact same distribution.] As the number of samples $n$ goes to infinity the mean of any tuple of samples, one from each $X_i$, convergences almost surely to $\mu_X$:
   
-$$ P(\lim_{n \rightarrow \infty} \frac{1}{n} \sum_{i = 1}^n X_i = \mu_X) = 1 $$
+$$ P \left(\lim_{n \rightarrow \infty} \frac{1}{n} \sum_{i = 1}^n X_i = \mu_X \right) = 1 $$
 ```
 
 
@@ -126,8 +126,8 @@ tibble(
 
 For practical puporses, think of the Central Limit Theorem as an extension of the Law of Large Numbers. While the latter tells us that, as $n \rightarrow \infty$, the mean of repeated samples from a random variable $X$ converges to the mean of $X$, the Central Limit Theorem tells us something about the distribution of our estimate of $X$'s mean. The Central Limit Theorem tells us that the sampling distribution of the mean approximates a normal distribution for large enough sample size.
 
-```{theorem, "Central-Limit-Theorem"}
-**Central Limit Theorem**. Let $X_1, \dots, X_n$ be a sequence of $n$ differentiable random variables with equal mean  $\mathbb{E}_{X_i} = \mu_X$ and equal finite variance $\text{Var}(X_i) = \sigma_X^2$ for all $1 \le i \le n$.^[As with the Law of Large Numbers, the most common application is the case where all $X_i$ are samples from the exact same distribution.] The random variable $S_n$ which captures the distribution of the sample mean for any $n$ is:
+```{theorem, label = "Central-Limit-Theorem", name = "Central Limit Theorem"}
+Let $X_1, \dots, X_n$ be a sequence of $n$ differentiable random variables with equal mean  $\mathbb{E}_{X_i} = \mu_X$ and equal finite variance $\text{Var}(X_i) = \sigma_X^2$ for all $1 \le i \le n$.^[As with the Law of Large Numbers, the most common application is the case where all $X_i$ are samples from the exact same distribution.] The random variable $S_n$ which captures the distribution of the sample mean for any $n$ is:
 
 $$ S_n = \frac{1}{n} \sum_{i=1}^n X_i $$
 
@@ -139,8 +139,8 @@ As the number of samples $n$ goes to infinity the random variable $\sqrt{n} (S_n
 
 ### Uniform distribution of $p$-values
 
-```{theorem, "Probability-Integral-Transform"}
-**Probability Integral Transform**. If $X$ be a continuous random variable with cumulative distribution function $F_X$, the random variable $Y = F_X(X)$ is a uniformly distributed over interval $[0;1]$, i.e., $y \sim \text{Uniform}(0,1)$. 
+```{theorem, label = "Probability-Integral-Transform", name = "Probability Integral Transform"}
+If $X$ be a continuous random variable with cumulative distribution function $F_X$, the random variable $Y = F_X(X)$ is a uniformly distributed over interval $[0;1]$, i.e., $y \sim \text{Uniform}(0,1)$. 
   
 ```
 
@@ -157,7 +157,113 @@ F_Y(y) & = P(Y \le y)  && [\text{def. of cumulative distribution}] \\
 $$
 ```
 
+&nbsp;
 
+### ANOVA Sum of Squares decomposition
+
+We have $k$ groups of metric observations. For group $1 \le j \le k$, there are $n_j$ observations. Let $x_{ij}$ be observation $1 \le i \le n_j$ for group $1 \le j \le k$. Let $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ be the mean of group $j$ and let $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points. We would like to show that the total sum of squares can be decomposed into two summands: the within-group sum of squares and the between-group sum of squares:
+
+$$ 
+\underbrace{
+  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{\bar{x}})^2
+}_{\text{Total SS}}  = 
+\underbrace{
+  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2
+}_{\text{Within-Group SS}} +
+\underbrace{
+  \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2
+}_{\text{Between-Group SS}}
+$$ 
+
+To show this, we first establish a lemma, which will also be useful later:
+
+```{lemma, label = "SS-cancellation", name = "Sum of squares cancellation"}
+Let $\vec{x}$ be a vector of $n$ real-valued numbers, and let $\bar{x} = \frac{1}{n} \sum_{i=i}^n x_i$ be its mean. The sum of squares around the mean is zero:
+$$
+  \sum_{i=1}^n (x_i - \bar{x}) = 0
+$$
+  
+```
+
+```{proof}
+$$
+\begin{aligned}
+  \sum_{i=i}^n (x_i - \bar{x}) 
+  & = 
+  \sum_{i=i}^n (x_i - \frac{1}{n} \sum_{j=1}^n x_j) 
+  && 
+  [\text{by def. of mean}] 
+  \\
+  & = 
+  \sum_{i=i}^n x_i - \frac{n}{n} \sum_{j=1}^n x_j) 
+  && 
+  [\text{second summand independent of } i] 
+  \\ 
+  & = 0
+  \\ 
+\end{aligned}
+$$
+```
 
 
 &nbsp;
+
+
+```{proposition, label = "ANOVA-SS-decomposition", name = "Sum of squares decomposition (ANOVA)"}
+If $x_{ij}$ is observation $1 \le i \le n_j$ for group $1 \le j \le k$, $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ the mean of group $j$ and $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points, then:
+$$ 
+\underbrace{
+  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{\bar{x}})^2
+}_{\text{Total SS}}  = 
+\underbrace{
+  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2
+}_{\text{Within-Group SS}} +
+\underbrace{
+  \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2
+}_{\text{Between-Group SS}}
+$$ 
+  
+```
+
+
+```{proof}
+$$
+\begin{aligned}
+  & 
+  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{\bar{x}})^2 
+  \\
+  = &  
+  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j + \bar{x}_j - \bar{\bar{x}})^2
+  && 
+  [- \bar{x}_j + \bar{x}_j = 0] 
+  \\
+  = &  
+  \sum_{j=1}^k \sum_{i=1}^{n_j} \left [ (x_{ij} - \bar{x}_j)^2 + 2(x_{ij} - \bar{x}_j)(\bar{x}_j - \bar{\bar{x}}) + (\bar{x}_j - \bar{\bar{x}})^2 \right ]
+  && 
+  [\text{binomial theorem}] 
+  \\
+  = &  
+  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 + 
+  \sum_{j=1}^k \sum_{i=1}^{n_j} (\bar{x}_j - \bar{\bar{x}})^2 + 
+  \sum_{j=1}^k \sum_{i=1}^{n_j} 2(x_{ij} - \bar{x}_j)(\bar{x}_j - \bar{\bar{x}})
+  && 
+  [\text{rearranging} ] 
+  \\
+  = &  
+  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 + 
+  \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2 + 
+  2 \sum_{j=1}^k (\bar{x}_j - \bar{\bar{x}}) \underbrace{\sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)}_{\text{=0 by lemma}}
+  && 
+  [\text{independences} ] 
+  \\
+    = &  
+  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 + 
+  \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2
+  && 
+  [\text{by lemma} ] 
+\end{aligned}
+$$
+```
+
+&nbsp;
+
