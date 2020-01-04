@@ -271,6 +271,7 @@ code span.wa { color: #bf0303; } /* Warning */
 </ul></li>
 <li class="chapter" data-level="7.3" data-path="Chap-03-01-probability-conditional.html"><a href="Chap-03-01-probability-conditional.html"><i class="fa fa-check"></i><b>7.3</b> Conditional probability</a><ul>
 <li class="chapter" data-level="7.3.1" data-path="Chap-03-01-probability-conditional.html"><a href="Chap-03-01-probability-conditional.html#bayes-rule"><i class="fa fa-check"></i><b>7.3.1</b> Bayes rule</a></li>
+<li class="chapter" data-level="7.3.2" data-path="Chap-03-01-probability-conditional.html"><a href="Chap-03-01-probability-conditional.html#Chap-03-01-probability-independence"><i class="fa fa-check"></i><b>7.3.2</b> Stochastic (in-)dependence</a></li>
 </ul></li>
 <li class="chapter" data-level="7.4" data-path="Chap-03-01-probability-random-variables.html"><a href="Chap-03-01-probability-random-variables.html"><i class="fa fa-check"></i><b>7.4</b> Random variables</a><ul>
 <li class="chapter" data-level="7.4.1" data-path="Chap-03-01-probability-random-variables.html"><a href="Chap-03-01-probability-random-variables.html#notation-terminology"><i class="fa fa-check"></i><b>7.4.1</b> Notation &amp; terminology</a></li>
@@ -517,7 +518,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <div class="sourceCode" id="cb445"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb445-1" data-line-number="1">d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb445-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_RT, <span class="dt">y =</span> error_rate)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb445-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>()</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-296-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-297-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Here’s a crude way of branding outlier-participants:</p>
 <div class="sourceCode" id="cb446"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb446-1" data-line-number="1">d_individual_summary &lt;-<span class="st"> </span>d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb446-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">outlier =</span> <span class="kw">case_when</span>(mean_RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">350</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
@@ -529,7 +530,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <a class="sourceLine" id="cb446-8" data-line-number="8"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb446-9" data-line-number="9"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> <span class="kw">filter</span>(d_individual_summary, outlier <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>),</a>
 <a class="sourceLine" id="cb446-10" data-line-number="10">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="dt">shape =</span> <span class="st">&quot;square&quot;</span>, <span class="dt">size =</span> <span class="dv">5</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-297-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-298-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We then clean the data set in a first step by removing all participants identified as outlier-y:</p>
 <div class="sourceCode" id="cb447"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb447-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">full_join</span>(d, d_individual_summary, <span class="dt">by =</span> <span class="st">&quot;submission_id&quot;</span>) <span class="co"># merge the tibbles</span></a>
 <a class="sourceLine" id="cb447-2" data-line-number="2">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, outlier <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>)</a>
@@ -542,13 +543,13 @@ code span.wa { color: #bf0303; } /* Warning */
 <div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb449-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(RT))) <span class="op">+</span></a>
 <a class="sourceLine" id="cb449-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb449-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(RT), <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-299-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-300-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Let’s decide to exclude all trials that lasted longer than 1 second and also all trials with reaction times under 100 ms.</p>
 <div class="sourceCode" id="cb450"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb450-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">100</span> <span class="op">&amp;</span><span class="st"> </span>RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">1000</span>)</a>
 <a class="sourceLine" id="cb450-2" data-line-number="2">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb450-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb450-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-300-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-301-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="exploring-the-main-data" class="section level4">
@@ -576,7 +577,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <a class="sourceLine" id="cb453-5" data-line-number="5">             <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">xintercept =</span> mean_RT), </a>
 <a class="sourceLine" id="cb453-6" data-line-number="6">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>) <span class="op">+</span></a>
 <a class="sourceLine" id="cb453-7" data-line-number="7"><span class="st">  </span><span class="kw">facet_grid</span>(condition <span class="op">~</span><span class="st"> </span>correctness)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-302-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-303-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="analysis" class="section level3">
