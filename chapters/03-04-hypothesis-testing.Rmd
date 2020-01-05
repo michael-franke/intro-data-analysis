@@ -7,47 +7,129 @@
 </div>  
 
 Hypothesis testing is the workhorse of much of frequentist statistics.
-Researchers hold a **research hypothesis**, such as: 
+Researchers usually have a **research hypothesis**, such as: 
 
-- "discrimination takes longer than go/no-go decisions" (a claim about data from the [mental chronometry experiment](app-93-data-sets-mental-chronometry)); or: 
-- "truth-value judgements are at chance level for sentences with false presupositions" (a claim about dat from the [King of France experiment](app-93-data-sets-king-of-france)).
+- "truth-value judgements are at chance level for sentences with false presupositions" (a claim about data from the [King of France experiment](app-93-data-sets-king-of-france)); or: 
+- "discrimination takes longer than go/no-go decisions" (a claim about data from the [mental chronometry experiment](app-93-data-sets-mental-chronometry)).
 
-The hypothesis that is tested is, usually, **a point-valued null hypothesis** $H_0$ (see the earlier chapter "[Expressing hypotheses with models](Chap-03-03-models-hypotheses)"), which assumes that some model parameter takes a single fixed value.
-The null-hypothesis can be the research hypothesis, as in the case of the King of France example above.
-Most commonly, the research hypothesis is a statement about the existence of a difference or an effect of an experimental manipulation, and in this case the null-hypothesis is opposed to the research hypothesis, e.g., the null-hypothesis would state that there is *no* difference in reaction times between discrimination and the go/no-go task.^[The null-hypothesis is often fixed as the logical negation of the research hypothesis. But with directed research hypotheses like "reaction times are higher in condition B than in condition A", this leads to interval-based null-hypotheses, which are slightly more complicated than point-valued null-hypotheses. In practice, therefore not infrequently a point-valued null hypothesis is used even when the research question is about a specific direction of the effect in question.]
+However, the hypothesis that is tested is not necessarily the research hypothesis. 
+What is tested is rather a so-called **null hypothesis** $H_0$.^[The term "null hypothesis" does not want to imply that the hypothesis is that some value of interest is equal to zero (although in practice that is frequently the case). The term rather implicates that this hypothesis is put out there in order to be possibly refuted, i.e., nullified, by the data [@Gigerenzer2004:Mindless-Statis].]
+For technical purposes, the null hypothesis is usually a *point-valued hypothesis* in that it assumes that some model parameter takes a single fixed value (see the earlier chapter "[Expressing hypotheses with models](Chap-03-03-models-hypotheses)").
+Classical hypothesis testing then looks at whether the null hypothesis is plausible, given some observed data.
 
-If empirical observations are sufficiently *un*likely from the point of view of the null-hypothesis $H_0$, this is treated as evidence in favor of the research hypothesis $H_1$. 
-A measure, perhaps approximate, of how unlikely the data is in the light of $H_0$ is the $p$-value.
-A conventional threshold on $p$-values governs a categorical decision whether to reject or not reject the null-hypothesis. This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null-hypothesis when it is in fact true (a so-called type-1 error or $\alpha$-error). 
-In the following we will fill these general ideas with life.^[Null-hypothesis significance testing is superficially related to Popperian falsificationism. It is, however, quite the opposite when looked at more carefully. Popper famously denied that empirical observation could constitute positive evidence in favor of a research hypothesis. Research hypotheses can only be refuted, viz., when their logically consequences are logically incompatible with the observed data. In a Popperian science, what is refuted are research hypotheses; frequentist statistics instead seeks to refute null-hypotheses and counts successful refutation of a null-hypothesis as evidence in favor of a research hypothesis.]
+Of course, the null hypothesis is chosen in such a way as to give us information on the research question in the background.
+For example, depending on the framework we work in (see below), the null-hypothesis can be the research hypothesis, as in the case of the King of France example above.
+Alternatively, the research hypothesis is a statement about the existence of a difference between groups or an effect of an experimental manipulation, and in this case the null-hypothesis is opposed to the research hypothesis. E.g., the null-hypothesis could state that there is *no* difference in reaction times between discrimination and the go/no-go task.
+
+Unfortunately, there is no single uncontroversially accepted and universally practiced recipe for frequentist hypothesis testing.^[There is no universally accepted Bayesian treatment either. This is why it is important to apply rational deliberation in each case, and not to succumb to the temptation of following easy recipes too quickly.]
+But there are three main approaches: Fisher's approach, the Neyman-Pearson apprach and the (modern) hybrid approch, often referred to simply as NHST (= null-hypothesis significance testing).
+These approaches differ in the way they relate the null hypothesis to the research question.
+They also differ in several technical details. 
+We will cover differences and commonalities of these three major approaches in Section \@ref(ch-03-05-hypothesis-testing-3-approaches) at the end of this chapter, after we have covered the basic technical notions (in Section \@ref(ch-03-05-hypothesis-p-values)) and after we have seen some applications of these basic ingredients (in Section \@ref(ch-03-05-hypothesis-testing-tests)).
 
 
-- error control Fisher/Neyman-Pearson
-- $p$-values (based on binomial example)
-- tests to cover 
-  - binomial test 
-  - Chi-squared test
-  - t-test
-  - ANOVA
-  - linear regression
 
-## *p*-values
+
+```{block, type='infobox'}
+The learning goals for this chapter are:
+
+- become familiar with frequentist hypothesis testing
+  - see the differences between different approaches
+- understand key statistical notions such as:
+  - sampling distribution
+  - $p$-value
+  - $\alpha$- and $\beta$-error
+- understand and become able to apply and interpret basic tests:
+  - binomial test, t-tests, ANOVA, linear regression, $\chi^2$-test
+```
+
+## *p*-values {#ch-03-05-hypothesis-p-values}
+
+All prominent frequentist approaches to statistical hypothesis testing (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)) agree that if empirical observations are sufficiently *un*likely from the point of view of the null-hypothesis $H_0$, this should be treated (in some way or other) as evidence *against* the null-hypothesis.^[To preview later material (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)), the Neyman-Pearson approach goes further and also looks at evidence in favor of the null-hypothesis. It also tries to quantify something like evidence in favor of the research hypothesis. But Fisher's approach and some flavors of the hybrid approach only consider how much the data speaks against the null hypothesis.] 
+A measure, perhaps approximate, of how unlikely (some aspect of) the data is in the light of $H_0$ is the $p$-value.
+To preview the main definition and intuition (to be worked out in detail hereafter), let's first consider a verbal and then a mathematical formulation.
+
+```{block, type='infobox'}
+**Definition $p$-value.** The $p$-value associated with observed data $D_\text{obs}$ gives the probability, derived from the assumption that $H_0$ is true, of observing an outcome for the chosen test statistic that is at least as extreme evidence against $H_0$ as the observed outcome.
+
+Formally, the $p$-value of observed data $D_\text{obs}$ is:
+$$
+p(D_{\text{obs}}) = P(T^{|H_0} \succeq^{H_0} t(D_{\text{obs}})) % = P(\mathcal{D}^{|H_0} \in \{D \mid t(D) \ge t(D_{\text{obs}})\}) 
+$$
+where $t \colon \mathcal{D} \rightarrow \mathbb{R}$ is a **test statistic** which picks out a relevant summary statistic of each potential data observation, $T^{|H_0}$ is the **sampling distribution**, namely the random variable derived from test statistic $t$ and the assumption that $H_0$ is true, and $\succeq^{H_0}$ is a linear order on the image of $t$ such that $t(D_1) \succeq^{H_0} t(D_2)$ expresses that test value $t(D_1)$ is at least as extreme evidence *against* $H_0$ as test value $t(D_2)$.^[This formulation in terms of a context-dependent (i.e., $H_0$-dependent ordering) is not usual. However, the interpretation *is* de facto context-dependent in this way, and so it makes sense to highlight this aspect of the use of $p$-values also formally. Notice, however, that we can get rid of the context-dependence by using different test-statistics. But this is also not how it is done in practice. Essentially, this definition aims for maximal generality so as to cover all cases of use. Since the class of use cases is fuzzy, the definition needs this flexibility. Alternative mathematical definitions that appear to be simpler just do not capture all the use cases.]
+```
+
+
+A few aspects of this defintion are particularly important (and subsequent text is dedicated to making these aspects more comprehensible):
+
+1. this is a frequentist approach in the sense that probabilities are entirely based on (hypothetical) repetitions of the assumed data-generating process, which assumes that $H_0$ is true;
+2. the test statistic *t* plays a fundamental role and should be chosen such that:
+    - it must necessarily select exactly those aspects of the data that matter to our research question,
+    - it should optimally make it possible to derive a closed form (approximation) of $T$, and^[This latter aspect has been particularly important historically. Given more readily available computing power, alternative approaches based on Monte Carlo simulation of $p$-values can also be used.]
+    - it would be desirable (but not necessary) to formulate $t$ in such a way that the comparison relation $\succeq^{H_0}$ coincides with a simple comparison of numbers: $t(D_1) \succeq^{H_0} t(D_2)$ iff $t(D_1) \ge t(D_2)$.
+3. there is an assumed data-generating model buried inside notation $T^{|H_0}$.
+
+The following sections will elaborate on all of these points. It is important to mention that especially the third aspect (that there is an implicit data-generating model "inside of" classical hypothesis tests) is not something that receives a lot of emphasis in traditional statistics textbooks. Bad textbooks do not even mention the assumptions implicit in a given test. Better textbooks mention these assumptions, good ones stress them. Using a model-centric approach, as we do here, tries to go even a bit further. We will not only stress key assumptions behind a test but present all of the assumptions behind classical tests in a graphical model, similar to what we did for Bayesian models. This arguably makes all implicit assumptions maximally transparent in a concise and lucid representation. It will also help see parallels between Bayesian and frequentist approaches, thereby helping to see both as more of the same rather than as something completely different. In order to cash in this model-based approach, the following sections will therefore introduce new graphical tools to communicate the data-generating model implicit in the classical tests we cover.
+  
+### Binomial Model - frequentist version
+
+We start with the Binomial Model because it is the simplest and perhaps most intuitive case. We work out what a $p$-value is for data for this model and introduce the new graphical language to communicate "frequentist models" in the following. We also introduce the notions of *test statistic* and *sampling distribution* based on a case that should be very intuitive, if not familar.
+
+The [Binomial Model](Chap-03-03-models-examples-binomial) was covered before from a Bayesian point of view, where we represented it using graphical notation like in Figure \@ref(fig:ch-03-04-Binomial-Model-repeated) (repeated from above). Remember that this is a model to draw inferences about a coin's bias $\theta$ based on observations of outcomes of flips of that coin. The Bayesian modeling approach treated the number of observed heads $k$ and the number of flips in total $N$ as given, and the coin's bias parameter $\theta$ as latent.
+
+```{r ch-03-04-Binomial-Model-repeated, echo = F, fig.cap="The Binomial Model (repeated from before) for a Bayesian approach to parameter inference/testing.", out.width = '40%'}
+knitr::include_graphics("visuals/binomial-model.png")
+```
+
+Actually, this way of writing the Binomial Model is rather a shortcut. It glosses over each individual data observation (whether the $i$-the coin flip was heads or tails) and jumps directly to the most relevant summary statistic of how many of the $N$ flips were heads. This might, of course, be just the relevant level of analysis. If our assumption is true that the outcome of each coin flip is independent of any other flip, and given our goal to learn something about $\theta$, all that really matters is $k$. But to prepare ourselves for subsequent frequentist approaches, and in order to appreciate (later!) how powerful a tool a test statistic can be, we can also rewrite the Bayesian model from Figure \@ref(fig:ch-03-04-Binomial-Model-repeated) as the equivalent extended model in Figure \@ref(fig:ch-03-04-Binomial-Model-extended). In the latter representation, the individual outcomes of each flip are represented as $x_i \in \{0,1\}$. Each individual outcome is sampled from a [Bernoulli distribution](app-91-distributions-bernoulli). Based on the whole vector of $x_i$-s, together with knowledge of $N$, we derive the **test statistic** $k$, which maps each observation (a vector $x$ or zeros and ones) to a single number $k$ (the number of heads in the vector). Notice that the node for $k$ has a solid double edge, indicating that it follows deterministically from its parent nodes. This is why we can think of $k$ as a sample from a random variable constructed from "raw data" observations $x$.
+
+```{r ch-03-04-Binomial-Model-extended, echo = F, fig.cap="The Binomial Model for a Bayesian approach, extended to show 'raw observations' and the 'summary statistic' implicitly used.", out.width = '60%'}
+knitr::include_graphics("visuals/binomial-model-extended.png")
+```
+
+Compare this latter representation in Figure \@ref(fig:ch-03-04-Binomial-Model-extended) with the frequentist Binomial Model in Figure \@ref(fig:ch-03-04-Binomial-Model-frequentist). The frequentist model treats the number of observations $N$ as observed, just like the Bayesian model. But it also fixes a specific value for the coin's bias $\theta$. This is where the (point-valued) null hypothesis comes in. For purposes of analysis, we fix the value of the relevant unobservable latent parameter to a specific value (because we do not want to assign probabilities to latent parameters, but we still like to talk about probabilities somehow). In our graphical model in Figure \@ref(fig:ch-03-04-Binomial-Model-frequentist) the node for the coin's bias is shaded (=treated as known) but also has a doted second edge to indicate that this is where our null-hypothesis assumption kicks in. We then treat the data vector $x$ and with it the associated test statistic $k$ as unobserved. The data we actually observed will, of course, come in at some point. But the frequentist model leaves the observed data out at first in order to bring in the kinds of probabilities frequentist approaches feel comfortable with: probabilities derived from (hypothetical) repetitions of chance events. So, the frequentist model can now make statements about the likelihood of (raw) data $x$ and values of the derived summary statistic $k$ based on the assumption that the null hypothesis is true. Indeed, for the case at hand, we already know that the **sampling distribution**, i.e., the distribution of values for $k$ given $\theta_0$ is the [Binomial distribution](app-91-distributions-binomial).
+
+
+```{r ch-03-04-Binomial-Model-frequentist, echo = F, fig.cap="The Binomial Model for a frequentist binomial test.", out.width = '80%'}
+knitr::include_graphics("visuals/binomial-model-frequentist.png")
+```
+
+Let's take a step back. The frequentist model for the binomial case considers ("raw") data of the form $\langle x_1, \dots, x_N \rangle$ where each $x_i \in \{0,1\}$ indicates whether the $i$-th flip was a success (= heads, =1) or a failure (=tails, =0). We identify the set of all binary vectors of length $N$ as the set of hypothetical data which we could, in principle, observe in fictitious repetition of this data-generating process. $\mathcal{D}^{|H_0}$ is then the random variable that assigns each potential observation $D = \langle x_1, \dots, x_N \rangle$ the probability with which it would occur if $H_0$ (=a specific value of $\theta$) is true. In our case, that is:
+
+$$P(\mathcal{D}^{|H_0} = \langle x_1, \dots, x_N \rangle) = \prod_{i=1}^N \text{Bernoulli}(x_i, \theta_0)$$
+
+The model does not work with this raw data and its implied distribution (represented by random variable $\mathcal{D}^{|H_0}$), it uses a (very natural!) **test statistic** $t \colon \langle x_1, \dots, x_N \rangle \mapsto \sum_{i=1}^N x_i$ instead. The **sampling distribution** for this model is therefore the distribution of values for the derived measure $k$ - a distribution which follows from the distribution of the raw data ($\mathcal{D}^{|H_0}$) and this particular test statistic $t$. In its most general form, we write the sampling distribution as $T^{|H_0} = t(\mathcal{D^{H_0}})$. ^[Most often the random variable capturing the sampling distribution is just written as $T$, but it does make sense to stress also notationally that $T$ depends crucially on $H_0$.] It just so happens (what a relief!) that we know how to express $T^{|H_0}$ in a mathematically very concise fashion. It's just the Binomial distribution, so that $k \sim \text{Binomial}(\theta_0, N)$. (Notice how the sampling distribution is really a function of $\theta_0$ (the null-hypothesis) and also of $N$.)
+
+
+### *p*-values for the Binomial Model
+
+After seeing a frequentist model and learning about test statistic and sampling distribution, let's explore what a $p$-value is based on the frequentist Binomial Model. Our running example with be the 24/7 case, where $N = 24$ and $k = 7$. Notice that we are glossing over the "raw" data immediately and work with the value of the test statistic of the observed data directly: $t(D_{\text{obs}}) = 7$).
+
+Remember that the mathematical definition given above aims to capture the idea that $p(D_{\text{obs}})$ is the probability of observing any alternative outcome with a value of the test statistic that is at least as extreme evidence against $H_0$ as $t(D_{\text{obs}})$:
+
+$$
+  p(D_{\text{obs}}) = P(T^{|H_0} \succeq^{H_0} t(D_{\text{obs}})) % = P(\mathcal{D}^{|H_0} \in \{D \mid t(D) \ge t(D_{\text{obs}})\}) 
+$$
+
+To fill this with life, we need to set a null hypothesis, i.e., a value of coin bias $\theta$ that we would like to collect evidence *against*. A fixed $H_0$ will directly fix $T^{|H_0}$ but we will have to put extra thought into how to conceptualize $\succeq^{H_0}$ for any given $H_0$. To make exactly this clearer is the job of this section.
+
+As stated in the introduction to this chapter, since this testing routine is geared to give us evidence against $H_0$, we should choose $H_0$ in such a way as to give us information about the research question that really matter to us. So, let's suppose that our research question is either one of the following:
+
+- The coin is fair.
+- The coin is biased towards heads.
+- The coin is biased towards tails.
+- The coin's bias is between 0.3 and 0.4.
+
+
+
+### Snippets
 
 As before we fix a parameterized likelihood function $P(D \mid \theta)$, such as the binomial distribution in the [Binomial Model](Chap-03-03-models-examples). As described in Section \@ref(Chap-03-03-models-hypotheses), we may think of a research hypothesis as a statement about the parameter (vector) $\theta$ in a given model. In the most common case, the **null-hypothesis** fixes a single parameter of interest to a point-value.^[It may be objected that it makes no sense to conceive of a point-value null-hypothesis in the first place. The probability that the coin is exactly fair has no non-trivial measure. Indeed, it is also possible to consider interval-valued null-hypotheses in frequentist testing, but this is the exception and not the norm. Most formal results also apply to point-valued null hypotheses, not necessarily interval-based null hypotheses.] 
 
-```{block2, type='infobox'}
-**Example.**  A research hypothesis for the 24/7 example and its corresponding null-hypothesis are:
 
-- $H_1$: the coin is biased $\theta \neq 0.5$ 
-- $H_0$: the coin is fair $\theta = 0.5$ 
-```
 
-The null-hypothesis fixes a likelihood function for any kind of data we might perceive on (hypothetical) repetitions of an experiment. We here write $P(\mathcal{D} = D \mid H_0)$ or, for short, $P(D \mid H_0)$, e.g., $P(\mathcal{D} = D \mid \Theta = 0.5)$ for a the binomial 24/7 example. Let's write $\mathcal{D}^{|H_0}$ for the random variable that captures the probability distribution over possible data observations, on the assumption that the null-hypothesis is true. For example, when fixing $N=24$ the space of logically possible outcomes is $K = \set{0, 1, \dots, 24}$ observations of heads. 
-Then $T^{|H_0} = t(D^{|H_0})$ is a derived random variable, the so-called **sampling distribution**, with the function $t \colon d \mapsto t(d) \in \mathbb{R}$ a so-called **test statistic**. The $p$-value associated with actual data observation $D_{\text{obs}}$ is the probability of observing any alternative outcome with a value of the test statistic that is at least as extreme as $t(D_{\text{obs}})$:^[Keep in mind that the null-hypothesis is implicit in the sampling distribution.]
-
-$$
-  p(D_{\text{Obs}}) = P(T^{|H_0} \ge t(D_{\text{obs}})) % = P(\mathcal{D}^{|H_0} \in \{D \mid t(D) \ge t(D_{\text{obs}})\}) 
-$$
+The null-hypothesis fixes a likelihood function for any kind of data we might perceive on (hypothetical) repetitions of an experiment. We here write $P(\mathcal{D} = D \mid H_0)$ or, for short, $P(D \mid H_0)$, e.g., $P(\mathcal{D} = D \mid \Theta = 0.5)$ for the binomial 24/7 example. Let's write $\mathcal{D}^{|H_0}$ for the random variable that captures the probability distribution over possible data observations, on the assumption that the null-hypothesis is true. For example, when fixing $N=24$ the space of logically possible outcomes is $K = \set{0, 1, \dots, 24}$ observations of heads. 
+Then $T^{|H_0} = t(D^{|H_0})$ is a derived random variable, the so-called **sampling distribution**, with the function $t \colon d \mapsto t(d) \in \mathbb{R}$ a so-called **test statistic**. 
 
 A special case obtains when the model used in the background makes no further assumptions that are not covered by the (point-valued) null-hypothesis (e.g., there are no other free parameters that the null-hypothesis does not cover) and the test statistic is the inverse likelihood function: $t(D) = P(\mathcal{D} = D \mid H_0)^{-1}$. We then speak of an **exact $p$-value** (and an ensuing **exact test**). It follows that the exact $p$-value of observation $D_{\text{obs}}$ gives the probability of observing an event which is, from the point of view of $H_0$, no more likely than $D_{\text{obs}}$ (or: an event at least as unlikely (so: at least as extreme)).^[Using a test statistic that does not yield an exact test can be useful for various reasons. We might want to select a particular aspect of the data that we want to measure the extremes of. Or, we might wish to avoid the complexity of calculating an exact $p$-test and so resort to a clever test statistic that simplifies computation, yet approximates the exact calculation reasonably well (under certain conditions).]
 
@@ -89,7 +171,7 @@ binom.test(
 
 </div>
  
- 
+
 
 ## Some results
 
@@ -267,3 +349,16 @@ $$
 
 &nbsp;
 
+## Selected tests {#ch-03-05-hypothesis-testing-tests}
+
+## Three approaches {#ch-03-05-hypothesis-testing-3-approaches}
+
+### Fisher
+
+Frequentist hypothesis testing is superficially similar to Popperian falsificationism. It is, however, quite the opposite when looked at more carefully. Popper famously denied that empirical observation could constitute positive evidence in favor of a research hypothesis. Research hypotheses can only be refuted, viz., when their logically consequences are logically incompatible with the observed data. In a Popperian science, what is refuted are research hypotheses; frequentist statistics instead seeks to refute null-hypotheses and counts successful refutation of a null-hypothesis as evidence in favor of a research hypothesis.
+
+### Neyman-Pearson
+
+A conventional threshold on $p$-values may govern a categorical decision whether to reject or not reject the null-hypothesis (in the Neyman-Pearson approach). This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null-hypothesis when it is in fact true (a so-called type-1 error or $\alpha$-error). 
+
+### Hypbrid modern NHST
