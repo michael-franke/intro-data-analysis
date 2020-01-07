@@ -109,7 +109,7 @@ $$
   p(D_{\text{obs}}) = P(T^{|H_0} \succeq^{H_0} t(D_{\text{obs}})) % = P(\mathcal{D}^{|H_0} \in \{D \mid t(D) \ge t(D_{\text{obs}})\}) 
 $$
 
-To fill this with life, we need to set a null hypothesis, i.e., a value $\theta_0$ of coin bias $\theta$, that we would like to collect evidence *against*. A fixed $H_0$ will directly fix $T^{|H_0}$ but we will have to put extra thought into how to conceptualize $\succeq^{H_0}$ for any given $H_0$. To make exactly this clearer is the job of this section.
+To fill this with life, we need to set a null hypothesis, i.e., a value $\theta_0$ of coin bias $\theta$, that we would like to collect evidence *against*. A fixed $H_0$ will directly fix $T^{|H_0}$ but we will have to put extra thought into how to conceptualize $\succeq^{H_0}$ for any given $H_0$. To make exactly this clearer is the job of this section. Specifically, we will look at what is standardly called a **two-sided $p$-value** and a **one-sided $p$-value**.
 
 As stated in the introduction to this chapter, since this testing routine is geared to give us evidence against $H_0$, we should choose $H_0$ in such a way as to give us information about the research question that really matter to us. So, let's suppose that our research question is either one of the following:
 
@@ -213,44 +213,12 @@ ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray
   )
 ```
 
-### Snippets
 
-As before we fix a parameterized likelihood function $P(D \mid \theta)$, such as the binomial distribution in the [Binomial Model](Chap-03-03-models-examples). As described in Section \@ref(Chap-03-03-models-hypotheses), we may think of a research hypothesis as a statement about the parameter (vector) $\theta$ in a given model. In the most common case, the **null-hypothesis** fixes a single parameter of interest to a point-value.^[It may be objected that it makes no sense to conceive of a point-value null-hypothesis in the first place. The probability that the coin is exactly fair has no non-trivial measure. Indeed, it is also possible to consider interval-valued null-hypotheses in frequentist testing, but this is the exception and not the norm. Most formal results also apply to point-valued null hypotheses, not necessarily interval-based null hypotheses.] 
+## Central limit theorem {#ch-03-05-hypothesis-CLT}
 
+The previous section expanded of the notion of a $p$-value and it showed how to calculate $p$-values for different kinds of research questions for data from repeated Bernoulli trials (= coin flips). We saw that a natural test statistic is the Binomial distribution. The Binomial distribution described the sampling distribution precisely, i.e., the sampling distribution for the frequentist Binomial Model as we set it up *is* the Binomial distribution. Unfortunately, there are models and types of data for which the sampling distribution is not known precisely. In these cases, frequentist statistics works with approximations to the true sampling distribution. These approximations get better the more data was observed, i.e., these are limit-approximations that hold in the limit when the amount of data observed goes towards infinity. For small samples, the error might be substantial. Rules of thumb have become conventional guides for judging when (not) to use a given approximation. Which (approximation for a) sampling distribution to use needs to be decided on a case-by-case basis.
 
-
-The null-hypothesis fixes a likelihood function for any kind of data we might perceive on (hypothetical) repetitions of an experiment. We here write $P(\mathcal{D} = D \mid H_0)$ or, for short, $P(D \mid H_0)$, e.g., $P(\mathcal{D} = D \mid \Theta = 0.5)$ for the binomial 24/7 example. Let's write $\mathcal{D}^{|H_0}$ for the random variable that captures the probability distribution over possible data observations, on the assumption that the null-hypothesis is true. For example, when fixing $N=24$ the space of logically possible outcomes is $K = \set{0, 1, \dots, 24}$ observations of heads. 
-Then $T^{|H_0} = t(D^{|H_0})$ is a derived random variable, the so-called **sampling distribution**, with the function $t \colon d \mapsto t(d) \in \mathbb{R}$ a so-called **test statistic**. 
-
-A special case obtains when the model used in the background makes no further assumptions that are not covered by the (point-valued) null-hypothesis (e.g., there are no other free parameters that the null-hypothesis does not cover) and the test statistic is the inverse likelihood function: $t(D) = P(\mathcal{D} = D \mid H_0)^{-1}$. We then speak of an **exact $p$-value** (and an ensuing **exact test**). It follows that the exact $p$-value of observation $D_{\text{obs}}$ gives the probability of observing an event which is, from the point of view of $H_0$, no more likely than $D_{\text{obs}}$ (or: an event at least as unlikely (so: at least as extreme)).^[Using a test statistic that does not yield an exact test can be useful for various reasons. We might want to select a particular aspect of the data that we want to measure the extremes of. Or, we might wish to avoid the complexity of calculating an exact $p$-test and so resort to a clever test statistic that simplifies computation, yet approximates the exact calculation reasonably well (under certain conditions).]
-
-<div class="infobox">
-**Example.**  A coin was flipped $N = 24$ times and landed heads $k = 7$ times. To calculate the associated exact $p$-value under the null-hypothesis $\theta = 0.5$, we consult the likelihood function in Figure \@ref(fig:ch-03-04-testing-binomial-p-value), note the likelihood of the observed data (on the $x$-axis at $k = 7$) in comparison to all other conceivable outcomes of the flip-$N=24$-times experiment, and sum the probabilities of all events which are at least as unlikely as the observed $k=7$. This yields the value $p \approx 0.06391$.
-
-Here is custom-made code to obtain this result:
-
-```{r}
-# exact p-value for k=7 with N=24 and null-hypothesis theta = 0.5
-tibble( lh = dbinom(0:24, 24, 0.5) ) %>% 
-  filter( lh <=  dbinom(7, 24, 0.5) ) %>% 
-  pull(lh) %>% sum %>% round(5)
-```
-
-There is, of course, also a ready-made R function for a **binomial test**:
-
-```{r}
-binom.test(
-  x = 7,     # observed successes
-  n = 24,    # total nr. observations
-  p = 0.5    # null hypothesis
-)
-```
-
-</div>
- 
-
-
-## Some results
+To establish that a particular distribution is a good approximation of the true sampling distribution, the most important formal result is the *Central Limit Theorem* (CLT). In rough terms, the CLT says that 
 
 ### Law of Large Numbers
 
