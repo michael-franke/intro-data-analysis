@@ -19,11 +19,9 @@ suppressPackageStartupMessages(library(binom)) # for binomial confidence interva
 
 
 ## set defaults
-# hrbrthemes::import_public_sans()
+source("theme_ida.R")
 theme_set(
-  # hrbrthemes::theme_ipsum(plot_margin = margin(10, 10, 10, 10)) +
-  #   theme(legend.position = "top")
-  theme_ida(y.axis = F)
+  theme_ida()
 )
 
 # parallel execution of Stan code
