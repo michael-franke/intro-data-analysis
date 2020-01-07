@@ -103,22 +103,37 @@ The model does not work with this raw data and its implied distribution (represe
 
 ### *p*-values for the Binomial Model
 
-After seeing a frequentist model and learning about test statistic and sampling distribution, let's explore what a $p$-value is based on the frequentist Binomial Model. Our running example with be the 24/7 case, where $N = 24$ and $k = 7$. Notice that we are glossing over the "raw" data immediately and work with the value of the test statistic of the observed data directly: $t(D_{\text{obs}}) = 7$).
+After seeing a frequentist model and learning about test statistic and sampling distribution, let's explore what a $p$-value is based on the frequentist Binomial Model. Our running example will be the 24/7 case, where $N = 24$ and $k = 7$. Notice that we are glossing over the "raw" data immediately and work with the value of the test statistic of the observed data directly: $t(D_{\text{obs}}) = 7$.
 
-Remember that the mathematical definition given above aims to capture the idea that $p(D_{\text{obs}})$ is the probability of observing any alternative outcome with a value of the test statistic that is at least as extreme evidence against $H_0$ as $t(D_{\text{obs}})$:
+Remember that, by the definition given above, $p(D_{\text{obs}})$ is the probability of observing a value of the test statistic that is at least as extreme evidence against $H_0$ as $t(D_{\text{obs}})$, under the assumption that $H_0$ is true:
 
 $$
   p(D_{\text{obs}}) = P(T^{|H_0} \succeq^{H_0} t(D_{\text{obs}})) % = P(\mathcal{D}^{|H_0} \in \{D \mid t(D) \ge t(D_{\text{obs}})\}) 
 $$
 
-To fill this with life, we need to set a null hypothesis, i.e., a value of coin bias $\theta$ that we would like to collect evidence *against*. A fixed $H_0$ will directly fix $T^{|H_0}$ but we will have to put extra thought into how to conceptualize $\succeq^{H_0}$ for any given $H_0$. To make exactly this clearer is the job of this section.
+To fill this with life, we need to set a null hypothesis, i.e., a value $\theta_0$ of coin bias $\theta$, that we would like to collect evidence *against*. A fixed $H_0$ will directly fix $T^{|H_0}$ but we will have to put extra thought into how to conceptualize $\succeq^{H_0}$ for any given $H_0$. To make exactly this clearer is the job of this section.
 
 As stated in the introduction to this chapter, since this testing routine is geared to give us evidence against $H_0$, we should choose $H_0$ in such a way as to give us information about the research question that really matter to us. So, let's suppose that our research question is either one of the following:
 
-- Is the coin fair: $\theta \approx 0.5$?
-- Is the coin biased towards heads: $\theta > 0.5$?
-- Is the coin biased towards tails: $\theta < 0.5$?
-- Is the coin's bias between 0.3 and 0.4: $\theta \in [0.3; 0.4]$? 
+- Is the coin fair ($\theta = 0.5$)?
+- Is the coin biased towards heads ($\theta > 0.5$)?
+- Is the coin biased towards tails ($\theta < 0.5$)?
+- Is the coin's bias between 0.3 and 0.4 ($\theta \in [0.3; 0.4]$)? 
+
+**Research question $\theta = 0.5$.** To begin with, assume that we want to address the question of whether the coin is fair, i.e., whether $\theta = 0.5$. In this case, we identify the research question with the null hypothesis and set $\theta_0 = 0.5$. Figure \@ref(fig:ch-03-04-testing-binomial-sampling-distribution) shows the sampling distribution of the test statistic $k$. The probability of the observed value of the sampling statistic is shown in red. 
+
+```{r ch-03-04-testing-binomial-sampling-distribution, echo = F, fig.cap = "Sampling distribution (here: Binomial distribution) and probability associated with observed data $k=7$ highlighted in red, for $N = 24$ coin flips, under the assumption of a null-hypothesis $\\theta = 0.5$."}
+plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
+plotData2 = data.frame(x = 7, y = dbinom(7, 24, 0.5))
+ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
+  geom_bar(data = plotData2, aes(x = x, y = y), stat = "identity", fill = "firebrick", width = 0.35) +
+  labs(
+    x = latex2exp::TeX("test statistic $k$"),
+    y = latex2exp::TeX("$Binomial(k \\, | \\, n = 24, \\theta = 0.5)$")
+  )
+```
+
+The question we need to settle to obtain a $p$-value is which alternative values of $k$ would count as more extreme evidence against the chosen null hypothesis, i.e., how to interpret $\succeq^{H_0}$ for this case. The obvious approach is to use the probability of any value of the test statistic $k$ directly and say that observing $D_1$ counts as at least as extreme evidence against $H_0$ as observing $D_2$, $t(D_1) \succeq^{H_0} t(D_2)$, iff the probability of observing the test statistic associated with $D_1$ is at least as unlikely as observing $D_2$: $P(T^{|H_0} = t(D_1)) \le P(T^{|H_0} = t(D_1))$.
 
 
 
