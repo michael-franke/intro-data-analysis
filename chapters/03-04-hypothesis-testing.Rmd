@@ -28,8 +28,6 @@ They also differ in several technical details.
 We will cover differences and commonalities of these three major approaches in Section \@ref(ch-03-05-hypothesis-testing-3-approaches) at the end of this chapter, after we have covered the basic technical notions (in Section \@ref(ch-03-05-hypothesis-p-values)) and after we have seen some applications of these basic ingredients (in Section \@ref(ch-03-05-hypothesis-testing-tests)).
 
 
-
-
 ```{block, type='infobox'}
 The learning goals for this chapter are:
 
@@ -117,8 +115,6 @@ As stated in the introduction to this chapter, since this testing routine is gea
 
 - Is the coin fair ($\theta = 0.5$)?
 - Is the coin biased towards heads ($\theta > 0.5$)?
-- Is the coin biased towards tails ($\theta < 0.5$)?
-- Is the coin's bias between 0.3 and 0.4 ($\theta \in [0.3; 0.4]$)? 
 
 **Research question $\theta = 0.5$.** To begin with, assume that we want to address the question of whether the coin is fair, i.e., whether $\theta = 0.5$. In this case, we identify the research question with the null hypothesis and set $\theta_0 = 0.5$. Figure \@ref(fig:ch-03-04-testing-binomial-sampling-distribution) shows the sampling distribution of the test statistic $k$. The probability of the observed value of the sampling statistic is shown in red. 
 
@@ -133,9 +129,89 @@ ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray
   )
 ```
 
-The question we need to settle to obtain a $p$-value is which alternative values of $k$ would count as more extreme evidence against the chosen null hypothesis, i.e., how to interpret $\succeq^{H_0}$ for this case. The obvious approach is to use the probability of any value of the test statistic $k$ directly and say that observing $D_1$ counts as at least as extreme evidence against $H_0$ as observing $D_2$, $t(D_1) \succeq^{H_0} t(D_2)$, iff the probability of observing the test statistic associated with $D_1$ is at least as unlikely as observing $D_2$: $P(T^{|H_0} = t(D_1)) \le P(T^{|H_0} = t(D_1))$.
+The question we need to settle to obtain a $p$-value is which alternative values of $k$ would count as more extreme evidence against the chosen null hypothesis, i.e., how to interpret $\succeq^{H_0}$ for this case. The obvious approach is to use the probability of any value of the test statistic $k$ directly and say that observing $D_1$ counts as at least as extreme evidence against $H_0$ as observing $D_2$, $t(D_1) \succeq^{H_0} t(D_2)$, iff the probability of observing the test statistic associated with $D_1$ is at least as unlikely as observing $D_2$: $P(T^{|H_0} = t(D_1)) \le P(T^{|H_0} = t(D_1))$. To calculate the $p$-value in this way, we therefore need to sum up the probabilities of all values $k$ under the Binomial distribution (with parameters $N=24$ and $\theta = \theta_0 = 0.5$) that are no larger than the value of the observed $k = 7$. In mathematical language:^[Here, the bracket notation $[ \mathit{Boolean} ]$ is the [Iverson bracket](https://en.wikipedia.org/wiki/Iverson_bracket), evaluation to 1 if the Boolean expression is true and to 0 otherwise.]
+
+$$
+p(k) = \sum_{k' = 0}^{N} [\text{Binomial}(k', N, \theta_0) <= \text{Binomial}(k, N, \theta_0)] \ \text{Binomial}(k', N, \theta_0)
+$$
+
+In code, we calculate the this $p$-value as follows:
+
+```{r}
+# exact p-value for k=7 with N=24 and null-hypothesis theta = 0.5
+k_obs <- 7
+N <-  24
+theta_0 <-  0.5
+tibble( lh = dbinom(0:N, N, theta_0) ) %>% 
+  filter( lh <=  dbinom(k_obs, N, theta_0) ) %>% 
+  pull(lh) %>% sum %>% round(5)
+```
+
+Figure \@ref(fig:ch-03-04-testing-binomial-p-value) shows the values that need to be summed over in red.
+
+```{r ch-03-04-testing-binomial-p-value, echo = F, fig.cap = "Sampling distribution (Binomial likelihood function) and $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null-hypothesis $\\theta = 0.5$."}
+plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
+plotData2 = data.frame(x = c(0:7, 17:24), y = dbinom(c(0:7, 17:24), 24, 0.5))
+ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
+  geom_bar(data = plotData2, aes(x = x, y = y), stat = "identity", fill = "firebrick", width = 0.35) +
+  geom_hline(yintercept=dbinom(7,24,0.5)) + 
+  # geom_text(data.frame(x = 3, y = 0.05, label = paste0("p = " , round(1-sum(dbinom(8:16, 24, 0.5)),3), collapse = "")), aes(x = x, y = y, label = label))
+  geom_label(x = 3, y = 0.03, label = paste0("p(k=7) = " , round(1-sum(dbinom(8:16, 24, 0.5)),5), collapse = "")) +
+  labs(
+    x = latex2exp::TeX("test statistic $k$"),
+    y = latex2exp::TeX("$Binomial(k \\, | \\, n = 24, \\theta = 0.5)$")
+  )
+```
 
 
+Of course, R also has a built-in function for a Binomial test. We can use it to verify that we get the same result for the $p$-value:
+
+```{r}
+binom.test(
+  x = 7,     # observed successes
+  n = 24,    # total nr. observations
+  p = 0.5    # null hypothesis
+)
+```
+
+
+**Research question $\theta < 0.5$.** Let's now look at the case where our research hypothesis is that $\theta > 0.5$, i.e., that there is a bias towards heads. Again we need to settle what the null hypothesis should be and how $\succeq^{H_0}$ should be interpreted. In this case, we could consider an interval-valued null hypothesis like $\theta_0 > 0.5$ (making the research hypothesis the null). But even so, we would still resort to testing a point-valed null hypothesis $\theta_0 = 0.5$ eventually. This is because point-valued null hypotheses are easy to work with.^[The problem for interval-valued null hypothesis is that we would need to specify some more information about how to rank parameters, if only to say that they are all ranked equally (plausible, *a priori*), which is something that we try to avoid in frequentist approaches.] It has therefore become customary to pick the value from the relevant interval which is most favorable of the interval-valued null-hypothesis. In case we find strong evidence *against* even the most favorable value from the interval, than this does consititute the strongest possible case *against* the whole interval-based null hypothesis.
+
+But even though we use the the same null-value of $\theta_0 = 0.5$, the calculation of the $p$-value will be different from the case we looked at previously. The reason lies in a change to what we should consider more extreme evidence against this interval-valued null hypothesis, i.e., the interpretation of $\succeq^{H_0}$. In the case at hand, observing values of $k$ larger than 12, even if they are unlikely for the point-valued hypothesis $\theta_0 = 0.5$ do not consititute evidence against the interval-valued hypothesis we are interested in. So, therefore, we disregard the contribution of the right hand side in Figure \@ref(fig:h-03-04-testing-binomial-p-value) to arrive at a picture like in Figure \@ref(fig:h-03-04-testing-binomial-p-value-one-sided). The associated $p$-value with this, so-called **one-sided test**, is consquently:
+
+```{r}
+k_obs <- 7
+N <- 24
+theta_0 <- 0.5
+# exact p-value for k=7 with N=24 and null-hypothesis theta > 0.5
+dbinom(0:k_obs, N, theta_0) %>% sum %>% round(5)
+```
+
+We can double-check against the built-in function `binom.test` when we ask for a one-sided test:
+
+```{r}
+binom.test(
+  x = 7,     # observed successes
+  n = 24,    # total nr. observations
+  p = 0.5,    # null hypothesis
+  alternative = "less" # the alternative to compare against is theta < 0.5
+)
+```
+
+
+```{r ch-03-04-testing-binomial-p-value-one-sided, echo = F, fig.cap = "Sampling distribution (Binomial likelihood function) and $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null-hypothesis $\\theta > 0.5$."}
+plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
+plotData2 = data.frame(x = c(0:7), y = dbinom(c(0:7), 24, 0.5))
+ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
+  geom_bar(data = plotData2, aes(x = x, y = y), stat = "identity", fill = "firebrick", width = 0.35) +
+  geom_hline(yintercept=dbinom(7,24,0.5)) + 
+  # geom_text(data.frame(x = 3, y = 0.05, label = paste0("p = " , round(1-sum(dbinom(8:16, 24, 0.5)),3), collapse = "")), aes(x = x, y = y, label = label))
+  geom_label(x = 3, y = 0.03, label = paste0("p(k=7) = " , round(sum(dbinom(0:7, 24, 0.5)),5), collapse = "")) +
+  labs(
+    x = latex2exp::TeX("test statistic $k$"),
+    y = latex2exp::TeX("$Binomial(k \\, | \\, n = 24, \\theta = 0.5)$")
+  )
+```
 
 ### Snippets
 
@@ -150,20 +226,6 @@ A special case obtains when the model used in the background makes no further as
 
 <div class="infobox">
 **Example.**  A coin was flipped $N = 24$ times and landed heads $k = 7$ times. To calculate the associated exact $p$-value under the null-hypothesis $\theta = 0.5$, we consult the likelihood function in Figure \@ref(fig:ch-03-04-testing-binomial-p-value), note the likelihood of the observed data (on the $x$-axis at $k = 7$) in comparison to all other conceivable outcomes of the flip-$N=24$-times experiment, and sum the probabilities of all events which are at least as unlikely as the observed $k=7$. This yields the value $p \approx 0.06391$.
-
-```{r ch-03-04-testing-binomial-p-value, echo = F, fig.cap = "Binomial likelihood function and $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null-hypothesis $\\theta = 0.5$."}
-plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
-plotData2 = data.frame(x = c(0:7, 17:24), y = dbinom(c(0:7, 17:24), 24, 0.5))
-ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
-  geom_bar(data = plotData2, aes(x = x, y = y), stat = "identity", fill = "firebrick", width = 0.35) +
-  geom_hline(yintercept=dbinom(7,24,0.5)) + 
-  # geom_text(data.frame(x = 3, y = 0.05, label = paste0("p = " , round(1-sum(dbinom(8:16, 24, 0.5)),3), collapse = "")), aes(x = x, y = y, label = label))
-  geom_label(x = 3, y = 0.03, label = paste0("p(k=7) = " , round(1-sum(dbinom(8:16, 24, 0.5)),5), collapse = "")) +
-  labs(
-    x = latex2exp::TeX("bias $k$"),
-    y = latex2exp::TeX("$Binomial(k \\, | \\, n = 24, \\theta = 0.5)$")
-  )
-```
 
 Here is custom-made code to obtain this result:
 
