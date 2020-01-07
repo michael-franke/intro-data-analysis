@@ -218,11 +218,9 @@ ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray
 
 The previous section expanded of the notion of a $p$-value and it showed how to calculate $p$-values for different kinds of research questions for data from repeated Bernoulli trials (= coin flips). We saw that a natural test statistic is the Binomial distribution. The Binomial distribution described the sampling distribution precisely, i.e., the sampling distribution for the frequentist Binomial Model as we set it up *is* the Binomial distribution. Unfortunately, there are models and types of data for which the sampling distribution is not known precisely. In these cases, frequentist statistics works with approximations to the true sampling distribution. These approximations get better the more data was observed, i.e., these are limit-approximations that hold in the limit when the amount of data observed goes towards infinity. For small samples, the error might be substantial. Rules of thumb have become conventional guides for judging when (not) to use a given approximation. Which (approximation for a) sampling distribution to use needs to be decided on a case-by-case basis.
 
-To establish that a particular distribution is a good approximation of the true sampling distribution, the most important formal result is the *Central Limit Theorem* (CLT). In rough terms, the CLT says that 
+To establish that a particular distribution is a good approximation of the true sampling distribution, the most important formal result is the *Central Limit Theorem* (CLT). In rough terms, the CLT says that, under certain conditions, we can use a normal distribution as an approximation of the sampling distribution. 
 
-### Law of Large Numbers
-
-The Law of Large Numbers justifies why taking (large) samples from a random variable sufficiently approximates a mean (the most prominent Bayesian estimator).
+To appreciate the CLT, let's start with another seminal results, the **Law of Large Numbers**, which we have already relied on when we discussed a sample-based approach to representing probability distributions. For example, the Law of Large Numbers justifies why taking (large) samples from a random variable sufficiently approximates a mean (the most prominent Bayesian point-estimator of, e.g., a posterior approximated by samples from MCMC algorithms).
 
 ```{theorem label = "Law-of-Large-Numbers", name = "Law of Large Numbers"}
 Let $X_1, \dots, X_n$ be a sequence of $n$ differentiable random variables with equal mean, such that $\mathbb{E}_{X_i} = \mu_X$ for all $1 \le i \le n$.^[Though the result is more general, it is convenient to think of a natural application as the case where all $X_i$ are samples from the exact same distribution.] As the number of samples $n$ goes to infinity the mean of any tuple of samples, one from each $X_i$, convergences almost surely to $\mu_X$:
@@ -249,9 +247,7 @@ tibble(
 ```
 
 
-### Central Limit Theorem
-
-For practical puporses, think of the Central Limit Theorem as an extension of the Law of Large Numbers. While the latter tells us that, as $n \rightarrow \infty$, the mean of repeated samples from a random variable $X$ converges to the mean of $X$, the Central Limit Theorem tells us something about the distribution of our estimate of $X$'s mean. The Central Limit Theorem tells us that the sampling distribution of the mean approximates a normal distribution for large enough sample size.
+For practical purposes, think of the Central Limit Theorem as an extension of the Law of Large Numbers. While the latter tells us that, as $n \rightarrow \infty$, the mean of repeated samples from a random variable $X$ converges to the mean of $X$, the Central Limit Theorem tells us something about the distribution of our estimate of $X$'s mean. The Central Limit Theorem tells us that the sampling distribution of the mean approximates a normal distribution for large enough sample size.
 
 ```{theorem, label = "Central-Limit-Theorem", name = "Central Limit Theorem"}
 Let $X_1, \dots, X_n$ be a sequence of $n$ differentiable random variables with equal mean  $\mathbb{E}_{X_i} = \mu_X$ and equal finite variance $\text{Var}(X_i) = \sigma_X^2$ for all $1 \le i \le n$.^[As with the Law of Large Numbers, the most common application is the case where all $X_i$ are samples from the exact same distribution.] The random variable $S_n$ which captures the distribution of the sample mean for any $n$ is:
@@ -262,6 +258,26 @@ $$ S_n = \frac{1}{n} \sum_{i=1}^n X_i $$
 As the number of samples $n$ goes to infinity the random variable $\sqrt{n} (S_n - \mu_X)$ converges in distribution to a normal distribution with mean 0 and standard deviation $\sigma_X$.
   
 ```
+
+A proof of the CLT is not trivial, and we will omit it here. We will only point to the CLT when justifying approximations of sampling distributions, just as exemplified in the next section, which deals with Pearson's $\chi^2$-test.
+
+## Pearson's $\chi^2$-test
+
+## Selected tests {#ch-03-05-hypothesis-testing-tests}
+
+## Three approaches {#ch-03-05-hypothesis-testing-3-approaches}
+
+### Fisher
+
+Frequentist hypothesis testing is superficially similar to Popperian falsificationism. It is, however, quite the opposite when looked at more carefully. Popper famously denied that empirical observation could constitute positive evidence in favor of a research hypothesis. Research hypotheses can only be refuted, viz., when their logically consequences are logically incompatible with the observed data. In a Popperian science, what is refuted are research hypotheses; frequentist statistics instead seeks to refute null-hypotheses and counts successful refutation of a null-hypothesis as evidence in favor of a research hypothesis.
+
+### Neyman-Pearson
+
+A conventional threshold on $p$-values may govern a categorical decision whether to reject or not reject the null-hypothesis (in the Neyman-Pearson approach). This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null-hypothesis when it is in fact true (a so-called type-1 error or $\alpha$-error). 
+
+### Hypbrid modern NHST
+
+## Snippets / Formal results
 
 
 ### Uniform distribution of $p$-values
@@ -394,16 +410,3 @@ $$
 
 &nbsp;
 
-## Selected tests {#ch-03-05-hypothesis-testing-tests}
-
-## Three approaches {#ch-03-05-hypothesis-testing-3-approaches}
-
-### Fisher
-
-Frequentist hypothesis testing is superficially similar to Popperian falsificationism. It is, however, quite the opposite when looked at more carefully. Popper famously denied that empirical observation could constitute positive evidence in favor of a research hypothesis. Research hypotheses can only be refuted, viz., when their logically consequences are logically incompatible with the observed data. In a Popperian science, what is refuted are research hypotheses; frequentist statistics instead seeks to refute null-hypotheses and counts successful refutation of a null-hypothesis as evidence in favor of a research hypothesis.
-
-### Neyman-Pearson
-
-A conventional threshold on $p$-values may govern a categorical decision whether to reject or not reject the null-hypothesis (in the Neyman-Pearson approach). This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null-hypothesis when it is in fact true (a so-called type-1 error or $\alpha$-error). 
-
-### Hypbrid modern NHST
