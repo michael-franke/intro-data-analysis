@@ -35,8 +35,8 @@ theme_ida <- function(title.size = 16, text.size = 14,
                                                      face = "bold"))
   
   # misc 
-  layout <- layout + theme(panel.background = element_rect(fill = "transparent"),
-                           plot.background = element_rect(fill = "transparent"),
+  layout <- layout + theme(panel.background = element_rect(fill = "white"),
+                           plot.background = element_rect(fill = "white"),
                            plot.margin = unit(plot.margin, "cm"))
   
   layout
