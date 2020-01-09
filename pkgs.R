@@ -15,7 +15,7 @@ library(greta)       # probabilistic modeling package
 library(ggmcmc)      # tidy Bayes samples
 library(HDInterval)  # credible intervals
 library(binom)       # for binomial confidence intervals 
-
+library(BSDA)        # for z.test
 
 ## set defaults
 source("theme_ida.R")
