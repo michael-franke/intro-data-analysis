@@ -332,13 +332,12 @@ For practical purposes, think of the Central Limit Theorem as an extension of th
 
 ```{theorem, label = "Central-Limit-Theorem", name = "Central Limit Theorem"}
 Let $X_1, \dots, X_n$ be a sequence of $n$ differentiable random variables with equal mean  $\mathbb{E}_{X_i} = \mu_X$ and equal finite variance $\text{Var}(X_i) = \sigma_X^2$ for all $1 \le i \le n$.^[As with the Law of Large Numbers, the most common application is the case where all $X_i$ are samples from the exact same distribution.] The random variable $S_n$ which captures the distribution of the sample mean for any $n$ is:
-
 $$ S_n = \frac{1}{n} \sum_{i=1}^n X_i $$
-
-  
 As the number of samples $n$ goes to infinity the random variable $\sqrt{n} (S_n - \mu_X)$ converges in distribution to a normal distribution with mean 0 and standard deviation $\sigma_X$.
   
 ```
+
+&nbsp;
 
 A proof of the CLT is not trivial, and we will omit it here. We will only point to the CLT when justifying approximations of sampling distributions, just as exemplified in the next section, which deals with Pearson's $\chi^2$-test.
 
@@ -424,7 +423,7 @@ p <- rep(1/4,4)
 # expected number in each cell
 e <- sum(n)*p
 # chi-squared for observed data
-chi2_observed <- sum((n-e)^2 *1/e)
+chi2_observed <- sum((n-e)^2 * 1/e)
 chi2_observed
 ```
 
@@ -538,7 +537,10 @@ knitr::include_graphics("visuals/chi2-model-independence.png")
 We can compute the observed $\chi^2$-test statistic as follows:
 
 ```{r}
-chi2_observed <- sum((counts_BLJM_choice_pairs_matrix - BLJM_expectation_matrix)^2 / BLJM_expectation_matrix)
+chi2_observed <- sum(
+  (counts_BLJM_choice_pairs_matrix - BLJM_expectation_matrix)^2 / 
+    BLJM_expectation_matrix
+  )
 p_value_BLJM <- 1-pchisq(q = chi2_observed, df = 1)
 round(p_value_BLJM,5)
 ```
@@ -586,7 +588,6 @@ tibble(
 We can also use the built-in function `chisq.test` in R to obtain this result more efficiently:
 
 ```{r}
-# we calculate 
 chisq.test(
   # supply data as a matrix, not as a vector, for test of independence
   counts_BLJM_choice_pairs_matrix, 
@@ -780,11 +781,130 @@ Notice that the conclusions we draw from the previous $z$-test and this one-samp
 
 #### Two-sample $t$-test (for unpaired data with equal variance and unequal sample sizes)
 
+The "mother of all experimental designs" compares two groups of measurements. We give a drug to one group of patients; a placebo to another. We take a metric measure (say, blood sugar level) and ask whether there is a difference between these two groups. Section \@ref(Chap-03-03-models-examples) introduced the $T$-Test Model for a Bayesian appraoch. Here, we look at a corresponding model for a frequentist approach, which underlies one of a family of so-called two-sample $t$-tests. There are different kinds of such two-sample $t$-tests. The differences lie, e.g., in whether we assume that both groups have equal variance, in whether the sample sizes are the same in both groups, or in whether observations are paired (e.g., as in a within-subjects design, where we get two measurements from each participant, one from each condition / group). Here, we focus on unpaired data (as from a between-subjects experiment), assume equal variance but (possibly) unequal sample sizes. The case we look at is the [avocado data](app-93-data-sets-avocado), and we want to specifically investigate whether the weekly average price of organically grown avocados is higher than that of conventionally grown avocados.^[Notice that the original avocado data set contains information also about the place of measurement, which would in principle allow us to treat the price measurements as paired samples (one pair for each week and place). For simplicity, but with a note of care that this makes us lose possibly relevant structural information, we here treat the avocado data as if it contained unpaired samples.]
+
+The data to consider is this:
+
+```{r, echo = F}
+avocado_data <- read_csv('data_sets/avocado.csv') %>% 
+  # remove currently irrelevant columns
+  select( -X1 , - contains("Bags"), - year, - region) %>% 
+  # rename variables of interest for convenience
+  rename(
+    total_volume_sold = `Total Volume`,
+    average_price = `AveragePrice`,
+    small  = '4046',
+    medium = '4225',
+    large  = '4770',
+  )
+```
+
+```{r, eval = F}
+avocado_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado.csv')) %>% 
+  # remove currently irrelevant columns
+  select( -X1 , - contains("Bags"), - year, - region) %>% 
+  # rename variables of interest for convenience
+  rename(
+    total_volume_sold = `Total Volume`,
+    average_price = `AveragePrice`,
+    small  = '4046',
+    medium = '4225',
+    large  = '4770',
+  )
+```
+
+Remember that the distribution of prices looks as follows:
+
+```{r, echo = F}
+avocado_data %>% 
+  ggplot(aes(x = average_price, fill = type)) +
+  geom_density(alpha = 0.3) +
+  ylab('') +
+  xlab('average weekly price') 
+```
+
+A graphical representation of the two-sample $t$-test (for unpaired data with equal variance and unequal sample sizes), which we will apply to this case, is shown in Figure \@ref(fig:ch-03-04-t-test-model-two-populations). The model assumes that we have two vectors of metric measurements $\vec{x}_A$ and $\vec{x}_B$, with length $n_A$ and $n_B$ respectively. These are the price measures for conventionally grown and for organically grown avocados. The model assumes that measures in both $\vec{x}_A$ and $\vec{x}_B$ are iid samples from a normal distribution. The mean of one group (group $B$ in the graph) is assumed to be some unknown $\mu$. Interestingly, this parameter will cancel out eventually: by doing  from the data, which is indicated in the light shading of the node $\mu$. The mean of the other group (group $A$ in the graph) is computed as $\mu + \delta$, so with some additive paramater $\delta$ indicating the difference between means of these groups. This $\delta$ is the main parameter of interest for inferences regarding hypotheses concerning differences between the groups. Finally, the model assumes that both groups have the same standard deviation, an estimate of which is derived from the data (in a rather convoluted looking formula that is not important for our introductory concerns). Ad indicated in Figure \@ref(fig:ch-03-04-t-test-model-two-populations), the sampling distribution for this model is an instance of Student's $t$-distribution with mean 0, standard deviation 1 and degrees of freedom given as $n_A + n_B - 2$.
+
 ```{r ch-03-04-t-test-model-two-populations, echo = F, fig.cap="Graphical representation of the model underlying a frequentist two-population $t$-test (for unpaired data with equal variance and unequal sample sizes). Notice that the light shadeding of the node for the standard deviation and of the node for the mean represents that the values for these parameters are estimated from the data.", out.width = '90%'}
 knitr::include_graphics("visuals/t-test-model-two-populations.png")
 ```
 
+Figure \@ref(fig:ch-03-04-t-test-model-two-populations) gives us the template to compute the value of the test statistic for the observed data.
+
+```{r}
+# fix the null hypothesis: we assume no difference between groups
+delta_0 <- 0
+# get the observed mean for organically-grown avocadoes (group A)
+x_A <- avocado_data %>% filter(type == "organic") %>% pull(average_price)
+# get the observed mean for conventionally-grown avocadoes (group B)
+x_B <- avocado_data %>% filter(type == "conventional") %>% pull(average_price)
+# get the observed mean for organically-grown avocadoes (group A)
+mu_A <- mean(x_A)
+# get the observed mean for conventionally-grown avocadoes (group B)
+mu_B <- mean(x_B)
+# numbers of observations
+n_A <- length(x_A)
+n_B <- length(x_B)
+# variance estimate
+sigma_AB <- sqrt(
+  ( ((n_A -1) * sd(x_A)^2 + (n_B -1) * sd(x_B)^2 ) / (n_A + n_B -2) ) * (1/n_A + 1/n_B)
+)
+t_observed <- (mu_A - mu_B - delta_0) / sigma_AB
+t_observed  
+```
+
+We can use the value of the test statistic for the observed data to compute a one-sided $p$-value, as before. Notice that we use a one-sided test because we hypothesize that organically grown avocados are more expensive, not just that they have a different price (more expensive or cheaper).
+
+```{r}
+p_value_t_test_avocado <- 1 - pt(q = t_observed, df = n_A + n_B - 1)
+p_value_t_test_avocado
+```
+
+Owing to number imprecision, the calculated $p$-value comes up as a flat zero. We have a lot of data and the task of defending that conventionally grown avocados are not less expensive than organically grown is very tough. This also shows in the corresponding picture in Figure \@ref(fig:ch-03-04-t-test-two-sample). 
+
+
+```{r ch-03-04-t-test-two-sample, echo = F, fig.cap="Sampling distribution for a two-sample $t$-test, testing the null hypothesis of no difference between groups, based that the avocado data.", out.width = '90%'}
+tibble(
+  x = seq(-50,120, length.out = 500) ,
+  y = dt(x, df = N-1)
+) %>% 
+  ggplot(aes(x = x , y = y)) +
+  geom_line() +
+  labs(
+    x = latex2exp::TeX("$t$"),
+    y = "density"
+  ) +
+  # line and label for observed value
+  geom_segment(
+    aes(
+      x = t_observed,
+      xend = t_observed,
+      y = 0,
+      yend = 0.15
+    ), color = "firebrick"
+  ) +
+  geom_label(aes(x = t_observed, y = 0.16, label = "observed value\nof test statistic"))
+```
+
+We can also, of course, calculate this test result with the built-in function `t.test`:
+
+```{r}
+t.test(
+  x = x_A,              # first vector of data measurements
+  y = x_B,              # sec vector of data measurements
+  paired = FALSE,       # measurements are to be treated as unpaired
+  var.equal = TRUE,     # we assum equal variance in both groups
+  mu = 0                # NH is delta = 0 (parameter name 'mu' is misleading!)
+)
+```
+
+The result could be reported as follows:
+
+> We used a two-sample $t$-test of differences of means (unpaired samples, equal variance, unequal sample sizes) to compare the average weekly price of conventionally-grown avocados to that of organically grown avocados. The test result indicates a significant difference for the null hypothesis that conventionally-grown avocados are not cheaper ($N_A = `r n_A`$, $N_B = `r n_B`$, $t \approx `r t_observed`$, $p \approx `r p_value_t_test_avocado`$).
+
 ### ANOVA {#ch-03-05-hypothesis-testing-ANOVA}
+
+### Linear regression  {#ch-03-05-hypothesis-testing-linear-regression}
 
 ## Three approaches {#ch-03-05-hypothesis-testing-3-approaches}
 
