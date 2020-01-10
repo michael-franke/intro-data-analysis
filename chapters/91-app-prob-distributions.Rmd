@@ -438,6 +438,93 @@ $$F(x)=\begin{cases}0 & \textrm{ for } x<a,\\\frac{x-a}{b-a} &\textrm{ for } a\l
 
 **Variance**  $Var(X)=\frac{(b-a)^2}{12}$
 
+
+### Dirichlet distribution {#app-91-distributions-dirichlet}
+
+The Dirichlet distribution is a multivariate generalisation of the Beta distribution: While Beta distribution is a distribution over binomials, the Dirichlet is a distribution over Multinomials. 
+
+It can be used in any situation where an entity has to necessarily fall into one of $n+1$ mutually exclusive subclasses, and the goal is to study the proportion of entities belonging to the different subclasses.
+
+The Dirichlet distributions are commonly used as *prior distributions* in Bayesian statistics, as this family is a *conjugate prior* for the categorical distribution and the multinomial distribution.
+
+The Dirichlet distribution $\mathcal{Dir}(\alpha)$ is a family of continuous multivariate probability distributions, parameterized by a vector $\alpha$ of positive reals. Thus, it is a distribution with $k$ positive parameters $\alpha^k$ with respect to a $k$-dimensional space.
+
+<!-- https://towardsdatascience.com/dirichlet-distribution-a82ab942a879 -->
+
+$$X \sim \mathcal{Dir}(\alpha)$$
+
+The probability density function (see formula below) of the Dirichlet distribution for $k$ random variables is a $k-1$ dimensional probability *simplex* that exists on a $k$ dimensional space. How does the parameter $\alpha$ influence the Dirichlet distribution?
+
+* Higher values of $\alpha_i$ lead to greater "weight" of $X_i$ and greater amount of the total "mass" assigned to it. (see plot 1)
+* If $\alpha_1=...=\alpha_k=1$, then the points are uniformly distributed. (see plot 2)
+* If all $\alpha_i$ are equal, the distribution is symmetric. (see plot 3 for asymmetric plot)
+* Values of $\alpha_i<1$ can be thought as anti-weight that pushes away $x_i$ toward extremes. (see plot 4)
+
+
+```{r, ch-app-01-dirichlet-distribution-density, fig.cap = "Examples of probability density function of dirichlet distributions.", echo=FALSE}
+C <- matrix(c(10,1,2,0.15, 10,1,10,0.15, 10,1,5,0.15),4,3)
+
+f1 <- function(v) ddirichlet(v, C[1,])
+f2 <- function(v) ddirichlet(v, C[2,])
+f3 <- function(v) ddirichlet(v, C[3,])
+f4 <- function(v) ddirichlet(v, C[4,])
+mesh <- simplex_mesh(.0025) %>% as.data.frame %>% tbl_df
+mesh1 <- simplex_mesh(.0025) %>% as.data.frame %>% tbl_df
+mesh2 <- simplex_mesh(.0025) %>% as.data.frame %>% tbl_df
+mesh3 <- simplex_mesh(.0025) %>% as.data.frame %>% tbl_df
+mesh$f1 <- mesh %>% apply(1, function(v) f1(bary2simp(v)))
+mesh1$f2 <- mesh1 %>% apply(1, function(v) f2(bary2simp(v)))
+mesh2$f3 <- mesh2 %>% apply(1, function(v) f3(bary2simp(v)))
+mesh3$f4 <- mesh3 %>% apply(1, function(v) f4(bary2simp(v)))
+points1 <- rdirichlet(250, C[1,]) %>% simp2bary %>% 
+  as.data.frame %>% tbl_df %>% rename(x = V1, y = V2)
+points2 <- rdirichlet(250, C[2,]) %>% simp2bary %>% 
+  as.data.frame %>% tbl_df %>% rename(x = V1, y = V2)
+points3 <- rdirichlet(250, C[3,]) %>% simp2bary %>% 
+  as.data.frame %>% tbl_df %>% rename(x = V1, y = V2)
+points4 <- rdirichlet(250, C[4,]) %>% simp2bary %>% 
+  as.data.frame %>% tbl_df %>% rename(x = V1, y = V2)
+
+plot1 <- ggplot(mesh, aes(x, y)) +
+  geom_raster(aes(fill = f1), show.legend = FALSE) +
+  coord_equal(xlim = c(0,1), ylim = c(0, .85)) +
+  ggtitle("plot 1: (10, 10, 10)") + 
+  geom_point(data = points1, color = "orange", alpha = .3)
+
+plot2 <- ggplot(mesh1, aes(x, y)) +
+  geom_raster(aes(fill = f2), show.legend = FALSE) +
+  coord_equal(xlim = c(0,1), ylim = c(0, .85)) +
+  ggtitle("plot 2: (1, 1, 1)") +
+  geom_point(data = points2, color = "orange", alpha = .3)
+
+plot3 <- ggplot(mesh2, aes(x, y)) +
+  geom_raster(aes(fill = f3), show.legend = FALSE) +
+  coord_equal(xlim = c(0,1), ylim = c(0, .85)) +
+  ggtitle("plot 3: (2, 10, 5)") +
+  geom_point(data = points3, color = "orange", alpha = .3)
+
+plot4 <- ggplot(mesh3, aes(x, y)) +
+  geom_raster(aes(fill = f4), show.legend = FALSE) +
+  coord_equal(xlim = c(0,1), ylim = c(0, .85)) +
+  ggtitle("plot 4: (0.15, 0.15, 0.15)") +
+  geom_point(data = points4, color = "orange", alpha = .3)
+
+plot_grid(plot1, plot2, plot3, plot4, ncol=2)
+```
+
+**Probability density function**
+
+$$f(x)=\frac{\Gamma\left(\sum_{i=1}^{n+1} \alpha_i\right)}{\prod_{i=1}^{n+1}\Gamma(\alpha_i)}\prod_{i=1}^{n+1}p_i^{\alpha_i-1},$$
+with *Gamma* denoting the gamma function and 
+
+$$p_i=\frac{X_i}{\sum_{j=1}^{n+1}X_j}, 1\leq i\leq n,$$
+
+where $X_1,X_2,...,X_{n+1}$ are independent Gamma random variables, with $X_i \sim G(\alpha_i,1)$.
+
+**Expected value** $E(p_i)=\frac{\alpha_i}{t}, \textrm{ with } t=\sum_{i=1}^{n+1}\alpha_i$
+
+**Variance** $Var(p_i)=\frac{\alpha_i(t-\alpha_i)}{t^2(t+1)}, \textrm{ with } t=\sum_{i=1}^{n+1}\alpha_i$
+
 ## Selected discrete distributions of random variables 
 
 ### Binomial distribution {#app-91-distributions-binomial}

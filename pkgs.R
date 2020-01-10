@@ -16,6 +16,7 @@ library(ggmcmc)      # tidy Bayes samples
 library(HDInterval)  # credible intervals
 library(binom)       # for binomial confidence intervals 
 library(BSDA)        # for z.test
+library(dirichlet)   # for visualizing dirichlet distribution: devtools::install_github("dkahle/dirichlet")
 
 ## set defaults
 source("theme_ida.R")
