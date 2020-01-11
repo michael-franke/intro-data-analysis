@@ -916,6 +916,56 @@ Figure B.17: Examples of the cumulative distribution function of uniform distrib
 <li>If all <span class="math inline">\(\alpha_i\)</span> are equal, the distribution is symmetric. (see plot 3 for asymmetric plot)</li>
 <li>Values of <span class="math inline">\(\alpha_i&lt;1\)</span> can be thought as anti-weight that pushes away <span class="math inline">\(x_i\)</span> toward extremes. (see plot 4)</li>
 </ul>
+<div class="sourceCode" id="cb454"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb454-1" data-line-number="1">C &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="fl">0.15</span>, <span class="dv">10</span>, <span class="dv">1</span>, <span class="dv">10</span>, <span class="fl">0.15</span>, <span class="dv">10</span>, <span class="dv">1</span>, <span class="dv">5</span>, <span class="fl">0.15</span>), <span class="dv">4</span>, <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb454-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb454-3" data-line-number="3">f1 &lt;-<span class="st"> </span><span class="cf">function</span>(v) <span class="kw">ddirichlet</span>(v, C[<span class="dv">1</span>,])</a>
+<a class="sourceLine" id="cb454-4" data-line-number="4">f2 &lt;-<span class="st"> </span><span class="cf">function</span>(v) <span class="kw">ddirichlet</span>(v, C[<span class="dv">2</span>,])</a>
+<a class="sourceLine" id="cb454-5" data-line-number="5">f3 &lt;-<span class="st"> </span><span class="cf">function</span>(v) <span class="kw">ddirichlet</span>(v, C[<span class="dv">3</span>,])</a>
+<a class="sourceLine" id="cb454-6" data-line-number="6">f4 &lt;-<span class="st"> </span><span class="cf">function</span>(v) <span class="kw">ddirichlet</span>(v, C[<span class="dv">4</span>,])</a>
+<a class="sourceLine" id="cb454-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb454-8" data-line-number="8">mesh1 &lt;-<span class="st"> </span><span class="kw">simplex_mesh</span>(.<span class="dv">0025</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as_tibble</span>()</a>
+<a class="sourceLine" id="cb454-9" data-line-number="9">mesh2 &lt;-<span class="st"> </span><span class="kw">simplex_mesh</span>(.<span class="dv">0025</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as_tibble</span>()</a>
+<a class="sourceLine" id="cb454-10" data-line-number="10">mesh3 &lt;-<span class="st"> </span><span class="kw">simplex_mesh</span>(.<span class="dv">0025</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as_tibble</span>()</a>
+<a class="sourceLine" id="cb454-11" data-line-number="11">mesh4 &lt;-<span class="st"> </span><span class="kw">simplex_mesh</span>(.<span class="dv">0025</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as_tibble</span>()</a>
+<a class="sourceLine" id="cb454-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb454-13" data-line-number="13">mesh1<span class="op">$</span>f1 &lt;-<span class="st"> </span>mesh1 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">apply</span>(<span class="dv">1</span>, <span class="cf">function</span>(v) <span class="kw">f1</span>(<span class="kw">bary2simp</span>(v)))</a>
+<a class="sourceLine" id="cb454-14" data-line-number="14">mesh2<span class="op">$</span>f2 &lt;-<span class="st"> </span>mesh2 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">apply</span>(<span class="dv">1</span>, <span class="cf">function</span>(v) <span class="kw">f2</span>(<span class="kw">bary2simp</span>(v)))</a>
+<a class="sourceLine" id="cb454-15" data-line-number="15">mesh3<span class="op">$</span>f3 &lt;-<span class="st"> </span>mesh3 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">apply</span>(<span class="dv">1</span>, <span class="cf">function</span>(v) <span class="kw">f3</span>(<span class="kw">bary2simp</span>(v)))</a>
+<a class="sourceLine" id="cb454-16" data-line-number="16">mesh4<span class="op">$</span>f4 &lt;-<span class="st"> </span>mesh4 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">apply</span>(<span class="dv">1</span>, <span class="cf">function</span>(v) <span class="kw">f4</span>(<span class="kw">bary2simp</span>(v)))</a>
+<a class="sourceLine" id="cb454-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb454-18" data-line-number="18">points &lt;-<span class="st"> </span><span class="kw">map_df</span>(<span class="kw">seq</span>(<span class="kw">nrow</span>(C)), <span class="cf">function</span>(m){</a>
+<a class="sourceLine" id="cb454-19" data-line-number="19">  <span class="kw">rdirichlet</span>(<span class="dv">250</span>, C[m,]) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb454-20" data-line-number="20"><span class="st">    </span><span class="kw">simp2bary</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb454-21" data-line-number="21"><span class="st">    </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb454-22" data-line-number="22"><span class="st">    </span><span class="kw">transmute</span>(</a>
+<a class="sourceLine" id="cb454-23" data-line-number="23">      <span class="dt">mesh =</span> <span class="kw">paste0</span>(<span class="st">&quot;f&quot;</span>, m),</a>
+<a class="sourceLine" id="cb454-24" data-line-number="24">      <span class="dt">x =</span> V1, </a>
+<a class="sourceLine" id="cb454-25" data-line-number="25">      <span class="dt">y =</span> V2</a>
+<a class="sourceLine" id="cb454-26" data-line-number="26">    )</a>
+<a class="sourceLine" id="cb454-27" data-line-number="27">}) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb454-28" data-line-number="28"><span class="st">    </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb454-29" data-line-number="29">      <span class="dt">mesh =</span> <span class="kw">recode</span>(mesh, <span class="dt">f1 =</span> <span class="st">&quot;(10, 10, 10)&quot;</span>,</a>
+<a class="sourceLine" id="cb454-30" data-line-number="30">                          <span class="dt">f2 =</span> <span class="st">&quot;(1, 1, 1)&quot;</span>,</a>
+<a class="sourceLine" id="cb454-31" data-line-number="31">                          <span class="dt">f3 =</span> <span class="st">&quot;(2, 10, 5)&quot;</span>,</a>
+<a class="sourceLine" id="cb454-32" data-line-number="32">                          <span class="dt">f4 =</span> <span class="st">&quot;(.15, .15, .15)&quot;</span>)</a>
+<a class="sourceLine" id="cb454-33" data-line-number="33">    )</a>
+<a class="sourceLine" id="cb454-34" data-line-number="34"></a>
+<a class="sourceLine" id="cb454-35" data-line-number="35">meshes &lt;-<span class="st"> </span><span class="kw">left_join</span>(mesh1, mesh2, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb454-36" data-line-number="36"><span class="st">    </span><span class="kw">left_join</span>(mesh3, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb454-37" data-line-number="37"><span class="st">    </span><span class="kw">left_join</span>(mesh4, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb454-38" data-line-number="38"><span class="st">    </span><span class="kw">pivot_longer</span>(<span class="kw">starts_with</span>(<span class="st">&quot;f&quot;</span>), <span class="dt">names_to =</span> <span class="st">&quot;mesh&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb454-39" data-line-number="39"><span class="st">    </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb454-40" data-line-number="40">      <span class="dt">mesh =</span> <span class="kw">recode</span>(mesh, <span class="dt">f1 =</span> <span class="st">&quot;(10, 10, 10)&quot;</span>,</a>
+<a class="sourceLine" id="cb454-41" data-line-number="41">                          <span class="dt">f2 =</span> <span class="st">&quot;(1, 1, 1)&quot;</span>,</a>
+<a class="sourceLine" id="cb454-42" data-line-number="42">                          <span class="dt">f3 =</span> <span class="st">&quot;(2, 10, 5)&quot;</span>,</a>
+<a class="sourceLine" id="cb454-43" data-line-number="43">                          <span class="dt">f4 =</span> <span class="st">&quot;(.15, .15, .15)&quot;</span>)</a>
+<a class="sourceLine" id="cb454-44" data-line-number="44">    )</a>
+<a class="sourceLine" id="cb454-45" data-line-number="45"></a>
+<a class="sourceLine" id="cb454-46" data-line-number="46"><span class="kw">ggplot</span>(meshes, <span class="kw">aes</span>(x, y)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb454-47" data-line-number="47"><span class="st">  </span><span class="kw">geom_raster</span>(<span class="kw">aes</span>(<span class="dt">fill =</span> value), <span class="dt">show.legend =</span> <span class="ot">FALSE</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb454-48" data-line-number="48"><span class="st">  </span><span class="kw">coord_equal</span>(<span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">.85</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb454-49" data-line-number="49"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> points, <span class="dt">color =</span> <span class="st">&quot;orange&quot;</span>, <span class="dt">size =</span> <span class="fl">.3</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb454-50" data-line-number="50"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>mesh)</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-dirichlet-distribution-density"></span>
 <img src="I2DA_files/figure-html/ch-app-01-dirichlet-distribution-density-1.png" alt="Examples of probability density function of dirichlet distributions." width="672" />
 <p class="caption">
