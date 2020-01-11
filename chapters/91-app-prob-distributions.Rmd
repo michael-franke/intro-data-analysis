@@ -459,55 +459,57 @@ The probability density function (see formula below) of the Dirichlet distributi
 * Values of $\alpha_i<1$ can be thought as anti-weight that pushes away $x_i$ toward extremes. (see plot 4)
 
 
-```{r, ch-app-01-dirichlet-distribution-density, fig.cap = "Examples of probability density function of dirichlet distributions.", echo=FALSE}
-C <- matrix(c(10,1,2,0.15, 10,1,10,0.15, 10,1,5,0.15),4,3)
+```{r, ch-app-01-dirichlet-distribution-density, fig.cap = "Examples of probability density function of dirichlet distributions."}
+C <- matrix(c(10, 1, 2, 0.15, 10, 1, 10, 0.15, 10, 1, 5, 0.15), 4, 3)
 
 f1 <- function(v) ddirichlet(v, C[1,])
 f2 <- function(v) ddirichlet(v, C[2,])
 f3 <- function(v) ddirichlet(v, C[3,])
 f4 <- function(v) ddirichlet(v, C[4,])
-mesh <- simplex_mesh(.0025) %>% as.data.frame %>% tbl_df
-mesh1 <- simplex_mesh(.0025) %>% as.data.frame %>% tbl_df
-mesh2 <- simplex_mesh(.0025) %>% as.data.frame %>% tbl_df
-mesh3 <- simplex_mesh(.0025) %>% as.data.frame %>% tbl_df
-mesh$f1 <- mesh %>% apply(1, function(v) f1(bary2simp(v)))
-mesh1$f2 <- mesh1 %>% apply(1, function(v) f2(bary2simp(v)))
-mesh2$f3 <- mesh2 %>% apply(1, function(v) f3(bary2simp(v)))
-mesh3$f4 <- mesh3 %>% apply(1, function(v) f4(bary2simp(v)))
-points1 <- rdirichlet(250, C[1,]) %>% simp2bary %>% 
-  as.data.frame %>% tbl_df %>% rename(x = V1, y = V2)
-points2 <- rdirichlet(250, C[2,]) %>% simp2bary %>% 
-  as.data.frame %>% tbl_df %>% rename(x = V1, y = V2)
-points3 <- rdirichlet(250, C[3,]) %>% simp2bary %>% 
-  as.data.frame %>% tbl_df %>% rename(x = V1, y = V2)
-points4 <- rdirichlet(250, C[4,]) %>% simp2bary %>% 
-  as.data.frame %>% tbl_df %>% rename(x = V1, y = V2)
 
-plot1 <- ggplot(mesh, aes(x, y)) +
-  geom_raster(aes(fill = f1), show.legend = FALSE) +
+mesh1 <- simplex_mesh(.0025) %>% as_tibble()
+mesh2 <- simplex_mesh(.0025) %>% as_tibble()
+mesh3 <- simplex_mesh(.0025) %>% as_tibble()
+mesh4 <- simplex_mesh(.0025) %>% as_tibble()
+
+mesh1$f1 <- mesh1 %>% apply(1, function(v) f1(bary2simp(v)))
+mesh2$f2 <- mesh2 %>% apply(1, function(v) f2(bary2simp(v)))
+mesh3$f3 <- mesh3 %>% apply(1, function(v) f3(bary2simp(v)))
+mesh4$f4 <- mesh4 %>% apply(1, function(v) f4(bary2simp(v)))
+
+points <- map_df(seq(nrow(C)), function(m){
+  rdirichlet(250, C[m,]) %>% 
+    simp2bary() %>% 
+    as_tibble() %>% 
+    transmute(
+      mesh = paste0("f", m),
+      x = V1, 
+      y = V2
+    )
+}) %>% 
+    mutate(
+      mesh = recode(mesh, f1 = "(10, 10, 10)",
+                          f2 = "(1, 1, 1)",
+                          f3 = "(2, 10, 5)",
+                          f4 = "(.15, .15, .15)")
+    )
+
+meshes <- left_join(mesh1, mesh2, by = c("x", "y")) %>% 
+    left_join(mesh3, by = c("x", "y")) %>% 
+    left_join(mesh4, by = c("x", "y")) %>% 
+    pivot_longer(starts_with("f"), names_to = "mesh") %>% 
+    mutate(
+      mesh = recode(mesh, f1 = "(10, 10, 10)",
+                          f2 = "(1, 1, 1)",
+                          f3 = "(2, 10, 5)",
+                          f4 = "(.15, .15, .15)")
+    )
+
+ggplot(meshes, aes(x, y)) +
+  geom_raster(aes(fill = value), show.legend = FALSE) +
   coord_equal(xlim = c(0,1), ylim = c(0, .85)) +
-  ggtitle("plot 1: (10, 10, 10)") + 
-  geom_point(data = points1, color = "orange", alpha = .3)
-
-plot2 <- ggplot(mesh1, aes(x, y)) +
-  geom_raster(aes(fill = f2), show.legend = FALSE) +
-  coord_equal(xlim = c(0,1), ylim = c(0, .85)) +
-  ggtitle("plot 2: (1, 1, 1)") +
-  geom_point(data = points2, color = "orange", alpha = .3)
-
-plot3 <- ggplot(mesh2, aes(x, y)) +
-  geom_raster(aes(fill = f3), show.legend = FALSE) +
-  coord_equal(xlim = c(0,1), ylim = c(0, .85)) +
-  ggtitle("plot 3: (2, 10, 5)") +
-  geom_point(data = points3, color = "orange", alpha = .3)
-
-plot4 <- ggplot(mesh3, aes(x, y)) +
-  geom_raster(aes(fill = f4), show.legend = FALSE) +
-  coord_equal(xlim = c(0,1), ylim = c(0, .85)) +
-  ggtitle("plot 4: (0.15, 0.15, 0.15)") +
-  geom_point(data = points4, color = "orange", alpha = .3)
-
-plot_grid(plot1, plot2, plot3, plot4, ncol=2)
+  geom_point(data = points, color = "orange", size = .3) +
+  facet_wrap(~mesh)
 ```
 
 **Probability density function**
