@@ -438,6 +438,93 @@ $$F(x)=\begin{cases}0 & \textrm{ for } x<a,\\\frac{x-a}{b-a} &\textrm{ for } a\l
 
 **Variance**  $Var(X)=\frac{(b-a)^2}{12}$
 
+### Dirichlet distribution {#app-91-distributions-dirichlet}
+
+The Dirichlet distribution is a multivariate generalisation of the Beta distribution: While Beta distribution is a distribution over binomials, the Dirichlet is a distribution over Multinomials. 
+
+It can be used in any situation where an entity has to necessarily fall into one of $n+1$ mutually exclusive subclasses, and the goal is to study the proportion of entities belonging to the different subclasses.
+
+The Dirichlet distributions are commonly used as *prior distributions* in Bayesian statistics, as this family is a *conjugate prior* for the categorical distribution and the multinomial distribution.
+
+The Dirichlet distribution $\mathcal{Dir}(\alpha)$ is a family of continuous multivariate probability distributions, parameterized by a vector $\alpha$ of positive reals. Thus, it is a distribution with $k$ positive parameters $\alpha^k$ with respect to a $k$-dimensional space.
+
+
+$$X \sim \mathcal{Dir}(\boldsymbol{\alpha})$$
+
+The probability density function (see formula below) of the Dirichlet distribution for $k$ random variables is a $k-1$ dimensional probability *simplex* that exists on a $k$ dimensional space. How does the parameter $\alpha$ influence the Dirichlet distribution?
+
+* Higher values of $\alpha_i$ lead to greater "weight" of $X_i$ and greater amount of the total "mass" assigned to it. (see plot 1)
+* If $\alpha_1=...=\alpha_k=1$, then the points are uniformly distributed. (see plot 2)
+* If all $\alpha_i$ are equal, the distribution is symmetric. (see plot 3 for asymmetric plot)
+* Values of $\alpha_i<1$ can be thought as anti-weight that pushes away $x_i$ toward extremes. (see plot 4)
+
+
+```{r, ch-app-01-dirichlet-distribution-density, fig.cap = "Examples of probability density function of dirichlet distributions."}
+C <- matrix(c(10, 1, 2, 0.15, 10, 1, 10, 0.15, 10, 1, 5, 0.15), 4, 3)
+
+f1 <- function(v) ddirichlet(v, C[1,])
+f2 <- function(v) ddirichlet(v, C[2,])
+f3 <- function(v) ddirichlet(v, C[3,])
+f4 <- function(v) ddirichlet(v, C[4,])
+
+mesh1 <- simplex_mesh(.0025) %>% as_tibble()
+mesh2 <- simplex_mesh(.0025) %>% as_tibble()
+mesh3 <- simplex_mesh(.0025) %>% as_tibble()
+mesh4 <- simplex_mesh(.0025) %>% as_tibble()
+
+mesh1$f1 <- mesh1 %>% apply(1, function(v) f1(bary2simp(v)))
+mesh2$f2 <- mesh2 %>% apply(1, function(v) f2(bary2simp(v)))
+mesh3$f3 <- mesh3 %>% apply(1, function(v) f3(bary2simp(v)))
+mesh4$f4 <- mesh4 %>% apply(1, function(v) f4(bary2simp(v)))
+
+points <- map_df(seq(nrow(C)), function(m){
+  rdirichlet(250, C[m,]) %>% 
+    simp2bary() %>% 
+    as_tibble() %>% 
+    transmute(
+      mesh = paste0("f", m),
+      x = V1, 
+      y = V2
+    )
+}) %>% 
+    mutate(
+      mesh = recode(mesh, f1 = "(10, 10, 10)",
+                          f2 = "(1, 1, 1)",
+                          f3 = "(2, 10, 5)",
+                          f4 = "(.15, .15, .15)")
+    )
+
+meshes <- left_join(mesh1, mesh2, by = c("x", "y")) %>% 
+    left_join(mesh3, by = c("x", "y")) %>% 
+    left_join(mesh4, by = c("x", "y")) %>% 
+    pivot_longer(starts_with("f"), names_to = "mesh") %>% 
+    mutate(
+      mesh = recode(mesh, f1 = "(10, 10, 10)",
+                          f2 = "(1, 1, 1)",
+                          f3 = "(2, 10, 5)",
+                          f4 = "(.15, .15, .15)")
+    )
+
+ggplot(meshes, aes(x, y)) +
+  geom_raster(aes(fill = value), show.legend = FALSE) +
+  coord_equal(xlim = c(0,1), ylim = c(0, .85)) +
+  geom_point(data = points, color = "orange", size = .3) +
+  facet_wrap(~mesh)
+```
+
+**Probability density function**
+
+$$f(x)=\frac{\Gamma\left(\sum_{i=1}^{n+1} \alpha_i\right)}{\prod_{i=1}^{n+1}\Gamma(\alpha_i)}\prod_{i=1}^{n+1}p_i^{\alpha_i-1},$$
+with *Gamma* denoting the gamma function and 
+
+$$p_i=\frac{X_i}{\sum_{j=1}^{n+1}X_j}, 1\leq i\leq n,$$
+
+where $X_1,X_2,...,X_{n+1}$ are independent Gamma random variables, with $X_i \sim G(\alpha_i,1)$.
+
+**Expected value** $E(p_i)=\frac{\alpha_i}{t}, \textrm{ with } t=\sum_{i=1}^{n+1}\alpha_i$
+
+**Variance** $Var(p_i)=\frac{\alpha_i(t-\alpha_i)}{t^2(t+1)}, \textrm{ with } t=\sum_{i=1}^{n+1}\alpha_i$
+
 ## Selected discrete distributions of random variables 
 
 ### Binomial distribution {#app-91-distributions-binomial}
@@ -506,6 +593,23 @@ $$F(x)=\sum_{k=0}^{x}\binom{n}{k}p^k(1-p)^{n-k}$$
 knitr::include_app("https://istats.shinyapps.io/BinomialDist/", height = "800px")
 ```
 
+### Multinomial distribution {#app-91-distributions-multinomial}
+
+The Multinomial distribution is a generalization of the Binomial distribution to the case of $n$ repeated trials: While the Binomial distribution can have two outcomes, the Multinomial distribution can have multiple outcomes.
+Consider an experiment where each trial can result in any of $k$ possible outcomes with a probability $p_i, \textrm{ where }(i=1,2,...,k)$, with $\sum_{i=1}^kp_i=1$. For $n$ repeated trials, let $k_i$ denote the number of times $X=x_i$ was observed, where $i=1,2,...,m$. It follows that $\sum_{i=1}^m k_i=n$.
+
+**Probability mass function**
+
+The probability of observing a vector of outcomes $\mathbf{k}=[k_1,...,k_m]^T$ is
+
+$$f(\mathbf{k}|\mathbf{p})=\binom{n}{k_1\cdot k_2 \cdot...\cdot k_m} \prod_{i=1}^m p_i^{k_i},$$
+
+where $\binom{n}{k_1\cdot k_2 \cdot...\cdot k_m}$ is the *multinomial coefficient*: $\binom{n}{k_1\cdot k_2 \cdot...\cdot k_m}=\frac{n!}{k_1!\cdot k_2! \cdot...\cdot k_m!}$. It is a generalization of the *binomial coefficient* $\binom{n}{k}$.
+
+**Expected Values:** $E(X)=n\cdot p_i$
+
+**Variance:** $Var(X)=n\cdot p_i\cdot (1-p_i)$
+
 ### Bernoulli distribution {#app-91-distributions-bernoulli}
 
 The Bernoulli distribution is a special case of the binomial distribution with $size = 1$, therefore the outcome of a bernoulli random variable is either 0 or 1. Apart from that the same information holds as for the binomial distribution.
@@ -569,6 +673,63 @@ $$F(x)=\begin{cases} 0 &\textrm{ if } x < 0, \\ 1-p &\textrm{ if } 0 \leq x <1,\
 **Expected value** $E(X)=p$
 
 **Variance** $Var(X)=p \cdot (1-p)$
+
+### Categorical distribution {#app-91-distributions-categorical}
+
+The Categorical distribution, sometimes also referred to as *Multinoulli* distribution, is a generalization of the Bernoulli distribution for categorical random variables: While a Bernoulli distribution is a distribution over two alternatives, the Categorical is a distribution over multiple alternatives. For a single trial (e.g. a single die roll) the Categorical distribution is equal to the Multinomial distribution.
+
+The Categorical distribution is parametrized by the probabilities assigned to each event. Let $p_i$ the probability assigned to outcome $i$. The set of $p_i$'s are the parameters, and are constrained by $\sum_{i=1}^kp_i=1$.
+
+$$X \sim Cat(\mathbf{p})$$
+
+```{r, ch-app-01-categorical-distribution-mass, fig.cap = "Examples of probability mass function of Categorical distributions."}
+
+rv_cat <- tibble(
+  x = seq(from = 0, to = 20),
+  y1 = dcat(x, prob = c(0.2,0.3,0.4,0.1)),
+  y2 = dcat(x, prob = c(0.1,0.1,0.5,0.3)),
+  y3 = dcat(x, prob = c(0.4,0.3,0.1,0.2))
+) %>% 
+  pivot_longer(cols = starts_with("y"),
+               names_to  = "parameter",
+               values_to = "y") %>% 
+  mutate(
+    parameter = case_when(parameter == "y1" ~ "(0.2,0.3,0.4,0.1)",
+                          parameter == "y2" ~ "(0.1,0.1,0.5,0.3)",
+                          parameter == "y3" ~ "(0.4,0.3,0.1,0.2)")
+  )
+
+
+# dist plot
+ggplot(rv_cat, aes(x, y, fill = parameter)) +
+  geom_col(position = "dodge", color = "white") +
+  labs(fill = "X ~ Categorical", y = "Probability") +
+  scale_x_continuous(limits = c(0,5), breaks = c(1,2,3,4))
+```
+
+```{r, ch-app-01-categorical-distribution-cumulative, fig.cap = "Examples of the cumulative distribution function of Categorical distributions corresponding to the previous probability mass functions."}
+
+rv_cat %>% 
+  group_by(parameter) %>% 
+  mutate(
+    cum_y = cumsum(y)/sum(y)
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x, cum_y, color = parameter)) +
+    geom_step(size = 2) +
+    labs(color = "X ~ Categorical", y = "y") +
+    scale_x_continuous(limits = c(0,5), breaks = c(1,2,3,4))
+```
+
+**Probability mass function**
+
+$$f(x|\mathbf{p})=\prod_{i=1}^kp_i^{\{x=i\}},$$
+
+where $\{x=i\}$ evaluates to 1 if $x=i$, otherwise 0 and $\mathbf{p}={p_1,...,p_k}$ where $p_i$ is the probabability of seeing event $i$.
+
+**Expected Value**: $E(\mathbf{x})=\mathbf{p}$
+
+**Variance**: $Var(\mathbf{x})=\mathbf{p}\cdot(1-\mathbf{p})$
 
 ### Beta-Binomial distribution {#app-91-distributions-beta-binomial}
 

@@ -95,8 +95,12 @@ Yes:
 *final religious denominations considered in this study are Muslim, Orthodox, Protestant, Catholic, and "Other". "Other" is taken as the reference group.
 
 ```{r wvs-trust select relevant variables}
-d_trust <- d_raw_wvs %>% 
+d_trust_raw <- d_raw_wvs %>% 
+  select(V2,V24, V242, V240, V248, V239, V57, V58, V144) %>% 
   filter(V2 %in% c(276,288,804,156,780)) %>% 
+  replace_with_na_all(condition = ~.x %in% c(-5,-4,-3,-2,-1)) 
+
+d_trust <- d_trust_raw %>%  
   transmute(
     trust = ifelse(V24==1,1,0),            
     country = factor(V2, levels = c(276,288,804,156,780), labels = c("Germany","Ghana","Ukraine", "China", "Trinidad")),
@@ -106,26 +110,28 @@ d_trust <- d_raw_wvs %>%
     income = factor(V239),
     marital = ifelse(V57 %in% c(1,2), "married, together", "single, divorced"),
     children = V58,
-    religious_belief = ifelse(V144 == 1, "Catholic",
-                              ifelse(V144==2, "Protestant",
-                                     ifelse(V144==3, "Orthodox",
-                                            ifelse(V144==5, "Muslim",
+    religious_belief = ifelse(V144 == 64, "Catholic",
+                              ifelse(V144==25, "Evangelical",
+                                     ifelse(V144==52, "Orthodox",
+                                            ifelse(V144==49, "Muslim",
                                                    "Other"))))
   ) %>% 
-  na.omit()
-
-d_trust
+  na.omit() %>% 
+  print()
 ```
 ```{r}
 d_trust %>% 
-  group_by(country, gender) %>% 
+  group_by(country, gender, education) %>% 
   summarize(
     trust_sum = sum(trust),
     obs = length(trust),
     trust_perc = trust_sum/obs
   )  %>% 
-  ggplot(mapping = aes(x = country, y = trust_perc, fill = gender)) +
-  geom_col(position = "dodge") 
+  ggplot(mapping = aes(x = education, y = trust_perc)) +
+  geom_col() +
+  facet_wrap(gender~country, nrow = 2) +
+  scale_x_discrete(name = "education (higher number indicates higher degree)", labels = c(0,1,2,3,4,5,6,7,8))
+
 ```
 ```{r}
 d_trust %>% 
@@ -135,11 +141,23 @@ d_trust %>%
     obs = length(trust),
     trust_perc = trust_sum/obs
   )  %>% 
-  ggplot(mapping = aes(x = income, y = trust_perc, fill = marital)) +
-  geom_col(position = "dodge") +
-  facet_wrap(~country, nrow = 1)
+  ggplot(mapping = aes(x = income, y = trust_perc)) +
+  geom_col() + 
+  facet_wrap(marital~country, nrow = 2)
 ```
 
+```{r}
+d_trust %>% 
+  group_by(country, children, religious_belief) %>% 
+  summarize(
+    trust_sum = sum(trust),
+    obs = length(trust),
+    trust_perc = trust_sum/obs
+  )  %>% 
+  ggplot(mapping = aes(x = religious_belief, y = trust_perc)) +
+  geom_col() + 
+  facet_wrap(~country, nrow = 3)
+```
 
 ```{r}
 d_trust_DE <- d_trust %>% 
