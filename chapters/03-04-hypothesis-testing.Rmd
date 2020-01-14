@@ -907,146 +907,6 @@ The result could be reported as follows:
 
 ### ANOVA {#ch-03-05-hypothesis-testing-ANOVA}
 
-```{r, echo = F}
-plot_anova_data <- function(mu_A, mu_B, mu_C, sd = 10, n = 20) {
-  # create random data
-  fict_data <- tibble(
-    condition = c(
-      rep("A", n),
-      rep("B", n),
-      rep("C", n)
-    ),
-    value = c(
-      rnorm(n, mu_A, sd),
-      rnorm(n, mu_B, sd),
-      rnorm(n, mu_C, sd)
-    )
-  ) 
-  # extract F-statistic
-  aov_summary<- aov(value ~ condition, fict_data) %>% summary()
-  F_observed <- aov_summary[[1]][["F value"]][1]
-  fict_data <- fict_data %>% 
-    rbind(
-      tibble(
-        condition = "pooled",
-        value = fict_data$value
-      )
-    )
-  fict_data %>% 
-    ggplot(
-      aes(x = condition, y = value, color = condition)
-    ) +
-    geom_point(
-      fill = "lightgray",
-      size =1.5,
-      alpha = 0.2
-    ) +
-    guides(color = "none") +
-    geom_segment(size = 2,
-      aes(
-        x = condition_number - 0.3,
-        xend = condition_number + 0.3,
-        y = condition_mean,
-        yend = condition_mean
-      ),
-      data = fict_data %>% group_by(condition) %>% 
-        summarise(condition_mean = mean(value)) %>% 
-        mutate(condition_number = 1:4)
-    ) +
-    labs(
-      x = "",
-      y = ""
-    ) +
-    geom_label(
-      aes(x = 1, y = max(value)-5, label = str_c("F = ", signif(F_observed,3))), 
-      color = "firebrick"
-    ) + theme(
-      axis.text.y = element_blank(),
-      axis.ticks.y = element_blank()
-    )
-}
-
-
-plot_grid(
-  plot_anova_data(48,50,52),
-  plot_anova_data(45,50,55),
-  plot_anova_data(40,50,60),
-  plot_anova_data(30,50,70),
-  nrow = 2
-)
-
-```
-
-
-```{r}
-# fictitious data
-x_A <- c(78, 43, 60, 60, 60, 50, 57, 58, 64, 64, 56, 62, 66, 53, 59)
-x_B <- c(52, 53, 51, 49, 64, 60, 45, 50, 55, 65, 76, 62, 62, 45)
-x_C <- c(78, 66, 74, 57, 75, 64, 64, 53, 63, 60, 79, 68, 68, 47, 63, 67)
-# number of observations in each group
-n_A <- length(x_A)
-n_B <- length(x_B) 
-n_C <- length(x_C)
-# in tibble form
-anova_data <- tibble(
-  condition = c(
-    rep("A", n_A),
-    rep("B", n_B),
-    rep("C", n_C)
-    ),
-  value = c(x_A, x_B, x_C)
-)
-grand_mean <- anova_data %>% pull(value) %>% mean()
-
-# between-group sum-of-squares
-between_group_variance <- 1/2 *             # (1/(k-1)) 
-  (
-    n_A * (mean(x_A) - grand_mean)^2 +
-    n_B * (mean(x_B) - grand_mean)^2 +
-    n_C * (mean(x_C) - grand_mean)^2  
-  )
-  
-# within-group sum-of-squares
-within_group_variance <- (n_A + n_B + n_C -3)^(-1) * 
-  (
-    sum((x_A - mean(x_A))^2) +
-    sum((x_B - mean(x_B))^2) +
-    sum((x_C - mean(x_C))^2)
-  )
-# test statistic of observed data
-F_observed <-  between_group_variance / within_group_variance
-```
-
-```{r}
-p_value_anova <- 1 - pf(F_observed, 2, n_A + n_B + n_C -3)
-p_value_anova %>% round(4)
-```
-
-
-```{r}
-aov(formula = value ~ condition, anova_data) %>% summary()
-```
-
-## Three approaches {#ch-03-05-hypothesis-testing-3-approaches}
-
-### Fisher
-
-Frequentist hypothesis testing is superficially similar to Popperian falsificationism. It is, however, quite the opposite when looked at more carefully. Popper famously denied that empirical observation could constitute positive evidence in favor of a research hypothesis. Research hypotheses can only be refuted, viz., when their logically consequences are logically incompatible with the observed data. In a Popperian science, what is refuted are research hypotheses; frequentist statistics instead seeks to refute null-hypotheses and counts successful refutation of a null-hypothesis as evidence in favor of a research hypothesis.
-
-### Neyman-Pearson
-
-A conventional threshold on $p$-values may govern a categorical decision whether to reject or not reject the null-hypothesis (in the Neyman-Pearson approach). This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null-hypothesis when it is in fact true (a so-called type-1 error or $\alpha$-error). 
-
-### Hypbrid modern NHST
-
-## Relation to model checking Section {#ch-03-05-hypothesis-testing-3-model-checking}
-
-## Snippets / Formal results
-
-
-
-### ANOVA Sum of Squares decomposition
-
 We have $k$ groups of metric observations. For group $1 \le j \le k$, there are $n_j$ observations. Let $x_{ij}$ be observation $1 \le i \le n_j$ for group $1 \le j \le k$. Let $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ be the mean of group $j$ and let $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points. We would like to show that the total sum of squares can be decomposed into two summands: the within-group sum of squares and the between-group sum of squares:
 
 $$ 
@@ -1152,4 +1012,175 @@ $$
 ```
 
 &nbsp;
+
+
+
+```{r, echo = F}
+plot_anova_data <- function(mu_A, mu_B, mu_C, sd = 10, n = 20) {
+  # create random data
+  fict_data <- tibble(
+    condition = c(
+      rep("A", n),
+      rep("B", n),
+      rep("C", n)
+    ),
+    value = c(
+      rnorm(n, mu_A, sd),
+      rnorm(n, mu_B, sd),
+      rnorm(n, mu_C, sd)
+    )
+  ) 
+  # extract F-statistic
+  aov_summary<- aov(value ~ condition, fict_data) %>% summary()
+  F_observed <- aov_summary[[1]][["F value"]][1]
+  fict_data <- fict_data %>% 
+    rbind(
+      tibble(
+        condition = "pooled",
+        value = fict_data$value
+      )
+    )
+  fict_data %>% 
+    ggplot(
+      aes(x = condition, y = value, color = condition)
+    ) +
+    geom_point(
+      fill = "lightgray",
+      size =1.5,
+      alpha = 0.2
+    ) +
+    guides(color = "none") +
+    geom_segment(size = 2,
+      aes(
+        x = condition_number - 0.3,
+        xend = condition_number + 0.3,
+        y = condition_mean,
+        yend = condition_mean
+      ),
+      data = fict_data %>% group_by(condition) %>% 
+        summarise(condition_mean = mean(value)) %>% 
+        mutate(condition_number = 1:4)
+    ) +
+    labs(
+      x = "",
+      y = ""
+    ) +
+    geom_label(
+      aes(x = 1, y = max(value)-5, label = str_c("F = ", signif(F_observed,3))), 
+      color = "black"
+    ) + theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+}
+
+plot_grid(
+  plot_anova_data(48,50,52),
+  plot_anova_data(45,50,55),
+  plot_anova_data(40,50,60),
+  plot_anova_data(30,50,70),
+  nrow = 2
+)
+
+```
+
+
+```{r}
+# fictitious data
+x_A <- c(78, 43, 60, 60, 60, 50, 57, 58, 64, 64, 56, 62, 66, 53, 59)
+x_B <- c(52, 53, 51, 49, 64, 60, 45, 50, 55, 65, 76, 62, 62, 45)
+x_C <- c(78, 66, 74, 57, 75, 64, 64, 53, 63, 60, 79, 68, 68, 47, 63, 67)
+# number of observations in each group
+n_A <- length(x_A)
+n_B <- length(x_B) 
+n_C <- length(x_C)
+# in tibble form
+anova_data <- tibble(
+  condition = c(
+    rep("A", n_A),
+    rep("B", n_B),
+    rep("C", n_C)
+    ),
+  value = c(x_A, x_B, x_C)
+)
+
+anova_data %>% 
+  ggplot(
+      aes(x = condition, y = value, color = condition)
+    ) +
+    geom_point(
+      fill = "lightgray",
+      size =1.5,
+      alpha = 0.4
+    ) +
+    guides(color = "none") +
+    geom_segment(size = 2,
+      aes(
+        x = condition_number - 0.3,
+        xend = condition_number + 0.3,
+        y = condition_mean,
+        yend = condition_mean
+      ),
+      data = anova_data %>% group_by(condition) %>% 
+        summarise(condition_mean = mean(value)) %>% 
+        mutate(condition_number = 1:3)
+    ) +
+    labs(
+      x = "",
+      y = ""
+    )
+```
+
+
+```{r}
+
+grand_mean <- anova_data %>% pull(value) %>% mean()
+df1 <- 2
+df2 <- n_A + n_B + n_C -3
+
+# between-group sum-of-squares
+between_group_variance <- 1/df1 *
+  (
+    n_A * (mean(x_A) - grand_mean)^2 +
+    n_B * (mean(x_B) - grand_mean)^2 +
+    n_C * (mean(x_C) - grand_mean)^2  
+  )
+  
+# within-group sum-of-squares
+within_group_variance <- 1/df2 * 
+  (
+    sum((x_A - mean(x_A))^2) +
+    sum((x_B - mean(x_B))^2) +
+    sum((x_C - mean(x_C))^2)
+  )
+# test statistic of observed data
+F_observed <-  between_group_variance / within_group_variance
+```
+
+```{r}
+p_value_anova <- 1 - pf(F_observed, 2, n_A + n_B + n_C -3)
+p_value_anova %>% round(4)
+```
+
+
+```{r}
+aov(formula = value ~ condition, anova_data) %>% summary()
+```
+
+> Based on a one-way ANOVA, we find evidence against the assumption of equal means across all groups ($F(2, `r df2`) \approx 4.485$, $p \approx 0.0172$.)
+
+## Three approaches {#ch-03-05-hypothesis-testing-3-approaches}
+
+### Fisher
+
+Frequentist hypothesis testing is superficially similar to Popperian falsificationism. It is, however, quite the opposite when looked at more carefully. Popper famously denied that empirical observation could constitute positive evidence in favor of a research hypothesis. Research hypotheses can only be refuted, viz., when their logically consequences are logically incompatible with the observed data. In a Popperian science, what is refuted are research hypotheses; frequentist statistics instead seeks to refute null-hypotheses and counts successful refutation of a null-hypothesis as evidence in favor of a research hypothesis.
+
+### Neyman-Pearson
+
+A conventional threshold on $p$-values may govern a categorical decision whether to reject or not reject the null-hypothesis (in the Neyman-Pearson approach). This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null-hypothesis when it is in fact true (a so-called type-1 error or $\alpha$-error). 
+
+### Hypbrid modern NHST
+
+## Relation to model checking Section {#ch-03-05-hypothesis-testing-3-model-checking}
+
 
