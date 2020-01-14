@@ -347,7 +347,6 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="10.3.2" data-path="ch-03-05-hypothesis-testing-tests.html"><a href="ch-03-05-hypothesis-testing-tests.html#ch-03-05-hypothesis-testing-z-test"><i class="fa fa-check"></i><b>10.3.2</b> <em>z</em>-test</a></li>
 <li class="chapter" data-level="10.3.3" data-path="ch-03-05-hypothesis-testing-tests.html"><a href="ch-03-05-hypothesis-testing-tests.html#ch-03-05-hypothesis-testing-t-test"><i class="fa fa-check"></i><b>10.3.3</b> <em>t</em>-tests</a></li>
 <li class="chapter" data-level="10.3.4" data-path="ch-03-05-hypothesis-testing-tests.html"><a href="ch-03-05-hypothesis-testing-tests.html#ch-03-05-hypothesis-testing-ANOVA"><i class="fa fa-check"></i><b>10.3.4</b> ANOVA</a></li>
-<li class="chapter" data-level="10.3.5" data-path="ch-03-05-hypothesis-testing-tests.html"><a href="ch-03-05-hypothesis-testing-tests.html#ch-03-05-hypothesis-testing-linear-regression"><i class="fa fa-check"></i><b>10.3.5</b> Linear regression</a></li>
 </ul></li>
 <li class="chapter" data-level="10.4" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html"><i class="fa fa-check"></i><b>10.4</b> Three approaches</a><ul>
 <li class="chapter" data-level="10.4.1" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html#fisher"><i class="fa fa-check"></i><b>10.4.1</b> Fisher</a></li>
@@ -499,7 +498,7 @@ code span.wa { color: #bf0303; } /* Warning */
 </div>
 <div id="theoretical-motivation-hypotheses-2" class="section level4">
 <h4><span class="header-section-number">D.5.1.2</span> Theoretical motivation &amp; hypotheses</h4>
-<p>This is a bogus experiment, and no sane person would advance a serious hypothesis about this. Except that, actually, the lecturer is careless enough to conjecture that appreciators of Metal music like logic more than Jazz-enthusiasts would (because Metal is cleaner and more mechanic, while Jazz is fuzzy and organic, obviously).<a href="references.html#fn68" class="footnote-ref" id="fnref68"><sup>68</sup></a></p>
+<p>This is a bogus experiment, and no sane person would advance a serious hypothesis about this. Except that, actually, the lecturer is careless enough to conjecture that appreciators of Metal music like logic more than Jazz-enthusiasts would (because Metal is cleaner and more mechanic, while Jazz is fuzzy and organic, obviously).<a href="references.html#fn69" class="footnote-ref" id="fnref69"><sup>69</sup></a></p>
 </div>
 </div>
 <div id="loading-and-preprocessing-the-data-2" class="section level3">
@@ -526,9 +525,9 @@ code span.wa { color: #bf0303; } /* Warning */
 ## $ timeSpent     &lt;dbl&gt; 2.3601500, 2.3601500, 2.3601500, 2.1552667, 2.1552667, …
 ## $ trial_name    &lt;chr&gt; &quot;forced_choice&quot;, &quot;forced_choice&quot;, &quot;forced_choice&quot;, &quot;for…
 ## $ trial_number  &lt;dbl&gt; 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1…</code></pre>
-<div class="sourceCode" id="cb520"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb520-1" data-line-number="1">data_BLJM_raw &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/bio-logic-jazz-metal-data-raw.csv&#39;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb525"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb525-1" data-line-number="1">data_BLJM_raw &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/bio-logic-jazz-metal-data-raw.csv&#39;</span>))</a></code></pre></div>
 <p>Take a peak:</p>
-<div class="sourceCode" id="cb521"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb521-1" data-line-number="1"><span class="kw">glimpse</span>(data_BLJM_raw)</a></code></pre></div>
+<div class="sourceCode" id="cb526"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb526-1" data-line-number="1"><span class="kw">glimpse</span>(data_BLJM_raw)</a></code></pre></div>
 <pre><code>## Observations: 306
 ## Variables: 19
 ## $ submission_id &lt;dbl&gt; 379, 379, 379, 378, 378, 378, 377, 377, 377, 376, 376, …
@@ -557,14 +556,14 @@ code span.wa { color: #bf0303; } /* Warning */
 <li><code>response</code>: which of the two options was chosen</li>
 </ul>
 <p>Notice that there is no convenient column indicating which of the three critical conditions we are dealing with, so we create that information from the information in columns <code>option1</code> and <code>option2</code>, while also discarding everything we will not need:</p>
-<div class="sourceCode" id="cb523"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb523-1" data-line-number="1">data_BLJM_processed &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb523-2" data-line-number="2"><span class="st">  </span>data_BLJM_raw <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb523-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb523-4" data-line-number="4">    <span class="dt">condition =</span> <span class="kw">str_c</span>(<span class="kw">str_sub</span>(option2,<span class="dv">1</span>, <span class="dv">1</span>), <span class="kw">str_sub</span>(option1,<span class="dv">1</span>, <span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb523-5" data-line-number="5">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb523-6" data-line-number="6"><span class="st">  </span><span class="kw">select</span>(submission_id, condition, response)</a>
-<a class="sourceLine" id="cb523-7" data-line-number="7"><span class="co"># write_csv(data_BLJM_processed, &quot;../data_sets/bio-logic-jazz-metal-data-processed.csv&quot;)</span></a>
-<a class="sourceLine" id="cb523-8" data-line-number="8">data_BLJM_processed</a></code></pre></div>
+<div class="sourceCode" id="cb528"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb528-1" data-line-number="1">data_BLJM_processed &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb528-2" data-line-number="2"><span class="st">  </span>data_BLJM_raw <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb528-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb528-4" data-line-number="4">    <span class="dt">condition =</span> <span class="kw">str_c</span>(<span class="kw">str_sub</span>(option2,<span class="dv">1</span>, <span class="dv">1</span>), <span class="kw">str_sub</span>(option1,<span class="dv">1</span>, <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb528-5" data-line-number="5">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb528-6" data-line-number="6"><span class="st">  </span><span class="kw">select</span>(submission_id, condition, response)</a>
+<a class="sourceLine" id="cb528-7" data-line-number="7"><span class="co"># write_csv(data_BLJM_processed, &quot;../data_sets/bio-logic-jazz-metal-data-processed.csv&quot;)</span></a>
+<a class="sourceLine" id="cb528-8" data-line-number="8">data_BLJM_processed</a></code></pre></div>
 <pre><code>## # A tibble: 306 x 3
 ##    submission_id condition response 
 ##            &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;    
@@ -583,9 +582,9 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="exploration-counts-plots" class="section level3">
 <h3><span class="header-section-number">D.5.3</span> Exploration: counts &amp; plots</h3>
 <p>We are interest in some counts. First, let’s look at the overal choice rates in each condition:</p>
-<div class="sourceCode" id="cb525"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb525-1" data-line-number="1">data_BLJM_processed <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb525-2" data-line-number="2"><span class="st">  </span><span class="co"># function`count` is masked by another package, must call explicitly</span></a>
-<a class="sourceLine" id="cb525-3" data-line-number="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">count</span>(condition, response)</a></code></pre></div>
+<div class="sourceCode" id="cb530"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb530-1" data-line-number="1">data_BLJM_processed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb530-2" data-line-number="2"><span class="st">  </span><span class="co"># function`count` is masked by another package, must call explicitly</span></a>
+<a class="sourceLine" id="cb530-3" data-line-number="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">count</span>(condition, response)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 3
 ##   condition response      n
 ##   &lt;chr&gt;     &lt;chr&gt;     &lt;int&gt;
@@ -597,12 +596,12 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 6 LB        Logic        44</code></pre>
 <p>Overall it seems that mountains are preferred over beaches, Jazz is preferred over Metal and Biology is preferred over Logic.</p>
 <p>The overall counts, however, do not tell us anything about any potentially interesting relationship between preferences. So, let’s have a closer look at the lecturer’s conjecture that a preference for logic tends to go with a stronger preference for metal than a preference for biology does. To check this, we need to look at different counts, namely the number of people who selected which music-subject pair. We collect these counts in variable <code>BLJM_associated_counts</code>:</p>
-<div class="sourceCode" id="cb527"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb527-1" data-line-number="1">BLJM_associated_counts &lt;-<span class="st"> </span>data_BLJM_processed <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb527-2" data-line-number="2"><span class="st">  </span><span class="kw">select</span>(submission_id, condition, response) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb527-3" data-line-number="3"><span class="st">  </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> condition, <span class="dt">values_from =</span> response) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb527-4" data-line-number="4"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>BM) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb527-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">count</span>(JM,LB) </a>
-<a class="sourceLine" id="cb527-6" data-line-number="6">BLJM_associated_counts</a></code></pre></div>
+<div class="sourceCode" id="cb532"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb532-1" data-line-number="1">BLJM_associated_counts &lt;-<span class="st"> </span>data_BLJM_processed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb532-2" data-line-number="2"><span class="st">  </span><span class="kw">select</span>(submission_id, condition, response) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb532-3" data-line-number="3"><span class="st">  </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> condition, <span class="dt">values_from =</span> response) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb532-4" data-line-number="4"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>BM) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb532-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">count</span>(JM,LB) </a>
+<a class="sourceLine" id="cb532-6" data-line-number="6">BLJM_associated_counts</a></code></pre></div>
 <pre><code>## # A tibble: 4 x 3
 ##   JM    LB          n
 ##   &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;
@@ -611,32 +610,32 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 3 Metal Biology    20
 ## 4 Metal Logic      18</code></pre>
 <p>Notice that this representation is tidy, but not as ideal for visual inspection. A more commonly seen format can be obtained by pivoting to a wider representation:</p>
-<div class="sourceCode" id="cb529"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb529-1" data-line-number="1"><span class="co"># visually attractive table representation</span></a>
-<a class="sourceLine" id="cb529-2" data-line-number="2">BLJM_associated_counts <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb529-3" data-line-number="3"><span class="st">  </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> LB, <span class="dt">values_from =</span> n)</a></code></pre></div>
+<div class="sourceCode" id="cb534"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb534-1" data-line-number="1"><span class="co"># visually attractive table representation</span></a>
+<a class="sourceLine" id="cb534-2" data-line-number="2">BLJM_associated_counts <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb534-3" data-line-number="3"><span class="st">  </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> LB, <span class="dt">values_from =</span> n)</a></code></pre></div>
 <pre><code>## # A tibble: 2 x 3
 ##   JM    Biology Logic
 ##   &lt;chr&gt;   &lt;int&gt; &lt;int&gt;
 ## 1 Jazz       38    26
 ## 2 Metal      20    18</code></pre>
 <p>The tidy representation <em>is</em> ideal for plotting, though. Notice, however, that the code below plots proportions of choices, not raw counts:</p>
-<div class="sourceCode" id="cb531"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb531-1" data-line-number="1">BLJM_associated_counts <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb531-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> LB, <span class="dt">y =</span> n<span class="op">/</span><span class="kw">sum</span>(n), <span class="dt">color =</span> JM, <span class="dt">shape =</span> JM, <span class="dt">group =</span> JM)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb531-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">3</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb531-4" data-line-number="4"><span class="st">  </span><span class="kw">labs</span>(</a>
-<a class="sourceLine" id="cb531-5" data-line-number="5">    <span class="dt">title =</span> <span class="st">&quot;Proportion of choices of each music+subject pair&quot;</span>,</a>
-<a class="sourceLine" id="cb531-6" data-line-number="6">    <span class="dt">x =</span> <span class="st">&quot;&quot;</span>,</a>
-<a class="sourceLine" id="cb531-7" data-line-number="7">    <span class="dt">y =</span> <span class="st">&quot;&quot;</span></a>
-<a class="sourceLine" id="cb531-8" data-line-number="8">  )</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-354-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb536"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb536-1" data-line-number="1">BLJM_associated_counts <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb536-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> LB, <span class="dt">y =</span> n<span class="op">/</span><span class="kw">sum</span>(n), <span class="dt">color =</span> JM, <span class="dt">shape =</span> JM, <span class="dt">group =</span> JM)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb536-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">3</span>) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb536-4" data-line-number="4"><span class="st">  </span><span class="kw">labs</span>(</a>
+<a class="sourceLine" id="cb536-5" data-line-number="5">    <span class="dt">title =</span> <span class="st">&quot;Proportion of choices of each music+subject pair&quot;</span>,</a>
+<a class="sourceLine" id="cb536-6" data-line-number="6">    <span class="dt">x =</span> <span class="st">&quot;&quot;</span>,</a>
+<a class="sourceLine" id="cb536-7" data-line-number="7">    <span class="dt">y =</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb536-8" data-line-number="8">  )</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-358-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The lecturer’s conjecture might be correct. This does look like there could be an interaction. While Jazz is preferred more generally, the preference for Jazz over Metal seems more pronounced for those participants who preferred Biology than for those who preferred Logic.</p>
 
 </div>
 </div>
 <div class="footnotes">
 <hr />
-<ol start="68">
-<li id="fn68"><p>Notice how easy it is to motivate any-old psychological theory. Some other scientific disciplines are much better at smothering nonsensical ideas from the start.<a href="app-93-data-sets-BLJM.html#fnref68" class="footnote-back">↩</a></p></li>
+<ol start="69">
+<li id="fn69"><p>Notice how easy it is to motivate any-old psychological theory. Some other scientific disciplines are much better at smothering nonsensical ideas from the start.<a href="app-93-data-sets-BLJM.html#fnref69" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>
