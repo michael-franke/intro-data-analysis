@@ -823,31 +823,34 @@ avocado_data %>%
   xlab('average weekly price') 
 ```
 
-A graphical representation of the two-sample $t$-test (for unpaired data with equal variance and unequal sample sizes), which we will apply to this case, is shown in Figure \@ref(fig:ch-03-04-t-test-model-two-populations). The model assumes that we have two vectors of metric measurements $\vec{x}_A$ and $\vec{x}_B$, with length $n_A$ and $n_B$ respectively. These are the price measures for conventionally grown and for organically grown avocados. The model assumes that measures in both $\vec{x}_A$ and $\vec{x}_B$ are iid samples from a normal distribution. The mean of one group (group $B$ in the graph) is assumed to be some unknown $\mu$. Interestingly, this parameter will cancel out eventually: by doing  from the data, which is indicated in the light shading of the node $\mu$. The mean of the other group (group $A$ in the graph) is computed as $\mu + \delta$, so with some additive paramater $\delta$ indicating the difference between means of these groups. This $\delta$ is the main parameter of interest for inferences regarding hypotheses concerning differences between the groups. Finally, the model assumes that both groups have the same standard deviation, an estimate of which is derived from the data (in a rather convoluted looking formula that is not important for our introductory concerns). Ad indicated in Figure \@ref(fig:ch-03-04-t-test-model-two-populations), the sampling distribution for this model is an instance of Student's $t$-distribution with mean 0, standard deviation 1 and degrees of freedom given as $n_A + n_B - 2$.
+A graphical representation of the two-sample $t$-test (for unpaired data with equal variance and unequal sample sizes), which we will apply to this case, is shown in Figure \@ref(fig:ch-03-04-t-test-model-two-populations). The model assumes that we have two vectors of metric measurements $\vec{x}_A$ and $\vec{x}_B$, with length $n_A$ and $n_B$ respectively. These are the price measures for conventionally grown and for organically grown avocados. The model assumes that measures in both $\vec{x}_A$ and $\vec{x}_B$ are iid samples from a normal distribution. The mean of one group (group $B$ in the graph) is assumed to be some unknown $\mu$. Interestingly, this parameter will cancel out eventually: the approximation of the sampling distribution turns out to be independent of this parameter.^[This is intuitively so because the test statistic is concerned only with the difference between sample means.] The mean of the other group (group $A$ in the graph) is computed as $\mu + \delta$, so with some additive paramater $\delta$ indicating the difference between means of these groups. This $\delta$ is the main parameter of interest for inferences regarding hypotheses concerning differences between the groups. Finally, the model assumes that both groups have the same standard deviation, an estimate of which is derived from the data (in a rather convoluted looking formula that is not important for our introductory concerns). As indicated in Figure \@ref(fig:ch-03-04-t-test-model-two-populations), the sampling distribution for this model is an instance of Student's $t$-distribution with mean 0, standard deviation 1 and degrees of freedom $\nu$ given as $n_A + n_B - 2$.
 
-```{r ch-03-04-t-test-model-two-populations, echo = F, fig.cap="Graphical representation of the model underlying a frequentist two-population $t$-test (for unpaired data with equal variance and unequal sample sizes). Notice that the light shadeding of the node for the standard deviation and of the node for the mean represents that the values for these parameters are estimated from the data.", out.width = '90%'}
+```{r ch-03-04-t-test-model-two-populations, echo = F, fig.cap="Graphical representation of the model underlying a frequentist two-population $t$-test (for unpaired data with equal variance and unequal sample sizes). Notice that the light shading of the node for the standard deviation indicates that the values for this parameter is estimated from the data.", out.width = '90%'}
 knitr::include_graphics("visuals/t-test-model-two-populations.png")
 ```
 
 Figure \@ref(fig:ch-03-04-t-test-model-two-populations) gives us the template to compute the value of the test statistic for the observed data.
 
 ```{r}
-# fix the null hypothesis: we assume no difference between groups
+# fix the null hypothesis: no difference between groups
 delta_0 <- 0
-# get the observed mean for organically-grown avocadoes (group A)
-x_A <- avocado_data %>% filter(type == "organic") %>% pull(average_price)
-# get the observed mean for conventionally-grown avocadoes (group B)
-x_B <- avocado_data %>% filter(type == "conventional") %>% pull(average_price)
-# get the observed mean for organically-grown avocadoes (group A)
+# data (group A)
+x_A <- avocado_data %>% 
+  filter(type == "organic") %>% pull(average_price)
+# data (group B)
+x_B <- avocado_data %>% 
+  filter(type == "conventional") %>% pull(average_price)
+# sample mean for organic (group A)
 mu_A <- mean(x_A)
-# get the observed mean for conventionally-grown avocadoes (group B)
+# sample mean for conventional (group B)
 mu_B <- mean(x_B)
 # numbers of observations
 n_A <- length(x_A)
 n_B <- length(x_B)
 # variance estimate
 sigma_AB <- sqrt(
-  ( ((n_A -1) * sd(x_A)^2 + (n_B -1) * sd(x_B)^2 ) / (n_A + n_B -2) ) * (1/n_A + 1/n_B)
+  ( ((n_A -1) * sd(x_A)^2 + (n_B -1) * sd(x_B)^2 ) / 
+      (n_A + n_B -2) ) * (1/n_A + 1/n_B)
 )
 t_observed <- (mu_A - mu_B - delta_0) / sigma_AB
 t_observed  
@@ -890,21 +893,139 @@ We can also, of course, calculate this test result with the built-in function `t
 
 ```{r}
 t.test(
-  x = x_A,              # first vector of data measurements
-  y = x_B,              # sec vector of data measurements
-  paired = FALSE,       # measurements are to be treated as unpaired
-  var.equal = TRUE,     # we assum equal variance in both groups
-  mu = 0                # NH is delta = 0 (parameter name 'mu' is misleading!)
+  x = x_A,           # first vector of data measurements
+  y = x_B,           # sec vector of data measurements
+  paired = FALSE,    # measurements are to be treated as unpaired
+  var.equal = TRUE,  # we assum equal variance in both groups
+  mu = 0             # NH is delta = 0 (name 'mu' is misleading!)
 )
 ```
 
 The result could be reported as follows:
 
-> We used a two-sample $t$-test of differences of means (unpaired samples, equal variance, unequal sample sizes) to compare the average weekly price of conventionally-grown avocados to that of organically grown avocados. The test result indicates a significant difference for the null hypothesis that conventionally-grown avocados are not cheaper ($N_A = `r n_A`$, $N_B = `r n_B`$, $t \approx `r t_observed`$, $p \approx `r p_value_t_test_avocado`$).
+> We used a two-sample $t$-test of differences of means (unpaired samples, equal variance, unequal sample sizes) to compare the average weekly price of conventionally-grown avocados to that of organically grown avocados. The test result indicates a significant difference for the null hypothesis that conventionally-grown avocados are not cheaper ($N_A = `r n_A`$, $N_B = `r n_B`$, $t \approx `r t_observed %>% round(6)`$, $p \approx `r p_value_t_test_avocado`$).
 
 ### ANOVA {#ch-03-05-hypothesis-testing-ANOVA}
 
-### Linear regression  {#ch-03-05-hypothesis-testing-linear-regression}
+```{r, echo = F}
+plot_anova_data <- function(mu_A, mu_B, mu_C, sd = 10, n = 20) {
+  # create random data
+  fict_data <- tibble(
+    condition = c(
+      rep("A", n),
+      rep("B", n),
+      rep("C", n)
+    ),
+    value = c(
+      rnorm(n, mu_A, sd),
+      rnorm(n, mu_B, sd),
+      rnorm(n, mu_C, sd)
+    )
+  ) 
+  # extract F-statistic
+  aov_summary<- aov(value ~ condition, fict_data) %>% summary()
+  F_observed <- aov_summary[[1]][["F value"]][1]
+  fict_data <- fict_data %>% 
+    rbind(
+      tibble(
+        condition = "pooled",
+        value = fict_data$value
+      )
+    )
+  fict_data %>% 
+    ggplot(
+      aes(x = condition, y = value, color = condition)
+    ) +
+    geom_point(
+      fill = "lightgray",
+      size =1.5,
+      alpha = 0.2
+    ) +
+    guides(color = "none") +
+    geom_segment(size = 2,
+      aes(
+        x = condition_number - 0.3,
+        xend = condition_number + 0.3,
+        y = condition_mean,
+        yend = condition_mean
+      ),
+      data = fict_data %>% group_by(condition) %>% 
+        summarise(condition_mean = mean(value)) %>% 
+        mutate(condition_number = 1:4)
+    ) +
+    labs(
+      x = "",
+      y = ""
+    ) +
+    geom_label(
+      aes(x = 1, y = max(value)-5, label = str_c("F = ", signif(F_observed,3))), 
+      color = "firebrick"
+    ) + theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+}
+
+
+plot_grid(
+  plot_anova_data(48,50,52),
+  plot_anova_data(45,50,55),
+  plot_anova_data(40,50,60),
+  plot_anova_data(30,50,70),
+  nrow = 2
+)
+
+```
+
+
+```{r}
+# fictitious data
+x_A <- c(78, 43, 60, 60, 60, 50, 57, 58, 64, 64, 56, 62, 66, 53, 59)
+x_B <- c(52, 53, 51, 49, 64, 60, 45, 50, 55, 65, 76, 62, 62, 45)
+x_C <- c(78, 66, 74, 57, 75, 64, 64, 53, 63, 60, 79, 68, 68, 47, 63, 67)
+# number of observations in each group
+n_A <- length(x_A)
+n_B <- length(x_B) 
+n_C <- length(x_C)
+# in tibble form
+anova_data <- tibble(
+  condition = c(
+    rep("A", n_A),
+    rep("B", n_B),
+    rep("C", n_C)
+    ),
+  value = c(x_A, x_B, x_C)
+)
+grand_mean <- anova_data %>% pull(value) %>% mean()
+
+# between-group sum-of-squares
+between_group_variance <- 1/2 *             # (1/(k-1)) 
+  (
+    n_A * (mean(x_A) - grand_mean)^2 +
+    n_B * (mean(x_B) - grand_mean)^2 +
+    n_C * (mean(x_C) - grand_mean)^2  
+  )
+  
+# within-group sum-of-squares
+within_group_variance <- (n_A + n_B + n_C -3)^(-1) * 
+  (
+    sum((x_A - mean(x_A))^2) +
+    sum((x_B - mean(x_B))^2) +
+    sum((x_C - mean(x_C))^2)
+  )
+# test statistic of observed data
+F_observed <-  between_group_variance / within_group_variance
+```
+
+```{r}
+p_value_anova <- 1 - pf(F_observed, 2, n_A + n_B + n_C -3)
+p_value_anova %>% round(4)
+```
+
+
+```{r}
+aov(formula = value ~ condition, anova_data) %>% summary()
+```
 
 ## Three approaches {#ch-03-05-hypothesis-testing-3-approaches}
 
