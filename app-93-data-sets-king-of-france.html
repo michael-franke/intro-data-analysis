@@ -355,7 +355,12 @@ code span.wa { color: #bf0303; } /* Warning */
 </ul></li>
 <li class="chapter" data-level="10.5" data-path="ch-03-05-hypothesis-testing-3-model-checking.html"><a href="ch-03-05-hypothesis-testing-3-model-checking.html"><i class="fa fa-check"></i><b>10.5</b> Relation to model checking Section</a></li>
 </ul></li>
-<li class="chapter" data-level="11" data-path="Chap-03-06-model-comparison.html"><a href="Chap-03-06-model-comparison.html"><i class="fa fa-check"></i><b>11</b> Model Comparison</a></li>
+<li class="chapter" data-level="11" data-path="Chap-03-06-model-comparison.html"><a href="Chap-03-06-model-comparison.html"><i class="fa fa-check"></i><b>11</b> Model Comparison</a><ul>
+<li class="chapter" data-level="11.1" data-path="snippets-results.html"><a href="snippets-results.html"><i class="fa fa-check"></i><b>11.1</b> Snippets / Results</a><ul>
+<li class="chapter" data-level="11.1.1" data-path="snippets-results.html"><a href="snippets-results.html#bayes-factors-for-rope-d-hypotheses-through-encompassing-models"><i class="fa fa-check"></i><b>11.1.1</b> Bayes factors for ROPE-d hypotheses through encompassing models</a></li>
+<li class="chapter" data-level="11.1.2" data-path="snippets-results.html"><a href="snippets-results.html#example-binomial-247"><i class="fa fa-check"></i><b>11.1.2</b> Example (binomial 24/7)</a></li>
+</ul></li>
+</ul></li>
 <li class="chapter" data-level="12" data-path="ch-03-07-hypothesis-testing-Bayes.html"><a href="ch-03-07-hypothesis-testing-Bayes.html"><i class="fa fa-check"></i><b>12</b> Bayesian hypothesis testing</a></li>
 <li class="chapter" data-level="13" data-path="Chap-03-08-model-criticism.html"><a href="Chap-03-08-model-criticism.html"><i class="fa fa-check"></i><b>13</b> Model criticism</a></li>
 <li class="part"><span><b>IV Appliied (generalized) linear modeling</b></span></li>
@@ -546,9 +551,9 @@ Figure D.1: Results of <span class="citation">Abrusán and Szendröi (<a href="#
 ## $ trial_number   &lt;dbl&gt; 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, …
 ## $ trial_type     &lt;chr&gt; &quot;practice&quot;, &quot;practice&quot;, &quot;practice&quot;, &quot;practice&quot;, &quot;pract…
 ## $ vignette       &lt;chr&gt; &quot;undefined&quot;, &quot;undefined&quot;, &quot;undefined&quot;, &quot;undefined&quot;, &quot;u…</code></pre>
-<div class="sourceCode" id="cb515"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb515-1" data-line-number="1">data_KoF_raw &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/king-of-france_data_raw.csv&#39;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb521"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb521-1" data-line-number="1">data_KoF_raw &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/king-of-france_data_raw.csv&#39;</span>))</a></code></pre></div>
 <p>And then have a glimpse:</p>
-<div class="sourceCode" id="cb516"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb516-1" data-line-number="1"><span class="kw">glimpse</span>(data_KoF_raw)</a></code></pre></div>
+<div class="sourceCode" id="cb522"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb522-1" data-line-number="1"><span class="kw">glimpse</span>(data_KoF_raw)</a></code></pre></div>
 <pre><code>## Observations: 2,813
 ## Variables: 16
 ## $ submission_id  &lt;dbl&gt; 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,…
@@ -576,22 +581,22 @@ Figure D.1: Results of <span class="citation">Abrusán and Szendröi (<a href="#
 <li><code>vignette</code>: the current item’s vignette number (applies only to trials of type <code>main</code> and <code>special</code>)</li>
 </ul>
 <p>As the variable names used in the raw data are not ideal, we will pre-process the raw data a bit for easier analysis.</p>
-<div class="sourceCode" id="cb518"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb518-1" data-line-number="1">data_KoF_processed &lt;-<span class="st">  </span>data_KoF_raw <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb518-2" data-line-number="2"><span class="st">  </span><span class="co"># discard practice trials</span></a>
-<a class="sourceLine" id="cb518-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">!=</span><span class="st"> &quot;practice&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb518-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb518-5" data-line-number="5">    <span class="co"># add a &#39;condition&#39; variable</span></a>
-<a class="sourceLine" id="cb518-6" data-line-number="6">    <span class="dt">condition =</span> <span class="kw">case_when</span>(</a>
-<a class="sourceLine" id="cb518-7" data-line-number="7">      trial_type <span class="op">==</span><span class="st"> &quot;special&quot;</span> <span class="op">~</span><span class="st"> &quot;background check&quot;</span>,</a>
-<a class="sourceLine" id="cb518-8" data-line-number="8">      trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">str_c</span>(<span class="st">&quot;Condition &quot;</span>, item_version),</a>
-<a class="sourceLine" id="cb518-9" data-line-number="9">      <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> &quot;filler&quot;</span></a>
-<a class="sourceLine" id="cb518-10" data-line-number="10">    ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb518-11" data-line-number="11"><span class="st">      </span><span class="kw">factor</span>( </a>
-<a class="sourceLine" id="cb518-12" data-line-number="12">        <span class="dt">ordered =</span> T,</a>
-<a class="sourceLine" id="cb518-13" data-line-number="13">        <span class="dt">levels =</span> <span class="kw">c</span>(<span class="kw">str_c</span>(<span class="st">&quot;Condition &quot;</span>, <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">6</span>, <span class="dv">9</span>, <span class="dv">10</span>)), <span class="st">&quot;background check&quot;</span>, <span class="st">&quot;filler&quot;</span>)</a>
-<a class="sourceLine" id="cb518-14" data-line-number="14">      )</a>
-<a class="sourceLine" id="cb518-15" data-line-number="15">  )</a>
-<a class="sourceLine" id="cb518-16" data-line-number="16"><span class="co"># write_csv(data_KoF_processed, &quot;data_sets/king-of-france_data_processed.csv&quot;)</span></a></code></pre></div>
+<div class="sourceCode" id="cb524"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb524-1" data-line-number="1">data_KoF_processed &lt;-<span class="st">  </span>data_KoF_raw <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb524-2" data-line-number="2"><span class="st">  </span><span class="co"># discard practice trials</span></a>
+<a class="sourceLine" id="cb524-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">!=</span><span class="st"> &quot;practice&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb524-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb524-5" data-line-number="5">    <span class="co"># add a &#39;condition&#39; variable</span></a>
+<a class="sourceLine" id="cb524-6" data-line-number="6">    <span class="dt">condition =</span> <span class="kw">case_when</span>(</a>
+<a class="sourceLine" id="cb524-7" data-line-number="7">      trial_type <span class="op">==</span><span class="st"> &quot;special&quot;</span> <span class="op">~</span><span class="st"> &quot;background check&quot;</span>,</a>
+<a class="sourceLine" id="cb524-8" data-line-number="8">      trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">str_c</span>(<span class="st">&quot;Condition &quot;</span>, item_version),</a>
+<a class="sourceLine" id="cb524-9" data-line-number="9">      <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> &quot;filler&quot;</span></a>
+<a class="sourceLine" id="cb524-10" data-line-number="10">    ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb524-11" data-line-number="11"><span class="st">      </span><span class="kw">factor</span>( </a>
+<a class="sourceLine" id="cb524-12" data-line-number="12">        <span class="dt">ordered =</span> T,</a>
+<a class="sourceLine" id="cb524-13" data-line-number="13">        <span class="dt">levels =</span> <span class="kw">c</span>(<span class="kw">str_c</span>(<span class="st">&quot;Condition &quot;</span>, <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">6</span>, <span class="dv">9</span>, <span class="dv">10</span>)), <span class="st">&quot;background check&quot;</span>, <span class="st">&quot;filler&quot;</span>)</a>
+<a class="sourceLine" id="cb524-14" data-line-number="14">      )</a>
+<a class="sourceLine" id="cb524-15" data-line-number="15">  )</a>
+<a class="sourceLine" id="cb524-16" data-line-number="16"><span class="co"># write_csv(data_KoF_processed, &quot;data_sets/king-of-france_data_processed.csv&quot;)</span></a></code></pre></div>
 </div>
 <div id="cleaning-the-data-2" class="section level3">
 <h3><span class="header-section-number">D.4.3</span> Cleaning the data</h3>
@@ -602,98 +607,98 @@ Figure D.1: Results of <span class="citation">Abrusán and Szendröi (<a href="#
 </ol>
 <div id="cleaning-by-participant-2" class="section level4">
 <h4><span class="header-section-number">D.4.3.1</span> Cleaning by-participant</h4>
-<div class="sourceCode" id="cb519"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb519-1" data-line-number="1"><span class="co"># look at error rates for filler sentences by subject</span></a>
-<a class="sourceLine" id="cb519-2" data-line-number="2"><span class="co"># mark every subject with &lt; 0.5 proportion correct</span></a>
-<a class="sourceLine" id="cb519-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb519-4" data-line-number="4">subject_error_rate &lt;-<span class="st"> </span>data_KoF_processed <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb519-5" data-line-number="5"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;filler&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb519-6" data-line-number="6"><span class="st">  </span><span class="kw">group_by</span>(submission_id) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb519-7" data-line-number="7"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb519-8" data-line-number="8">    <span class="dt">proportion_correct =</span> <span class="kw">mean</span>(correct_answer <span class="op">==</span><span class="st"> </span>response),</a>
-<a class="sourceLine" id="cb519-9" data-line-number="9">    <span class="dt">outlier_subject =</span> proportion_correct <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb519-10" data-line-number="10">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb519-11" data-line-number="11"><span class="st">  </span><span class="kw">arrange</span>(proportion_correct)</a></code></pre></div>
+<div class="sourceCode" id="cb525"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb525-1" data-line-number="1"><span class="co"># look at error rates for filler sentences by subject</span></a>
+<a class="sourceLine" id="cb525-2" data-line-number="2"><span class="co"># mark every subject with &lt; 0.5 proportion correct</span></a>
+<a class="sourceLine" id="cb525-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb525-4" data-line-number="4">subject_error_rate &lt;-<span class="st"> </span>data_KoF_processed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb525-5" data-line-number="5"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;filler&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb525-6" data-line-number="6"><span class="st">  </span><span class="kw">group_by</span>(submission_id) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb525-7" data-line-number="7"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb525-8" data-line-number="8">    <span class="dt">proportion_correct =</span> <span class="kw">mean</span>(correct_answer <span class="op">==</span><span class="st"> </span>response),</a>
+<a class="sourceLine" id="cb525-9" data-line-number="9">    <span class="dt">outlier_subject =</span> proportion_correct <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb525-10" data-line-number="10">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb525-11" data-line-number="11"><span class="st">  </span><span class="kw">arrange</span>(proportion_correct)</a></code></pre></div>
 <p>Plot the results:</p>
-<div class="sourceCode" id="cb520"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb520-1" data-line-number="1"><span class="co"># plot by-subject error rates</span></a>
-<a class="sourceLine" id="cb520-2" data-line-number="2">subject_error_rate <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb520-3" data-line-number="3"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> proportion_correct, <span class="dt">color =</span> outlier_subject, <span class="dt">shape =</span> outlier_subject)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb520-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="st">&quot;&quot;</span>), <span class="dt">width =</span> <span class="fl">0.001</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb520-5" data-line-number="5"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Poportion of correct answers&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb520-6" data-line-number="6"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Distribution of proportion of correct answers on filler trials&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb520-7" data-line-number="7"><span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb520-8" data-line-number="8"><span class="st">  </span><span class="kw">scale_color_discrete</span>(<span class="dt">name =</span> <span class="st">&quot;Outlier&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb520-9" data-line-number="9"><span class="st">  </span><span class="kw">scale_shape_discrete</span>(<span class="dt">name =</span> <span class="st">&quot;Outlier&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-347-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb526"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb526-1" data-line-number="1"><span class="co"># plot by-subject error rates</span></a>
+<a class="sourceLine" id="cb526-2" data-line-number="2">subject_error_rate <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb526-3" data-line-number="3"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> proportion_correct, <span class="dt">color =</span> outlier_subject, <span class="dt">shape =</span> outlier_subject)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb526-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="st">&quot;&quot;</span>), <span class="dt">width =</span> <span class="fl">0.001</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb526-5" data-line-number="5"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Poportion of correct answers&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb526-6" data-line-number="6"><span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Distribution of proportion of correct answers on filler trials&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb526-7" data-line-number="7"><span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb526-8" data-line-number="8"><span class="st">  </span><span class="kw">scale_color_discrete</span>(<span class="dt">name =</span> <span class="st">&quot;Outlier&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb526-9" data-line-number="9"><span class="st">  </span><span class="kw">scale_shape_discrete</span>(<span class="dt">name =</span> <span class="st">&quot;Outlier&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-351-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Apply the cleaning step:</p>
-<div class="sourceCode" id="cb521"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb521-1" data-line-number="1"><span class="co"># add info about error rates and exclude outlier subject(s)</span></a>
-<a class="sourceLine" id="cb521-2" data-line-number="2">d_cleaned &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb521-3" data-line-number="3"><span class="st">  </span><span class="kw">full_join</span>(data_KoF_processed, subject_error_rate, <span class="dt">by =</span> <span class="st">&quot;submission_id&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb521-4" data-line-number="4"><span class="st">  </span><span class="kw">filter</span>(outlier_subject <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb527"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb527-1" data-line-number="1"><span class="co"># add info about error rates and exclude outlier subject(s)</span></a>
+<a class="sourceLine" id="cb527-2" data-line-number="2">d_cleaned &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb527-3" data-line-number="3"><span class="st">  </span><span class="kw">full_join</span>(data_KoF_processed, subject_error_rate, <span class="dt">by =</span> <span class="st">&quot;submission_id&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb527-4" data-line-number="4"><span class="st">  </span><span class="kw">filter</span>(outlier_subject <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>)</a></code></pre></div>
 </div>
 <div id="cleaning-by-trial-2" class="section level4">
 <h4><span class="header-section-number">D.4.3.2</span> Cleaning by-trial</h4>
-<div class="sourceCode" id="cb522"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb522-1" data-line-number="1"><span class="co"># exclude every critical trial whose &#39;background&#39; test question was answered wrongly</span></a>
-<a class="sourceLine" id="cb522-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb522-3" data-line-number="3">d_cleaned &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb522-4" data-line-number="4"><span class="st">  </span>d_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb522-5" data-line-number="5"><span class="st">  </span><span class="co"># select only the &#39;background question&#39; trials</span></a>
-<a class="sourceLine" id="cb522-6" data-line-number="6"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;special&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb522-7" data-line-number="7"><span class="st">  </span><span class="co"># is the background question answered correctly?</span></a>
-<a class="sourceLine" id="cb522-8" data-line-number="8"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb522-9" data-line-number="9">    <span class="dt">background_correct =</span> correct_answer <span class="op">==</span><span class="st"> </span>response</a>
-<a class="sourceLine" id="cb522-10" data-line-number="10">  ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb522-11" data-line-number="11"><span class="st">  </span><span class="co"># select only the relevant columns</span></a>
-<a class="sourceLine" id="cb522-12" data-line-number="12"><span class="st">  </span><span class="kw">select</span>(submission_id, vignette, background_correct) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb522-13" data-line-number="13"><span class="st">  </span><span class="co"># right join lines to original data set </span></a>
-<a class="sourceLine" id="cb522-14" data-line-number="14"><span class="st">  </span><span class="kw">right_join</span>(d_cleaned, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;submission_id&quot;</span>, <span class="st">&quot;vignette&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb522-15" data-line-number="15"><span class="st">  </span><span class="co"># remove all special trials, as well as main trials with incorrect background check</span></a>
-<a class="sourceLine" id="cb522-16" data-line-number="16"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span> <span class="op">&amp;</span><span class="st"> </span>background_correct <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb522-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb522-18" data-line-number="18"><span class="co"># write_csv(d_cleaned, &quot;data_sets/king-of-france_data_cleaned.csv&quot;)</span></a></code></pre></div>
+<div class="sourceCode" id="cb528"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb528-1" data-line-number="1"><span class="co"># exclude every critical trial whose &#39;background&#39; test question was answered wrongly</span></a>
+<a class="sourceLine" id="cb528-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb528-3" data-line-number="3">d_cleaned &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb528-4" data-line-number="4"><span class="st">  </span>d_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb528-5" data-line-number="5"><span class="st">  </span><span class="co"># select only the &#39;background question&#39; trials</span></a>
+<a class="sourceLine" id="cb528-6" data-line-number="6"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;special&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb528-7" data-line-number="7"><span class="st">  </span><span class="co"># is the background question answered correctly?</span></a>
+<a class="sourceLine" id="cb528-8" data-line-number="8"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb528-9" data-line-number="9">    <span class="dt">background_correct =</span> correct_answer <span class="op">==</span><span class="st"> </span>response</a>
+<a class="sourceLine" id="cb528-10" data-line-number="10">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb528-11" data-line-number="11"><span class="st">  </span><span class="co"># select only the relevant columns</span></a>
+<a class="sourceLine" id="cb528-12" data-line-number="12"><span class="st">  </span><span class="kw">select</span>(submission_id, vignette, background_correct) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb528-13" data-line-number="13"><span class="st">  </span><span class="co"># right join lines to original data set </span></a>
+<a class="sourceLine" id="cb528-14" data-line-number="14"><span class="st">  </span><span class="kw">right_join</span>(d_cleaned, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;submission_id&quot;</span>, <span class="st">&quot;vignette&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb528-15" data-line-number="15"><span class="st">  </span><span class="co"># remove all special trials, as well as main trials with incorrect background check</span></a>
+<a class="sourceLine" id="cb528-16" data-line-number="16"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span> <span class="op">&amp;</span><span class="st"> </span>background_correct <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb528-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb528-18" data-line-number="18"><span class="co"># write_csv(d_cleaned, &quot;data_sets/king-of-france_data_cleaned.csv&quot;)</span></a></code></pre></div>
 </div>
 </div>
 <div id="exploration-summary-stats-plots-1" class="section level3">
 <h3><span class="header-section-number">D.4.4</span> Exploration: summary stats &amp; plots</h3>
 <p>Plot for ratings by condition:</p>
-<div class="sourceCode" id="cb523"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb523-1" data-line-number="1">d_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb523-2" data-line-number="2"><span class="st">  </span><span class="co"># drop unused factor levels</span></a>
-<a class="sourceLine" id="cb523-3" data-line-number="3"><span class="st">  </span><span class="kw">droplevels</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb523-4" data-line-number="4"><span class="st">  </span><span class="co"># get means and 95% bootstrapped CIs for each condition</span></a>
-<a class="sourceLine" id="cb523-5" data-line-number="5"><span class="st">  </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb523-6" data-line-number="6"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb523-7" data-line-number="7"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb523-8" data-line-number="8">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>response <span class="op">==</span><span class="st"> &quot;TRUE&quot;</span>))</a>
-<a class="sourceLine" id="cb523-9" data-line-number="9">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb523-10" data-line-number="10"><span class="st">  </span><span class="kw">unnest</span>(CIs) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb523-11" data-line-number="11"><span class="st">  </span><span class="co"># plot means and CIs</span></a>
-<a class="sourceLine" id="cb523-12" data-line-number="12"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> condition, <span class="dt">y =</span> mean, <span class="dt">fill =</span> condition)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb523-13" data-line-number="13"><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb523-14" data-line-number="14"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lower, <span class="dt">ymax =</span> upper, <span class="dt">width =</span> <span class="fl">0.2</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb523-15" data-line-number="15"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb523-16" data-line-number="16"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Proportion of &#39;TRUE&#39; responses per condition&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb523-17" data-line-number="17"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb523-18" data-line-number="18"><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> project_colors)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-350-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb529"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb529-1" data-line-number="1">d_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb529-2" data-line-number="2"><span class="st">  </span><span class="co"># drop unused factor levels</span></a>
+<a class="sourceLine" id="cb529-3" data-line-number="3"><span class="st">  </span><span class="kw">droplevels</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb529-4" data-line-number="4"><span class="st">  </span><span class="co"># get means and 95% bootstrapped CIs for each condition</span></a>
+<a class="sourceLine" id="cb529-5" data-line-number="5"><span class="st">  </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb529-6" data-line-number="6"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb529-7" data-line-number="7"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb529-8" data-line-number="8">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>response <span class="op">==</span><span class="st"> &quot;TRUE&quot;</span>))</a>
+<a class="sourceLine" id="cb529-9" data-line-number="9">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb529-10" data-line-number="10"><span class="st">  </span><span class="kw">unnest</span>(CIs) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb529-11" data-line-number="11"><span class="st">  </span><span class="co"># plot means and CIs</span></a>
+<a class="sourceLine" id="cb529-12" data-line-number="12"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> condition, <span class="dt">y =</span> mean, <span class="dt">fill =</span> condition)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb529-13" data-line-number="13"><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb529-14" data-line-number="14"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lower, <span class="dt">ymax =</span> upper, <span class="dt">width =</span> <span class="fl">0.2</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb529-15" data-line-number="15"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb529-16" data-line-number="16"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Proportion of &#39;TRUE&#39; responses per condition&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb529-17" data-line-number="17"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb529-18" data-line-number="18"><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> project_colors)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-354-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Plot for each condition &amp; vignette:</p>
-<div class="sourceCode" id="cb524"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb524-1" data-line-number="1">data_KoF_processed <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb524-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb524-3" data-line-number="3"><span class="st">  </span><span class="kw">droplevels</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb524-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(condition, vignette) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb524-5" data-line-number="5"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb524-6" data-line-number="6"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb524-7" data-line-number="7">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>response <span class="op">==</span><span class="st"> &quot;TRUE&quot;</span>))</a>
-<a class="sourceLine" id="cb524-8" data-line-number="8">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb524-9" data-line-number="9"><span class="st">  </span><span class="kw">unnest</span>(CIs) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb524-10" data-line-number="10"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> condition, <span class="dt">y =</span> mean, <span class="dt">fill =</span> vignette)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb524-11" data-line-number="11"><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>, <span class="dt">position =</span> <span class="st">&quot;dodge2&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb524-12" data-line-number="12"><span class="st">  </span><span class="kw">geom_errorbar</span>(</a>
-<a class="sourceLine" id="cb524-13" data-line-number="13">    <span class="kw">aes</span>(<span class="dt">ymin =</span> lower, <span class="dt">ymax =</span> upper),</a>
-<a class="sourceLine" id="cb524-14" data-line-number="14">    <span class="dt">width =</span> <span class="fl">0.3</span>,</a>
-<a class="sourceLine" id="cb524-15" data-line-number="15">    <span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="dt">width =</span> <span class="fl">0.9</span>)</a>
-<a class="sourceLine" id="cb524-16" data-line-number="16">  ) <span class="op">+</span></a>
-<a class="sourceLine" id="cb524-17" data-line-number="17"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb524-18" data-line-number="18"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Proportion of &#39;TRUE&#39; responses per condition &amp; vignette&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-351-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb530"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb530-1" data-line-number="1">data_KoF_processed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb530-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb530-3" data-line-number="3"><span class="st">  </span><span class="kw">droplevels</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb530-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(condition, vignette) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb530-5" data-line-number="5"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb530-6" data-line-number="6"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb530-7" data-line-number="7">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>response <span class="op">==</span><span class="st"> &quot;TRUE&quot;</span>))</a>
+<a class="sourceLine" id="cb530-8" data-line-number="8">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb530-9" data-line-number="9"><span class="st">  </span><span class="kw">unnest</span>(CIs) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb530-10" data-line-number="10"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> condition, <span class="dt">y =</span> mean, <span class="dt">fill =</span> vignette)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb530-11" data-line-number="11"><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>, <span class="dt">position =</span> <span class="st">&quot;dodge2&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb530-12" data-line-number="12"><span class="st">  </span><span class="kw">geom_errorbar</span>(</a>
+<a class="sourceLine" id="cb530-13" data-line-number="13">    <span class="kw">aes</span>(<span class="dt">ymin =</span> lower, <span class="dt">ymax =</span> upper),</a>
+<a class="sourceLine" id="cb530-14" data-line-number="14">    <span class="dt">width =</span> <span class="fl">0.3</span>,</a>
+<a class="sourceLine" id="cb530-15" data-line-number="15">    <span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="dt">width =</span> <span class="fl">0.9</span>)</a>
+<a class="sourceLine" id="cb530-16" data-line-number="16">  ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb530-17" data-line-number="17"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb530-18" data-line-number="18"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Proportion of &#39;TRUE&#39; responses per condition &amp; vignette&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-355-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="data-analysis-1" class="section level3">
 <h3><span class="header-section-number">D.4.5</span> Data analysis</h3>

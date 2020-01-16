@@ -355,7 +355,12 @@ code span.wa { color: #bf0303; } /* Warning */
 </ul></li>
 <li class="chapter" data-level="10.5" data-path="ch-03-05-hypothesis-testing-3-model-checking.html"><a href="ch-03-05-hypothesis-testing-3-model-checking.html"><i class="fa fa-check"></i><b>10.5</b> Relation to model checking Section</a></li>
 </ul></li>
-<li class="chapter" data-level="11" data-path="Chap-03-06-model-comparison.html"><a href="Chap-03-06-model-comparison.html"><i class="fa fa-check"></i><b>11</b> Model Comparison</a></li>
+<li class="chapter" data-level="11" data-path="Chap-03-06-model-comparison.html"><a href="Chap-03-06-model-comparison.html"><i class="fa fa-check"></i><b>11</b> Model Comparison</a><ul>
+<li class="chapter" data-level="11.1" data-path="snippets-results.html"><a href="snippets-results.html"><i class="fa fa-check"></i><b>11.1</b> Snippets / Results</a><ul>
+<li class="chapter" data-level="11.1.1" data-path="snippets-results.html"><a href="snippets-results.html#bayes-factors-for-rope-d-hypotheses-through-encompassing-models"><i class="fa fa-check"></i><b>11.1.1</b> Bayes factors for ROPE-d hypotheses through encompassing models</a></li>
+<li class="chapter" data-level="11.1.2" data-path="snippets-results.html"><a href="snippets-results.html#example-binomial-247"><i class="fa fa-check"></i><b>11.1.2</b> Example (binomial 24/7)</a></li>
+</ul></li>
+</ul></li>
 <li class="chapter" data-level="12" data-path="ch-03-07-hypothesis-testing-Bayes.html"><a href="ch-03-07-hypothesis-testing-Bayes.html"><i class="fa fa-check"></i><b>12</b> Bayesian hypothesis testing</a></li>
 <li class="chapter" data-level="13" data-path="Chap-03-08-model-criticism.html"><a href="Chap-03-08-model-criticism.html"><i class="fa fa-check"></i><b>13</b> Model criticism</a></li>
 <li class="part"><span><b>IV Appliied (generalized) linear modeling</b></span></li>
@@ -459,169 +464,169 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="understanding-distributions-as-random-variables" class="section level2">
 <h2><span class="header-section-number">B.3</span> Understanding distributions as random variables</h2>
-<div class="sourceCode" id="cb473"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb473-1" data-line-number="1">rv_normal_transform =<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb473-2" data-line-number="2">  <span class="dt">x_axis =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">-5</span>, <span class="dt">to =</span> <span class="dv">5</span>, <span class="dt">by =</span> <span class="fl">.01</span>),</a>
-<a class="sourceLine" id="cb473-3" data-line-number="3">  <span class="dt">rv_norm_x =</span> <span class="kw">dnorm</span>(<span class="dt">x =</span> x_axis, <span class="dt">mean =</span> <span class="dv">1</span>, <span class="dt">sd =</span> <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb473-4" data-line-number="4">  <span class="dt">rv_norm_y =</span> <span class="kw">dnorm</span>(<span class="dt">x =</span> x_axis, <span class="dt">mean =</span> <span class="fl">1.75</span>, <span class="dt">sd =</span> <span class="fl">2.75</span>),</a>
-<a class="sourceLine" id="cb473-5" data-line-number="5">  <span class="dt">rv_linear_transform =</span> <span class="dv">3</span><span class="op">*</span>rv_norm_x<span class="fl">+0.25</span>,</a>
-<a class="sourceLine" id="cb473-6" data-line-number="6">  <span class="dt">rv_summ_transform =</span> rv_norm_x <span class="op">+</span><span class="st"> </span>rv_norm_y</a>
-<a class="sourceLine" id="cb473-7" data-line-number="7">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb473-8" data-line-number="8"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv&quot;</span>),</a>
-<a class="sourceLine" id="cb473-9" data-line-number="9">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
-<a class="sourceLine" id="cb473-10" data-line-number="10">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb473-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb473-12" data-line-number="12">    <span class="dt">random_variables =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_norm_x&quot;</span> <span class="op">~</span><span class="st"> &quot;X ~ N(1,2)&quot;</span>,</a>
-<a class="sourceLine" id="cb473-13" data-line-number="13">                          random_variables <span class="op">==</span><span class="st"> &quot;rv_norm_y&quot;</span> <span class="op">~</span><span class="st"> &quot;Y ~ N(1.75,2.75)&quot;</span>,</a>
-<a class="sourceLine" id="cb473-14" data-line-number="14">                          random_variables <span class="op">==</span><span class="st"> &quot;rv_linear_transform&quot;</span> <span class="op">~</span><span class="st"> &quot;3*X+0.25~ N(3*1+0.25,3^2*2^2)&quot;</span>,</a>
-<a class="sourceLine" id="cb473-15" data-line-number="15">                          random_variables <span class="op">==</span><span class="st"> &quot;rv_summ_transform&quot;</span> <span class="op">~</span><span class="st"> &quot;X+Y ~ N(1+1.75,2^2+2.75^2)&quot;</span></a>
-<a class="sourceLine" id="cb473-16" data-line-number="16">                          )</a>
-<a class="sourceLine" id="cb473-17" data-line-number="17">  )</a>
-<a class="sourceLine" id="cb473-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb473-19" data-line-number="19"><span class="co"># dist plot</span></a>
-<a class="sourceLine" id="cb473-20" data-line-number="20"><span class="kw">ggplot</span>(rv_normal_transform, <span class="kw">aes</span>(x_axis, y, <span class="dt">color =</span> random_variables)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb473-21" data-line-number="21"><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb473-22" data-line-number="22"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">&quot;X,Y ~ Normal&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a></code></pre></div>
+<div class="sourceCode" id="cb479"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb479-1" data-line-number="1">rv_normal_transform =<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb479-2" data-line-number="2">  <span class="dt">x_axis =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">-5</span>, <span class="dt">to =</span> <span class="dv">5</span>, <span class="dt">by =</span> <span class="fl">.01</span>),</a>
+<a class="sourceLine" id="cb479-3" data-line-number="3">  <span class="dt">rv_norm_x =</span> <span class="kw">dnorm</span>(<span class="dt">x =</span> x_axis, <span class="dt">mean =</span> <span class="dv">1</span>, <span class="dt">sd =</span> <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb479-4" data-line-number="4">  <span class="dt">rv_norm_y =</span> <span class="kw">dnorm</span>(<span class="dt">x =</span> x_axis, <span class="dt">mean =</span> <span class="fl">1.75</span>, <span class="dt">sd =</span> <span class="fl">2.75</span>),</a>
+<a class="sourceLine" id="cb479-5" data-line-number="5">  <span class="dt">rv_linear_transform =</span> <span class="dv">3</span><span class="op">*</span>rv_norm_x<span class="fl">+0.25</span>,</a>
+<a class="sourceLine" id="cb479-6" data-line-number="6">  <span class="dt">rv_summ_transform =</span> rv_norm_x <span class="op">+</span><span class="st"> </span>rv_norm_y</a>
+<a class="sourceLine" id="cb479-7" data-line-number="7">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb479-8" data-line-number="8"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv&quot;</span>),</a>
+<a class="sourceLine" id="cb479-9" data-line-number="9">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
+<a class="sourceLine" id="cb479-10" data-line-number="10">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb479-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb479-12" data-line-number="12">    <span class="dt">random_variables =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_norm_x&quot;</span> <span class="op">~</span><span class="st"> &quot;X ~ N(1,2)&quot;</span>,</a>
+<a class="sourceLine" id="cb479-13" data-line-number="13">                          random_variables <span class="op">==</span><span class="st"> &quot;rv_norm_y&quot;</span> <span class="op">~</span><span class="st"> &quot;Y ~ N(1.75,2.75)&quot;</span>,</a>
+<a class="sourceLine" id="cb479-14" data-line-number="14">                          random_variables <span class="op">==</span><span class="st"> &quot;rv_linear_transform&quot;</span> <span class="op">~</span><span class="st"> &quot;3*X+0.25~ N(3*1+0.25,3^2*2^2)&quot;</span>,</a>
+<a class="sourceLine" id="cb479-15" data-line-number="15">                          random_variables <span class="op">==</span><span class="st"> &quot;rv_summ_transform&quot;</span> <span class="op">~</span><span class="st"> &quot;X+Y ~ N(1+1.75,2^2+2.75^2)&quot;</span></a>
+<a class="sourceLine" id="cb479-16" data-line-number="16">                          )</a>
+<a class="sourceLine" id="cb479-17" data-line-number="17">  )</a>
+<a class="sourceLine" id="cb479-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb479-19" data-line-number="19"><span class="co"># dist plot</span></a>
+<a class="sourceLine" id="cb479-20" data-line-number="20"><span class="kw">ggplot</span>(rv_normal_transform, <span class="kw">aes</span>(x_axis, y, <span class="dt">color =</span> random_variables)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb479-21" data-line-number="21"><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb479-22" data-line-number="22"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">&quot;X,Y ~ Normal&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-random-variables-normal-distribution"></span>
 <img src="I2DA_files/figure-html/ch-app-01-random-variables-normal-distribution-1.png" alt="Transformation of a normal distributed random variable by addition and linear transformation." width="672" />
 <p class="caption">
 Figure B.31: Transformation of a normal distributed random variable by addition and linear transformation.
 </p>
 </div>
-<div class="sourceCode" id="cb474"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb474-1" data-line-number="1">rv_norm_transform =<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb474-2" data-line-number="2">  <span class="dt">rv_norm_X =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb474-3" data-line-number="3">  <span class="dt">rv_norm_Y =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb474-4" data-line-number="4">  <span class="dt">rv_norm_Z =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb474-5" data-line-number="5">  <span class="dt">rv_summ_transform_1 =</span> rv_norm_X<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Y<span class="op">^</span><span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb474-6" data-line-number="6">  <span class="dt">rv_summ_transform_2 =</span> rv_norm_X<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Y<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Z<span class="op">^</span><span class="dv">2</span></a>
-<a class="sourceLine" id="cb474-7" data-line-number="7">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb474-8" data-line-number="8"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv_summ&quot;</span>),</a>
-<a class="sourceLine" id="cb474-9" data-line-number="9">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
-<a class="sourceLine" id="cb474-10" data-line-number="10">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb474-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb474-12" data-line-number="12">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_summ_transform_1&quot;</span> <span class="op">~</span><span class="st"> &quot;X^2+Y^2&quot;</span>,</a>
-<a class="sourceLine" id="cb474-13" data-line-number="13">                          random_variables <span class="op">==</span><span class="st"> &quot;rv_summ_transform_2&quot;</span> <span class="op">~</span><span class="st"> &quot;X^2+Y^2+Z^2&quot;</span></a>
-<a class="sourceLine" id="cb474-14" data-line-number="14">    )</a>
-<a class="sourceLine" id="cb474-15" data-line-number="15">  )</a>
-<a class="sourceLine" id="cb474-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb474-17" data-line-number="17">rv_chi_transform =<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb474-18" data-line-number="18">  <span class="dt">x_axis =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">10</span>, <span class="dt">by =</span> <span class="fl">.01</span>),</a>
-<a class="sourceLine" id="cb474-19" data-line-number="19">  <span class="dt">rv_chi_1 =</span> <span class="kw">dchisq</span>(<span class="dt">x =</span> x_axis, <span class="dt">df =</span> <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb474-20" data-line-number="20">  <span class="dt">rv_chi_2 =</span> <span class="kw">dchisq</span>(<span class="dt">x =</span> x_axis, <span class="dt">df =</span> <span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb474-21" data-line-number="21">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb474-22" data-line-number="22"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv&quot;</span>),</a>
-<a class="sourceLine" id="cb474-23" data-line-number="23">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
-<a class="sourceLine" id="cb474-24" data-line-number="24">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb474-25" data-line-number="25"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb474-26" data-line-number="26">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_chi_1&quot;</span> <span class="op">~</span><span class="st"> &quot;Chi(2)&quot;</span>,</a>
-<a class="sourceLine" id="cb474-27" data-line-number="27">                          random_variables <span class="op">==</span><span class="st"> &quot;rv_chi_2&quot;</span> <span class="op">~</span><span class="st"> &quot;Chi(3)&quot;</span></a>
-<a class="sourceLine" id="cb474-28" data-line-number="28">                          )</a>
-<a class="sourceLine" id="cb474-29" data-line-number="29">  )</a>
-<a class="sourceLine" id="cb474-30" data-line-number="30"></a>
-<a class="sourceLine" id="cb474-31" data-line-number="31"><span class="co"># dist plots</span></a>
-<a class="sourceLine" id="cb474-32" data-line-number="32">p1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb474-33" data-line-number="33"><span class="st">  </span><span class="kw">geom_line</span>(rv_chi_transform, <span class="dt">mapping =</span> <span class="kw">aes</span>(x_axis, y, <span class="dt">color =</span> RVs), <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb474-34" data-line-number="34"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
-<a class="sourceLine" id="cb474-35" data-line-number="35">  </a>
-<a class="sourceLine" id="cb474-36" data-line-number="36">p2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb474-37" data-line-number="37"><span class="st">  </span><span class="kw">geom_line</span>(rv_norm_transform, <span class="dt">mapping =</span> <span class="kw">aes</span>(y, <span class="dt">color =</span> RVs), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">stat =</span> <span class="st">&quot;density&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb474-38" data-line-number="38"><span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>,<span class="dv">10</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb474-39" data-line-number="39"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="fl">0.5</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb474-40" data-line-number="40"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
-<a class="sourceLine" id="cb474-41" data-line-number="41"></a>
-<a class="sourceLine" id="cb474-42" data-line-number="42"><span class="kw">grid.arrange</span>(p1,p2, <span class="dt">ncol =</span> <span class="dv">2</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb480"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb480-1" data-line-number="1">rv_norm_transform =<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb480-2" data-line-number="2">  <span class="dt">rv_norm_X =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb480-3" data-line-number="3">  <span class="dt">rv_norm_Y =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb480-4" data-line-number="4">  <span class="dt">rv_norm_Z =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb480-5" data-line-number="5">  <span class="dt">rv_summ_transform_1 =</span> rv_norm_X<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Y<span class="op">^</span><span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb480-6" data-line-number="6">  <span class="dt">rv_summ_transform_2 =</span> rv_norm_X<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Y<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Z<span class="op">^</span><span class="dv">2</span></a>
+<a class="sourceLine" id="cb480-7" data-line-number="7">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb480-8" data-line-number="8"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv_summ&quot;</span>),</a>
+<a class="sourceLine" id="cb480-9" data-line-number="9">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
+<a class="sourceLine" id="cb480-10" data-line-number="10">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb480-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb480-12" data-line-number="12">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_summ_transform_1&quot;</span> <span class="op">~</span><span class="st"> &quot;X^2+Y^2&quot;</span>,</a>
+<a class="sourceLine" id="cb480-13" data-line-number="13">                          random_variables <span class="op">==</span><span class="st"> &quot;rv_summ_transform_2&quot;</span> <span class="op">~</span><span class="st"> &quot;X^2+Y^2+Z^2&quot;</span></a>
+<a class="sourceLine" id="cb480-14" data-line-number="14">    )</a>
+<a class="sourceLine" id="cb480-15" data-line-number="15">  )</a>
+<a class="sourceLine" id="cb480-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb480-17" data-line-number="17">rv_chi_transform =<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb480-18" data-line-number="18">  <span class="dt">x_axis =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">10</span>, <span class="dt">by =</span> <span class="fl">.01</span>),</a>
+<a class="sourceLine" id="cb480-19" data-line-number="19">  <span class="dt">rv_chi_1 =</span> <span class="kw">dchisq</span>(<span class="dt">x =</span> x_axis, <span class="dt">df =</span> <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb480-20" data-line-number="20">  <span class="dt">rv_chi_2 =</span> <span class="kw">dchisq</span>(<span class="dt">x =</span> x_axis, <span class="dt">df =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb480-21" data-line-number="21">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb480-22" data-line-number="22"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv&quot;</span>),</a>
+<a class="sourceLine" id="cb480-23" data-line-number="23">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
+<a class="sourceLine" id="cb480-24" data-line-number="24">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb480-25" data-line-number="25"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb480-26" data-line-number="26">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_chi_1&quot;</span> <span class="op">~</span><span class="st"> &quot;Chi(2)&quot;</span>,</a>
+<a class="sourceLine" id="cb480-27" data-line-number="27">                          random_variables <span class="op">==</span><span class="st"> &quot;rv_chi_2&quot;</span> <span class="op">~</span><span class="st"> &quot;Chi(3)&quot;</span></a>
+<a class="sourceLine" id="cb480-28" data-line-number="28">                          )</a>
+<a class="sourceLine" id="cb480-29" data-line-number="29">  )</a>
+<a class="sourceLine" id="cb480-30" data-line-number="30"></a>
+<a class="sourceLine" id="cb480-31" data-line-number="31"><span class="co"># dist plots</span></a>
+<a class="sourceLine" id="cb480-32" data-line-number="32">p1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb480-33" data-line-number="33"><span class="st">  </span><span class="kw">geom_line</span>(rv_chi_transform, <span class="dt">mapping =</span> <span class="kw">aes</span>(x_axis, y, <span class="dt">color =</span> RVs), <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb480-34" data-line-number="34"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
+<a class="sourceLine" id="cb480-35" data-line-number="35">  </a>
+<a class="sourceLine" id="cb480-36" data-line-number="36">p2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb480-37" data-line-number="37"><span class="st">  </span><span class="kw">geom_line</span>(rv_norm_transform, <span class="dt">mapping =</span> <span class="kw">aes</span>(y, <span class="dt">color =</span> RVs), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">stat =</span> <span class="st">&quot;density&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb480-38" data-line-number="38"><span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>,<span class="dv">10</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb480-39" data-line-number="39"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="fl">0.5</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb480-40" data-line-number="40"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
+<a class="sourceLine" id="cb480-41" data-line-number="41"></a>
+<a class="sourceLine" id="cb480-42" data-line-number="42"><span class="kw">grid.arrange</span>(p1,p2, <span class="dt">ncol =</span> <span class="dv">2</span>)</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-random-variables-chi-distribution"></span>
 <img src="I2DA_files/figure-html/ch-app-01-random-variables-chi-distribution-1.png" alt="Create chi-distributed random variable by summation of standard normal random variables" width="672" />
 <p class="caption">
 Figure B.32: Create chi-distributed random variable by summation of standard normal random variables
 </p>
 </div>
-<div class="sourceCode" id="cb475"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb475-1" data-line-number="1">rv_norm_chi_transform =<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb475-2" data-line-number="2">  <span class="dt">rv_norm_X =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb475-3" data-line-number="3">  <span class="dt">rv_norm_Y =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb475-4" data-line-number="4">  <span class="dt">rv_norm_Z =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb475-5" data-line-number="5">  <span class="dt">rv_chi =</span> rv_norm_Y<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Z<span class="op">^</span><span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb475-6" data-line-number="6">  <span class="dt">rv_transform_t =</span> rv_norm_X<span class="op">/</span><span class="kw">sqrt</span>(rv_chi<span class="op">/</span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb475-7" data-line-number="7">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb475-8" data-line-number="8"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv_transform&quot;</span>),</a>
-<a class="sourceLine" id="cb475-9" data-line-number="9">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
-<a class="sourceLine" id="cb475-10" data-line-number="10">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb475-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb475-12" data-line-number="12">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_transform_t&quot;</span> <span class="op">~</span><span class="st"> &quot;X/sqrt(chi/df)&quot;</span>)</a>
-<a class="sourceLine" id="cb475-13" data-line-number="13">  )</a>
-<a class="sourceLine" id="cb475-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb475-15" data-line-number="15">rv_student =<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb475-16" data-line-number="16">  <span class="dt">x_axis =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">-5</span>, <span class="dt">to =</span> <span class="dv">5</span>, <span class="dt">by =</span> <span class="fl">.01</span>),</a>
-<a class="sourceLine" id="cb475-17" data-line-number="17">  <span class="dt">rv_t_1 =</span> <span class="kw">dt</span>(<span class="dt">x =</span> x_axis, <span class="dt">df =</span> <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb475-18" data-line-number="18">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb475-19" data-line-number="19"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv&quot;</span>),</a>
-<a class="sourceLine" id="cb475-20" data-line-number="20">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
-<a class="sourceLine" id="cb475-21" data-line-number="21">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb475-22" data-line-number="22"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb475-23" data-line-number="23">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_t&quot;</span> <span class="op">~</span><span class="st"> &quot;t(2)&quot;</span>)</a>
-<a class="sourceLine" id="cb475-24" data-line-number="24">  )</a>
-<a class="sourceLine" id="cb475-25" data-line-number="25"></a>
-<a class="sourceLine" id="cb475-26" data-line-number="26"><span class="co"># dist plots</span></a>
-<a class="sourceLine" id="cb475-27" data-line-number="27">p1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb475-28" data-line-number="28"><span class="st">  </span><span class="kw">geom_line</span>(rv_student, <span class="dt">mapping =</span> <span class="kw">aes</span>(x_axis, y), <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb475-29" data-line-number="29"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="fl">0.4</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb475-30" data-line-number="30"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
-<a class="sourceLine" id="cb475-31" data-line-number="31">  </a>
-<a class="sourceLine" id="cb475-32" data-line-number="32">  </a>
-<a class="sourceLine" id="cb475-33" data-line-number="33">p2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb475-34" data-line-number="34"><span class="st">  </span><span class="kw">geom_line</span>(rv_norm_chi_transform, <span class="dt">mapping =</span> <span class="kw">aes</span>(y), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">stat =</span> <span class="st">&quot;density&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb475-35" data-line-number="35"><span class="st">  </span><span class="kw">xlim</span>(<span class="op">-</span><span class="dv">5</span>,<span class="dv">5</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb475-36" data-line-number="36"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="fl">0.4</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb475-37" data-line-number="37"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
-<a class="sourceLine" id="cb475-38" data-line-number="38">  </a>
-<a class="sourceLine" id="cb475-39" data-line-number="39"><span class="kw">grid.arrange</span>(<span class="kw">arrangeGrob</span>(p1, <span class="dt">top =</span> <span class="st">&quot;RV ~ t(2)&quot;</span>), <span class="kw">arrangeGrob</span>(p2, <span class="dt">top =</span> <span class="st">&quot;RV ~ std.norm/sqrt(chi/2)&quot;</span>), <span class="dt">ncol=</span><span class="dv">2</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb481"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb481-1" data-line-number="1">rv_norm_chi_transform =<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb481-2" data-line-number="2">  <span class="dt">rv_norm_X =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb481-3" data-line-number="3">  <span class="dt">rv_norm_Y =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb481-4" data-line-number="4">  <span class="dt">rv_norm_Z =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb481-5" data-line-number="5">  <span class="dt">rv_chi =</span> rv_norm_Y<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Z<span class="op">^</span><span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb481-6" data-line-number="6">  <span class="dt">rv_transform_t =</span> rv_norm_X<span class="op">/</span><span class="kw">sqrt</span>(rv_chi<span class="op">/</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb481-7" data-line-number="7">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb481-8" data-line-number="8"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv_transform&quot;</span>),</a>
+<a class="sourceLine" id="cb481-9" data-line-number="9">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
+<a class="sourceLine" id="cb481-10" data-line-number="10">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb481-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb481-12" data-line-number="12">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_transform_t&quot;</span> <span class="op">~</span><span class="st"> &quot;X/sqrt(chi/df)&quot;</span>)</a>
+<a class="sourceLine" id="cb481-13" data-line-number="13">  )</a>
+<a class="sourceLine" id="cb481-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb481-15" data-line-number="15">rv_student =<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb481-16" data-line-number="16">  <span class="dt">x_axis =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">-5</span>, <span class="dt">to =</span> <span class="dv">5</span>, <span class="dt">by =</span> <span class="fl">.01</span>),</a>
+<a class="sourceLine" id="cb481-17" data-line-number="17">  <span class="dt">rv_t_1 =</span> <span class="kw">dt</span>(<span class="dt">x =</span> x_axis, <span class="dt">df =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb481-18" data-line-number="18">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb481-19" data-line-number="19"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv&quot;</span>),</a>
+<a class="sourceLine" id="cb481-20" data-line-number="20">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
+<a class="sourceLine" id="cb481-21" data-line-number="21">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb481-22" data-line-number="22"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb481-23" data-line-number="23">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_t&quot;</span> <span class="op">~</span><span class="st"> &quot;t(2)&quot;</span>)</a>
+<a class="sourceLine" id="cb481-24" data-line-number="24">  )</a>
+<a class="sourceLine" id="cb481-25" data-line-number="25"></a>
+<a class="sourceLine" id="cb481-26" data-line-number="26"><span class="co"># dist plots</span></a>
+<a class="sourceLine" id="cb481-27" data-line-number="27">p1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb481-28" data-line-number="28"><span class="st">  </span><span class="kw">geom_line</span>(rv_student, <span class="dt">mapping =</span> <span class="kw">aes</span>(x_axis, y), <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb481-29" data-line-number="29"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="fl">0.4</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb481-30" data-line-number="30"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
+<a class="sourceLine" id="cb481-31" data-line-number="31">  </a>
+<a class="sourceLine" id="cb481-32" data-line-number="32">  </a>
+<a class="sourceLine" id="cb481-33" data-line-number="33">p2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb481-34" data-line-number="34"><span class="st">  </span><span class="kw">geom_line</span>(rv_norm_chi_transform, <span class="dt">mapping =</span> <span class="kw">aes</span>(y), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">stat =</span> <span class="st">&quot;density&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb481-35" data-line-number="35"><span class="st">  </span><span class="kw">xlim</span>(<span class="op">-</span><span class="dv">5</span>,<span class="dv">5</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb481-36" data-line-number="36"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="fl">0.4</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb481-37" data-line-number="37"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
+<a class="sourceLine" id="cb481-38" data-line-number="38">  </a>
+<a class="sourceLine" id="cb481-39" data-line-number="39"><span class="kw">grid.arrange</span>(<span class="kw">arrangeGrob</span>(p1, <span class="dt">top =</span> <span class="st">&quot;RV ~ t(2)&quot;</span>), <span class="kw">arrangeGrob</span>(p2, <span class="dt">top =</span> <span class="st">&quot;RV ~ std.norm/sqrt(chi/2)&quot;</span>), <span class="dt">ncol=</span><span class="dv">2</span>)</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-random-variables-t-distribution"></span>
 <img src="I2DA_files/figure-html/ch-app-01-random-variables-t-distribution-1.png" alt="Create t-distributed random variable by divison of standard normal RV by chi-squared RV" width="672" />
 <p class="caption">
 Figure B.33: Create t-distributed random variable by divison of standard normal RV by chi-squared RV
 </p>
 </div>
-<div class="sourceCode" id="cb476"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb476-1" data-line-number="1">rv_norm_chi_transform =<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb476-2" data-line-number="2">  <span class="dt">rv_norm_V =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb476-3" data-line-number="3">  <span class="dt">rv_norm_W =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb476-4" data-line-number="4">  <span class="dt">rv_norm_X =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb476-5" data-line-number="5">  <span class="dt">rv_norm_Y =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb476-6" data-line-number="6">  <span class="dt">rv_norm_Z =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
-<a class="sourceLine" id="cb476-7" data-line-number="7">  <span class="dt">rv_chi_1 =</span> rv_norm_V<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_W<span class="op">^</span><span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb476-8" data-line-number="8">  <span class="dt">rv_chi_2 =</span> rv_norm_X<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Y<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Z<span class="op">^</span><span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb476-9" data-line-number="9">  <span class="dt">rv_transform_F =</span> (rv_chi_<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>)<span class="op">/</span>(rv_chi_<span class="dv">2</span><span class="op">/</span><span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb476-10" data-line-number="10">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb476-11" data-line-number="11"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv_transform&quot;</span>),</a>
-<a class="sourceLine" id="cb476-12" data-line-number="12">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
-<a class="sourceLine" id="cb476-13" data-line-number="13">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb476-14" data-line-number="14"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb476-15" data-line-number="15">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_transform_F&quot;</span> <span class="op">~</span><span class="st"> &quot;(rv_chi_1/2)/(rv_chi_2/3)&quot;</span>)</a>
-<a class="sourceLine" id="cb476-16" data-line-number="16">  )</a>
-<a class="sourceLine" id="cb476-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb476-18" data-line-number="18">rv_fisher =<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb476-19" data-line-number="19">  <span class="dt">x_axis =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">20</span>, <span class="dt">by =</span> <span class="fl">.01</span>),</a>
-<a class="sourceLine" id="cb476-20" data-line-number="20">  <span class="dt">rv_F =</span> <span class="kw">df</span>(<span class="dt">x =</span> x_axis, <span class="dt">df1 =</span> <span class="dv">2</span>, <span class="dt">df2 =</span> <span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb476-21" data-line-number="21">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb476-22" data-line-number="22"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv&quot;</span>),</a>
-<a class="sourceLine" id="cb476-23" data-line-number="23">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
-<a class="sourceLine" id="cb476-24" data-line-number="24">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb476-25" data-line-number="25"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb476-26" data-line-number="26">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_F&quot;</span> <span class="op">~</span><span class="st"> &quot;F(2,3)&quot;</span>)</a>
-<a class="sourceLine" id="cb476-27" data-line-number="27">  )</a>
-<a class="sourceLine" id="cb476-28" data-line-number="28"></a>
-<a class="sourceLine" id="cb476-29" data-line-number="29"><span class="co"># dist plots</span></a>
-<a class="sourceLine" id="cb476-30" data-line-number="30">p1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb476-31" data-line-number="31"><span class="st">  </span><span class="kw">geom_line</span>(rv_fisher, <span class="dt">mapping =</span> <span class="kw">aes</span>(x_axis, y), <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb476-32" data-line-number="32"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb476-33" data-line-number="33"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
-<a class="sourceLine" id="cb476-34" data-line-number="34">  </a>
-<a class="sourceLine" id="cb476-35" data-line-number="35">  </a>
-<a class="sourceLine" id="cb476-36" data-line-number="36">p2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb476-37" data-line-number="37"><span class="st">  </span><span class="kw">geom_line</span>(rv_norm_chi_transform, <span class="dt">mapping =</span> <span class="kw">aes</span>(y), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">stat =</span> <span class="st">&quot;density&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb476-38" data-line-number="38"><span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>,<span class="dv">20</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb476-39" data-line-number="39"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb476-40" data-line-number="40"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
-<a class="sourceLine" id="cb476-41" data-line-number="41">  </a>
-<a class="sourceLine" id="cb476-42" data-line-number="42"><span class="kw">grid.arrange</span>(<span class="kw">arrangeGrob</span>(p1, <span class="dt">top =</span> <span class="st">&quot;RV ~ F(2,3)&quot;</span>), <span class="kw">arrangeGrob</span>(p2, <span class="dt">top =</span> <span class="st">&quot;RV ~ (rv_chi_1/2)/(rv_chi_2/3)&quot;</span>), <span class="dt">ncol =</span> <span class="dv">2</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb482"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb482-1" data-line-number="1">rv_norm_chi_transform =<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb482-2" data-line-number="2">  <span class="dt">rv_norm_V =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb482-3" data-line-number="3">  <span class="dt">rv_norm_W =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb482-4" data-line-number="4">  <span class="dt">rv_norm_X =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb482-5" data-line-number="5">  <span class="dt">rv_norm_Y =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb482-6" data-line-number="6">  <span class="dt">rv_norm_Z =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> <span class="fl">1e6</span>),</a>
+<a class="sourceLine" id="cb482-7" data-line-number="7">  <span class="dt">rv_chi_1 =</span> rv_norm_V<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_W<span class="op">^</span><span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb482-8" data-line-number="8">  <span class="dt">rv_chi_2 =</span> rv_norm_X<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Y<span class="op">^</span><span class="dv">2</span><span class="op">+</span>rv_norm_Z<span class="op">^</span><span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb482-9" data-line-number="9">  <span class="dt">rv_transform_F =</span> (rv_chi_<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>)<span class="op">/</span>(rv_chi_<span class="dv">2</span><span class="op">/</span><span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb482-10" data-line-number="10">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb482-11" data-line-number="11"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv_transform&quot;</span>),</a>
+<a class="sourceLine" id="cb482-12" data-line-number="12">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
+<a class="sourceLine" id="cb482-13" data-line-number="13">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb482-14" data-line-number="14"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb482-15" data-line-number="15">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_transform_F&quot;</span> <span class="op">~</span><span class="st"> &quot;(rv_chi_1/2)/(rv_chi_2/3)&quot;</span>)</a>
+<a class="sourceLine" id="cb482-16" data-line-number="16">  )</a>
+<a class="sourceLine" id="cb482-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb482-18" data-line-number="18">rv_fisher =<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb482-19" data-line-number="19">  <span class="dt">x_axis =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">20</span>, <span class="dt">by =</span> <span class="fl">.01</span>),</a>
+<a class="sourceLine" id="cb482-20" data-line-number="20">  <span class="dt">rv_F =</span> <span class="kw">df</span>(<span class="dt">x =</span> x_axis, <span class="dt">df1 =</span> <span class="dv">2</span>, <span class="dt">df2 =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb482-21" data-line-number="21">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb482-22" data-line-number="22"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;rv&quot;</span>),</a>
+<a class="sourceLine" id="cb482-23" data-line-number="23">               <span class="dt">names_to  =</span> <span class="st">&quot;random_variables&quot;</span>,</a>
+<a class="sourceLine" id="cb482-24" data-line-number="24">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb482-25" data-line-number="25"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb482-26" data-line-number="26">    <span class="dt">RVs =</span> <span class="kw">case_when</span>(random_variables <span class="op">==</span><span class="st"> &quot;rv_F&quot;</span> <span class="op">~</span><span class="st"> &quot;F(2,3)&quot;</span>)</a>
+<a class="sourceLine" id="cb482-27" data-line-number="27">  )</a>
+<a class="sourceLine" id="cb482-28" data-line-number="28"></a>
+<a class="sourceLine" id="cb482-29" data-line-number="29"><span class="co"># dist plots</span></a>
+<a class="sourceLine" id="cb482-30" data-line-number="30">p1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb482-31" data-line-number="31"><span class="st">  </span><span class="kw">geom_line</span>(rv_fisher, <span class="dt">mapping =</span> <span class="kw">aes</span>(x_axis, y), <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb482-32" data-line-number="32"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb482-33" data-line-number="33"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
+<a class="sourceLine" id="cb482-34" data-line-number="34">  </a>
+<a class="sourceLine" id="cb482-35" data-line-number="35">  </a>
+<a class="sourceLine" id="cb482-36" data-line-number="36">p2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb482-37" data-line-number="37"><span class="st">  </span><span class="kw">geom_line</span>(rv_norm_chi_transform, <span class="dt">mapping =</span> <span class="kw">aes</span>(y), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">stat =</span> <span class="st">&quot;density&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb482-38" data-line-number="38"><span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>,<span class="dv">20</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb482-39" data-line-number="39"><span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb482-40" data-line-number="40"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>, <span class="dt">x =</span> <span class="st">&quot;x&quot;</span>) </a>
+<a class="sourceLine" id="cb482-41" data-line-number="41">  </a>
+<a class="sourceLine" id="cb482-42" data-line-number="42"><span class="kw">grid.arrange</span>(<span class="kw">arrangeGrob</span>(p1, <span class="dt">top =</span> <span class="st">&quot;RV ~ F(2,3)&quot;</span>), <span class="kw">arrangeGrob</span>(p2, <span class="dt">top =</span> <span class="st">&quot;RV ~ (rv_chi_1/2)/(rv_chi_2/3)&quot;</span>), <span class="dt">ncol =</span> <span class="dv">2</span>)</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-random-variables-F-distribution"></span>
 <img src="I2DA_files/figure-html/ch-app-01-random-variables-F-distribution-1.png" alt="Create F-distributed random variable by divison of chi-squared RV by (another independent) chi-squared RV" width="672" />
 <p class="caption">
