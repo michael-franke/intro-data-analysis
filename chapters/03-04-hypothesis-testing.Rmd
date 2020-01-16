@@ -617,7 +617,11 @@ We know that IQ test results are normally distributed around a mean of 100 with 
 For illustration, suppose we observed this data set of IQ test results:
 
 ```{r}
-IQ_data <- c(87, 91, 93, 97, 100, 101, 103, 104, 104, 105, 105, 106, 108, 110, 111, 112, 114, 115, 119, 121)
+# fictitious IQ-data
+IQ_data <- c(87, 91, 93, 97, 100, 101, 103, 104, 
+             104, 105, 105, 106, 108, 110, 111, 
+             112, 114, 115, 119, 121)
+mean(IQ_data)
 ```
 
 The mean of this data set is `r mean(IQ_data)`. Suspcicious!
@@ -1178,6 +1182,130 @@ Frequentist hypothesis testing is superficially similar to Popperian falsificati
 ### Neyman-Pearson
 
 A conventional threshold on $p$-values may govern a categorical decision whether to reject or not reject the null-hypothesis (in the Neyman-Pearson approach). This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null-hypothesis when it is in fact true (a so-called type-1 error or $\alpha$-error). 
+
+```{r}
+plot_data <- tibble(
+  x = seq(-8, 12, length.out = 1000),
+  null = dnorm(x, sd = 2),
+  alternative = dnorm(x, mean = 4, sd = 2)
+) %>% 
+  pivot_longer(cols = 2:3)
+
+plot_data %>% 
+  ggplot(aes(x = x, y = value, color = name)) + 
+    # null hypothesis segment & label
+  geom_segment(
+    aes(
+      x = 0,
+      xend = 0,
+      y = -0.02,
+      yend = dnorm(0, sd = 2)
+    ),
+    color = "darkgray"
+  ) + 
+  geom_label(
+    aes(
+      x = 0,
+      y = -0.025,
+      label = "H_0"
+    ),
+    color = "darkgray",
+    label.size = 0,
+    size = 6
+  ) +
+  # alternative hypothesis segment & label
+  geom_segment(
+    aes(
+      x =4,
+      xend = 4,
+      y = -0.02,
+      yend = dnorm(0, sd = 2)
+    ),
+    color = "darkgray"
+  ) + 
+  geom_label(
+    aes(
+      x = 4,
+      y = -0.025,
+      label = "H_a"
+    ),
+    color = "darkgray",
+    label.size = 0,
+    size = 6
+  ) +
+  # alpha error area
+  geom_area(
+    data = filter(
+      plot_data, name == "null", 
+      x >= qnorm(0.95, sd = 2)
+    ), 
+    fill = project_colors[2],
+    color = project_colors[2],
+    alpha = 0.3
+  ) +
+  # beta error area
+  geom_area(
+    data = filter(
+      plot_data, name == "alternative", 
+      x <= qnorm(0.95, sd = 2)
+    ), 
+    fill = project_colors[1],
+    color = project_colors[1],
+    alpha = 0.3
+  ) +
+  # main density lines
+  geom_line(size = 2) +
+  # alpha error explanation
+  annotate(
+    geom='text', 
+    x=10, 
+    y=0.1, 
+    label=TeX("$\\alpha$-error", output='character'), 
+    parse=TRUE,
+    size = 5,
+    color = "black",
+    label.size = 0
+  ) +
+  geom_segment(
+    aes(
+      x = 4.3,
+      xend = 10,
+      y = 0.005,
+      yend = 0.09
+    ),
+    color = "black"
+  ) +
+  # beta error explanation
+  annotate(
+    geom='text', 
+    x=-6, 
+    y=0.1, 
+    label=TeX("$\\beta$-error", output='character'), 
+    parse=TRUE,
+    size = 5,
+    color = "black",
+    label.size = 0
+  ) +
+  geom_segment(
+    aes(
+      x = -0.3,
+      xend = -6,
+      y = 0.005,
+      yend = 0.09
+    ),
+    color = "black"
+  ) +
+  # general cosmetics
+  guides(color = F) +
+  labs(x = "", y = "") +
+  theme(
+      axis.text = element_blank(),
+      axis.ticks = element_blank()
+    )
+   
+  
+```
+
 
 ### Hypbrid modern NHST
 
