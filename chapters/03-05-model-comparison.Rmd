@@ -18,6 +18,44 @@ Suppose that instead of addressing the point-valued hypothesis $\theta = \theta^
 
 The Savage-Dickey method can be generalized to cover also interval-valued hypotheses in general, and therefore also ROPE-d hypotheses in particular. The previous literature has focused on inequality-based intervals (like $\theta \ge 0.5$) [@KlugkistKato2005:Bayesian-model-,@WetzelsGrasman2010:An-encompassing,@Oh2014:Bayesian-compar]. Here, we show that this method also extends to arbitrary intervals.
 
+[@KlugkistKato2005:Bayesian-model-]
+[@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar]
+
+**Encompassing Priors**
+
+```{r}
+tibble(
+  delta = seq(-3,3,length.out = 1000),
+  encompassing = dnorm(delta)
+) %>% 
+  mutate(
+    null = ifelse(-0.1 <= delta & delta <= 0.1,
+                  encompassing, 0),
+    alt  = ifelse(-0.1 >= delta | delta >= 0.1,
+                  encompassing, 0)
+  ) %>% 
+  mutate(
+    encompassing = encompassing / sum(encompassing),
+    null = null / sum(null),
+    alt = alt / sum(alt)
+  ) %>% 
+  pivot_longer(cols = -delta, names_to = "model", values_to = "density") %>% 
+  mutate(model = factor(model, ordered = T, levels = c("encompassing", "null", "alt"))) %>% 
+  ggplot(aes(x = delta, y = density)) +
+  geom_line() + 
+  geom_area(fill = "lightgray", alpha = 0.6) +
+  facet_wrap(. ~ model, nrow = 3, scales = "free") +
+  labs(
+    x = "", y = ""
+  ) +
+  guides(fill = F) +
+  theme(
+    axis.text.y  = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+```
+
+
 **Theorem statement**
 
 Fix a Bayesian model $M$ with pior $P_M(\theta, \omega)$ and likelihood function $P_M(D \mid \theta, \omega)$, where $\theta$ is the parameter of interest and $\omega$ is a vector of other (nuisance) parameters. Assume that priors over $\theta$ are independent of the nuisance parameters $\omega$. For an interal-valued hypothesis $H_0$ $\theta \in [a,b]$, the Bayes Factor in favor of this hypothesis over its negation $H_a$ $\theta \not \in [a,b]$ can be expressed as:
