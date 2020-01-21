@@ -172,16 +172,46 @@ The AIC-score of these models is a direct function of the negative log-likelihoo
 
 ```{r}
 get_AIC <- function(optim_fit) {
-  2 * length(optim_fit$par) - 2 * optim_fit$value
+  2 * length(optim_fit$par) + 2 * optim_fit$value
 }
-tibble(
+AIC_scores <- tibble(
   AIC_exponential = get_AIC(bestExpo),
   AIC_power = get_AIC(bestPow)
 )
+AIC_scores
 ```
 
+How should we interpret the difference in AIC-scores? We could just compare the differences in AIC-scores. Some suggest that differences in AIC-scores larger than 10 should be treated as implying that the weaker model has practically no empirical support [@BurnhamAnderson2002:Model-Selection]. Adopting such a criterion, we would therefore favor the exponential model based on the data observed. 
+
+But we could also try to walk a more nuanced, a more quantitative road. Indeed, we can look at relative AIC-scores in terms of so-called **Akaike weights** [@WagenmakersFarrell2004:AIC-model-selec,@BurnhamAnderson2002:Model-Selection]. If models $M_1, \dots, M_n$ are on the table and $\text{AIC}(M_i, D)$ is the AIC-score of model $M_i$ for observed data $D$, then the Akaike weight of model $M_i$ is defined as:
+
+
+
+$$
+\begin{aligned}
+w_{\text{AIC}}(M_i, D) & = \frac{\exp (- 0.5 * \Delta_{\text{AIC}}(M_i,D) )} {\sum_{j=1}^k\exp (- 0.5 * \Delta_{\text{AIC}}(M_j,D) )}\, \ \ \ \ \text{where} \\
+\Delta_{\text{AIC}}(M_i,D) & = \text{AIC}(M_i, D) - \min_j \text{AIC}(M_j, D)
+\end{aligned}
+$$
+
+Akaike weights are relative and normalized measures, and may serve as an approximate measure of a model's posterior probability given the data:
+
+$$ P(M_i \mid D) \approx \text{AIC}(M_i, D)$$ 
+
+For the running example at hand, this would mean that we could conclude that the posterior probability of the exponential model is approximately:
+
+```{r}
+delta_AIC_power <- AIC_scores$AIC_power - AIC_scores$AIC_exponential
+delta_AIC_exponential <- 0
+Akaike_weight_exponential <- exp(-0.5 * delta_AIC_exponential) /
+  (exp(-0.5 * delta_AIC_exponential) + exp(-0.5 * delta_AIC_power))
+```
+
+This approximation is better, the more data we have. We will see a method below, the Bayesian method, which computes $P(M_i \mid D)$ in a non-approximate way.
 
 ## Likelihood-Ratio Test {#Chap-03-06-model-comparison-LR-test}
+
+The **likelihood-ratio (LR) test** is a very popular frequentist method of model comparison. The LR-test assimilates model comparison to frequentist hypothesis testing. It defines a suitable test statistic and an approximation of the sampling distribution. Importantly, the LR-test first and foremost applies to the comparison of **nested models**, but there are results about how approximate results can be obtained when comparing non-nested models with an LR-test [@Vuong1989:Likelihood-Rati]. A frequentist model $M_i$ is nested inside another frequentist model $M_j$ iff ...
 
 ## Bayes factors {#Chap-03-06-model-comparison-BF}
 
