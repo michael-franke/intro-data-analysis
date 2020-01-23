@@ -1,4 +1,209 @@
 # Bayesian hypothesis testing {#ch-03-07-hypothesis-testing-Bayes}
 
-- testing via Bayesian posterior inference
-- testing via model comparison
+<hr>
+
+- Bayesian hypothesis testing approaches:
+  - estimation-based:
+    - Lindley: point-null $\theta^* \in \text{HDI}$?
+    - Kruschke: ROPE-d $\theta^* \pm \epsilon \in \text{HDI}$?
+  - nested model comparison with Bayes factors
+    - Jeffreys: point-null
+    - ROPE-d null
+- qualitative vs quantiative information; support for/against null model
+- nested model definition
+- Savage-Dickey and extension
+
+
+## Nested (Bayesian) models  
+
+Suppose that ther are $n$ continuous parameters of interest $\theta = \langle \theta_1, \dots, \theta_n \rangle$. $M_1$ is a (Bayesian) model defined by $P(\theta \mid M_1)$ & $P(D \mid \theta, M_1)$. Then $M_0$ is <span style = **properly nested** under $M_1$ if:
+
+- $M_0$ assigns fixed values to parameters $\theta_i = x_i, \dots, \theta_n = x_n$
+- $P(D \mid \theta_1, \dots, \theta_{i-1}, M_0) = P(D \mid \theta_1, \dots, \theta_{i-1}, \theta_i = x_i, \dots, \theta_n = x_n, M_1)$
+- $\lim_{\theta_i \rightarrow x_i, \dots, \theta_n \rightarrow x_n} P(\theta_1, \dots, \theta_{i-1} \mid \theta_i, \dots, \theta_n, M_1) = P(\theta_1, \dots, \theta_{i-1} \mid M_0)$
+
+Notice that the last condition is satisfied in particular when $M_1$'s prior over $\theta_1, \dots, \theta_{i-1}$ is independent of the values for the ramining parameters.
+
+## The Savage-Dickey method
+
+```{theorem, name = "Savage-Dickey Bayes factors for nested models"}
+Let $M_0$ be properly nested under $M_1$ s.t. $M_0$ fixes $\theta_i = x_i, \dots, \theta_n = x_n$. The Bayes factor $\text{BF}_01$ in favor of $M_0$ over $M_1$ is then given by the ratio of posterior probability to prior probability of the parameters $\theta_i = x_i, \dots, \theta_n = x_n$ from the point of view of the nesting model $M_1$:
+
+$$
+\begin{align*}
+\text{BF}_{01} & = \frac{P(\theta_i = x_i, \dots, \theta_n = x_n \mid D, M_1)}{P(\theta_i = x_i, \dots, \theta_n = x_n \mid M_1)}
+\end{align*}
+$$
+```
+
+
+```{proof}
+Let's assume that $M_0$ has parameters $\theta = \langle\phi, \psi\rangle$ with $\phi = \phi_0$, and that $M_1$ has parameters $\theta = \langle\phi, \psi \rangle$ with $\phi$ free to vary. If $M_0$ is properly nested under $M_1$, we know that $\lim_{\phi \rightarrow \phi_0} P(\psi \mid \phi, M_1) = P(\psi \mid M_0)$. We can then rewrite the marginal likelihood under $M_0$ as follows:
+
+$$ 
+\begin{align*}
+P(D \mid M_0) & = \int P(D \mid \psi, M_0) P(\psi \mid M_0) \ \text{d}\psi
+& \text{[marginalization]}
+\\
+ & = \int P(D \mid \psi, \phi = \phi_0, M_1) P(\psi \mid \phi = \phi_0, M_1)  \ \text{d}\psi
+ & \text{[assumption of nesting]}
+ \\
+ & = P(D \mid \phi = \phi_0, M_1) 
+ & \text{[marginalization]}
+ \\
+ & = \frac{P(\phi = \phi_0 \mid D, M_1) P(D \mid M_1)}{P(\phi = \phi_0 \mid M_1)}
+ & \text{[Bayes rule]}
+\end{align*}
+$$
+
+The result follows if we divide by $P(D \mid M_1)$ on both sides of the equation.
+
+```
+
+&nbsp;
+
+Here is an example, based on the 24/7 data. For a nesting model with a flat prior ($\theta \sim^{M_1} \text{Beta}(1,1)$), and a point hypothesis $\theta^* = 0.5$, we calculate:
+
+```{r}
+# point-value of interest
+theta_star <- 0.5
+# posterior probability in nesting model
+posterior_theta_star <- dbeta(theta_star, 8, 18)
+# prior probability in nesting model
+prior_theta_star <- dbeta(theta_star, 1, 1)
+# Bayes factor (using Savage Dickey)
+BF_01 <- posterior_theta_star / prior_theta_star
+BF_01
+```
+
+This is very minor evidence in favor of the alternative model (Bayes factor $\text{BF}_{10} \approx `r signif(1/BF_01,3)`$). We would not like to draw any (strong) categorical conclusions from this result, regarding the question of whether the coin might be fair. Figure \@ref(fig:ch-03-07-hypothesis-testing-Bayes-SD-24-7) also shows the relation between prior and posterior at the point-value of interest. 
+
+```{r ch-03-07-hypothesis-testing-Bayes-SD-24-7, echo = F, fig.cap = "Illustration of the Savage-Dickey method of Bayes factor computation for the 24/7 case."}
+plotData <- tibble(
+  theta = seq(0.01,1, by = 0.01),
+  posterior = dbeta(theta, 8, 18 ),
+  prior = dbeta(theta, 1, 1)
+)
+plotData = pivot_longer(plotData, cols = c("posterior", "prior"), names_to = "distribution")
+pointData <- data.frame(x = c(0.5,0.5), y = c(dbeta(0.5,8,18),1))
+
+ggplot(plotData, aes(x = theta, y = value, color = distribution)) + xlim(0,1) + geom_line() + ylab("probability") +
+  geom_segment(aes(x = 0.52, y = 0, xend = 0.52, yend = 1), color = "darkgray") +
+  geom_segment(aes(x = 0.48, y = 0, xend = 0.48, yend = dbeta(0.5,8,18)), color = "darkgray") +
+  geom_segment(aes(x = 0.5, y = 1, xend = 0.52, yend = 1), color = "darkgray") +
+  geom_segment(aes(x = 0.5, y = dbeta(0.5,8,18), xend = 0.48, yend = dbeta(0.5,8,18)), color = "darkgray") +
+  annotate("point", x = 0.5, y = 1, color = "black") +
+  annotate("point", x = 0.5, y = dbeta(0.5,8,18), color = "black") + 
+  annotate("text", x = 0.3, y = 0.25, color = "darkgray", label = "P(0.5 | D, M1) = 0.516", size = 3) +
+  annotate("text", x = 0.68, y = 0.75, color = "darkgray", label = "P(0.5 | M1) = 1", size = 3)
+```
+
+
+**T-test using greta an polspline**
+
+## Bayes factors for ROPE-d hypotheses through encompassing models
+
+Suppose that instead of addressing the point-valued hypothesis $\theta = \theta^*$, we are able (e.g., through prior research or *a priori* conceptual considerations) to specify a reasonable *region of practical equivalence (=ROPE)* around the parameter value of interest. We could then address what we may call the **ROPE-d hypothesis** $\theta \in [\theta^* - \epsilon\ ;\ \theta^* + \epsilon]$, or $\theta = \theta^* \pm \epsilon$ for short.
+
+The Savage-Dickey method can be generalized to cover also interval-valued hypotheses in general, and therefore also ROPE-d hypotheses in particular. The previous literature has focused on inequality-based intervals/hypotheses (like $\theta \ge 0.5$) [@KlugkistKato2005:Bayesian-model;@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar]. Here, we show that this method also extends to arbitrary intervals. The advantage of this method is that we can use samples from the posterior distribution to approximate integrals which is more robust than having to estimate point-values of posterior density. 
+
+The main idea, following previous work [@KlugkistKato2005:Bayesian-model;@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar] is to use so-called **encompassing priors**. Let $\theta$ be a single parameter of interest (for simplicity), which can in principle take on any real value. We are interested in the interval-based hypothesess:
+
+- $H_0 \colon \theta \in [a;b]$, and 
+- $H_a \colon \theta \not \in [a;b]$
+
+An **encompassing model** $M_e$ has a suitable likelihood function $P_{M_e}(D \mid \theta, \omega)$ (where $\omega$ is a vector of other parameters, beside the parameter $\theta$ of interest). It also defines a prior $P_{M_e}(\theta, \omega)$, for which crucially:
+
+$$0 < P_{M_e}(\theta, \omega) < 1$$
+
+This latter constraint makes sure that the parameter ranges of $H_0$ and $H_a$ are not ruled out *a priori*.
+
+Generalizing over the Savage-Dickey approach, we construct *two* models, one for each hypothesis, *both* of which are nested under the encompassing model:
+
+- $M_0$ has prior $P_{M_0}(\theta, \omega) = P_{M_e}(\theta, \omega \mid \theta \in [a;b])$
+- $M_a$ has prior $P_{M_0}(\theta, \omega) = P_{M_e}(\theta, \omega \mid \theta \not \in [a;b])$
+
+Both $M_0$ and $M_a$ have the same liklihood function as $M_e$, which is why we drop the model index for readability in the following. 
+
+
+
+**Encompassing Priors**
+
+```{r, echo = F, fig.cap = "Example of the prior of an encompassing model and the priors of two models nested under it."}
+tibble(
+  delta = seq(-3,3,length.out = 1000),
+  encompassing = dnorm(delta)
+) %>%
+  mutate(
+    null = ifelse(-0.1 <= delta & delta <= 0.1,
+                  encompassing, 0),
+    alt  = ifelse(-0.1 >= delta | delta >= 0.1,
+                  encompassing, 0)
+  ) %>%
+  mutate(
+    encompassing = encompassing / sum(encompassing),
+    null = null / sum(null),
+    alt = alt / sum(alt)
+  ) %>%
+  pivot_longer(cols = -delta, names_to = "model", values_to = "density") %>%
+  mutate(model = factor(model, ordered = T, levels = c("encompassing", "null", "alt"))) %>%
+  ggplot(aes(x = delta, y = density)) +
+  geom_line() +
+  geom_area(fill = "lightgray", alpha = 0.6) +
+  facet_wrap(. ~ model, nrow = 3, scales = "free") +
+  labs(
+    x = "", y = ""
+  ) +
+  guides(fill = F) +
+  theme(
+    axis.text.y  = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+```
+
+
+**Theorem statement**
+
+Fix a Bayesian model $M$ with pior $P_M(\theta, \omega)$ and likelihood function $P_M(D \mid \theta, \omega)$, where $\theta$ is the parameter of interest and $\omega$ is a vector of other (nuisance) parameters. Assume that priors over $\theta$ are independent of the nuisance parameters $\omega$. For an interal-valued hypothesis $H_0$ $\theta \in [a,b]$, the Bayes Factor in favor of this hypothesis over its negation $H_a$ $\theta \not \in [a,b]$ can be expressed as:
+
+$$ \text {BF}_{01} = \frac{\text{posterior-odds of } H_0}{\text{prior-odds of } H_0} $$
+
+**Proof**
+
+```{theorem, "BF-ROPED-hypotheses"}
+FILL ME
+
+```
+
+```{proof}
+TBD
+```
+
+### Example (binomial 24/7)
+
+Using the Savage-Dickey method, the Bayes factor in favor of point-valued hypothesis $\theta = 0.5$ is:
+
+```{r}
+bf_point_hypothesis <- dbeta(0.5,8,18) / dunif(0.5, 0, 1)
+bf_point_hypothesis
+```
+
+Using the ROPE-d method to compute the interval-valued hypothesis $\theta = 0.5 \pm \epsilon$ is:
+
+```{r}
+# set the scene
+theta_null <- 0.5
+epsilon <- 0.01          # epsilon margin for ROPE
+upper <- theta_null + epsilon   # upper bound of ROPE
+lower <- theta_null - epsilon   # lower bound of ROPE
+# calculate prior odds of the ROPE-d hypothesis
+prior_of_hypothesis <- qbeta(upper, 1, 1) - qbeta(lower, 1, 1)
+prior_odds <- prior_of_hypothesis / (1 - prior_of_hypothesis)
+# calculate posterior odds of the ROPE-d hypothesis
+posterior_of_hypothesis <- qbeta(upper, 8, 18) - qbeta(lower, 8, 18)
+posterior_odds <- posterior_of_hypothesis / (1 - posterior_of_hypothesis)
+# calculate Bayes Factor
+bf_ROPEd_hypothesis <- posterior_odds / prior_odds
+bf_ROPEd_hypothesis
+```
+
