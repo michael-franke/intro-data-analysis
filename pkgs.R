@@ -19,6 +19,8 @@ library(BSDA)        # for z.test
 library(dirichlet)   # for visualizing dirichlet distribution; 
                      # needs github version, see .travis.yml for that
 
+library(polspline)   # for reliable density estimates at point-values
+
 ## set defaults
 source("theme_ida.R")
 theme_set(
