@@ -14,9 +14,151 @@
 - Savage-Dickey and extension
 
 
-## Nested (Bayesian) models  
+## Data and models for this chapter
 
-Suppose that ther are $n$ continuous parameters of interest $\theta = \langle \theta_1, \dots, \theta_n \rangle$. $M_1$ is a (Bayesian) model defined by $P(\theta \mid M_1)$ & $P(D \mid \theta, M_1)$. Then $M_0$ is <span style = **properly nested** under $M_1$ if:
+### 24/7
+
+We will use the same (old) example of binomial data, $k = 7$ heads out of $N=24$ flips. We are interested in whether the coin is fair, so we address the point-value $\theta = 0.5$. We consider as a ROPE around this value a margin of $\epsilon = 0.01$.
+
+We will use the standard binomial model, just as before, with a flat Beta prior.
+
+**TODO: insert picture of model**
+
+### Eco-sensitivity (fictitious)
+
+Here are two sets of metric measurements. We assume that these are (metric) measurements from a test on **environmental awareness** (whatever that means). The measures are taken from two groups of people. One after watching a political speech by Angela Merkel (Group A), the other after watching a political speech by Donald Trump (Group B). We are interested in whether our experimental manipulation (the type of video) has an effect on the eco-sensitivity measure.
+
+```{r}
+x_A <- c(
+  104, 105, 100, 91, 105, 118, 164, 168, 111, 107, 136, 149, 104, 114, 107, 95, 
+  83, 114, 171, 176, 117, 107, 108, 107, 119, 126, 105, 119, 107, 131
+)
+x_B <- c(
+  133, 115, 84, 79, 127, 103, 109, 128, 127, 107, 94, 95, 90, 118, 124, 108, 
+  87, 111, 96, 89, 106, 121, 99, 86, 115, 136, 114
+)
+```
+
+We are interested in the question of whether the mean eco-sensitivity is different accross groups. Based on descriptive statistics, this might be the case:
+
+```{r}
+c(
+  mean_A = mean(x_A), 
+  mean_C = mean(x_B)
+)
+```
+
+Notice that we have different numbers of measures in each group and that we do not have strong reasons to assume that these groups have the same variance. A Bayesian model for inferences about the likely difference in mean of eco-sensitivty between groups is shown in Figure \@ref(fig:ch-03-06-comparison-t-test-eco). Notice that this model uses priors that are data-aware. This is **not** generally a good choice; especially not if you have prior knowledge to bring to bear on the situation. We do this here, to obtain priors that make fitting (with `greta` maximally painless), but stress that ideally, if prior knowledge exists, priors of the model should encode it.
+
+```{r ch-03-06-comparison-t-test-eco, echo = F, fig.cap="Bayesian T-Test model for inferences about the difference in means in the eco-sensitivity data."}
+knitr::include_graphics("visuals/t-test-model-eco-data.png")
+```
+
+Here is the model from Figure \@ref(fig:ch-03-06-comparison-t-test-eco) implemented in `greta`:
+
+```{r, eval = F}
+# data as greta array
+y0 <- as_data(x_A)
+y1 <- as_data(x_B)
+# priors (regularizing (data-informed) for smooth fitting)
+sd_delta <- sd(c(x_A,x_B))
+mean_0   <- normal(mean(x_A), 10)
+delta    <- normal(0, sd_delta)
+sigma_0  <- normal(sd(x_A), 10, truncation = c(0, Inf))
+sigma_1  <- normal(sd(x_B), 10, truncation = c(0, Inf))
+mean_1   <- mean_0 + delta
+# likelihood 
+distribution(y0) <- normal(mean_0, sigma_0)
+distribution(y1) <- normal(mean_1, sigma_1)
+# model
+m <- model(delta)
+```
+
+Our research question is whether there is a difference in mean between groups. We therefore focus on the point-value $\delta = 0$. We consider a ROPE around this value with $\epsilon = 2$ (completely arbitrary choice, since the data is made-up anyway).
+
+## Testing as posterior estimation
+
+
+
+### Example: 24/7
+
+Repeated from Section \@ref(ch-03-03-estimation-testing):
+
+```{r}
+estimates_24_7 <- tibble(
+  `lower_Bayes` = HDInterval::hdi(function(x) qbeta(x, 8,18))[1],
+  `upper_Bayes` = HDInterval::hdi(function(x) qbeta(x, 8,18))[2],
+) %>% 
+  pivot_longer(
+    everything(),
+    names_pattern = "(.*)_(.*)",
+    names_to = c(".value", "approach")
+  )
+estimates_24_7
+```
+
+Using Lindley's approach we notice that the point-value of interested $\theta = 0.5$ is excluded by the 95% HDI and so reject the idea that the coin is fair as sufficiently unlikely to act as if it was false. 
+Using the ROPE-approach of Kruschke, we notice that our ROPE of $\theta = 0.5 \pm 0.01$ is also fully outside of the 95% HDI. We therefore conclude that the idea that the coin is fair is sufficiently unlikely to act as if it was false.
+
+### Example: Eco-sensitivity
+
+We use `greta` to draw samples from the posterior distribution.
+
+```{r, eval = F}
+# sampling
+draws_t_test_2 <- greta::mcmc(m, n_samples = 4000)
+# cast results (type 'mcmc.list') into tidy tibble
+tidy_draws_tt2 = ggmcmc::ggs(draws_t_test_2)
+```
+
+
+```{r echo = F, eval = T}
+draws_t_test_2 <- readRDS('models_greta/ttest_2_draws.rds')
+tidy_draws_tt2 = ggmcmc::ggs(draws_t_test_2)
+```
+
+We then check the 95% HDI of the posterior.
+
+```{r}
+# get means and 95% HDI
+Bayes_estimates <- tidy_draws %>% 
+  group_by(Parameter) %>%
+  summarise(
+    mean = mean(value),
+    '|95%' = HDInterval::hdi(value)[1],
+    '95|%' = HDInterval::hdi(value)[2]
+  )
+Bayes_estimates
+```
+
+Figure \@ref(fig:ch-03-07-hypothesis-testing-Bayes-tt2-posterior) also shows the posterior distribution and the 95% HDI (in red).
+
+```{r ch-03-07-hypothesis-testing-Bayes-tt2-posterior, echo = F, fig.cap = "Posterior density of $\\delta$ parameter in Bayesian $t$-test model for (fictitious) eco-sensitivity data with the 95% HDI (in red)."}
+dens <- filter(tidy_draws_tt2, Parameter == "delta") %>% pull(value) %>% 
+  density()
+
+tibble(
+  delta = dens$x,
+  density = dens$y
+) %>% 
+  ggplot(aes(x = delta, y = density)) +
+  geom_line() +
+  geom_area(aes(x = ifelse(delta > Bayes_estimates[1,3] %>% as.numeric & delta < Bayes_estimates[1,4] %>% as.numeric , delta, 0)),
+            fill = "firebrick", alpha = 0.5) +
+  ylim(0, max(dens$y)) +
+  xlim(min(dens$x), max(dens$x))
+```
+
+Using Lindley's approach, we'd conclude from the fact that the critical value of $\delta = 0$ is outside the 95% HDI that the idea of group-mean equality is sufficiently unlikely to be practically dismissed. The ROPE $\delta = 0 \pm 2$, however, is neither fully included, nor fully outsde of the 95% HDI. Using Krushke's approach, we therefore withhold judgement.
+
+
+## The Savage-Dickey method
+
+The Savage-Dickey method is a very convenient way of computing Bayes factors for nested models, especially when models only differ with respect to one parameter.
+
+### Nested (Bayesian) models  
+
+Suppose that there are $n$ continuous parameters of interest $\theta = \langle \theta_1, \dots, \theta_n \rangle$. $M_1$ is a (Bayesian) model defined by $P(\theta \mid M_1)$ & $P(D \mid \theta, M_1)$. Then $M_0$ is <span style = **properly nested** under $M_1$ if:
 
 - $M_0$ assigns fixed values to parameters $\theta_i = x_i, \dots, \theta_n = x_n$
 - $P(D \mid \theta_1, \dots, \theta_{i-1}, M_0) = P(D \mid \theta_1, \dots, \theta_{i-1}, \theta_i = x_i, \dots, \theta_n = x_n, M_1)$
@@ -24,7 +166,7 @@ Suppose that ther are $n$ continuous parameters of interest $\theta = \langle \t
 
 Notice that the last condition is satisfied in particular when $M_1$'s prior over $\theta_1, \dots, \theta_{i-1}$ is independent of the values for the ramining parameters.
 
-## The Savage-Dickey method
+### Savage-Dickey theorem
 
 ```{theorem, name = "Savage-Dickey Bayes factors for nested models"}
 Let $M_0$ be properly nested under $M_1$ s.t. $M_0$ fixes $\theta_i = x_i, \dots, \theta_n = x_n$. The Bayes factor $\text{BF}_01$ in favor of $M_0$ over $M_1$ is then given by the ratio of posterior probability to prior probability of the parameters $\theta_i = x_i, \dots, \theta_n = x_n$ from the point of view of the nesting model $M_1$:
@@ -62,6 +204,8 @@ The result follows if we divide by $P(D \mid M_1)$ on both sides of the equation
 
 &nbsp;
 
+### Example: 24/7
+
 Here is an example, based on the 24/7 data. For a nesting model with a flat prior ($\theta \sim^{M_1} \text{Beta}(1,1)$), and a point hypothesis $\theta^* = 0.5$, we calculate:
 
 ```{r}
@@ -98,8 +242,24 @@ ggplot(plotData, aes(x = theta, y = value, color = distribution)) + xlim(0,1) + 
   annotate("text", x = 0.68, y = 0.75, color = "darkgray", label = "P(0.5 | M1) = 1", size = 3)
 ```
 
+### Example: eco-sensitivity
 
-**T-test using greta an polspline**
+To apply the Savage-Dickey method to the eco-sensitivity model, we have to obtain an estimate for the posterior density at the critical value $\delta = 0$ from the posterior samples. An approximate method for obtaining this value is implemented in the `polspline` package (using poly-nomial splines to approximate the posterior curve).
+
+```{r}
+# extract the samples for parameter delta
+delta_samples <- tidy_draws_tt2 %>% 
+  filter(Parameter == "delta") %>% 
+  pull(value)
+# estimating density of posterior at delta = 0 with Savage-Dickey
+fit.posterior <- polspline::logspline(delta_samples)
+posterior_delta_null <- polspline::dlogspline(0, fit.posterior)
+prior_delta_null <- dnorm(0,0,sd_delta) 
+BF_delta_null = posterior_delta_null / prior_delta_null
+BF_delta_null
+```
+
+We conclude from this that there is only very mild (unnoteworthy) evidence in favor of the alternative hypothesis.
 
 ## Bayes factors for ROPE-d hypotheses through encompassing models
 
@@ -179,14 +339,7 @@ FILL ME
 TBD
 ```
 
-### Example (binomial 24/7)
-
-Using the Savage-Dickey method, the Bayes factor in favor of point-valued hypothesis $\theta = 0.5$ is:
-
-```{r}
-bf_point_hypothesis <- dbeta(0.5,8,18) / dunif(0.5, 0, 1)
-bf_point_hypothesis
-```
+### Example: 24/7
 
 Using the ROPE-d method to compute the interval-valued hypothesis $\theta = 0.5 \pm \epsilon$ is:
 
@@ -197,7 +350,7 @@ epsilon <- 0.01          # epsilon margin for ROPE
 upper <- theta_null + epsilon   # upper bound of ROPE
 lower <- theta_null - epsilon   # lower bound of ROPE
 # calculate prior odds of the ROPE-d hypothesis
-prior_of_hypothesis <- qbeta(upper, 1, 1) - qbeta(lower, 1, 1)
+prior_of_hypothesis <- pbeta(upper, 1, 1) - pbeta(lower, 1, 1)
 prior_odds <- prior_of_hypothesis / (1 - prior_of_hypothesis)
 # calculate posterior odds of the ROPE-d hypothesis
 posterior_of_hypothesis <- qbeta(upper, 8, 18) - qbeta(lower, 8, 18)
@@ -207,3 +360,25 @@ bf_ROPEd_hypothesis <- posterior_odds / prior_odds
 bf_ROPEd_hypothesis
 ```
 
+This is mild evidence in favor of the alternative hypothesis (Bayes factor $\text{BF}_{10} \approx `r signif(1/bf_ROPEd_hypothesis,3)`$).
+
+### Example: eco-sensitivity
+
+```{r}
+# estimating BF for ROPE-d hypothesis with encompassing priors
+delta_null <- 0
+epsilon <- 0.25          # epsilon margin for ROPE
+upper <- delta_null + epsilon   # upper bound of ROPE
+lower <- delta_null - epsilon   # lower bound of ROPE
+# calculate prior odds of the ROPE-d hypothesis
+prior_of_hypothesis <- pnorm(upper, 0, sd_delta) - pnorm(lower, 0, sd_delta)
+prior_odds <- prior_of_hypothesis / (1 - prior_of_hypothesis)
+# calculate posterior odds of the ROPE-d hypothesis
+posterior_of_hypothesis <- mean( lower <= delta_samples & delta_samples <= upper )
+posterior_odds <- posterior_of_hypothesis / (1 - posterior_of_hypothesis)
+# calculate Bayes Factor
+bf_ROPEd_hypothesis <- posterior_odds / prior_odds
+bf_ROPEd_hypothesis
+```
+
+This is only minor evidence in favor of the alternative hypothesis (Bayes factor $\text{BF}_{10} \approx `r signif(1/bf_ROPEd_hypothesis,3)`$).
