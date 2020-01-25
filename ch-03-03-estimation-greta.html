@@ -580,22 +580,36 @@ Figure 9.10: Posterior over coin bias <span class="math inline">\(\theta\)</span
 </div>
 <p>We will use the <a href="app-93-data-sets-mental-chronometry">Mental Chronometry</a> data to compare the reaction times in the “go/No-go” condition to the reaction times in the “discrimination” condition. To do this, we implement a T-Test model by hand in <code>greta</code>.</p>
 <p>First we read in the data and get some handy summary statistics:</p>
-<div class="sourceCode" id="cb375"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb375-1" data-line-number="1">mc_data_cleaned &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&#39;data_sets/mental-chrono-data_cleaned.csv&#39;</span>)</a>
-<a class="sourceLine" id="cb375-2" data-line-number="2">means_and_diffs &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb375-3" data-line-number="3">mc_data_cleaned <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb375-4" data-line-number="4"><span class="st">  </span><span class="kw">filter</span>(block <span class="op">!=</span><span class="st"> &quot;reaction&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb375-5" data-line-number="5"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb375-6" data-line-number="6"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb375-7" data-line-number="7">    <span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT)</a>
-<a class="sourceLine" id="cb375-8" data-line-number="8">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb375-9" data-line-number="9"><span class="st">  </span><span class="kw">pivot_wider</span>(</a>
-<a class="sourceLine" id="cb375-10" data-line-number="10">    <span class="dt">names_from =</span> block,</a>
-<a class="sourceLine" id="cb375-11" data-line-number="11">    <span class="dt">values_from =</span> mean_RT</a>
-<a class="sourceLine" id="cb375-12" data-line-number="12">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb375-13" data-line-number="13"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb375-14" data-line-number="14">    <span class="st">`</span><span class="dt">discr - gng</span><span class="st">`</span> =<span class="st"> </span>discrimination <span class="op">-</span><span class="st"> </span>goNoGo</a>
-<a class="sourceLine" id="cb375-15" data-line-number="15">  )</a>
-<a class="sourceLine" id="cb375-16" data-line-number="16">means_and_diffs</a></code></pre></div>
+<div class="sourceCode" id="cb375"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb375-1" data-line-number="1">mc_data_cleaned &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&#39;data_sets/mental-chrono-data_cleaned.csv&#39;</span>,</a>
+<a class="sourceLine" id="cb375-2" data-line-number="2">                            <span class="dt">col_types =</span> <span class="kw">cols</span>(</a>
+<a class="sourceLine" id="cb375-3" data-line-number="3">                              <span class="dt">submission_id =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb375-4" data-line-number="4">                              <span class="dt">trial_number =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb375-5" data-line-number="5">                              <span class="dt">block =</span> <span class="kw">col_character</span>(),</a>
+<a class="sourceLine" id="cb375-6" data-line-number="6">                              <span class="dt">stimulus =</span> <span class="kw">col_character</span>(),</a>
+<a class="sourceLine" id="cb375-7" data-line-number="7">                              <span class="dt">RT =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb375-8" data-line-number="8">                              <span class="dt">handedness =</span> <span class="kw">col_character</span>(),</a>
+<a class="sourceLine" id="cb375-9" data-line-number="9">                              <span class="dt">gender =</span> <span class="kw">col_character</span>(),</a>
+<a class="sourceLine" id="cb375-10" data-line-number="10">                              <span class="dt">total_time_spent =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb375-11" data-line-number="11">                              <span class="dt">comments =</span> <span class="kw">col_character</span>(),</a>
+<a class="sourceLine" id="cb375-12" data-line-number="12">                              <span class="dt">mean_C =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb375-13" data-line-number="13">                              <span class="dt">sd_C =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb375-14" data-line-number="14">                              <span class="dt">trial_type =</span> <span class="kw">col_character</span>(),</a>
+<a class="sourceLine" id="cb375-15" data-line-number="15">                              <span class="dt">trial =</span> <span class="kw">col_double</span>()</a>
+<a class="sourceLine" id="cb375-16" data-line-number="16">                            ))</a>
+<a class="sourceLine" id="cb375-17" data-line-number="17">means_and_diffs &lt;-<span class="st"> </span>mc_data_cleaned <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb375-18" data-line-number="18"><span class="st">  </span><span class="kw">filter</span>(block <span class="op">!=</span><span class="st"> &quot;reaction&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb375-19" data-line-number="19"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb375-20" data-line-number="20"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb375-21" data-line-number="21">    <span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT)</a>
+<a class="sourceLine" id="cb375-22" data-line-number="22">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb375-23" data-line-number="23"><span class="st">  </span><span class="kw">pivot_wider</span>(</a>
+<a class="sourceLine" id="cb375-24" data-line-number="24">    <span class="dt">names_from =</span> block,</a>
+<a class="sourceLine" id="cb375-25" data-line-number="25">    <span class="dt">values_from =</span> mean_RT</a>
+<a class="sourceLine" id="cb375-26" data-line-number="26">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb375-27" data-line-number="27"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb375-28" data-line-number="28">    <span class="st">`</span><span class="dt">discr - gng</span><span class="st">`</span> =<span class="st"> </span>discrimination <span class="op">-</span><span class="st"> </span>goNoGo</a>
+<a class="sourceLine" id="cb375-29" data-line-number="29">  )</a>
+<a class="sourceLine" id="cb375-30" data-line-number="30">means_and_diffs</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 3
 ##   discrimination goNoGo `discr - gng`
 ##            &lt;dbl&gt;  &lt;dbl&gt;         &lt;dbl&gt;
