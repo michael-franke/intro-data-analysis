@@ -21,19 +21,19 @@ The learning goals for this chapter are:
 
 - become able to compute counts and frequencies for categorical data
 - understand and be able to compute summary statistics for one-dimensional metric data:
-  - measures of central tendency
-    - mean/mode/median/
-  - measures of dispersion
-    - variance, standard deviation, quantiles
-  - non-parametric estimates of confidence
-    - bootstraped CI of mean
+- measures of central tendency
+- mean/mode/median/
+- measures of dispersion
+- variance, standard deviation, quantiles
+- non-parametric estimates of confidence
+- bootstraped CI of mean
 - understand and be able to compute for two-dimensional metric data:
-  - covariance
-  - Bravais-Pearson correlation
+- covariance
+- Bravais-Pearson correlation
 ```
 
 
-  
+
 
 ## Counts and proportions {#Chap-02-03-summary-statistics-counts}
 
@@ -50,7 +50,12 @@ We load the preprocessed data immediately (Appendix Chapter \@ref(app-93-data-se
 <!-- TODO uniform convention 'data' first? or source identifier first? -->
 
 ```{r echo = F}
-data_BLJM_processed <- read_csv("data_sets/bio-logic-jazz-metal-data-processed.csv")
+data_BLJM_processed <- read_csv("data_sets/bio-logic-jazz-metal-data-processed.csv",
+                                col_types = cols(
+                                  submission_id = col_double(),
+                                  condition = col_character(),
+                                  response = col_character()
+                                ))
 ```
 
 ```{r, eval = F}
@@ -150,7 +155,7 @@ BLJM_associated_counts %>%
 
 This section will look at two types of summary statistics: measures of central tendency and measures of dispersion.
 
- **Measures of central tendency** map a vector of observations onto a single number that represents, roughly put, "the center". Since what counts as a "center" is ambiguous, there are several measures of central tendencies. Different measures of central tendencies can be more or less adequate for one purpose or another. The type of variable (nominal, ordinal or metric, for instance) will also influence the choice of measure. We will visit three prominent measures of central tendency here: *(arithmetic) mean*, *median* and *mode*.
+**Measures of central tendency** map a vector of observations onto a single number that represents, roughly put, "the center". Since what counts as a "center" is ambiguous, there are several measures of central tendencies. Different measures of central tendencies can be more or less adequate for one purpose or another. The type of variable (nominal, ordinal or metric, for instance) will also influence the choice of measure. We will visit three prominent measures of central tendency here: *(arithmetic) mean*, *median* and *mode*.
 
 **Measures of dispersion** indicate how much the observations are spread out around, let's say, "a center". We will visit three prominent measures of dispersion: the *variance*, the *standard deviation* and *quantiles*. 
 
@@ -195,7 +200,23 @@ In the remainder of this chapter we will use the [avocado data set](#app-93-data
 We load the data into a variable named `avocado_data` but also immediately rename some of the columns to have more convenient handles (see also Appendix Chapter \@ref(app-93-data-sets-avocado)):
 
 ```{r, echo = F}
-avocado_data <- read_csv('data_sets/avocado.csv') %>% 
+avocado_data <- read_csv('data_sets/avocado.csv', 
+                         col_types = cols(
+                           X1 = col_double(),
+                           Date = col_date(format = ""),
+                           AveragePrice = col_double(),
+                           `Total Volume` = col_double(),
+                           `4046` = col_double(),
+                           `4225` = col_double(),
+                           `4770` = col_double(),
+                           `Total Bags` = col_double(),
+                           `Small Bags` = col_double(),
+                           `Large Bags` = col_double(),
+                           `XLarge Bags` = col_double(),
+                           type = col_character(),
+                           year = col_double(),
+                           region = col_character()
+                         )) %>% 
   # remove currently irrelevant columns
   select( -X1 , - contains("Bags"), - year, - region) %>% 
   # rename variables of interest for convenience
@@ -256,18 +277,18 @@ tibble(x = c(0, 3, 6, 7 ), mean = mean(x)) %>%
   ylim(-0.1,0.1) +
   ylab('') + xlab('') +
   geom_point() + 
-    theme(
-      axis.title.y = element_blank(),
-      axis.text.y  = element_blank(),
-      axis.ticks.y = element_blank(),
-      panel.grid.major.y = element_blank(),
-      panel.grid.minor.y = element_blank(),
-      panel.border = element_blank(),
-      panel.background = element_blank()
-    ) +
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y  = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank()
+  ) +
   geom_point(aes(x = mean, y = 0), color = "firebrick", shape = "X", size = 5) +
   scale_x_continuous(breaks=seq(0, 7, 1))
-  
+
 
 
 ```
@@ -288,11 +309,11 @@ Unsurprsingly, the overal mean of the observed prices is (numerically) higher fo
 
 ```{block2, type='infobox'}
 <div style = "float:right; width:20%;">
-<img src="visuals/fool.png" alt="kid-fool">
-</div>
-**Excursion.** It is also possible to conceptualize the arithmetic mean as the **expected value** when sampling from the observed data. This is useful for linking the mean of a data sample to the expected value of a random variable, a concept we will introduce in Chapter \@ref(Chap-03-01-probability). Suppose you have gathered the data $\vec{x} = \langle 0, 3, 6, 7\rangle$. What is the expected value that you think you will obtain if you sample from this data vector once? -- Wait! What does that even mean? Expected value? Sampling once?
+  <img src="visuals/fool.png" alt="kid-fool">
+  </div>
+  **Excursion.** It is also possible to conceptualize the arithmetic mean as the **expected value** when sampling from the observed data. This is useful for linking the mean of a data sample to the expected value of a random variable, a concept we will introduce in Chapter \@ref(Chap-03-01-probability). Suppose you have gathered the data $\vec{x} = \langle 0, 3, 6, 7\rangle$. What is the expected value that you think you will obtain if you sample from this data vector once? -- Wait! What does that even mean? Expected value? Sampling once?
   
-Suppose that some joker from around town invites you for a game. The game goes like this. The joker puts a ball in an urn, one for each data observation. The joker writes the observed value on the ball corresponding to that value. You pay the joker a certain amount of money to be allowed to draw one ball from the urn. The balls are indistinguishable and the process of drawing is entirely fair. You receive the number corresponding the ball you drew paid out in silver coins. (For simplicity, we assume that all numbers are non-negative, but that is not crucial. If a negative number is drawn, you just have to pay the joker that amount.)
+  Suppose that some joker from around town invites you for a game. The game goes like this. The joker puts a ball in an urn, one for each data observation. The joker writes the observed value on the ball corresponding to that value. You pay the joker a certain amount of money to be allowed to draw one ball from the urn. The balls are indistinguishable and the process of drawing is entirely fair. You receive the number corresponding the ball you drew paid out in silver coins. (For simplicity, we assume that all numbers are non-negative, but that is not crucial. If a negative number is drawn, you just have to pay the joker that amount.)
 
 How many silver coins would you maximally pay to play one round? Well, of course, no more than four (unless you value gaming on top of silver)! This is because 4 is the expected value of drawing once. This, in turn, is because every ball has a chance of $0.25$ of being drawn. So you can expect to earn 0 silver with a 25% chance, 3 with a 25% chance, 6 with a 25% chance and 7 with a 25% chance. In this sense, the mean is the expected value of sampling once from the observed data.
 ```
@@ -310,19 +331,19 @@ tibble(x = c(0, 3, 6, 7 ), mean = mean(x), median = median(x)) %>%
   ylim(-0.1,0.1) +
   ylab('') + xlab('') +
   geom_point() + 
-    theme(
-      axis.title.y = element_blank(),
-      axis.text.y  = element_blank(),
-      axis.ticks.y = element_blank(),
-      panel.grid.major.y = element_blank(),
-      panel.grid.minor.y = element_blank(),
-      panel.border = element_blank(),
-      panel.background = element_blank()
-    ) +
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y  = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank()
+  ) +
   geom_point(aes(x = mean, y = 0), color = "firebrick", shape = "X", size = 5) +
   geom_point(aes(x = median, y = 0), color = "skyblue", shape = "O", size = 5) +
   scale_x_continuous(breaks=seq(0, 7, 1))
-  
+
 
 
 ```
@@ -487,11 +508,11 @@ Here is a convenience function that we will use throughout the book to produce b
 ## for the mean, based on `n_resamples` re-samples (default: 1000)
 bootstrapped_CI <-  function(data_vector, n_resamples = 1000) {
   resampled_means <- map_dbl(1:n_resamples, function(i) {
-       mean(sample(x = data_vector, 
-                   size = length(data_vector), 
-                   replace = T)
-       )
-    }
+    mean(sample(x = data_vector, 
+                size = length(data_vector), 
+                replace = T)
+    )
+  }
   )
   tibble(
     'lower' = quantile(resampled_means, 0.025),

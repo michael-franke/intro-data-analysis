@@ -112,7 +112,23 @@ $$ P_M(k = i) = \frac{1}{11} \text{; for all } \ i \in \{0, 1, \dots, 10\} $$
 We must also consider a slightly less minimalist example. The [avocado data set](#app-93-data-sets-avocado) is useful for that. As before, we load the data into a variable named `avocado_data` and do some minor data wrangling (see also Appendix Chapter \@ref(app-93-data-sets-avocado)):
 
 ```{r, echo = F}
-avocado_data <- read_csv('data_sets/avocado.csv') %>% 
+avocado_data <- read_csv('data_sets/avocado.csv',
+                         col_types = cols(
+                           X1 = col_double(),
+                           Date = col_date(format = ""),
+                           AveragePrice = col_double(),
+                           `Total Volume` = col_double(),
+                           `4046` = col_double(),
+                           `4225` = col_double(),
+                           `4770` = col_double(),
+                           `Total Bags` = col_double(),
+                           `Small Bags` = col_double(),
+                           `Large Bags` = col_double(),
+                           `XLarge Bags` = col_double(),
+                           type = col_character(),
+                           year = col_double(),
+                           region = col_character()
+                         )) %>% 
   # remove currently irrelevant columns
   select( -X1 , - contains("Bags"), - year, - region) %>% 
   # rename variables of interest for convenience
@@ -991,7 +1007,22 @@ knitr::include_graphics("visuals/linear-regression-with-groups.png")
 Statistical estimation is used to address research questions of interest. In common practice, these research questions are most often spelled out as specific hypotheses about the values of parameters in a statistical model. Take the case of the [mental chronometry data](app-93-data-sets-mental-chronometry). Figure \@ref(fig:ch03-02-models-mc-density) shows the distribution of reaction times for different conditions (= blocks) in the experiment. An obvious research question of interest is whether discrimination takes longer than 'go/no-go' responses. We can map this onto a T-Test Model, for example, by focusing on the data from these two conditions only, and asking whether the value of the $\delta$ parameter is equal to zero.
 
 ```{r ch03-02-models-mc-density, echo = F, fig.cap = "Density plots of the reaction times in the cleaned [mental chronometry data](app-93-data-sets-mental-chronometry) for each type of response measure taken."}
-mc_data_cleaned <- read_csv('data_sets/mental-chrono-data_cleaned.csv')
+mc_data_cleaned <- read_csv('data_sets/mental-chrono-data_cleaned.csv',
+                            col_types = cols(
+                              submission_id = col_double(),
+                              trial_number = col_double(),
+                              block = col_character(),
+                              stimulus = col_character(),
+                              RT = col_double(),
+                              handedness = col_character(),
+                              gender = col_character(),
+                              total_time_spent = col_double(),
+                              comments = col_character(),
+                              mean_C = col_double(),
+                              sd_C = col_double(),
+                              trial_type = col_character(),
+                              trial = col_double()
+                            ))
 mc_data_cleaned %>% 
   ggplot(aes(x = RT, color = block, fill = block)) +
   geom_density(alpha = 0.3)
