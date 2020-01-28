@@ -69,7 +69,7 @@ murder_data %>%
 
 ### Prediction without any further information
 
-If we knew all observed murder rates and if were to predict the murder rate of a random city so that we had no further information about that city, our best guess would be the mean of the observed values, because this is what minimizes (on average) the distance to the observed murder rates. 
+Suppose we knew all observed murder rates. If we then wanted to predict the murder rate of a random city , but had no further information about that city, our best guess would be the mean of the observed murder rates, because this is what minimizes (on average) the distance to the observed murder rates. 
 
 The plot below visualizes the prediction we make by this naive approach. The black dots show the data points, the red line shows the prediction we make (the mean murder rate), the small hollow dots show the specific predictions for each observed value $x_i$ and the gray lines show the distance between our prediction and the actual data observation.
 
@@ -95,7 +95,7 @@ murder_data %>%
   ) 
 ```
 
-The mean distance could be captured in terms of the **sum of squares** like this, where $y$ is the $n$-placed vector observed murder rates and $\bar{y}$ is its mean:
+The mean distance could be captured in terms of the **total sum of squares** like this, where $y$ is the $n$-placed vector observed murder rates and $\bar{y}$ is its mean:
 
 $$
 \text{TSS} = \sum_{i=1}^n (y_i - \bar{y})^2
@@ -142,35 +142,41 @@ murder_data %>%
 
 ```
 
-We can again quantify our prediction error in terms of the sum of squares like we did before. Here is how:
+We can again quantify our prediction error in terms of a sum of squares like we did before. For the case of a prediction vector $\hat{y}$, the quantity in question is called **residual sum of squares**.
+
+$$
+\text{RSS} = \sum_{i=1}^n (y_i - \hat{y})^2
+$$
+
+Here is how we can calculate RSS in R:
 
 ```{r}
 y <- murder_data %>% pull(murder_rate)
 x <- murder_data %>% pull(unemployment)
 predicted_y <- 2 * x + 4
 n <- length(y)
-tss_guesswork <- sum((y - predicted_y)^2)
-tss_guesswork
+rss_guesswork <- sum((y - predicted_y)^2)
+rss_guesswork
 ```
 
-Compared to the previous prediction, which was based on the mean of $y$ only, this linear function reduces the prediction error (measured here geometrically in terms of a sum of squares).
+Compared to the previous prediction, which was based on the mean $\bar{y}$ only, this linear function reduces the prediction error (measured here geometrically in terms of a sum of squares).
 
 ### Simple linear regression: general problem formulation
 
 Suppose we have $k$ predictor variables $x_1, \dots , x_k$ and dependent variable $y$. 
-We consider the simple linear relation (where the bar on top of vector $y$ symbolizes that this is a vector of predictions): 
+We consider the simple linear relation (where the hat on top of vector $y$ symbolizes that this is a vector of predictions): 
 
-$$ \bar{y}_i = \beta_0 + \beta_1 x_{1i} + \dots + \beta_k x_{ki}$$
+$$ \hat{y}_i = \beta_0 + \beta_1 x_{1i} + \dots + \beta_k x_{ki}$$
 
 The parameters $\beta_0, \beta_1, \dots, \beta_k$ of this equation are called **regression coefficients**. In particular, $\beta_0$ is called the **regression intercept** and $\beta_1, \dots, \beta_k$ are **regression slope coefficients**. 
-Based on the predictions of a parameter vector $\langle \hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k\rangle$, we consider the total sum of squares as a measure of prediction error:
+Based on the predictions of a parameter vector $\langle \hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k\rangle$, we consider the residual sum of squares as a measure of prediction error:
 
-$$\text{TSS}_{\langle \hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k\rangle} = \sum_{i = 1}^k (y_i - \bar{y}_i)^2 $$
+$$\text{RSS}_{\langle {\beta}_0, {\beta}_1, \dots, {\beta}_k\rangle} = \sum_{i = 1}^k (y_i - \hat{y}_i)^2 $$
 
-We would like to find the best parameter values (denoted traditionally by a hat on the parameter's variable: $\hat{\beta}_i$) in the sense of minimizing the total sum of squares:
+We would like to find the best parameter values (denoted traditionally by a hat on the parameter's variable: $\hat{\beta}_i$) in the sense of minimizing the residual sum of squares:
 
 $$
-\langle \hat{\beta}_0, \hat{\beta}_1, \dots  , \hat{\beta}_k\rangle = \arg \min_{\langle \beta_0, \beta_1, \dots, \beta_k\rangle} \text{TSS}_{\langle \hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k\rangle}
+\langle \hat{\beta}_0, \hat{\beta}_1, \dots  , \hat{\beta}_k\rangle = \arg \min_{\langle \beta_0, \beta_1, \dots, \beta_k\rangle} \text{RSS}_{\langle {\beta}_0, {\beta}_1, \dots, {\beta}_k\rangle}
 $$
 
 
@@ -209,9 +215,11 @@ tss_best <- sum((y - predicted_y)^2)
 tss_best
 ```
 
-The next section will explain how we find these best-fitting parameter values.
+The next section will explain how we find best-fitting parameter values in the sense above.
 
 ## Ordinary least-squares regression
+
+This section looks at different ways of finding values for regression coefficients that minimize the residual sum of squares.
 
 ### Finding optimal parameters with `optim`
 
@@ -222,31 +230,29 @@ We can use the `optim` function to find the best-fitting parameter values for a 
 y <- murder_data %>% pull(murder_rate)
 # data to use for prediction / explanation
 x <- murder_data %>% pull(unemployment)
-
-# function to calculate total sum of squares
-get_tss = function(y, x, beta_0, beta_1) {
+# function to calculate residual sum of squares
+get_rss = function(y, x, beta_0, beta_1) {
   yPred = beta_0 + x * beta_1
   sum((y-yPred)^2) 
 }
-
 # finding best-fitting values for TSS
-fit_tss = optim(par = c(0, 1), 
+fit_rss = optim(par = c(0, 1), 
   fn = function(par) {
-    get_tss(y, x, par[1], par[2])
+    get_rss(y, x, par[1], par[2])
   }
 )
-
+# output the results
 message(
   "Best fitting parameter values:",
-  "\n\tIntercept: ", fit_tss$par[1] %>% signif(5),
-  "\n\tSlope: ", fit_tss$par[2] %>%  signif(5),
-  "\nTSS for best fit: ", fit_tss$value %>% signif(5)
+  "\n\tIntercept: ", fit_rss$par[1] %>% signif(5),
+  "\n\tSlope: ", fit_rss$par[2] %>%  signif(5),
+  "\nRSS for best fit: ", fit_rss$value %>% signif(5)
 )
 ```
 
 ### Fitting OLS regression lines with `lm`
 
-R also has a built-in function `lm` which fits (simple) linear regression models via TSS minimization. Here is how you call this function for the running example:
+R also has a built-in function `lm` which fits (simple) linear regression models via RSS minimization. Here is how you call this function for the running example:
 
 ```{r}
 # fit an OLS regression
@@ -256,22 +262,228 @@ fit_lm <- lm(
   # we also need to say where the data (columns) should come from
   data = murder_data
 )
-
 # output the fitted object
 fit_lm
 ```
 
-The output of the fitted object shows the best-fitting values (compare them to what we obtained by hand). It also shows the function call by which this fit was obtained. There is more information in the object `fit_lm` and we will return to this later when we consider hypothesis testing on regression coefficients.
+The output of the fitted object shows the best-fitting values (compare them to what we obtained by hand). It also shows the function call by which this fit was obtained. There is more information in the object `fit_lm` and we will return to this later when we consider hypothesis testing on regression coefficients. But it might be interesting to take a quick preview already:
+
+```{r}
+summary(fit_lm)
+```
+
 
 
 ### Finding optimal parameter values with math
 
+It is also possible to determine the OLS-fits by a mathematical derivation. 
+
+```{theorem, "OLS-Solution", name = "OLS solution"}
+For a simple linear regression model with just one predictor, the solution for:
+
+$$\arg \min_{\langle \beta_0, \beta_1\rangle} \sum_{i = 1}^k (y_i - (\beta_0 + \beta_1 x_{i}))^2$$
+  
+is given by:
+  
+$$
+\begin{aligned}
+\hat{\beta_1} &= \frac{Cov(x,y)}{Var(x)} & 
+\hat{\beta_0} &= \bar{y} - \hat{\beta}_1 \bar{x} 
+\end{aligned}
+$$
+
+```
+
+```{proof}
+TBD
+```
+
+&nbsp;
+
+Let's use these formulas to calculate regression coefficients for the running example as well:
+
+```{r}
+tibble(
+  beta_1 = cov(x,y) / var(x),
+  beta_0 = mean(y) - beta_1 * mean(x)
+)
+```
+
+A similar result exists also for regression with more than one predictor variable. This explains why the computation of best-fitting regression coefficients with a built-in function like `lm` is lightning fast (as compared to using `optim` or a Bayesian approach which relies on MCMC sampling).
 
 ## A maximum-likelihood approach
 
+In order to be able to extend regression modeling to predictor variables other than metric variables (so-called generalized linear regression models), the geometric approach needs to be abandoned in favor of a likelihood-based approach. 
+
+There are two equivalent formulation of a (simple) linear regression model, using a likelihood-based approach. The first is more explicit, showing clearly that the model assumes that for each observation $y_i$, the model assumes an error term $\eps_i$, which is an iid sample from a Normal distribution. (Notice that the likelihood-based model assumes an additional parameter $\sigma$, the standard deviation of the error terms.)
+
+$$ 
+\mathbf{\text{likelihood-based regression}} \\
+\mathbf{\text{[explicit version]}}\\
+\begin{align*}
+y_{\text{pred}} & = \beta_0 + \beta_1 x  \\
+y_i & = y_{\text{pred}} + \epsilon_i \\
+\epsilon_i & \sim \text{Normal}(0, \sigma)  \\
+\end{align*}
+$$
+
+The second, equivalent version of this writes this more compactly, suppressing the explicit mentioning of iid error terms:
+
+$$ 
+\mathbf{\text{likelihood-based regression}} \\
+\mathbf{\text{[compact version]}} \\
+\begin{align*}
+y_{\text{pred}} & = \beta_0 + \beta_1 x  \\
+y & \sim \text{Normal}(\mu = y_{\text{pred}}, \sigma)
+\end{align*}
+$$
+
+We can use `optim` to find maximum likelihood estimates:
+
+```{r}
+# data to be explained / predicted
+y <- murder_data %>% pull(murder_rate)
+# data to use for prediction / explanation
+x <- murder_data %>% pull(unemployment)
+# function to calculate negative log-likelihood
+get_nll = function(y, x, beta_0, beta_1, sd) {
+  if (sd <= 0) {return( Inf )}
+  yPred = beta_0 + x * beta_1
+  nll = -dnorm(y, mean=yPred, sd=sd, log = T)
+  sum(nll)
+}
+# finding MLE
+fit_lh = optim(par = c(0, 1, 1), 
+  fn = function(par) {
+    get_nll(y, x, par[1], par[2], par[3])
+  }
+)
+# output the results
+message(
+  "Best fitting parameter values:",
+  "\n\tIntercept: ", fit_lh$par[1] %>% signif(5),
+  "\n\tSlope: ", fit_lh$par[2] %>%  signif(5),
+  "\nNegative log-likelihood for best fit: ", fit_lh$value %>% signif(5)
+)
+```
+
+It is no coincidence that these fitted values are (modulo number imprecision) the same as for the geometric OLS approach.
+
+```{theorem, "MLE-Solution", name = "MLE solution"}
+For a simple linear regression model with just one predictor, the solution for:
+
+$$\arg \max_{\langle \beta_0, \beta_1, \sigma \rangle} \prod_{i = 1}^k \text{Normal}(\mu = \beta_0 + \beta_1 x_{i}, \sigma)$$
+  
+is the same as for the OLS approach:
+  
+$$
+\begin{aligned}
+\hat{\beta_1} &= \frac{Cov(x,y)}{Var(x)} & 
+\hat{\beta_0} &= \bar{y} - \hat{\beta}_1 \bar{x} 
+\end{aligned}
+$$
+
+```
+
+```{proof}
+TBD
+```
+
+&nbsp;
+
+The equivalence also extends to cases with more than one explanatory variable.
+
+R also has a built-in way of approaching simple linear regression wiith a maximum-likelihood approach, namely by using the function `glm` (generalized linear model). Notice that the output looks slightly different from that of `lm`.
+
+```{r}
+fit_glm <- glm(murder_rate ~ unemployment, data = murder_data)
+fit_glm
+```
+
+We might also risk a peek at the summary of `fit_glm`:
+
+```{r}
+summary(fit_glm)
+```
+
 ## A Bayesian approach
 
+A Bayesian model for (simple) linear regression looks very much like the previous likelihood-based model, just that it also adds prior information. We have already seen a Bayesian linear regression model in Chapter \@ref(Chap-03-03-models-examples-linear-regression). It is repeated here in Figure \@ref(fig:ch-04-01-Simple-Linear-Regression-repeated).
+
+```{r ch-04-01-Simple-Linear-Regression-repeated, echo = F, out.width = '80%', fig.cap="Bayesian Simple Linear Regression Model (repeated from before)."}
+knitr::include_graphics("visuals/linear-regression-model.png")
+```
+
+Here is an implementation of a Bayesian regression model for the running example murder data using `greta`:
+
+```{r}
+# data to be explained / predicted
+y <- murder_data %>% pull(murder_rate)
+# data to use for prediction / explanation
+x <- murder_data %>% pull(unemployment)
+y_greta     <- as_data(y)
+x_greta     <- as_data(x)
+# latent variables and priors
+intercept <- student(df= 1, mu = 0, sigma = 10)
+slope     <- student(df= 1, mu = 0, sigma = 10)
+sigma     <- normal(0, 5, truncation = c(0, Inf))
+# derived latent variable (linear model)
+y_pred <- intercept + slope * x_greta
+# likelihood 
+distribution(y) <- normal(y_pred, sigma)
+# finalize model, register which parameters to monitor
+murder_model <- model(intercept, slope, sigma)
+```
+
+We can draw samples from the posterior distribution as usual:
+
+```{r, eval = F}
+# draw samples
+draws_murder_data <- greta::mcmc(
+  murder_model, 
+  n_samples = 2000, 
+  chains = 4, 
+  warmup = 1000
+)
+# cast results (type 'mcmc.list') into tidy tibble
+tidy_draws_murder_data <- ggmcmc::ggs(draws_murder_data)
+```
+
+
+```{r echo = F, eval = T}
+draws_murder_data <- readRDS('models_greta/linear_regression_simple_murder_draws.rds')
+tidy_draws_murder_data <- ggmcmc::ggs(draws_murder_data)
+```
+
+Here is a plot of the posterior:
+
+```{r}
+# plot posterior
+tidy_draws_murder_data %>% 
+  ggplot(aes(x = value)) +
+  geom_density(fill = "lightgray", alpha = 0.5) +
+  facet_wrap(~ Parameter, scales = "free")
+```
+
+
 ## Testing coefficients
+
+### Bayesian approach
+
+```{r}
+# get means and 95% HDI
+Bayes_estimates <- tidy_draws_murder_data %>% 
+  group_by(Parameter) %>%
+  summarise(
+    mean = mean(value),
+    '|95%' = HDInterval::hdi(value)[1],
+    '95|%' = HDInterval::hdi(value)[2]
+  )
+Bayes_estimates
+```
+
+
+### Frequentist approach
 
 Figure \@ref(fig:Chap-04-01-simple-linear-regression-frequentist-coefficient-testing) shows a frequentist model for testing the hypotheses that the regression coefficients are equal to zero.
 
@@ -279,489 +491,529 @@ Figure \@ref(fig:Chap-04-01-simple-linear-regression-frequentist-coefficient-tes
 knitr::include_graphics("visuals/linear-regression-model-frequentist.png")
 ```
 
+We use this model to compute the test statics for the obsered data:
 
-## Snippets
+```{r}
+# observed data
+y_obs <- murder_data %>% pull(murder_rate)
+x_obs <- murder_data %>% pull(unemployment)
+n_obs <- length(y_obs)
+# best-fitting coefficients
+beta_1_hat <- cov(x_obs, y_obs) / var(x_obs)
+beta_0_hat <- mean(y_obs) - beta_1_hat * mean(x_obs)
+# calculating t-scores
+MSE <- sum((y_obs - beta_0_hat - beta_1_hat * x_obs)^2) / (n_obs-2) 
+S_xx <- sum((x_obs - mean(x_obs))^2)
+SE_beta_1_hat <- sqrt(MSE  / S_xx)
+SE_beta_0_hat <- sqrt(MSE * (1/n_obs + mean(x_obs)^2 / S_xx))
+t_slope = (beta_1_hat) / SE_beta_1_hat
+t_intercept = beta_0_hat / SE_beta_0_hat
+tibble(t_slope, t_intercept)
+```
 
-### Preliminaries
+Calculate $p$-values (two sided!) for both of these values:
 
-<div class = "grey">
-- *data* for simple linear regression:
-    - single dependent variable $y$ with observed data points $i: y_1,..., y_n$
-    - $k$ predictor variables $x_1, ..., x_k$ and observations $x_{j1}, ..., x_{jn}$ for each $x_j$
-- we consider a *regression model*:
-    - $y_i \sim Normal(\beta_0 + \beta_1 x_{1i} + ... + \beta_k x_{ki}, \sigma)$
-    - $\beta_j$ and $\sigma$ are free parameters, as usual
-- further notation:
-    - $\bar{y} = \frac{1}{n} \sum_{i=1}^n y_i$    -   the mean of data observations 
-    - $\hat{y}_i = \hat{\beta_0} + \hat{\beta_1} x_1i + ... + \hat{\beta_k} x_{ki}$ - prediction for i-th data point for best fitting parameter values
-</div>
+```{r}
+p_value_intercept = pt(t_intercept, df = n_obs -2) + 1-pt(-t_intercept, df = n_obs -2)
+p_value_slope     = pt(-t_slope, df = n_obs -2) + 1-pt(t_slope, df = n_obs -2)
+tibble(p_value_intercept, p_value_slope)
+```
 
----
+We compare the manual calculation to the that of the built-in functions `lm` and `glm`:
 
-### Definitions
+```{r}
+summary(lm(murder_rate ~ unemployment, data = murder_data))
+```
 
-<div class = "grey">
-**Total sum of squares:**  $$TSS = \sum_{i=1}^n (y_i - \bar{y})^2 \tag{0.1}$$
-**Explained sum of squares:**  $$ESS = \sum_{i=1}^n (\hat{y}_i - \bar{y})^2\tag{0.2}$$
-**Residual sum of squares:**  $$RSS = \sum_{i=1}^n (y_i - \hat{y}_i)^2\tag{0.3}$$
-**Likelihood:**  $$LH = \prod_{i=1}^n Normal(\beta_0 + \beta_1 x_{1i} + ... + \beta_k x_{ki}, \sigma)\tag{0.4}$$
-</div>
+```{r}
+summary(glm(murder_rate ~ unemployment, data = murder_data))
+```
 
----
 
-### Theorem 1
 
-#### Theorem 1a - special case: one predictor ($k=1$)
 
-<div class = "blue">
-**Closed-form solution for parameter fit under ordinary least squares loss function (special case where $k=1$).**
+<!-- ## Snippets -->
 
-*If there is only one predictor variable $(k=1)$, the closed-form solution of predictors in the model that minimize RSS (Residual Sum of Squares) is:*
+<!-- ### Preliminaries -->
 
+<!-- <div class = "grey"> -->
+<!-- - *data* for simple linear regression: -->
+<!--     - single dependent variable $y$ with observed data points $i: y_1,..., y_n$ -->
+<!--     - $k$ predictor variables $x_1, ..., x_k$ and observations $x_{j1}, ..., x_{jn}$ for each $x_j$ -->
+<!-- - we consider a *regression model*: -->
+<!--     - $y_i \sim Normal(\beta_0 + \beta_1 x_{1i} + ... + \beta_k x_{ki}, \sigma)$ -->
+<!--     - $\beta_j$ and $\sigma$ are free parameters, as usual -->
+<!-- - further notation: -->
+<!--     - $\bar{y} = \frac{1}{n} \sum_{i=1}^n y_i$    -   the mean of data observations  -->
+<!--     - $\hat{y}_i = \hat{\beta_0} + \hat{\beta_1} x_1i + ... + \hat{\beta_k} x_{ki}$ - prediction for i-th data point for best fitting parameter values -->
+<!-- </div> -->
 
-$$\begin{align}
-\hat{\beta_0} &= \bar{y} - \hat{\beta}_1 \bar{x}\textrm{, and}\\
-\\
-\hat{\beta_1} &= \frac{Cov(x,y)}{Var(x)}.
-\end{align}$$
-</div>
+<!-- --- -->
 
-##### Proof
+<!-- ### Definitions -->
 
-*[See e.g., @kirchner2003, pp. 1-3; @olive2017, pp. 57-59]*
+<!-- <div class = "grey"> -->
+<!-- **Total sum of squares:**  $$TSS = \sum_{i=1}^n (y_i - \bar{y})^2 \tag{0.1}$$ -->
+<!-- **Explained sum of squares:**  $$ESS = \sum_{i=1}^n (\hat{y}_i - \bar{y})^2\tag{0.2}$$ -->
+<!-- **Residual sum of squares:**  $$RSS = \sum_{i=1}^n (y_i - \hat{y}_i)^2\tag{0.3}$$ -->
+<!-- **Likelihood:**  $$LH = \prod_{i=1}^n Normal(\beta_0 + \beta_1 x_{1i} + ... + \beta_k x_{ki}, \sigma)\tag{0.4}$$ -->
+<!-- </div> -->
 
-Given a set of $n$ observations $(X_i,Y_i)$ (or points on a scatter plot), we want to find the best-fit line, 
-$$\hat y_i=\hat\beta_0+\hat\beta_1x_i,\tag{1.1.1}$$
-such that the sum of squared errors (RSS) in $Y$ is minimized:
+<!-- --- -->
 
-$$RSS=\sum_{i=1}^n (y_i - \hat{y}_i)^2 \rightarrow min.\tag{1.1.2}$$
+<!-- ### Theorem 1 -->
 
-Let the *Residual Sum of Squares (RSS)*  be denoted as $Q$ with,
+<!-- #### Theorem 1a - special case: one predictor ($k=1$) -->
 
-$$\begin{align}
-Q=RSS&=\sum_{i=1}^{n}(y_i-\hat y_i)^2\\ &=\sum_{i=1}^{n}(y_i-\hat\beta_0-\hat\beta_1x_i)^2.
-\tag{1.1.3}
-\end{align}$$
+<!-- <div class = "blue"> -->
+<!-- **Closed-form solution for parameter fit under ordinary least squares loss function (special case where $k=1$).** -->
 
-We want to minimize $Q$ (that is minimizing *RSS*) at the values of $\hat\beta_0$ and $\hat\beta_1$ for which $\frac{\partial Q}{\partial \hat\beta_0}=0$ (1) and $\frac{\partial Q}{\partial \hat\beta_1}=0$ (2).
+<!-- *If there is only one predictor variable $(k=1)$, the closed-form solution of predictors in the model that minimize RSS (Residual Sum of Squares) is:* -->
 
-The first condition (1) is,
 
-$$ \begin{align} \frac{\partial Q}{\partial \hat\beta_0}=\sum_{i=1}^{n}-2(y_i-\hat\beta_0-\hat\beta_1x_i)&= 0\\
-&=-\sum_{i=1}^ny_i+\sum_{i=1}^n\hat \beta_0+\sum_{i=1}^n\hat\beta_1x_i\\
-&=-\sum_{i=1}^ny_i+n\hat\beta_0+\sum_{i=1}^n\hat\beta_1x_i
-\tag{1.1.4}
-\end{align}$$
+<!-- $$\begin{align} -->
+<!-- \hat{\beta_0} &= \bar{y} - \hat{\beta}_1 \bar{x}\textrm{, and}\\ -->
+<!-- \\ -->
+<!-- \hat{\beta_1} &= \frac{Cov(x,y)}{Var(x)}. -->
+<!-- \end{align}$$ -->
+<!-- </div> -->
 
+<!-- ##### Proof -->
 
-which, if we solve for $\hat\beta_0$, becomes
+<!-- *[See e.g., @kirchner2003, pp. 1-3; @olive2017, pp. 57-59]* -->
 
-$$\begin{align}
-\hat\beta_0&=\frac{1}{n}\sum_{i=1}^{n}y_i-\frac{1}{n}\hat\beta_1\sum_{i=1}^{n}x_i\\
-&=\bar y - \hat\beta_1\bar x,
-\tag{1.1.5}
-\end{align}$$
+<!-- Given a set of $n$ observations $(X_i,Y_i)$ (or points on a scatter plot), we want to find the best-fit line,  -->
+<!-- $$\hat y_i=\hat\beta_0+\hat\beta_1x_i,\tag{1.1.1}$$ -->
+<!-- such that the sum of squared errors (RSS) in $Y$ is minimized: -->
 
-which says that the constant $\hat\beta_0$ (the y-intercept) is set such that the line must go through the mean of $x$ and $y$. This makes sense, because this point is the "center" of the data cloud.
+<!-- $$RSS=\sum_{i=1}^n (y_i - \hat{y}_i)^2 \rightarrow min.\tag{1.1.2}$$ -->
 
-The solution is indeed a minimum as the second partial derivative is positive:
+<!-- Let the *Residual Sum of Squares (RSS)*  be denoted as $Q$ with, -->
 
-$\frac{\partial^2 Q}{\partial\hat\beta_0^2}=2n>0. \tag{1.1.6}$
+<!-- $$\begin{align} -->
+<!-- Q=RSS&=\sum_{i=1}^{n}(y_i-\hat y_i)^2\\ &=\sum_{i=1}^{n}(y_i-\hat\beta_0-\hat\beta_1x_i)^2. -->
+<!-- \tag{1.1.3} -->
+<!-- \end{align}$$ -->
 
-The second condition (2) is,
+<!-- We want to minimize $Q$ (that is minimizing *RSS*) at the values of $\hat\beta_0$ and $\hat\beta_1$ for which $\frac{\partial Q}{\partial \hat\beta_0}=0$ (1) and $\frac{\partial Q}{\partial \hat\beta_1}=0$ (2). -->
 
-$$ \begin{align}
-\frac{\partial Q}{\partial \hat\beta_1}=\sum_{i=1}^{n}-2x_i(y_i-\hat\beta_0-\hat\beta_1x_i)&=0\\
-&=\sum_{i=1}^{n}(-x_iy_i+\hat\beta_0x_i+\hat\beta_1x_i^2)\\
-&=-\sum_{i=1}^{n}x_iy_i+\hat\beta_0\sum_{i=1}^{n}x_i+\hat\beta_1\sum_{i=1}^{n}x_i^2
-\tag{1.1.7}
-\end{align}$$
+<!-- The first condition (1) is, -->
 
-If we substitute the expression by (1.1.5), we get,
+<!-- $$ \begin{align} \frac{\partial Q}{\partial \hat\beta_0}=\sum_{i=1}^{n}-2(y_i-\hat\beta_0-\hat\beta_1x_i)&= 0\\ -->
+<!-- &=-\sum_{i=1}^ny_i+\sum_{i=1}^n\hat \beta_0+\sum_{i=1}^n\hat\beta_1x_i\\ -->
+<!-- &=-\sum_{i=1}^ny_i+n\hat\beta_0+\sum_{i=1}^n\hat\beta_1x_i -->
+<!-- \tag{1.1.4} -->
+<!-- \end{align}$$ -->
 
-$$ \begin{align}
-0&=-\sum_{i=1}^{n}x_iy_i+(\bar y - \hat\beta_1\bar x)\sum_{i=1}^{n}x_i+\hat\beta_1\sum_{i=1}^{n}x_i^2\\
-&=-\sum_{i=1}^{n}x_iy_i+\bar y\sum_{i=1}^{n}x_i-\hat\beta_1\bar x\sum_{i=1}^{n}x_i+\hat\beta_1\sum_{i=1}^{n}x_i^2
-\tag{1.1.8}
-\end{align}$$
 
-separating this into two sums,
+<!-- which, if we solve for $\hat\beta_0$, becomes -->
 
-$$ \sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)-\hat\beta_1\sum_{i=1}^{n}\left(x_i^2-x_i\bar x\right)=0 \tag{1.1.9}$$
+<!-- $$\begin{align} -->
+<!-- \hat\beta_0&=\frac{1}{n}\sum_{i=1}^{n}y_i-\frac{1}{n}\hat\beta_1\sum_{i=1}^{n}x_i\\ -->
+<!-- &=\bar y - \hat\beta_1\bar x, -->
+<!-- \tag{1.1.5} -->
+<!-- \end{align}$$ -->
 
-becomes,
+<!-- which says that the constant $\hat\beta_0$ (the y-intercept) is set such that the line must go through the mean of $x$ and $y$. This makes sense, because this point is the "center" of the data cloud. -->
 
-$$ \hat\beta_1 = \frac{\sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)}{\sum_{i=1}^{n}\left( x_i^2-x_i\bar x\right)} = \frac{\sum_{i=1}^{n}\left( x_iy_i\right)-n\bar x\bar y}{\sum_{i=1}^{n}\left( x_i^2\right)-n \bar x^2} \tag{1.1.10}$$
+<!-- The solution is indeed a minimum as the second partial derivative is positive: -->
 
-The model assumes that the deviation from the values from the mean is zero, so that the positive and negative values are in balance, thus
+<!-- $\frac{\partial^2 Q}{\partial\hat\beta_0^2}=2n>0. \tag{1.1.6}$ -->
 
-$$ \sum_{i=1}^{n}\left( \bar x^2-x_i\bar x\right)=0, \tag{1.1.11}$$
+<!-- The second condition (2) is, -->
 
-and
+<!-- $$ \begin{align} -->
+<!-- \frac{\partial Q}{\partial \hat\beta_1}=\sum_{i=1}^{n}-2x_i(y_i-\hat\beta_0-\hat\beta_1x_i)&=0\\ -->
+<!-- &=\sum_{i=1}^{n}(-x_iy_i+\hat\beta_0x_i+\hat\beta_1x_i^2)\\ -->
+<!-- &=-\sum_{i=1}^{n}x_iy_i+\hat\beta_0\sum_{i=1}^{n}x_i+\hat\beta_1\sum_{i=1}^{n}x_i^2 -->
+<!-- \tag{1.1.7} -->
+<!-- \end{align}$$ -->
 
-$$ \sum_{i=1}^{n}\left(\bar x \bar y - y_i \bar x\right)=0. \tag{1.1.12}$$
+<!-- If we substitute the expression by (1.1.5), we get, -->
 
-This can be used in order to expand the previous term and finally to rewrite $\hat\beta_1$ as the ratio of $Cov(x,y)$ to $Var(x)$:
+<!-- $$ \begin{align} -->
+<!-- 0&=-\sum_{i=1}^{n}x_iy_i+(\bar y - \hat\beta_1\bar x)\sum_{i=1}^{n}x_i+\hat\beta_1\sum_{i=1}^{n}x_i^2\\ -->
+<!-- &=-\sum_{i=1}^{n}x_iy_i+\bar y\sum_{i=1}^{n}x_i-\hat\beta_1\bar x\sum_{i=1}^{n}x_i+\hat\beta_1\sum_{i=1}^{n}x_i^2 -->
+<!-- \tag{1.1.8} -->
+<!-- \end{align}$$ -->
 
-$$
-\begin{align}
-\hat\beta_1&=\frac{\sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)+\sum_{i=1}^{n}\left(\bar x\bar y - y_i \bar x\right)}{\sum_{i=1}^{n}\left( x_i^2-x_i\bar x\right)+\sum_{i=1}^{n}\left( \bar x^2-x_i\bar x\right)}=\frac{\sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)+0}{\sum_{i=1}^{n}\left( x_i^2-x_i\bar x\right)+0}\\
-\\
-&=\frac{\frac{1}{n}\sum_{i=1}^{n}\left( x_i-\bar x\right) \left(y_i- \bar y \right)}{\frac{1}{n}\sum_{i=1}^{n}\left( x_i-\bar x\right)^2}\\
-\\
-&=\frac{Cov(x,y)}{Var(x)}.
-\tag{1.1.13}
-\end{align}$$
+<!-- separating this into two sums, -->
 
-The solution is indeed a minimum as the second partial derivative is positive:
+<!-- $$ \sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)-\hat\beta_1\sum_{i=1}^{n}\left(x_i^2-x_i\bar x\right)=0 \tag{1.1.9}$$ -->
 
-$$\frac{\partial^2Q}{\partial \hat\beta_1^2}= 2 \sum_{i=1}^{n}x_i^2 >0. \tag{1.1.14}$$
+<!-- becomes, -->
 
-#### Theorem 1b: Generalization of Theorem 1a to $k >=1$
+<!-- $$ \hat\beta_1 = \frac{\sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)}{\sum_{i=1}^{n}\left( x_i^2-x_i\bar x\right)} = \frac{\sum_{i=1}^{n}\left( x_iy_i\right)-n\bar x\bar y}{\sum_{i=1}^{n}\left( x_i^2\right)-n \bar x^2} \tag{1.1.10}$$ -->
 
-*[see e.g., @bremer2012, pp. 21-23; @gonzalez2014, pp. 5-15]*
+<!-- The model assumes that the deviation from the values from the mean is zero, so that the positive and negative values are in balance, thus -->
 
-The model of multiple linear regression is given by the following expression:
+<!-- $$ \sum_{i=1}^{n}\left( \bar x^2-x_i\bar x\right)=0, \tag{1.1.11}$$ -->
 
-$$y=\beta_0+\beta_1x_1+\beta_2x_2+...+\beta_kx_k+\epsilon \tag{1.2.1}$$
-Suppose we have $n$ observations, then we can write:
-$$\begin{align}
-y_1&=\beta_0+\beta_{1}x_{11}+\beta_2x_{21}+...+\beta_kx_{k1}+\epsilon_1\\
-y_2&=\beta_0+\beta_{1}x_{12}+\beta_2x_{22}+...+\beta_kx_{k2}+\epsilon_2\\
-...\\
-y_n&=\beta_0+\beta_{1}x_{1n}+\beta_2x_{2n}+...+\beta_kx_{kn}+\epsilon_n
-\tag{1.2.2}
-\end{align}$$
-The model of multiple linear regression is often expressed in matrix notation:
+<!-- and -->
 
-$$\begin{bmatrix} y_1\\y_2\\...\\y_n \end{bmatrix}= \begin{bmatrix}1&x_{11}& x_{21}&...&x_{k1}\\1&x_{12}& x_{22}&...&x_{k2}\\...& ...&...&...&...\\1&x_{1n}&x_{2n}&...&x_{kn}\end{bmatrix}\begin{bmatrix}\beta_0\\\beta_1\\...\\\beta_n \end{bmatrix}+\begin{bmatrix}\epsilon_1\\\epsilon_2\\...\\\epsilon_n \end{bmatrix} \tag{1.2.3}$$
+<!-- $$ \sum_{i=1}^{n}\left(\bar x \bar y - y_i \bar x\right)=0. \tag{1.1.12}$$ -->
 
-Which can be expressed in a compact form as
+<!-- This can be used in order to expand the previous term and finally to rewrite $\hat\beta_1$ as the ratio of $Cov(x,y)$ to $Var(x)$: -->
 
-$$\mathbf{Y=X\beta+\epsilon} \tag{1.2.4}$$
-where $y$ is a vector $n\times 1$, $X$ is a matrix $n \times k$, $\beta$ is a vector $k \times 1$ and $\epsilon$ is a vector $n \times 1$.
+<!-- $$ -->
+<!-- \begin{align} -->
+<!-- \hat\beta_1&=\frac{\sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)+\sum_{i=1}^{n}\left(\bar x\bar y - y_i \bar x\right)}{\sum_{i=1}^{n}\left( x_i^2-x_i\bar x\right)+\sum_{i=1}^{n}\left( \bar x^2-x_i\bar x\right)}=\frac{\sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)+0}{\sum_{i=1}^{n}\left( x_i^2-x_i\bar x\right)+0}\\ -->
+<!-- \\ -->
+<!-- &=\frac{\frac{1}{n}\sum_{i=1}^{n}\left( x_i-\bar x\right) \left(y_i- \bar y \right)}{\frac{1}{n}\sum_{i=1}^{n}\left( x_i-\bar x\right)^2}\\ -->
+<!-- \\ -->
+<!-- &=\frac{Cov(x,y)}{Var(x)}. -->
+<!-- \tag{1.1.13} -->
+<!-- \end{align}$$ -->
 
-The OLS estimator is obtained (like in the special case) by minimizing the residual sum of squares (RSS). 
+<!-- The solution is indeed a minimum as the second partial derivative is positive: -->
 
-$$RSS \rightarrow min.$$ 
+<!-- $$\frac{\partial^2Q}{\partial \hat\beta_1^2}= 2 \sum_{i=1}^{n}x_i^2 >0. \tag{1.1.14}$$ -->
 
-The RSS for the multiple linear regression model is
+<!-- #### Theorem 1b: Generalization of Theorem 1a to $k >=1$ -->
 
-$$Q=RSS=\sum_{i=1}^n \hat\epsilon_i^2=\sum_{i=1}^n (y_i - \hat{y}_i)^2=\sum_{i=1}^n \left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]^2 \tag{1.2.5}$$
+<!-- *[see e.g., @bremer2012, pp. 21-23; @gonzalez2014, pp. 5-15]* -->
 
-to apply the least squares criterion in the model of multiple linear regression, thus to minimize $RSS$, we calculate the first partial derivative from $Q$ with respect to each $\hat\beta_j$in the expression:
+<!-- The model of multiple linear regression is given by the following expression: -->
 
-$$\begin{align}
-\frac{\partial Q}{\partial\hat\beta_0}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-1]\\
-\\
-\frac{\partial Q}{\partial\hat\beta_1}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{1i}]\\
-\\
-\frac{\partial Q}{\partial\hat\beta_2}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{2i}]\\
-...\\
-\frac{\partial Q}{\partial\hat\beta_k}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{ki}]
-\tag{1.2.6}
-\end{align}$$
+<!-- $$y=\beta_0+\beta_1x_1+\beta_2x_2+...+\beta_kx_k+\epsilon \tag{1.2.1}$$ -->
+<!-- Suppose we have $n$ observations, then we can write: -->
+<!-- $$\begin{align} -->
+<!-- y_1&=\beta_0+\beta_{1}x_{11}+\beta_2x_{21}+...+\beta_kx_{k1}+\epsilon_1\\ -->
+<!-- y_2&=\beta_0+\beta_{1}x_{12}+\beta_2x_{22}+...+\beta_kx_{k2}+\epsilon_2\\ -->
+<!-- ...\\ -->
+<!-- y_n&=\beta_0+\beta_{1}x_{1n}+\beta_2x_{2n}+...+\beta_kx_{kn}+\epsilon_n -->
+<!-- \tag{1.2.2} -->
+<!-- \end{align}$$ -->
+<!-- The model of multiple linear regression is often expressed in matrix notation: -->
 
-Then the derivative of each equation is set to zero:
+<!-- $$\begin{bmatrix} y_1\\y_2\\...\\y_n \end{bmatrix}= \begin{bmatrix}1&x_{11}& x_{21}&...&x_{k1}\\1&x_{12}& x_{22}&...&x_{k2}\\...& ...&...&...&...\\1&x_{1n}&x_{2n}&...&x_{kn}\end{bmatrix}\begin{bmatrix}\beta_0\\\beta_1\\...\\\beta_n \end{bmatrix}+\begin{bmatrix}\epsilon_1\\\epsilon_2\\...\\\epsilon_n \end{bmatrix} \tag{1.2.3}$$ -->
 
-$$\begin{align}
-&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]=0\\
-&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{1i}=0\\
-&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{2i}=0\\
-&...\\
-&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{ki}=0
-\tag{1.2.7}
-\end{align}$$
+<!-- Which can be expressed in a compact form as -->
 
-Alternatively, we can use matrix notation and combine the above equations into the following form:
+<!-- $$\mathbf{Y=X\beta+\epsilon} \tag{1.2.4}$$ -->
+<!-- where $y$ is a vector $n\times 1$, $X$ is a matrix $n \times k$, $\beta$ is a vector $k \times 1$ and $\epsilon$ is a vector $n \times 1$. -->
 
-$$\mathbf{X'Y-X'X\hat\beta=0}.\tag{1.2.8}$$
+<!-- The OLS estimator is obtained (like in the special case) by minimizing the residual sum of squares (RSS).  -->
 
-Whereby the following expression is known as **normal equations**:
+<!-- $$RSS \rightarrow min.$$  -->
 
-$$\mathbf{X'X\hat\beta=X'Y}.\tag{1.2.9}$$
+<!-- The RSS for the multiple linear regression model is -->
 
-The system of normal equations in expanded matrix notation is:
+<!-- $$Q=RSS=\sum_{i=1}^n \hat\epsilon_i^2=\sum_{i=1}^n (y_i - \hat{y}_i)^2=\sum_{i=1}^n \left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]^2 \tag{1.2.5}$$ -->
 
-$$\begin{bmatrix} n&\sum_{i=1}^nx_{1i}&...&\sum_{i=1}^nx_{ki}\\
-\sum_{i=1}^nx_{1i}&\sum_{i=1}^nx_{1i}^2&...&\sum_{i=1}^nx_{1i}x_{ki}\\...&...&...&...\\
-\sum_{i=1}^nx_{ki}&\sum_{i=1}^nx_{ki}x_{1i}&...&\sum_{i=1}^nx_{ki}^2\end{bmatrix}\begin{bmatrix}\hat\beta_0\\\hat\beta_1\\...\\\hat\beta_k\end{bmatrix}=\begin{bmatrix}\sum_{i=1}^ny_i\\\sum_{i=1}^nx_{1i}y_i\\...\\\sum_{i=1}^nx_{ki}y_i 
-\tag{1.2.10}
-\end{bmatrix}$$
+<!-- to apply the least squares criterion in the model of multiple linear regression, thus to minimize $RSS$, we calculate the first partial derivative from $Q$ with respect to each $\hat\beta_j$in the expression: -->
 
-In order to obtain the estimator $\hat\beta$, we have to rearrange (1.2.10) and get the solution:
+<!-- $$\begin{align} -->
+<!-- \frac{\partial Q}{\partial\hat\beta_0}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-1]\\ -->
+<!-- \\ -->
+<!-- \frac{\partial Q}{\partial\hat\beta_1}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{1i}]\\ -->
+<!-- \\ -->
+<!-- \frac{\partial Q}{\partial\hat\beta_2}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{2i}]\\ -->
+<!-- ...\\ -->
+<!-- \frac{\partial Q}{\partial\hat\beta_k}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{ki}] -->
+<!-- \tag{1.2.6} -->
+<!-- \end{align}$$ -->
 
-$$\begin{bmatrix}\hat\beta_0\\\hat\beta_1\\...\\\hat\beta_k\end{bmatrix}=\mathbf{\hat\beta}=[\mathbf{X'X}]^{-1}\mathbf{X'Y}\tag{1.2.11}$$
+<!-- Then the derivative of each equation is set to zero: -->
 
-Where $\hat\beta$ is a global minimizer of the OLS criterion as the scond order condition is always a semidefinite positive matrix.
+<!-- $$\begin{align} -->
+<!-- &\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]=0\\ -->
+<!-- &\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{1i}=0\\ -->
+<!-- &\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{2i}=0\\ -->
+<!-- &...\\ -->
+<!-- &\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{ki}=0 -->
+<!-- \tag{1.2.7} -->
+<!-- \end{align}$$ -->
 
-$$\frac{\partial^2 Q}{\partial \mathbf{\hat\beta}^2}=2X'X >0.$$
+<!-- Alternatively, we can use matrix notation and combine the above equations into the following form: -->
 
----
+<!-- $$\mathbf{X'Y-X'X\hat\beta=0}.\tag{1.2.8}$$ -->
 
-### Theorem 2
+<!-- Whereby the following expression is known as **normal equations**: -->
 
-<div class = "blue">
-**Best fit under OLS is equivalent with best fit under MLE**
+<!-- $$\mathbf{X'X\hat\beta=X'Y}.\tag{1.2.9}$$ -->
 
-*The parameters $\beta_0, ..., \beta_k$ minimize the residual sum of squares (RSS) iff they maximize the (log-)likelihood (LH).*
+<!-- The system of normal equations in expanded matrix notation is: -->
 
-</div>
+<!-- $$\begin{bmatrix} n&\sum_{i=1}^nx_{1i}&...&\sum_{i=1}^nx_{ki}\\ -->
+<!-- \sum_{i=1}^nx_{1i}&\sum_{i=1}^nx_{1i}^2&...&\sum_{i=1}^nx_{1i}x_{ki}\\...&...&...&...\\ -->
+<!-- \sum_{i=1}^nx_{ki}&\sum_{i=1}^nx_{ki}x_{1i}&...&\sum_{i=1}^nx_{ki}^2\end{bmatrix}\begin{bmatrix}\hat\beta_0\\\hat\beta_1\\...\\\hat\beta_k\end{bmatrix}=\begin{bmatrix}\sum_{i=1}^ny_i\\\sum_{i=1}^nx_{1i}y_i\\...\\\sum_{i=1}^nx_{ki}y_i  -->
+<!-- \tag{1.2.10} -->
+<!-- \end{bmatrix}$$ -->
 
-##### Proof
+<!-- In order to obtain the estimator $\hat\beta$, we have to rearrange (1.2.10) and get the solution: -->
 
-*[see e.g., @naveen2019; @croot2010; @eppes2019]*
+<!-- $$\begin{bmatrix}\hat\beta_0\\\hat\beta_1\\...\\\hat\beta_k\end{bmatrix}=\mathbf{\hat\beta}=[\mathbf{X'X}]^{-1}\mathbf{X'Y}\tag{1.2.11}$$ -->
 
-#### Maximum Likelihood Estimation
-We consider again the linear regression model of the population with:
+<!-- Where $\hat\beta$ is a global minimizer of the OLS criterion as the scond order condition is always a semidefinite positive matrix. -->
 
-$$Y= \beta_0 + \beta_1X + \epsilon.\tag{2.1}$$
+<!-- $$\frac{\partial^2 Q}{\partial \mathbf{\hat\beta}^2}=2X'X >0.$$ -->
 
-This simplifies to the following form on the observed data:
+<!-- --- -->
 
-$$y= \beta_0 + \beta_1x + \epsilon.\tag{2.2}$$
+<!-- ### Theorem 2 -->
 
-Using a sample in order to obtain the **maximum likelihood estimates** the equation simplifies to:
+<!-- <div class = "blue"> -->
+<!-- **Best fit under OLS is equivalent with best fit under MLE** -->
 
-$$y= \hat\beta_0 + \hat\beta_1x. \tag{2.3}$$
+<!-- *The parameters $\beta_0, ..., \beta_k$ minimize the residual sum of squares (RSS) iff they maximize the (log-)likelihood (LH).* -->
 
-**Assumptions** that we make for the model:
+<!-- </div> -->
 
-- True underlying distribution of the errors is Gaussian,
-- Expected value of the error term is 0,
-- Variance of the error term is constant with respect to x, and
-- the 'lagged' errors are independent of each other
-where the error term is normally distributed.
+<!-- ##### Proof -->
 
-We can write:
+<!-- *[see e.g., @naveen2019; @croot2010; @eppes2019]* -->
 
-$$ \epsilon \sim N(0,\sigma^2).\tag{2.4}$$
+<!-- #### Maximum Likelihood Estimation -->
+<!-- We consider again the linear regression model of the population with: -->
 
-Since $Y$ is a linear function of $\epsilon$ it will also be normally distributed.
+<!-- $$Y= \beta_0 + \beta_1X + \epsilon.\tag{2.1}$$ -->
 
-$$f(\epsilon|\beta_0,\beta_1)= \frac{1}{\sqrt{2\pi} \sigma} \exp\left[{-\frac{1}{2}\left(\frac{\epsilon^2}{\sigma^2}\right)}\right]. \tag{2.5}$$ 
+<!-- This simplifies to the following form on the observed data: -->
 
-Given the whole data set with $i=1,...,n$ observations the **likelihood function** ($LH$) is the joint density of all the observations, given a value for the parameters $\beta_0$ and $\beta_1$. Since independence is assumed, this is simply the product of the individual densities from the previous equation. 
+<!-- $$y= \beta_0 + \beta_1x + \epsilon.\tag{2.2}$$ -->
 
-$$LH(\epsilon_i|\beta_0,\beta_1) =\prod_{i=1}^{n}\frac{1}{\sqrt{2\pi} \sigma} \exp\left[{-\frac{1}{2}\left(\frac{\epsilon_i^2}{\sigma^2}\right)}\right].\tag{2.6}$$
+<!-- Using a sample in order to obtain the **maximum likelihood estimates** the equation simplifies to: -->
 
-In order to find the maximum of (2.6) we have to find the first derivative.
+<!-- $$y= \hat\beta_0 + \hat\beta_1x. \tag{2.3}$$ -->
 
-But as the derivation of a product with a lot of factors is inconvenient, we take first the logarithm of the likelihood, called **log-likelihhod**. This is possible as $\log$ is a monotone transformation and the maximum likelihood estimate does not change on log transformation.
+<!-- **Assumptions** that we make for the model: -->
 
-The log-likelihood is the sum of the logs of the individual densities:
+<!-- - True underlying distribution of the errors is Gaussian, -->
+<!-- - Expected value of the error term is 0, -->
+<!-- - Variance of the error term is constant with respect to x, and -->
+<!-- - the 'lagged' errors are independent of each other -->
+<!-- where the error term is normally distributed. -->
 
-$$\begin{align}
-LL&=\log \left(LH(\epsilon_i|\beta_0,\beta_1)\right)\\
-&=-\left( \frac{n}{2}\right) \log(2\pi)-\left( \frac{n}{2}\right) \log(\sigma^2)-\left( \frac{1}{2}\sigma^2\right) \sum_{i=1}^n(\epsilon_i)^2
-\tag{2.7}
-\end{align}$$
+<!-- We can write: -->
 
-The log-likelihood can be used in order to find the *Maximum Likelihood estimates* $\hat\beta_0$ and $\hat\beta_1$ for the parameters $\beta_0$ and $\beta_1$.
+<!-- $$ \epsilon \sim N(0,\sigma^2).\tag{2.4}$$ -->
 
+<!-- Since $Y$ is a linear function of $\epsilon$ it will also be normally distributed. -->
 
-$$\hat\beta_0,\hat\beta_1=\mathrm{argmax}_{\beta_0,\beta_1}LL=\mathrm{argmax}_{\beta_0,\beta_1}\left[-\left( \frac{n}{2}\right) \log(2\pi)-\left( \frac{n}{2}\right) \log(\sigma^2)-\left( \frac{1}{2}\sigma^2\right) \sum_{i=1}^n(\epsilon_i)^2\right].\tag{2.8}$$
+<!-- $$f(\epsilon|\beta_0,\beta_1)= \frac{1}{\sqrt{2\pi} \sigma} \exp\left[{-\frac{1}{2}\left(\frac{\epsilon^2}{\sigma^2}\right)}\right]. \tag{2.5}$$  -->
 
-Removing the constant terms results in:
+<!-- Given the whole data set with $i=1,...,n$ observations the **likelihood function** ($LH$) is the joint density of all the observations, given a value for the parameters $\beta_0$ and $\beta_1$. Since independence is assumed, this is simply the product of the individual densities from the previous equation.  -->
 
-$$\hat\beta_0,\hat\beta_1=\mathrm{argmax}_{\beta_0,\beta_1} \sum_{i=1}^n-\epsilon_i^2.\tag{2.9}$$
+<!-- $$LH(\epsilon_i|\beta_0,\beta_1) =\prod_{i=1}^{n}\frac{1}{\sqrt{2\pi} \sigma} \exp\left[{-\frac{1}{2}\left(\frac{\epsilon_i^2}{\sigma^2}\right)}\right].\tag{2.6}$$ -->
 
-Substituting $\epsilon$, derived from (2.2), gives:
+<!-- In order to find the maximum of (2.6) we have to find the first derivative. -->
 
-$$\hat\beta_0,\hat\beta_1=\mathrm{argmax}_{\beta_0,\beta_1} \sum_{i=1}^n-(y-\beta_0-\beta_1x)^2.\tag{2.10}$$
+<!-- But as the derivation of a product with a lot of factors is inconvenient, we take first the logarithm of the likelihood, called **log-likelihhod**. This is possible as $\log$ is a monotone transformation and the maximum likelihood estimate does not change on log transformation. -->
 
-**Conclusion:**
+<!-- The log-likelihood is the sum of the logs of the individual densities: -->
 
-Deriving parameter estimates according to the OLS method:
+<!-- $$\begin{align} -->
+<!-- LL&=\log \left(LH(\epsilon_i|\beta_0,\beta_1)\right)\\ -->
+<!-- &=-\left( \frac{n}{2}\right) \log(2\pi)-\left( \frac{n}{2}\right) \log(\sigma^2)-\left( \frac{1}{2}\sigma^2\right) \sum_{i=1}^n(\epsilon_i)^2 -->
+<!-- \tag{2.7} -->
+<!-- \end{align}$$ -->
 
-$$Q_{OLS}=\sum_{i=1}^{n}(y_i-\hat\beta_0-\hat\beta_1x_i)^2 \rightarrow min.$$
+<!-- The log-likelihood can be used in order to find the *Maximum Likelihood estimates* $\hat\beta_0$ and $\hat\beta_1$ for the parameters $\beta_0$ and $\beta_1$. -->
 
-Deriving parameter estimates according to the ML method:
 
-$$Q_{ML}=\sum_{i=1}^n-(y_i-\hat\beta_0-\hat\beta_1x_i)^2 \rightarrow max.$$
+<!-- $$\hat\beta_0,\hat\beta_1=\mathrm{argmax}_{\beta_0,\beta_1}LL=\mathrm{argmax}_{\beta_0,\beta_1}\left[-\left( \frac{n}{2}\right) \log(2\pi)-\left( \frac{n}{2}\right) \log(\sigma^2)-\left( \frac{1}{2}\sigma^2\right) \sum_{i=1}^n(\epsilon_i)^2\right].\tag{2.8}$$ -->
 
-Maximizing $-z$ is equivalent to minimizing $z$, thus, the best parameter fit under ML is equivalent with best fit under OLS.
+<!-- Removing the constant terms results in: -->
 
----
+<!-- $$\hat\beta_0,\hat\beta_1=\mathrm{argmax}_{\beta_0,\beta_1} \sum_{i=1}^n-\epsilon_i^2.\tag{2.9}$$ -->
 
-### Theorem 3
+<!-- Substituting $\epsilon$, derived from (2.2), gives: -->
 
-<div class = "blue">
-**The variance in a regression model can be decompossed by using the notion of sum of squares:**
+<!-- $$\hat\beta_0,\hat\beta_1=\mathrm{argmax}_{\beta_0,\beta_1} \sum_{i=1}^n-(y-\beta_0-\beta_1x)^2.\tag{2.10}$$ -->
 
-*The following decomposition holds:*
+<!-- **Conclusion:** -->
 
-$$\begin{align}
-TSS &= ESS + RSS \textrm{, or}\\
-\sum_{i=1}^n (y_i - \bar{y})^2&=\sum_{i=1}^n (\hat{y}_i - \bar{y})^2+ \sum_{i=1}^n \hat u_i^2 
-\end{align}$$
+<!-- Deriving parameter estimates according to the OLS method: -->
 
-</div>
+<!-- $$Q_{OLS}=\sum_{i=1}^{n}(y_i-\hat\beta_0-\hat\beta_1x_i)^2 \rightarrow min.$$ -->
 
+<!-- Deriving parameter estimates according to the ML method: -->
 
-with 
+<!-- $$Q_{ML}=\sum_{i=1}^n-(y_i-\hat\beta_0-\hat\beta_1x_i)^2 \rightarrow max.$$ -->
 
-$$\hat u_i =y_i-\hat y_i $$
+<!-- Maximizing $-z$ is equivalent to minimizing $z$, thus, the best parameter fit under ML is equivalent with best fit under OLS. -->
 
-which can be rewritten as
+<!-- --- -->
 
-$$y_i=\hat y_i + \hat u_i \tag{3.1}$$
+<!-- ### Theorem 3 -->
 
-#### Proof
+<!-- <div class = "blue"> -->
+<!-- **The variance in a regression model can be decompossed by using the notion of sum of squares:** -->
 
-[see e.g., @gonzalez2014 pp. 29-31]
+<!-- *The following decomposition holds:* -->
 
-$$\begin{align}
-TSS=\sum_{i=1}^n (y_i - \bar{y})^2&=\sum_{i=1}^n\left( \hat y_i+\hat u_i - \bar y \right)^2\\
-&= \sum_{i=1}^n \left[(\hat y_i-\bar y)+\hat u_i\right]^2\\
-&= \sum_{i=1}^n (\hat y_i-\bar y)^2 + \sum_{i=1}^n \hat u_i^2+ 2\sum_{i=1}^n(\hat y_i-\bar y)\hat u_i\\
-&= \sum_{i=1}^n (\hat y_i-\bar y)^2 + \sum_{i=1}^n \hat u_i^2\\
-\tag{3.2}
-\end{align}$$
+<!-- $$\begin{align} -->
+<!-- TSS &= ESS + RSS \textrm{, or}\\ -->
+<!-- \sum_{i=1}^n (y_i - \bar{y})^2&=\sum_{i=1}^n (\hat{y}_i - \bar{y})^2+ \sum_{i=1}^n \hat u_i^2  -->
+<!-- \end{align}$$ -->
 
-Or, using (3.1) we can write:
+<!-- </div> -->
 
-$$
-TSS=\sum_{i=1}^n (\hat{y}_i - \bar{y})^2+\sum_{i=1}^n (y_i - \hat{y}_i)^2=ESS+RSS.
-\tag{3.3}
-$$
 
----
+<!-- with  -->
 
-### Theorem 4
+<!-- $$\hat u_i =y_i-\hat y_i $$ -->
 
-<div class = "blue">
-**Expressing variance explained $R^2$ in terms of sum of squares**
+<!-- which can be rewritten as -->
 
-*The following relationship holds:* 
+<!-- $$y_i=\hat y_i + \hat u_i \tag{3.1}$$ -->
 
-  $$R^2 = 1 - \frac{RSS}{TSS} = \frac{ESS}{TSS}$$
-</div>
+<!-- #### Proof -->
 
-#### Proof
+<!-- [see e.g., @gonzalez2014 pp. 29-31] -->
 
-[see e.g., @urban2018 pp. 56-72, 101-103 ]
+<!-- $$\begin{align} -->
+<!-- TSS=\sum_{i=1}^n (y_i - \bar{y})^2&=\sum_{i=1}^n\left( \hat y_i+\hat u_i - \bar y \right)^2\\ -->
+<!-- &= \sum_{i=1}^n \left[(\hat y_i-\bar y)+\hat u_i\right]^2\\ -->
+<!-- &= \sum_{i=1}^n (\hat y_i-\bar y)^2 + \sum_{i=1}^n \hat u_i^2+ 2\sum_{i=1}^n(\hat y_i-\bar y)\hat u_i\\ -->
+<!-- &= \sum_{i=1}^n (\hat y_i-\bar y)^2 + \sum_{i=1}^n \hat u_i^2\\ -->
+<!-- \tag{3.2} -->
+<!-- \end{align}$$ -->
 
-We will first derive the variance explained $R^2$ considering a bivariate model (simple linear regression), afterwards some note to the generalized case of multiple regression are made.
+<!-- Or, using (3.1) we can write: -->
 
-The variance explained can be derived in the bivariate model from the regression coefficient $\beta$ and the standard deviation of $X$ and $Y$, whereby the following holds:
+<!-- $$ -->
+<!-- TSS=\sum_{i=1}^n (\hat{y}_i - \bar{y})^2+\sum_{i=1}^n (y_i - \hat{y}_i)^2=ESS+RSS. -->
+<!-- \tag{3.3} -->
+<!-- $$ -->
 
-$$R^2=\left( \beta \cdot \frac{S_x}{S_y}\right)^2=\beta^2 \cdot \frac{Var(X)}{Var(Y)}.\tag{4.1}$$
+<!-- --- -->
 
-We will show that (4.1) holds in the next steps.
+<!-- ### Theorem 4 -->
 
-Consider on the one hand the calculation of the correlation coefficient:
+<!-- <div class = "blue"> -->
+<!-- **Expressing variance explained $R^2$ in terms of sum of squares** -->
 
-$$\begin{align}
-r_{xy}&=\frac{cov(X,Y)}{S_x S_y}\\
-\\
-&=\frac{\frac{1}{n}\sum_{i=1}^n(X_i-\bar X)(Y_i-\bar Y)}{\sqrt{\frac{\sum_{i=1}^n(X_i-\bar X)^2}{n}} \sqrt{\frac{\sum_{i=1}^n(Y_i-\bar Y)^2}{n}}}
-\tag{4.2}
-\end{align}$$
+<!-- *The following relationship holds:*  -->
 
-On the other hand, if we assume $Y$ as dependent and $X$ as independent variable, we can write:
+<!--   $$R^2 = 1 - \frac{RSS}{TSS} = \frac{ESS}{TSS}$$ -->
+<!-- </div> -->
 
-$$\beta_{yx}=\frac{\sum_{i=1}^{n}X_iY_i}{\sum_{i=1}^n X_i^2}. \tag{4.3}$$
+<!-- #### Proof -->
 
-Or when $Y$ is the independent and $X$ the dependent variable, then:
+<!-- [see e.g., @urban2018 pp. 56-72, 101-103 ] -->
 
-$$\beta_{xy}=\frac{\sum_{i=1}^{n}Y_iX_i}{\sum_{i=1}^n Y_i^2}.\tag{4.4}$$
+<!-- We will first derive the variance explained $R^2$ considering a bivariate model (simple linear regression), afterwards some note to the generalized case of multiple regression are made. -->
 
-Through dividing equations (4.3) and (4.4) by the number of observations, we get the covariances and variances of $X$ and $Y$:
+<!-- The variance explained can be derived in the bivariate model from the regression coefficient $\beta$ and the standard deviation of $X$ and $Y$, whereby the following holds: -->
 
-$$\begin{align}
-&\frac{1}{n}\sum_{i=1}^{n}X_iY_i=\frac{1}{n}(X_i-\bar X)(Y_i-\bar Y) = cov(X,Y)\tag{4.5}\\
-&\frac{1}{n}\sum_{i=1}^{n}Y_iX_i=\frac{1}{n}(Y_i-\bar Y)(X_i-\bar X) = cov(Y,X)\tag{4.6}\\
-&\frac{1}{n}\sum_{i=1}^{n}X_i^2=\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar X)^2=S_x^2\tag{4.7}\\
-&\frac{1}{n}\sum_{i=1}^{n}Y_i^2=\frac{1}{n}\sum_{i=1}^{n}(Y_i-\bar Y)^2=S_y^2
-\tag{4.8}
-\end{align}$$
+<!-- $$R^2=\left( \beta \cdot \frac{S_x}{S_y}\right)^2=\beta^2 \cdot \frac{Var(X)}{Var(Y)}.\tag{4.1}$$ -->
 
-Substituting these results in equations (4.3) and (4.4), we get:
+<!-- We will show that (4.1) holds in the next steps. -->
 
-$$\beta_{yx}=\frac{cov(X,Y)}{S_x^2} \textrm{ , and }
-\beta_{xy}=\frac{cov(Y,X)}{S_y^2}\tag{4.9}$$
+<!-- Consider on the one hand the calculation of the correlation coefficient: -->
 
-For calculating the *average* between $\beta_{yx}$ and $\beta_{xy}$ we have to use the *geometric mean*:
+<!-- $$\begin{align} -->
+<!-- r_{xy}&=\frac{cov(X,Y)}{S_x S_y}\\ -->
+<!-- \\ -->
+<!-- &=\frac{\frac{1}{n}\sum_{i=1}^n(X_i-\bar X)(Y_i-\bar Y)}{\sqrt{\frac{\sum_{i=1}^n(X_i-\bar X)^2}{n}} \sqrt{\frac{\sum_{i=1}^n(Y_i-\bar Y)^2}{n}}} -->
+<!-- \tag{4.2} -->
+<!-- \end{align}$$ -->
 
-$$\bar\beta_{geom}=\sqrt{\frac{cov(X,Y)}{S_x^2}\frac{cov(Y,X)}{S_y^2}}=\frac{cov(X,Y)}{S_x S_y}=r_{xy}\tag{4.10}$$
+<!-- On the other hand, if we assume $Y$ as dependent and $X$ as independent variable, we can write: -->
 
-Thus, the geometric mean of $\beta_{yx}$ and $\beta_{xy}$ is identical to the correlation coefficient. 
+<!-- $$\beta_{yx}=\frac{\sum_{i=1}^{n}X_iY_i}{\sum_{i=1}^n X_i^2}. \tag{4.3}$$ -->
 
-Comparing equations (4.9) and (4.10),
+<!-- Or when $Y$ is the independent and $X$ the dependent variable, then: -->
 
-$$\begin{align}
-\beta_{yx}&=\frac{cov(X,Y)}{S_x^2}\textrm{ , and}\\
-\\
-r_{yx}&=\frac{cov(X,Y)}{S_x S_y},
-\end{align}$$
+<!-- $$\beta_{xy}=\frac{\sum_{i=1}^{n}Y_iX_i}{\sum_{i=1}^n Y_i^2}.\tag{4.4}$$ -->
 
-shows that, we can convert $r_{yx}$ in $\beta_{yx}$:
+<!-- Through dividing equations (4.3) and (4.4) by the number of observations, we get the covariances and variances of $X$ and $Y$: -->
 
-$$\frac{cov(X,Y)}{S_x S_y} \cdot \frac{S_y}{S_x}=\frac{cov(X,Y)}{S_x^2}=\beta_{yx}.\tag{4.11}$$
+<!-- $$\begin{align} -->
+<!-- &\frac{1}{n}\sum_{i=1}^{n}X_iY_i=\frac{1}{n}(X_i-\bar X)(Y_i-\bar Y) = cov(X,Y)\tag{4.5}\\ -->
+<!-- &\frac{1}{n}\sum_{i=1}^{n}Y_iX_i=\frac{1}{n}(Y_i-\bar Y)(X_i-\bar X) = cov(Y,X)\tag{4.6}\\ -->
+<!-- &\frac{1}{n}\sum_{i=1}^{n}X_i^2=\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar X)^2=S_x^2\tag{4.7}\\ -->
+<!-- &\frac{1}{n}\sum_{i=1}^{n}Y_i^2=\frac{1}{n}\sum_{i=1}^{n}(Y_i-\bar Y)^2=S_y^2 -->
+<!-- \tag{4.8} -->
+<!-- \end{align}$$ -->
 
-Therefore, the relationship stated in (4.1) holds:
+<!-- Substituting these results in equations (4.3) and (4.4), we get: -->
 
-$$\beta_{yx}=r_{yx}\cdot \frac{S_y}{S_x}.$$
+<!-- $$\beta_{yx}=\frac{cov(X,Y)}{S_x^2} \textrm{ , and } -->
+<!-- \beta_{xy}=\frac{cov(Y,X)}{S_y^2}\tag{4.9}$$ -->
 
-Using this definition we can now derive the **variance explained** $R^2$.
+<!-- For calculating the *average* between $\beta_{yx}$ and $\beta_{xy}$ we have to use the *geometric mean*: -->
 
-We have seen that the following holds:
+<!-- $$\bar\beta_{geom}=\sqrt{\frac{cov(X,Y)}{S_x^2}\frac{cov(Y,X)}{S_y^2}}=\frac{cov(X,Y)}{S_x S_y}=r_{xy}\tag{4.10}$$ -->
 
-$$\beta_{yx}=r_{yx}\cdot \frac{S_y}{S_x}=r_{yx}\sqrt{\frac{\frac{1}{n}\sum_{i=1}^{n}(Y_i-\bar Y)^2}{\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar X)^2}}.$$
+<!-- Thus, the geometric mean of $\beta_{yx}$ and $\beta_{xy}$ is identical to the correlation coefficient.  -->
 
-Eliminating the number of observations and squaring the equation gives:
+<!-- Comparing equations (4.9) and (4.10), -->
 
-$$\beta_{yx}^2=r_{yx}^2\frac{\sum_{i=1}^{n}(Y_i-\bar Y)^2}{\sum_{i=1}^{n}(X_i-\bar X)^2}.\tag{4.12}$$
+<!-- $$\begin{align} -->
+<!-- \beta_{yx}&=\frac{cov(X,Y)}{S_x^2}\textrm{ , and}\\ -->
+<!-- \\ -->
+<!-- r_{yx}&=\frac{cov(X,Y)}{S_x S_y}, -->
+<!-- \end{align}$$ -->
 
-The numerator $\sum_{i=1}^{n}(Y_i-\bar Y)^2$ is the total sum of squares (TSS), thus, from (0.1) follows:
+<!-- shows that, we can convert $r_{yx}$ in $\beta_{yx}$: -->
 
-$$\sum_{i=1}^{n}(Y_i-\bar Y)^2=\sum_{i=1}^{n}(\hat Y_i-\bar Y)^2+\sum_{i=1}^{n}(Y_i-\hat Y_i)^2.\tag{4.13}$$
+<!-- $$\frac{cov(X,Y)}{S_x S_y} \cdot \frac{S_y}{S_x}=\frac{cov(X,Y)}{S_x^2}=\beta_{yx}.\tag{4.11}$$ -->
 
-The explained sum of squares (ESS) $\sum_{i=1}^{n}(\hat Y_i-\bar Y)^2$ are statistically explained by the determination of the regression line:
+<!-- Therefore, the relationship stated in (4.1) holds: -->
 
-$$ESS=\sum_{i=1}^{n}(\hat Y_i-\bar Y)^2=\beta X_i=\beta(X_i-\bar X).\tag{4.14}$$
+<!-- $$\beta_{yx}=r_{yx}\cdot \frac{S_y}{S_x}.$$ -->
 
-Substituting the result of (4.14) in equation (4.13) gives:
+<!-- Using this definition we can now derive the **variance explained** $R^2$. -->
 
-$$\sum_{i=1}^{n}(Y_i-\bar Y)^2=\beta^2\sum_{i=1}^{n}(X_i-\bar X)^2+\sum_{i=1}^{n}(Y_i-\hat Y_i)^2.\tag{4.15}$$
+<!-- We have seen that the following holds: -->
 
-As we know from (4.12):
+<!-- $$\beta_{yx}=r_{yx}\cdot \frac{S_y}{S_x}=r_{yx}\sqrt{\frac{\frac{1}{n}\sum_{i=1}^{n}(Y_i-\bar Y)^2}{\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar X)^2}}.$$ -->
 
-$$\beta_{yx}^2=r_{yx}^2\frac{\sum_{i=1}^{n}(Y_i-\bar Y)^2}{\sum_{i=1}^{n}(X_i-\bar X)^2},$$
+<!-- Eliminating the number of observations and squaring the equation gives: -->
 
-we can substitute $\beta$ in equation (4.15) with the result from (4.12) and get:
+<!-- $$\beta_{yx}^2=r_{yx}^2\frac{\sum_{i=1}^{n}(Y_i-\bar Y)^2}{\sum_{i=1}^{n}(X_i-\bar X)^2}.\tag{4.12}$$ -->
 
-$$\begin{align}
-\sum_{i=1}^{n}(Y_i-\bar Y)^2&=r_{xy}^2\frac{\sum_{i=1}^{n}(Y_i-\bar Y)^2}{\sum_{i=1}^{n}(X_i-\bar X)^2}\sum_{i=1}^{n}(X_i-\bar X)^2+\sum_{i=1}^{n}(Y_i-\hat Y_i)^2\\
-\\
-&=r_{xy}^2 \sum_{i=1}^{n}(Y_i-\bar Y)^2+\sum_{i=1}^{n}(Y_i-\hat Y_i)^2\tag{4.16}\\
-\\
-\frac{\sum_{i=1}^{n}(Y_i-\bar Y)^2-\sum_{i=1}^{n}(Y_i-\hat Y_i)^2}{\sum_{i=1}^{n}(Y_i-\bar Y)^2}&=r_{xy}^2 \textrm{ ,which is}\\
-\\
-1-\frac{\sum_{i=1}^{n}(Y_i-\hat Y_i)^2}{\sum_{i=1}^{n}(Y_i-\bar Y)^2}=1-\frac{RSS}{TSS}&=r_{xy}^2.
-\tag{4.17}
-\end{align}$$
+<!-- The numerator $\sum_{i=1}^{n}(Y_i-\bar Y)^2$ is the total sum of squares (TSS), thus, from (0.1) follows: -->
 
-Similarly, according to (0.2) the explained sum of squares (ESS) are the deviation between total (TSS) and residual sum of squares (RSS):
+<!-- $$\sum_{i=1}^{n}(Y_i-\bar Y)^2=\sum_{i=1}^{n}(\hat Y_i-\bar Y)^2+\sum_{i=1}^{n}(Y_i-\hat Y_i)^2.\tag{4.13}$$ -->
 
-$$\sum_{i=1}^{n}(\hat Y_i-\bar Y)^2 = \sum_{i=1}^{n}( Y_i-\bar Y)^2-\sum_{i=1}^{n}(Y_i-\hat Y)^2,$$
+<!-- The explained sum of squares (ESS) $\sum_{i=1}^{n}(\hat Y_i-\bar Y)^2$ are statistically explained by the determination of the regression line: -->
 
-therefore, we can write equation (4.17) as well as:
+<!-- $$ESS=\sum_{i=1}^{n}(\hat Y_i-\bar Y)^2=\beta X_i=\beta(X_i-\bar X).\tag{4.14}$$ -->
 
-$$\begin{align}
-\frac{\sum_{i=1}^{n}(\hat Y_i-\bar Y)^2}{\sum_{i=1}^{n}(Y_i-\bar Y)^2}&=r_{xy}^2\\
-\\
-\frac{ESS}{RSS}&=r_{xy}^2=R^2.
-\tag{4.18}
-\end{align}$$
+<!-- Substituting the result of (4.14) in equation (4.13) gives: -->
 
-**Final remarks:**
-In the bivariate model (simple linear regression) the variance explained is equivalent to the squared bivariate correlation coefficient (Bravais Pearson). 
-In multiple regression model the relation:
+<!-- $$\sum_{i=1}^{n}(Y_i-\bar Y)^2=\beta^2\sum_{i=1}^{n}(X_i-\bar X)^2+\sum_{i=1}^{n}(Y_i-\hat Y_i)^2.\tag{4.15}$$ -->
 
-$$\frac{ESS}{TSS}=R^2$$
+<!-- As we know from (4.12): -->
 
-holds as well. Here the variance explained is equivalent to the squared multiple correlation coefficient between the estimated and observed Y-value ($r_{\hat Y Y}$).
+<!-- $$\beta_{yx}^2=r_{yx}^2\frac{\sum_{i=1}^{n}(Y_i-\bar Y)^2}{\sum_{i=1}^{n}(X_i-\bar X)^2},$$ -->
 
-In the multiple linear regression model the variance explained is also dependent in the number of X-variables. Therefore an adjusted $R^2$ measure should be used.
+<!-- we can substitute $\beta$ in equation (4.15) with the result from (4.12) and get: -->
+
+<!-- $$\begin{align} -->
+<!-- \sum_{i=1}^{n}(Y_i-\bar Y)^2&=r_{xy}^2\frac{\sum_{i=1}^{n}(Y_i-\bar Y)^2}{\sum_{i=1}^{n}(X_i-\bar X)^2}\sum_{i=1}^{n}(X_i-\bar X)^2+\sum_{i=1}^{n}(Y_i-\hat Y_i)^2\\ -->
+<!-- \\ -->
+<!-- &=r_{xy}^2 \sum_{i=1}^{n}(Y_i-\bar Y)^2+\sum_{i=1}^{n}(Y_i-\hat Y_i)^2\tag{4.16}\\ -->
+<!-- \\ -->
+<!-- \frac{\sum_{i=1}^{n}(Y_i-\bar Y)^2-\sum_{i=1}^{n}(Y_i-\hat Y_i)^2}{\sum_{i=1}^{n}(Y_i-\bar Y)^2}&=r_{xy}^2 \textrm{ ,which is}\\ -->
+<!-- \\ -->
+<!-- 1-\frac{\sum_{i=1}^{n}(Y_i-\hat Y_i)^2}{\sum_{i=1}^{n}(Y_i-\bar Y)^2}=1-\frac{RSS}{TSS}&=r_{xy}^2. -->
+<!-- \tag{4.17} -->
+<!-- \end{align}$$ -->
+
+<!-- Similarly, according to (0.2) the explained sum of squares (ESS) are the deviation between total (TSS) and residual sum of squares (RSS): -->
+
+<!-- $$\sum_{i=1}^{n}(\hat Y_i-\bar Y)^2 = \sum_{i=1}^{n}( Y_i-\bar Y)^2-\sum_{i=1}^{n}(Y_i-\hat Y)^2,$$ -->
+
+<!-- therefore, we can write equation (4.17) as well as: -->
+
+<!-- $$\begin{align} -->
+<!-- \frac{\sum_{i=1}^{n}(\hat Y_i-\bar Y)^2}{\sum_{i=1}^{n}(Y_i-\bar Y)^2}&=r_{xy}^2\\ -->
+<!-- \\ -->
+<!-- \frac{ESS}{RSS}&=r_{xy}^2=R^2. -->
+<!-- \tag{4.18} -->
+<!-- \end{align}$$ -->
+
+<!-- **Final remarks:** -->
+<!-- In the bivariate model (simple linear regression) the variance explained is equivalent to the squared bivariate correlation coefficient (Bravais Pearson).  -->
+<!-- In multiple regression model the relation: -->
+
+<!-- $$\frac{ESS}{TSS}=R^2$$ -->
+
+<!-- holds as well. Here the variance explained is equivalent to the squared multiple correlation coefficient between the estimated and observed Y-value ($r_{\hat Y Y}$). -->
+
+<!-- In the multiple linear regression model the variance explained is also dependent in the number of X-variables. Therefore an adjusted $R^2$ measure should be used. -->

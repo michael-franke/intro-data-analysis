@@ -35,11 +35,11 @@ As for data, for each time point (in seconds) $t \in \{1, 3, 6, 9, 12, 18\}$, we
 
 ```{r}
 # time after memorization (in seconds)
-t = c(1, 3, 6, 9, 12, 18)
+t <- c(1, 3, 6, 9, 12, 18)
 # proportion (out of 100) of correct recall
-y = c(.94, .77, .40, .26, .24, .16)
+y <- c(.94, .77, .40, .26, .24, .16)
 # number of observed correct recalls (out of 100)
-obs = y * 100
+obs <- y * 100
 ```
 
 A visual representation of this data set is here:
@@ -56,7 +56,6 @@ tibble(
     title = "(fictitious) recall data"
   ) +
   ylim(c(0,1))
-  
 ```
 
 We are interested in comparing two theoretically different models for this data. Models differ in their assumption about the functional relationship between recall probability and time. The **exponential model** assumes that the recall probability $\theta_t$ at time $t$ is an exponential decay function with parameters $a$ and $b$:
@@ -167,15 +166,19 @@ knitr::kable(MLEstimates)
 The MLE-predictions of each model are shown in Figure \@ref(fig:Chap-03-06-model-comparison-MLE-fits) below, alongside the observed data.
 
 ```{r Chap-03-06-model-comparison-MLE-fits, echo = F, fig.cap = "Predictions of the exponential and the power model under best-fitting parameter values."}
-a = bestExpo$par[1]
-b = bestExpo$par[2]
-c = bestPow$par[1]
-d = bestPow$par[2]
-forgetPlotBest <-  ggplot(data.frame(x = c(1,20)), aes(x)) +
-         stat_function(fun = function(x) expo(x, a, b), aes(color = "exponential")) +
-         stat_function(fun = function(x) power(x, c, d), aes(color = "power")) +
-         scale_colour_manual("Function", breaks = c("exponential", "power"), values = project_colors[1:2]) +
-          ggtitle("MLE fits") + geom_point(data = forgetData, aes(x = t, y = y)) +
+a <- bestExpo$par[1]
+b <- bestExpo$par[2]
+c <- bestPow$par[1]
+d <- bestPow$par[2]
+forgetPlotBest <- ggplot(data.frame(x = c(1,20)), aes(x)) +
+  stat_function(fun = function(x) expo(x, a, b), aes(color = "exponential")) +
+  stat_function(fun = function(x) power(x, c, d), aes(color = "power")) +
+  scale_colour_manual(
+    "Function", 
+    breaks = c("exponential", "power"), 
+    values = project_colors[1:2]
+  ) +
+  ggtitle("MLE fits") + geom_point(data = forgetData, aes(x = t, y = y)) +
   labs(
     x = "time",
     y = "recall rate"
@@ -187,9 +190,9 @@ forgetPlotBest
 It is impossible to say by visual inspection of Figure \@ref(fig:Chap-03-06-model-comparison-MLE-fits) which model should be preferred. Numbers might help see more fine-grained differences:
 
 ```{r}
-predExp = expo(t,a,b)
-predPow = power(t,c,d)
-modelStats = tibble(
+predExp <- expo(t,a,b)
+predPow <- power(t,c,d)
+modelStats <- tibble(
   model = c("expo", "power"),
   `log likelihood` = round(c(-bestExpo$value, -bestPow$value),3),
   probability = signif(exp(c(-bestExpo$value, -bestPow$value)),3),
@@ -229,7 +232,7 @@ $$
 
 Akaike weights are relative and normalized measures, and may serve as an approximate measure of a model's posterior probability given the data:
 
-$$ P(M_i \mid D) \approx w_{\text{AIC}}(M_i, D)$$ 
+$$ P(M_i \mid D) \approx w_{\text{AIC}}(M_i, D) $$ 
 
 For the running example at hand, this would mean that we could conclude that the posterior probability of the exponential model is approximately:
 
@@ -330,7 +333,7 @@ $$\underbrace{\frac{P(M_1 \mid D)}{P(M_2 \mid D)}}_{\text{posterior odds}} = \un
 The likelihood ratio is also called the **Bayes factor**. Formally, the Bayes factor is the factor by which a rational agent changes her prior odds in the light of observed data to arrive at updated, posterior odds. More intuitively, the Bayes factor quantifies the strength of evidence given by the data about the models of interest. It expresses this evidence in terms of the models' relative prior predictive accuracy. To see the latter, let's expand the Bayes factor as what it actually is: the ratio of marginal likelihoods.
 
 $$
-\frac{P(D \mid M_1)}{P(D \mid M_2)} = \frac{\int P(\theta_i \mid M_i) \ P(D \mid \theta_i, M_i) \text{ d}\theta_i}{\int P(\theta_j \mid M_j) \ P(D \mid \theta_j, M_j) \text{ d}\theta_j}
+\frac{P(D \mid M_1)}{P(D \mid M_2)} = \frac{\int P(\theta_1 \mid M_1) \ P(D \mid \theta_1, M_1) \text{ d}\theta_1}{\int P(\theta_2 \mid M_2) \ P(D \mid \theta_2, M_2) \text{ d}\theta_2}
 $$
 
 Three insights are to be gained from this expansion. Firstly, the Bayes factor is a measure of how well each model would have predicted the data *ex ante*, i.e., before having seen any data. In this way, it is diametrically opposed to a concept like AIC or the LR-test, which both relied on models' maximum liklihood fits (therefore *using the data*, so being *ex post*). 
@@ -379,7 +382,7 @@ To begin with, we need to define a prior over parameters to obtain Bayesian vers
 
 $$
 \begin{aligned}
-P(D = \langle k, N \rangle \mid \langle a, b\rangle, M_{\text{exp}}) & = \text{Binom}(k,N, a \exp (-bt)) \\
+P(D = \langle k_i, N \rangle \mid \langle a, b\rangle, M_{\text{exp}}) & = \text{Binom}(k,N, a \exp (-bt_i)) \\
 P(a \mid M_{\text{exp}}) & = \text{Uniform}(a, 0, 1.5) \\
 P(b \mid M_{\text{exp}}) & = \text{Uniform}(b, 0, 1.5) 
 \end{aligned}
@@ -390,9 +393,9 @@ The (Bayesian) power model is then:
 
 $$
 \begin{aligned}
-P(D = \langle k, N \rangle \mid \langle c, d\rangle, M_{\text{pow}}) & = \text{Binom}(k,N, c\ t^{-d}) \\
-P(d \mid M_{\text{pow}}) & = \text{Uniform}(c, 0, 1.5) \\
-P(c \mid M_{\text{pow}}) & = \text{Uniform}(d, 0, 1.5) 
+P(D = \langle k_i, N \rangle \mid \langle c, d\rangle, M_{\text{pow}}) & = \text{Binom}(k,N, c\ t_i^{-d}) \\
+P(c \mid M_{\text{pow}}) & = \text{Uniform}(c, 0, 1.5) \\
+P(d \mid M_{\text{pow}}) & = \text{Uniform}(d, 0, 1.5) 
 \end{aligned}
 $$
 
@@ -400,26 +403,26 @@ We can also express these models in code, like so:
 
 ```{r}
 # prior exponential model
-priorExp = function(a, b){
+priorExp <- function(a, b){
   dunif(a, 0, 1.5) * dunif(b, 0, 1.5)
 }
 # likelihood function exponential model
-lhExp = function(a, b){
-  theta = a*exp(-b*t)
-  theta[theta <= 0.0] = 1.0e-5
-  theta[theta >= 1.0] = 1-1.0e-5
+lhExp <- function(a, b){
+  theta <- a*exp(-b*t)
+  theta[theta <= 0.0] <- 1.0e-5
+  theta[theta >= 1.0] <- 1-1.0e-5
   prod(dbinom(x = obs, prob = theta, size = 100))
 }
 
 # prior power model
-priorPow = function(c, d){
+priorPow <- function(c, d){
   dunif(c, 0, 1.5) * dunif(d, 0, 1.5)
 }
 # likelihood function power model
-lhPow = function(c, d){
-  theta = c*t^(-d)
-  theta[theta <= 0.0] = 1.0e-5
-  theta[theta >= 1.0] = 1-1.0e-5
+lhPow <- function(c, d){
+  theta <- c*t^(-d)
+  theta[theta <= 0.0] <- 1.0e-5
+  theta[theta >= 1.0] <- 1-1.0e-5
   prod(dbinom(x = obs, prob = theta, size = 100))
 }
 ```
@@ -428,19 +431,25 @@ To approximate each model's marginal likelihood via grid approximation, we consi
 
 ```{r}
 # make sure the functions accept vector input
-lhExp = Vectorize(lhExp)
-lhPow = Vectorize(lhPow)
+lhExp <- Vectorize(lhExp)
+lhPow <- Vectorize(lhPow)
 
 # define the step size of the grid
-stepsize = 0.01
+stepsize <- 0.01
 # calculate the "evidence" aka marginal likelihood
-evidence = expand.grid(x = seq(0.005, 1.495, by = stepsize),
-                       y = seq(0.005, 1.495, by = stepsize)) %>% 
-  mutate(lhExp = lhExp(x,y), priExp = 1 / length(x),  # uniform priors!
-         lhPow = lhPow(x,y), priPow = 1 / length(x))
-
-paste0("BF in favor of exponential model: ", 
-            with(evidence, sum(priExp*lhExp)/ sum(priPow*lhPow)) %>% round(2))
+evidence <- expand.grid(
+  x = seq(0.005, 1.495, by = stepsize),
+  y = seq(0.005, 1.495, by = stepsize)
+) %>% 
+  mutate(
+    lhExp = lhExp(x,y), priExp = 1 / length(x),  # uniform priors!
+    lhPow = lhPow(x,y), priPow = 1 / length(x)
+  )
+# output result
+message(
+  "BF in favor of exponential model: ", 
+  with(evidence, sum(priExp*lhExp)/ sum(priPow*lhPow)) %>% round(2)
+)
 ```
 
 Based on this computation, we would be entitled to conclude that the data provides overwhelming evidence in favor of the exponential model. No matter what we believed at the outset about which model is more likely, we should adjust these beliefs by a factor of more than 1000 in favor of the exponential model. 
@@ -454,23 +463,40 @@ $$P(D, M_i) = \int P(D \mid \theta, M_i) \ P(\theta \mid M_i) \ \text{d}\theta \
 Here is a calculationg using one million samples from the prior of each model:
 
 ```{r}
-nSamples = 1000000
-a = runif(nSamples, 0, 1.5)
-b = runif(nSamples, 0, 1.5)
-lhExpVec = lhExp(a,b)
-lhPowVec = lhPow(a,b)
-paste0("BF in favor of exponential model: ", 
-            signif(sum(lhExpVec) / sum(lhPowVec)),6)
-
+nSamples <- 1000000
+a <- runif(nSamples, 0, 1.5)
+b <- runif(nSamples, 0, 1.5)
+lhExpVec <- lhExp(a,b)
+lhPowVec <- lhPow(a,b)
+message(
+ "BF in favor of exponential model: ", 
+ signif(sum(lhExpVec) / sum(lhPowVec)),6 
+)
 ```
 
-We can also check the time course of out MC-estimate by a plot like that in Figure \@ref(fig:Chap-03-06-model-comparison-MC-estimate-time).
+We can also check the time course of our MC-estimate by a plot like that in Figure \@ref(fig:Chap-03-06-model-comparison-MC-estimate-time).
 
 ```{r Chap-03-06-model-comparison-MC-estimate-time, fig.cap = "Temporal development (as more samples come in) of the Monte Carlo esimtate of the Bayes factor in favor of the exponential model over the power model of forgetting."}
-BFVec = sapply(seq(10000,nSamples, by = 500), 
-     function(i) sum(lhExpVec[1:i]) / sum(lhPowVec[1:i]))
-ggplot(data.frame(i = seq(10000,nSamples, by = 500), BF = BFVec), aes(x=i, y=BF)) +
-  geom_line() + geom_hline(yintercept = 1221, color = "firebrick") + xlab("number of samples")
+BFVec <- map_dbl(
+  # start at 10.000 and then inspect every 500 samples
+  seq(10000, nSamples, by = 500), 
+  function(i){
+    # what's the BF-estimate at that point in time?
+    sum(lhExpVec[1:i]) / sum(lhPowVec[1:i])
+  } 
+)
+
+tibble(
+  i = seq(10000, nSamples, by = 500), 
+  BF = BFVec
+) %>% 
+ggplot(aes(x = i, y = BF)) +
+  geom_line() + 
+  geom_hline(
+    yintercept = 1221, 
+    color = "firebrick"
+  ) + 
+  xlab("number of samples")
 ```
 
 ## Outlook
