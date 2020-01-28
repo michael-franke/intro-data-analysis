@@ -18,8 +18,8 @@ library(binom)       # for binomial confidence intervals
 library(BSDA)        # for z.test
 library(dirichlet)   # for visualizing dirichlet distribution; 
                      # needs github version, see .travis.yml for that
-
 library(polspline)   # for reliable density estimates at point-values
+library(GGally)      # for ally plots 
 
 ## set defaults
 source("theme_ida.R")

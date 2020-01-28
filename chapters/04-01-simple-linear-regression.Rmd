@@ -11,6 +11,265 @@
   - relation to t-test and ANOVA
   - different coding shemes
 
+## Data set: murder data
+
+As a running example we use data on murder rates in cities of different population size, also containing further socio-economic information.
+
+```{r, echo = F}
+murder_data <- read_csv('data_sets/murder_rates.csv') %>% 
+  rename(murder_rate = annual_murder_rate_per_million_inhabitants,
+         low_income = percentage_low_income, 
+         unemployment = percentage_unemployment) %>% 
+  select(murder_rate, low_income, unemployment, population)
+```
+
+```{r, eval = F}
+murder_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/murder_rates.csv')) %>% 
+  rename(murder_rate = annual_murder_rate_per_million_inhabitants,
+         low_income = percentage_low_income, 
+         unemployment = percentage_unemployment) %>% 
+  select(murder_rate, low_income, unemployment, population)
+```
+
+We take a look at the data:
+
+```{r}
+murder_data
+```
+
+Each row in this data set shows data from a city. The information in the columns is:
+
+- `murder_rate`: annual murder rate per million inhabitants
+- `low_income`: percentage of inhabitants with a low income (however that is defined)
+- `unemployment`: percentage of unemployed inhabitants
+- `population`: number of inhabitants of a city
+
+Here's a nice way of plotting each variable against each other:
+
+```{r, fig.height = 8}
+GGally::ggpairs(murder_data, title = "Murder rate data")
+```
+
+The diagonal of this graph shows the density curve of the data in each column. Scatter plots below the diagonal show pairs of values from two columns plotted against each other. The information above the diagonal gives the correlation score of each pair of variables.
+
+
+## What is a (simple) linear regression?
+
+We are interested in explaining or predicting the murder rates in a city. Suppose we have nothing to explain it with, i.e., we only have a vector of murder rates. Let's plot the murder rate for every city (just numbered consecutively):
+
+```{r, echo = F}
+murder_data %>% 
+  ggplot(aes(x = 1:20, y = murder_rate)) +
+  geom_point() +
+  labs(
+    x = "city",
+    y = "murder rate"
+  ) 
+```
+
+### Prediction without any further information
+
+If we knew all observed murder rates and if were to predict the murder rate of a random city so that we had no further information about that city, our best guess would be the mean of the observed values, because this is what minimizes (on average) the distance to the observed murder rates. 
+
+The plot below visualizes the prediction we make by this naive approach. The black dots show the data points, the red line shows the prediction we make (the mean murder rate), the small hollow dots show the specific predictions for each observed value $x_i$ and the gray lines show the distance between our prediction and the actual data observation.
+
+```{r echo = F}
+mean_y <- murder_data %>% pull(murder_rate) %>% mean()
+murder_data %>% 
+  ggplot(aes(x = unemployment, y = murder_rate)) +
+  geom_segment(
+    aes(
+      x = unemployment, 
+      y = murder_rate,
+      xend = unemployment, 
+      yend = mean_y
+    ),
+    color = "lightgray"
+  ) +
+  geom_abline(slope = 0, intercept = mean_y, color = "firebrick") +
+  geom_point(aes(y = mean_y), shape = "O", alpha = 0.5) +
+  geom_point() +
+  labs(
+    x = "city",
+    y = "murder rate"
+  ) 
+```
+
+The mean distance could be captured in terms of the **sum of squares** like this, where $y$ is the $n$-placed vector observed murder rates and $\bar{y}$ is its mean:
+
+$$
+\text{TSS} = \sum_{i=1}^n (y_i - \bar{y})^2
+$$
+
+In the case at hand, that is:
+
+```{r}
+y <- murder_data %>% pull(murder_rate)
+n <- length(y)
+tss_simple <- sum((y - mean(y))^2)
+tss_simple
+```
+
+
+### Prediction with knowledge of unemployment rate
+
+We might not be very content with this prediction error. Suppose we could use some piece of information about the random city whose murder rate we are trying to predict. E.g., we might happen to know the value of the variable `unemployment`. How could that help us make a better prediction?
+
+Let us assume, for the sake of current illustration, that we expect a very particular functional relationship between the variables `murder_rate` and `unemployment`. For some reason or other, we hypothesize that even with 0% unemployment, the murder rate would be positive, namely at 4 murders per million inhabitants. We further hypothesize that with each increase of 1% in the unemployment percentage, the murder rate per million increases by 2. The functional relationship between dependent variable $y$ (= murder rate) and predictor variable $x$ (= unemployment) would then be expressible as a linear function:
+
+$$
+y_i = 2x_i + 4
+$$
+
+Here is a graphical representation of this functional relationship. Again, the black dots show the data points, the red line the linear function $f(x) = 2x +4$, the small hollow dots show the specific predictions for each observed value $x_i$ and the gray lines show the distance between our prediction and the actual data observation. (Notice that there are data points for which the unemployment rate is the same, but we observed different murder rates.)
+
+```{r, echo = F}
+murder_data %>% 
+  ggplot(aes(x = unemployment, y = murder_rate)) +
+    geom_segment(
+    aes(
+      x = unemployment, 
+      y = murder_rate,
+      xend = unemployment, 
+      yend = 2*unemployment + 4
+    ),
+    color = "lightgray"
+  ) +
+  geom_point() +
+  geom_abline(slope = 2, intercept = 4, color = "firebrick") +
+  geom_point(aes(y = 2*unemployment + 4), shape = "O", alpha = 0.5) +
+  labs(y = "murder rate")
+
+```
+
+We can again quantify our prediction error in terms of the sum of squares like we did before. Here is how:
+
+```{r}
+y <- murder_data %>% pull(murder_rate)
+x <- murder_data %>% pull(unemployment)
+predicted_y <- 2 * x + 4
+n <- length(y)
+tss_guesswork <- sum((y - predicted_y)^2)
+tss_guesswork
+```
+
+Compared to the previous prediction, which was based on the mean of $y$ only, this linear function reduces the prediction error (measured here geometrically in terms of a sum of squares).
+
+### Simple linear regression: general problem formulation
+
+Suppose we have $k$ predictor variables $x_1, \dots , x_k$ and dependent variable $y$. 
+We consider the simple linear relation (where the bar on top of vector $y$ symbolizes that this is a vector of predictions): 
+
+$$ \bar{y}_i = \beta_0 + \beta_1 x_{1i} + \dots + \beta_k x_{ki}$$
+
+The parameters $\beta_0, \beta_1, \dots, \beta_k$ of this equation are called **regression coefficients**. In particular, $\beta_0$ is called the **regression intercept** and $\beta_1, \dots, \beta_k$ are **regression slope coefficients**. 
+Based on the predictions of a parameter vector $\langle \hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k\rangle$, we consider the total sum of squares as a measure of prediction error:
+
+$$\text{TSS}_{\langle \hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k\rangle} = \sum_{i = 1}^k (y_i - \bar{y}_i)^2 $$
+
+We would like to find the best parameter values (denoted traditionally by a hat on the parameter's variable: $\hat{\beta}_i$) in the sense of minimizing the total sum of squares:
+
+$$
+\langle \hat{\beta}_0, \hat{\beta}_1, \dots  , \hat{\beta}_k\rangle = \arg \min_{\langle \beta_0, \beta_1, \dots, \beta_k\rangle} \text{TSS}_{\langle \hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k\rangle}
+$$
+
+
+For instance, the example started above, where we regressed `murder_rate` against `unemployment` has two regression coefficients: an intercept term and a slope for `unemployment`. The optimal solution for these (see next section) delivers the regression line in the graph below:
+
+```{r, echo = F}
+lm_fit_murder <- lm(murder_rate ~ unemployment, data = murder_data)
+intercept_simple_murder <- lm_fit_murder$coef[1]
+slope_simple_murder <- lm_fit_murder$coef[2]
+murder_data %>% 
+  ggplot(aes(x = unemployment, y = murder_rate)) +
+    geom_segment(
+    aes(
+      x = unemployment, 
+      y = murder_rate,
+      xend = unemployment, 
+      yend = slope_simple_murder * unemployment + intercept_simple_murder
+    ),
+    color = "lightgray"
+  ) +
+  geom_point() +
+  geom_abline(slope = slope_simple_murder, intercept = intercept_simple_murder, color = "firebrick") +
+  geom_point(aes(y = slope_simple_murder * unemployment + intercept_simple_murder), shape = "O", alpha = 0.5) +
+  labs(y = "murder rate")
+```
+
+
+The total sum of squares for the best fitting parameters is:
+
+```{r, echo = F}
+y <- murder_data %>% pull(murder_rate)
+x <- murder_data %>% pull(unemployment)
+predicted_y <- slope_simple_murder * x + intercept_simple_murder
+n <- length(y)
+tss_best <- sum((y - predicted_y)^2)
+tss_best
+```
+
+The next section will explain how we find these best-fitting parameter values.
+
+## Ordinary least-squares regression
+
+### Finding optimal parameters with `optim`
+
+We can use the `optim` function to find the best-fitting parameter values for a simple linear regression. Here is an example based on the murder data. 
+
+```{r}
+# data to be explained / predicted
+y <- murder_data %>% pull(murder_rate)
+# data to use for prediction / explanation
+x <- murder_data %>% pull(unemployment)
+
+# function to calculate total sum of squares
+get_tss = function(y, x, beta_0, beta_1) {
+  yPred = beta_0 + x * beta_1
+  sum((y-yPred)^2) 
+}
+
+# finding best-fitting values for TSS
+fit_tss = optim(par = c(0, 1), 
+  fn = function(par) {
+    get_tss(y, x, par[1], par[2])
+  }
+)
+
+message(
+  "Best fitting parameter values:",
+  "\n\tIntercept: ", fit_tss$par[1] %>% signif(5),
+  "\n\tSlope: ", fit_tss$par[2] %>%  signif(5),
+  "\nTSS for best fit: ", fit_tss$value %>% signif(5)
+)
+```
+
+### Fitting OLS regression lines with `lm`
+
+R also has a built-in function `lm` which fits (simple) linear regression models via TSS minimization. Here is how you call this function for the running example:
+
+```{r}
+# fit an OLS regression
+fit_lm <- lm(
+  # the formula argument specifies dependent and independent variables
+  formula = murder_rate ~ unemployment,
+  # we also need to say where the data (columns) should come from
+  data = murder_data
+)
+
+# output the fitted object
+fit_lm
+```
+
+The output of the fitted object shows the best-fitting values (compare them to what we obtained by hand). It also shows the function call by which this fit was obtained. There is more information in the object `fit_lm` and we will return to this later when we consider hypothesis testing on regression coefficients.
+
+
+### Finding optimal parameter values with math
+
+
+## A maximim-likelihood approach
+
+## A Bayesian approach
 
 ## Testing coefficients
 
