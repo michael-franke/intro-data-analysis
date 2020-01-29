@@ -115,10 +115,20 @@ tss_simple
 
 We might not be very content with this prediction error. Suppose we could use some piece of information about the random city whose murder rate we are trying to predict. E.g., we might happen to know the value of the variable `unemployment`. How could that help us make a better prediction?
 
-Let us assume, for the sake of current illustration, that we expect a very particular functional relationship between the variables `murder_rate` and `unemployment`. For some reason or other, we hypothesize that even with 0% unemployment, the murder rate would be positive, namely at 4 murders per million inhabitants. We further hypothesize that with each increase of 1% in the unemployment percentage, the murder rate per million increases by 2. The functional relationship between dependent variable $y$ (= murder rate) and predictor variable $x$ (= unemployment) would then be expressible as a linear function:
+There does seem to be some useful information in the unemployment rate, which may lead to better predictions of the murder rate. We see this in a scatter plot:
+
+```{r, echo = F}
+murder_data %>% 
+  ggplot(aes(x = unemployment, y = murder_rate)) +
+  geom_point() +
+  labs(y = "murder rate")
+```
+
+
+Let us assume, for the sake of current illustration, that we expect a very particular functional relationship between the variables `murder_rate` and `unemployment`. For some reason or other, we hypothesize that even with 0% unemployment, the murder rate would be positive, namely at 4 murders per million inhabitants. We further hypothesize that with each increase of 1% in the unemployment percentage, the murder rate per million increases by 2. The functional relationship between dependent variable $y$ (= murder rate) and predictor variable $x$ (= unemployment) would then be expressible as a linear function (the hat on variable $y$ indicates that these are not data observations but predictions):
 
 $$
-y_i = 2x_i + 4
+\hat{y}_i = 2x_i + 4
 $$
 
 Here is a graphical representation of this functional relationship. Again, the black dots show the data points, the red line the linear function $f(x) = 2x +4$, the small hollow dots show the specific predictions for each observed value $x_i$ and the gray lines show the distance between our prediction and the actual data observation. (Notice that there are data points for which the unemployment rate is the same, but we observed different murder rates.)
@@ -139,7 +149,6 @@ murder_data %>%
   geom_abline(slope = 2, intercept = 4, color = "firebrick") +
   geom_point(aes(y = 2*unemployment + 4), shape = "O", alpha = 0.5) +
   labs(y = "murder rate")
-
 ```
 
 We can again quantify our prediction error in terms of a sum of squares like we did before. For the case of a prediction vector $\hat{y}$, the quantity in question is called **residual sum of squares**.
@@ -315,7 +324,7 @@ A similar result exists also for regression with more than one predictor variabl
 
 In order to be able to extend regression modeling to predictor variables other than metric variables (so-called generalized linear regression models), the geometric approach needs to be abandoned in favor of a likelihood-based approach. 
 
-There are two equivalent formulation of a (simple) linear regression model, using a likelihood-based approach. The first is more explicit, showing clearly that the model assumes that for each observation $y_i$, the model assumes an error term $\eps_i$, which is an iid sample from a Normal distribution. (Notice that the likelihood-based model assumes an additional parameter $\sigma$, the standard deviation of the error terms.)
+There are two equivalent formulation of a (simple) linear regression model, using a likelihood-based approach. The first is more explicit, showing clearly that the model assumes that for each observation $y_i$, the model assumes an error term $\epsilon_i$, which is an iid sample from a Normal distribution. (Notice that the likelihood-based model assumes an additional parameter $\sigma$, the standard deviation of the error terms.)
 
 $$ 
 \mathbf{\text{likelihood-based regression}} \\
