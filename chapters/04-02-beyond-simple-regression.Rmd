@@ -1,4 +1,3 @@
-
 # Beyond simple linear regression {#Chap-04-02-beyond-simple-regression}
 
 <hr>
@@ -86,7 +85,120 @@ Bayes_estimates_eco
 
 The mean of the $\delta$ parameter looks suscpiciously similar to the ominous `groupB` parameter shown in the output of the `bmrs` model fit. The 95% HDIs of the estimated posterior for the $\delta$ parameter also look suspiciously like the values of the 95% interquantile range for the `groupB` parameter. This is no conincidence! In fact, the regression model that `bmrs` calculates here is essentially the same as the $t$-test model we implemented in `greta` by hand except for slight different in the choice of the priors and inessential differences in mathematical formulation of the group mean comparison. 
 
-- show plots of posterior side-by-side
-- spell out models, show graphs
+The model computed implicitly in the call to `brm` above is a linear regression model of the following form:
 
-The upshot is, that we can conceive of a $t$-test as a special case of a linear regression model!
+$$
+\begin{aligned}
+\hat{y}_i & = \beta_0 + \beta_1 x_i & y_i & \sim \text{Normal}(\mu = \hat{y}_i, \sigma)
+\end{aligned}
+$$
+
+The only important point is that the vector $x$, which corresponds to the group information in the column `group` (which contains entries of strings `"A"` and `"B"`), is implicitly treated as a vector of zeros and ones. Implicitly, `brm` has chosen the string `"A"` as the **reference category** which is encoded as zero. The string `"B"` is the other category, encoded as number 1. As a consequence, the linear model's intercept parameter $\beta_0$ can be interpreted as the predicted mean of the reference category: if for some $i$ we have $x_i = 0$, then the predictor $\hat{y}_i$ will just be $\hat{y}_i = \beta_0$; whence that the intercept $\beta_0$ will be fitted to the mean of the reference category. If for some $i$ we have $x_i = 1$ instead, the predicted value will be computed as $\hat{y}_i = \beta_0 + \beta_1$, so that the slope term $\beta_1$ will effectively play the role of the difference $\delta$ between the mean of the groups. Modulo choice of priors and variable naming, the `brm` model encodes a Bayesian $t$-test model exactly like we previously did using `greta`. The upshot is, that we can conceive of a $t$-test as a special case of a linear regression model!
+
+Of course, nothing in this correspondence depends on a Bayesian analysis.
+
+```{r}
+fit_glm_eco <- glm(
+  # specify what to explain in terms of what
+  #  using the formula syntax
+  formula = measurement ~ group,
+  # which data to use
+  data = eco_sensitivity_data
+)
+summary(fit_glm_eco)
+```
+
+The $p$-value associated with the test of whether the slope coefficient (the difference between means) is plausibly zero corresponds to the result we get from a $t$-test (when assuming equal variance in groups; an assumption that the linear modeling approach makes per default).
+
+```{r}
+t.test(x_A, x_B, paired = F, var.equal = T)
+```
+
+## More than two categorical predictors
+
+<div style = "float:right; width:15%;">
+<img src="visuals/badge-mental-chronometry.png" alt="badge-mental-chronometry">  
+</div>  
+
+A $t$-test is only applicable to at most two groups. The classical approach to generalizing frequentist testing to the comparison of more than two groups is to use ANOVA, as briefly discussed in Chapter \@(ch-03-05-hypothesis-testing-ANOVA). But we can also use a linear regression approach for this, as demonstrated here based on the [mental chronometry data](app-93-data-sets-mental-chronometry). 
+
+We load the data as usual, but also immediately mutate the column `block` (which captures the experimental manipulation we want to use to explain the dependent variable `RT` (= reaction times)) so that the "goNoGo" condition will come fist in alphabetic order. This has the effect that, later in regression modeling, this condition will be treated as the reference level to compare other groups against. This makes sense, because our main question of interest is whether these inequalities are supported by the data:
+
+$$
+\text{RT in 'reaction'} < 
+\text{RT in 'goNoGo'} <
+\text{RT in 'discrimination'}
+$$
+
+So we are interested in the $\delta$s, so to speak, between 'reaction' and 'goNoGo' and between 'discrimination' and 'goNoGo'.
+
+```{r, eval = F}
+mc_url <- url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_cleaned.csv'
+mc_data_cleaned <- read_csv(mc_url)) %>% 
+  # renaming to make 'goNoGo' the reference level 
+  #  (dirty hack, but simpler than to messing with contrast coding)
+  mutate(
+    block = case_when(
+      block == "reaction"         ~ "B_reaction",
+      block == "goNoGo"           ~ "A_goNoGo",
+      block == "discrimination"   ~ "C_discrimination"
+    )
+  )
+```
+
+```{r, echo = F}
+mc_data_cleaned <- read_csv('data_sets/mental-chrono-data_cleaned.csv') %>% 
+  mutate(
+    block = case_when(
+      block == "reaction"         ~ "B_reaction",
+      block == "goNoGo"           ~ "A_goNoGo",
+      block == "discrimination"   ~ "C_discrimination"
+    )
+  )
+```
+
+To fit this model with `brm` we then just need a simple function call with the formula `RT ~ block` that precisely describes what we are interested: to explain reaction times as a function of the experimental condition:
+
+```{r eval = F}
+fit_brms_mc <- brm(
+  # model 'RT' as a function of 'block'
+  formula = RT ~ block,
+  data = mc_data_cleaned
+)
+```
+
+
+```{r echo = F}
+fit_brms_mc <- readRDS('models_brms/mc_data_fit.rds')
+```
+
+To inspect the posterior fits of this model, we can extract the relevant summary statistics as beforoe:
+
+```{r}
+summary(fit_brms_mc)$fixed
+```
+
+Notice that there is an intercept term, as before. This corresponds to the mean reaction time of the reference level (here: 'goNoGo'). There are two slope coefficients, one for the difference between the 'goNoGo' and the 'reaction' condition ('blockB_reaction') and another for the difference between the 'goNoGo' and the 'discrimination' condition ('blockC_discrimination').
+
+As we may have expected, the 95% interquantile range for both slope coefficients (which, given the amount of data we have, is almost surely almost identical to the 95% HDI) does not include 0 by a very wide margin. We could therefore conclude, based on a Bayesian approach to hypothesis testing in terms of posterior estimation, that the reaction times of conditions are credibly different.
+
+The function call for a frequentist analysis with `glm` is almost identical:
+
+```{r}
+fit_glm_mc <- glm(
+  # model 'RT' as a function of 'block'
+  formula = RT ~ block,
+  data = mc_data_cleaned
+)
+```
+
+The summary of the model fit reveals $p$-values for both slope coefficients, which indicate (unsurprisingly) that there is very stong evidence against the null hypothesis of no difference between the means of the two pairs of conditions we compare with this model:
+
+```{r}
+summary(fit_glm_mc)
+```
+
+## Interaction terms in factorial designs
+
+
+
