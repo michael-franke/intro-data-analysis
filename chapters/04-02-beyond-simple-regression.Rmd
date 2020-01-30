@@ -61,7 +61,7 @@ Let's inspect the summary information for the posterior samples:
 
 ```{r}
 # just showing information for the so-called 'fixed effects'
-summary(fit_brms_eco_sensitivity)$fixed 
+summary(fit_brms_eco_sensitivity)$fixed[,c("Estimate","l-95% CI", "u-95% CI")]
 ```
 
 Compare this with the summary of the posterior estimates we obtained from the Bayesian $t$-test model for this data which we implemented in `greta` and ran in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
@@ -175,7 +175,7 @@ fit_brms_mc <- readRDS('models_brms/mc_data_fit.rds')
 To inspect the posterior fits of this model, we can extract the relevant summary statistics as beforoe:
 
 ```{r}
-summary(fit_brms_mc)$fixed
+summary(fit_brms_mc)$fixed[,c("Estimate","l-95% CI", "u-95% CI")]
 ```
 
 Notice that there is an intercept term, as before. This corresponds to the mean reaction time of the reference level (here: 'goNoGo'). There are two slope coefficients, one for the difference between the 'goNoGo' and the 'reaction' condition ('blockB_reaction') and another for the difference between the 'goNoGo' and the 'discrimination' condition ('blockC_discrimination').
@@ -200,5 +200,95 @@ summary(fit_glm_mc)
 
 ## Interaction terms in factorial designs
 
+<div style = "float:right; width:15%;">
+<img src="visuals/badge-politeness.png" alt="badge-politeness">  
+</div>  
+
+The following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs [@FrankeRoettger2019:Bayesian-regres], which can be downloaded [here](https://psyarxiv.com/cdxv3). We consider data on voice pitch in a $2 \times 2$ factorial design, with factors `gender` and `context`. This is laboratory data measuring the voice pitch of male and female speakers (factor `gender`) in two different kinds of linguistic contexts, namely a polite and an informal situation (factor `context`).
 
 
+
+
+We load the data, inspect and plot it.
+
+```{r, eval = F}
+politeness_url <- url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/politeness_data.csv'
+politeness_data <- read_csv(politeness_url))
+```
+
+```{r, echo = F}
+politeness_data <- read_csv('data_sets/politeness_data.csv')
+politeness_data
+```
+
+```{r echo = F}
+# this code is copy pasted from tutorial paper
+politedata <- politeness_data 
+politedata.agg <- 
+  politedata %>% 
+    group_by(gender, context, sentence) %>% 
+    summarize(mean_frequency = mean(pitch))
+
+politedata.agg2 <- 
+  politedata %>%
+  group_by(gender, context) %>% 
+  summarize(mean_frequency = round(mean(pitch), 0))
+
+ggplot(data = politedata.agg, 
+       aes(x = gender, 
+           y = mean_frequency, 
+           colour = context)) + 
+  geom_point(position = position_dodge(0.5), 
+             alpha = 0.3, 
+             size = 3) +
+  geom_point(data = politedata.agg2, 
+             aes(x = gender, 
+                 y = mean_frequency, 
+                 #colour = context,
+                 fill = context),
+             position = position_dodge(0.5), 
+             pch = 21, 
+             colour = "black",
+             size = 5) +
+  scale_x_discrete(breaks = c("F", "M"),
+                  labels = c("female", "male")) +
+  scale_y_continuous(expand = c(0, 0), breaks = (c(50,100,150,200,250,300)), limits = c(50,300)) +
+  scale_colour_manual(breaks = c("inf", "pol"),
+                      labels = c("informal", "polite"),
+                      values = c("#f1a340", "#998ec3")) +
+  scale_fill_manual(breaks = c("inf", "pol"),
+                      labels = c("informal", "polite"),
+                      values = c("#f1a340", "#998ec3")) +
+  ylab("pitch in Hz\n") +
+  xlab("\ngender")
+```
+
+In a $2 \times 2$ factorial design like this, there are essentially four pairs of factor levels (so-called **design cells**): female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts. Different schemes exists by means of which different comparisons of means of design cells (or single factors) can be probed. A simple coding scheme for differences in our $2 \times 2$ design is shown in Figure \ref@(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients). We consider the cell "female+informal" as the reference level and so model its mean as intercept $\beta_0$. We then have a slope term $\beta_{\text{pol}}$ which encodes the difference between female pitch in informal and female pitch in polite contexts. Similarly for $\beta_{\text{male}}$. Finally, we also include a so-called **interaction term**, denoted as $\beta_{\text{pol&male}}$ in Figure \ref@(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients). The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.
+
+```{r Chap-04-02-beyond-simple-regression-factorial-coefficients, echo = F, fig.cap="Regression coefficients for a factorial design (using so-called 'treatment coding').", fig.width=4}
+knitr::include_graphics("visuals/coefficients_factorial_design.png")
+```
+
+We can fit a regression model with this coding scheme using the formula `pitch ~ gender * context`. Importantly the star `*` between explanatory variables `gender` and `context` indicates that we also want to include the interaction term.
+
+```{r eval = F}
+fit_brms_politeness <- brm(
+  # model 'pitch' as a function of 'gender' and 'context',
+  #  also including the interaction between `gender` and `context`
+  formula = pitch ~ gender * context,
+  data = politeness_data
+)
+```
+
+```{r echo = F}
+fit_brms_politeness <- readRDS('models_brms/politeness_fit.rds')
+```
+
+The summary statistics below lists the model parameters indicated in Figure \ref@(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients).
+
+```{r}
+summary(fit_brms_politeness)$fixed[,c("Estimate","l-95% CI", "u-95% CI")]
+```
+
+We could conclude from this that, given model and data, it is plausible to think that male speakers had lower voices than female speakers in informal contexts: this shows in the exclusion of 0 in the 95% interquantile range for parameter `genderM`. We may also conclude that, given model and data, it is plausible to think that female speakers used lower voices in polite contexts than in formal ones  (parameter `contextpol`).
+The posterior of the interaction term `genderM:contextpol` gives no indication to think that 0, or any value near it, is not plausible. This can be interpreted as saying that there is no indication, given model and data, to believe that male speakers' voice pitch changes differently from informal to polite contexts than female speakers' voice pitch does.
