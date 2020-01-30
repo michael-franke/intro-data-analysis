@@ -6,13 +6,87 @@
 This chapter showcases how linear regression models can be applied flexibly to a variety of data analysis problems.
 
 - categorical predictors
-  - two-groups (IQ-data)
+  - two-groups (eco-sensitivity data)
   - more groups (mental chronometry)
   - interactions (Winter data)
 - metric and categorical predictors combined
   - avocado data
-- logiistic regression
+- logistic regression
   - KoF data
 
 
-## 
+## Two categorical predictors
+
+Let's revisit the (fictitious) eco-sensitivity data from Chapter \@ref(ch-03-07-hypothesis-testing-Bayes):
+
+```{r}
+x_A <- c(
+  104, 105, 100, 91, 105, 118, 164, 168, 111, 107, 136, 149, 104, 114, 107, 95, 
+  83, 114, 171, 176, 117, 107, 108, 107, 119, 126, 105, 119, 107, 131
+)
+x_B <- c(
+  133, 115, 84, 79, 127, 103, 109, 128, 127, 107, 94, 95, 90, 118, 124, 108, 
+  87, 111, 96, 89, 106, 121, 99, 86, 115, 136, 114
+)
+```
+
+Remember that we are interested in the question whether there is a difference in means of group A and group B. Previously we used a $t$-test for this two-group comparison (frequentist or Bayesian). But we can also cast this as a regression problem. Here is how.
+
+Let's first squeeze the data into a tibble:
+
+```{r}
+eco_sensitivity_data <- tibble(
+  group = c(rep("A", length(x_A)), rep("B", length(x_B))),
+  measurement = c(x_A, x_B)
+) 
+eco_sensitivity_data
+```
+
+Notice that this tibble contains the data in a tidy format, i.e., each row contains a tuple of associated measurements. We want to explain or predict the variable `measurement` in terms of the variable `group`.We can then run a regression model with forumla `measurement ~ group`. Here's such a model using the Bayesian approach:
+
+```{r, eval = F}
+fit_brms_eco_sensitivity <- brm(
+  # specify what to explain in terms of what
+  #  using the formula syntax
+  formula = measurement ~ group,
+  # which data to use
+  data = eco_sensitivity_data
+)
+```
+
+```{r, echo = F}
+fit_brms_eco_sensitivity <- readRDS('models_brms/fit_brms_eco_sensitivity.rds')
+```
+
+Let's inspect the summary information for the posterior samples:
+
+```{r}
+# just showing information for the so-called 'fixed effects'
+summary(fit_brms_eco_sensitivity)$fixed 
+```
+
+Compare this with the summary of the posterior estimates we obtained from the Bayesian $t$-test model for this data which we implemented in `greta` and ran in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
+
+```{r echo = F, eval = T}
+draws_t_test_2 <- readRDS('models_greta/ttest_2_draws.rds')
+tidy_draws_tt2 = ggmcmc::ggs(draws_t_test_2)
+# get means and 95% HDI
+Bayes_estimates_eco <- tidy_draws_tt2 %>% 
+  group_by(Parameter) %>%
+  summarise(
+    '|95%' = HDInterval::hdi(value)[1],
+    mean = mean(value),
+    '95|%' = HDInterval::hdi(value)[2]
+  )
+```
+
+```{r}
+Bayes_estimates_eco
+```
+
+The mean of the $\delta$ parameter looks suscpiciously similar to the ominous `groupB` parameter shown in the output of the `bmrs` model fit. The 95% HDIs of the estimated posterior for the $\delta$ parameter also look suspiciously like the values of the 95% interquantile range for the `groupB` parameter. This is no conincidence! In fact, the regression model that `bmrs` calculates here is essentially the same as the $t$-test model we implemented in `greta` by hand except for slight different in the choice of the priors and inessential differences in mathematical formulation of the group mean comparison. 
+
+- show plots of posterior side-by-side
+- spell out models, show graphs
+
+The upshot is, that we can conceive of a $t$-test as a special case of a linear regression model!
