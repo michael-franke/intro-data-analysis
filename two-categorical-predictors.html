@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Introduction to Data Analysis</title>
+  <title>4.1 Two categorical predictors | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.17.2 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Introduction to Data Analysis" />
+  <meta property="og:title" content="4.1 Two categorical predictors | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Introduction to Data Analysis" />
+  <meta name="twitter:title" content="4.1 Two categorical predictors | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
-<link rel="next" href="general-introduction.html"/>
+<link rel="prev" href="Chap-04-02-beyond-simple-regression.html"/>
+<link rel="next" href="app-90-further-material.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -233,80 +233,124 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Introduction to Data Analysis</h1>
-<p class="author"><em>Michael Franke</em></p>
-<p class="date"><em>last rendered at: 2020-01-30 06:49:14</em></p>
-</div>
-<div id="preface" class="section level1 unnumbered">
-<h1>Preface</h1>
-<p>This book is the basic reading material for the course “Introduction to Data Analysis”, held at the Universtity of Osnabrück in the winter term of 2019, as part of the BSc <em>Cognitive Science</em> program. It introduces key concepts of data analysis from a frequentist and a Bayesian tradition. It uses R to handle, plot and analyze data. It relies on simulation to illustrate selected statistical concepts.</p>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({ TeX: { extensions: ["color.js"] }});
-</script>
+<div id="two-categorical-predictors" class="section level2">
+<h2><span class="header-section-number">4.1</span> Two categorical predictors</h2>
+<p>Let’s revisit the (fictitious) eco-sensitivity data from Chapter <a href="#ch-03-07-hypothesis-testing-Bayes"><strong>??</strong></a>:</p>
+<div class="sourceCode" id="cb178"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb178-1" data-line-number="1">x_A &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
+<a class="sourceLine" id="cb178-2" data-line-number="2">  <span class="dv">104</span>, <span class="dv">105</span>, <span class="dv">100</span>, <span class="dv">91</span>, <span class="dv">105</span>, <span class="dv">118</span>, <span class="dv">164</span>, <span class="dv">168</span>, <span class="dv">111</span>, <span class="dv">107</span>, <span class="dv">136</span>, <span class="dv">149</span>, <span class="dv">104</span>, <span class="dv">114</span>, <span class="dv">107</span>, <span class="dv">95</span>, </a>
+<a class="sourceLine" id="cb178-3" data-line-number="3">  <span class="dv">83</span>, <span class="dv">114</span>, <span class="dv">171</span>, <span class="dv">176</span>, <span class="dv">117</span>, <span class="dv">107</span>, <span class="dv">108</span>, <span class="dv">107</span>, <span class="dv">119</span>, <span class="dv">126</span>, <span class="dv">105</span>, <span class="dv">119</span>, <span class="dv">107</span>, <span class="dv">131</span></a>
+<a class="sourceLine" id="cb178-4" data-line-number="4">)</a>
+<a class="sourceLine" id="cb178-5" data-line-number="5">x_B &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
+<a class="sourceLine" id="cb178-6" data-line-number="6">  <span class="dv">133</span>, <span class="dv">115</span>, <span class="dv">84</span>, <span class="dv">79</span>, <span class="dv">127</span>, <span class="dv">103</span>, <span class="dv">109</span>, <span class="dv">128</span>, <span class="dv">127</span>, <span class="dv">107</span>, <span class="dv">94</span>, <span class="dv">95</span>, <span class="dv">90</span>, <span class="dv">118</span>, <span class="dv">124</span>, <span class="dv">108</span>, </a>
+<a class="sourceLine" id="cb178-7" data-line-number="7">  <span class="dv">87</span>, <span class="dv">111</span>, <span class="dv">96</span>, <span class="dv">89</span>, <span class="dv">106</span>, <span class="dv">121</span>, <span class="dv">99</span>, <span class="dv">86</span>, <span class="dv">115</span>, <span class="dv">136</span>, <span class="dv">114</span></a>
+<a class="sourceLine" id="cb178-8" data-line-number="8">)</a></code></pre></div>
+<p>Remember that we are interested in the question whether there is a difference in means of group A and group B. Previously we used a <span class="math inline">\(t\)</span>-test for this two-group comparison (frequentist or Bayesian). But we can also cast this as a regression problem. Here is how.</p>
+<p>Let’s first squeeze the data into a tibble:</p>
+<div class="sourceCode" id="cb179"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb179-1" data-line-number="1">eco_sensitivity_data &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb179-2" data-line-number="2">  <span class="dt">group =</span> <span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="kw">length</span>(x_A)), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="kw">length</span>(x_B))),</a>
+<a class="sourceLine" id="cb179-3" data-line-number="3">  <span class="dt">measurement =</span> <span class="kw">c</span>(x_A, x_B)</a>
+<a class="sourceLine" id="cb179-4" data-line-number="4">) </a>
+<a class="sourceLine" id="cb179-5" data-line-number="5">eco_sensitivity_data</a></code></pre></div>
+<pre><code>## # A tibble: 57 x 2
+##    group measurement
+##    &lt;chr&gt;       &lt;dbl&gt;
+##  1 A             104
+##  2 A             105
+##  3 A             100
+##  4 A              91
+##  5 A             105
+##  6 A             118
+##  7 A             164
+##  8 A             168
+##  9 A             111
+## 10 A             107
+## # … with 47 more rows</code></pre>
+<p>Notice that this tibble contains the data in a tidy format, i.e., each row contains a tuple of associated measurements. We want to explain or predict the variable <code>measurement</code> in terms of the variable <code>group</code>.We can then run a regression model with forumla <code>measurement ~ group</code>. Here’s such a model using the Bayesian approach:</p>
+<div class="sourceCode" id="cb181"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb181-1" data-line-number="1">fit_brms_eco_sensitivity &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb181-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
+<a class="sourceLine" id="cb181-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
+<a class="sourceLine" id="cb181-4" data-line-number="4">  <span class="dt">formula =</span> measurement <span class="op">~</span><span class="st"> </span>group,</a>
+<a class="sourceLine" id="cb181-5" data-line-number="5">  <span class="co"># which data to use</span></a>
+<a class="sourceLine" id="cb181-6" data-line-number="6">  <span class="dt">data =</span> eco_sensitivity_data</a>
+<a class="sourceLine" id="cb181-7" data-line-number="7">)</a></code></pre></div>
+<p>Let’s inspect the summary information for the posterior samples:</p>
+<div class="sourceCode" id="cb182"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb182-1" data-line-number="1"><span class="co"># just showing information for the so-called &#39;fixed effects&#39;</span></a>
+<a class="sourceLine" id="cb182-2" data-line-number="2"><span class="kw">summary</span>(fit_brms_eco_sensitivity)<span class="op">$</span>fixed </a></code></pre></div>
+<pre><code>##            Estimate Est.Error  l-95% CI    u-95% CI     Rhat Bulk_ESS Tail_ESS
+## Intercept 118.68533  3.755572 111.42867 125.8595713 1.001581     3956     3160
+## groupB    -11.37756  5.576870 -22.47929  -0.6354608 1.001299     3845     2694</code></pre>
+<p>Compare this with the summary of the posterior estimates we obtained from the Bayesian <span class="math inline">\(t\)</span>-test model for this data which we implemented in <code>greta</code> and ran in Chapter <a href="#ch-03-07-hypothesis-testing-Bayes"><strong>??</strong></a>.</p>
+<div class="sourceCode" id="cb184"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb184-1" data-line-number="1">Bayes_estimates_eco</a></code></pre></div>
+<pre><code>## # A tibble: 1 x 4
+##   Parameter `|95%`  mean `95|%`
+##   &lt;fct&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+## 1 delta      -21.0 -10.9 -0.384</code></pre>
+<p>The mean of the <span class="math inline">\(\delta\)</span> parameter looks suscpiciously similar to the ominous <code>groupB</code> parameter shown in the output of the <code>bmrs</code> model fit. The 95% HDIs of the estimated posterior for the <span class="math inline">\(\delta\)</span> parameter also look suspiciously like the values of the 95% interquantile range for the <code>groupB</code> parameter. This is no conincidence! In fact, the regression model that <code>bmrs</code> calculates here is essentially the same as the <span class="math inline">\(t\)</span>-test model we implemented in <code>greta</code> by hand except for slight different in the choice of the priors and inessential differences in mathematical formulation of the group mean comparison.</p>
+<ul>
+<li>show plots of posterior side-by-side</li>
+<li>spell out models, show graphs</li>
+</ul>
+<p>The upshot is, that we can conceive of a <span class="math inline">\(t\)</span>-test as a special case of a linear regression model!</p>
 
-<!-- ## Testing / Showcasing -->
-<!-- Don't pay too much attention to what is written here. -->
-<!-- ### Quotes -->
-<!-- This is a quote: -->
-<!-- > Tidy datasets [...] have a specific structure: each variable is a column, each observation is a row, and each type of observational unit is a table. -->
-<!-- > -->
-<!-- > --- @wickham2014 -->
-<!-- ### Infobox -->
-<!-- At certain stages, possibly at the end of chapters or after important concepts, we might want to use a special infobox (see `.infobox` in `styles.css`) to summarise it or give food for thought. Like this: -->
-<!-- ```{block, type='infobox'} -->
-<!-- A horse walks into a bar and orders a pint. The barkeep says "you're in here pretty often. Think you might be an alcoholic?", to which the horse says "I don't think I am.", and vanishes from existence. -->
-<!-- See, the joke is about Descartes' famous philosophy of 'I think therefore, I am", but to explain that part before the rest of the joke would be to put Descartes before the horse. -->
+<!-- # Logistic regression -->
+<!-- ### Beta-Binomial model - one group (revisited) -->
+<!-- Sofar the existence of the underlying probability $\theta$ for observing head as outcome of a coin flip has been discussed. But the estimation of $\theta$ has been ignored until yet. Although "estimation" will be topic of next chapter, it is helpful at this point to discuss the introduced models further. In order to estimate $\theta$ *parameter(s)* are needed. When it comes to estimation exactly this/these parameter(s) will be the result(s), therefore is is important to see already the connection to the models that were developed in this chapter. -->
+<!-- For the coin flip example the value of interest is the underlying probability, thus, only one parameter is needed:$\beta_0$. (Note: Latin letters are used when we refer to the sample, Greek letters are used when we refer to the population.) -->
+<!-- How is $\beta_0$ linked to the latent variable $\theta$? -->
+<!-- Considering for example the simplest case: a *linear relationship* (see next plot left side). The problem which arises at this point is that $\theta$ represents a probability, and is therefore bounded to the range 0-1 (grey shaded area). -->
+<!-- ```{r} -->
+<!-- #Different relationships between the parameter and expected value -->
+<!-- x <- seq(from=-4, to=4, length.out = 100) -->
+<!-- y <- x                 #linear relationship -->
+<!-- y.log <- inv_logit_scaled(x)   #logistic relationship -->
+<!-- par(mfrow = c(1, 2))   #set both plot beside each other -->
+<!-- plot(x, y, type="l", ylab=expression(theta), xlab=expression(beta[0])) -->
+<!-- rect(-5, 0, 5, 1, col = rgb(0.5, 0.5, 0.5, 1/4), border = NA) -->
+<!-- plot(x, y.log, type="l", ylab=expression(logit~(theta)), xlab=expression(beta[0])) -->
+<!-- rect(-5, 0, 5, 1, col = rgb(0.5, 0.5, 0.5, 1/4), border = NA) -->
 <!-- ``` -->
-<!-- We can have boxes with different icons for different purposes, using `{block, type='see styles.css'}`: -->
-<!-- ```{block, type='questions'} -->
-<!-- This might be useful for excercises or general questions. Do you like it? -->
-<!-- ``` -->
-<!-- ```{block, type='beware'} -->
-<!-- Sometimes there are things that are really important, like exceptions to general rules. This box might be appropriate for these. -->
-<!-- ``` -->
-<!-- To use markdown/latex inside the boxes, use `{block2, ...}`: -->
-<!-- ```{block2, type='research'} -->
-<!-- ["More research needs to be done"](https://en.wikipedia.org/wiki/Further_research_is_needed) as an infobox. -->
-<!-- ``` -->
-<!-- And to use entire code blocks _within_ such boxes, we need to make use of raw html (like `<div class="beware">`): -->
-<!-- <div class="beware"> -->
-<!-- This is just a test. -->
-<!-- ```{r, testbox} -->
-<!-- # a roll of 5d6 might look like this: -->
-<!-- sample(1:6, 5, replace = TRUE) -->
-<!-- ``` -->
-<!-- Hear, hear! It's 2:30 PM and all is good! -->
+<!-- A mathematical transformation is needed such that the parameter $\beta_0$ can take any value while $\theta$ is bounded to the range 0-1. One transformation that offers exactly this possibility is the *logit link function* (see above plot right side) -->
+<!-- $$logit(\theta) = \beta_0.$$ -->
+<!-- As the underlying assumption maps the parameter to the latent variable $\theta$ (and not the other way around) from a conceptional point of view the *inverse link function* is more appropriate, which is the *logistic link* in this case: -->
+<!-- $$\theta = logistic(\beta_0).$$ -->
+<!-- It is defined as -->
+<!-- $$\theta=\frac{exp(\beta_0)}{1+exp(\beta_0)}.$$ -->
+<!-- Both expression, *logit* and *logistic* link achieve mathematically the same result but it is conceptually just a different matter of emphasis [@kruschke2015]. -->
+<!-- #### Notation of beta-binomial model - one group (revisited) -->
+<!-- The current descriptive model incorporates the idea that parameter $\beta_0$ is estimated from the given sample. It defines the latent variable $\theta$. The parameter is mapped to $\theta$ by a logistic link function. The underlying probability $\theta$ designates the observed number of upcoming heads. The number of upcoming heads in turn, is assumed to be distributed as Binomial distribution. -->
+<!-- <!-- [here graphical notation including textual notation... but I don't know how to write it properly down... what is the right order????] -->
+<p>–&gt;</p>
+<!-- ### Beta-Binomial model - two groups (revisited) -->
+<!-- In the above model for two coins the latent variable $\delta$ was already introduced. It is defined by the difference between the underlying probabilities $\theta_1-\theta_2$. -->
+<!-- Which parameters should be used in order to estimate the difference between both groups? As we will see, it turns out that the same mathematical form can be used, as one would use for simple linear regression: -->
+<!-- $$\theta_j=\beta_0+\beta_1*X_{Group_j},$$ -->
+<!-- $$\textrm{with } X_{Group_j}=\begin{cases} -->
+<!-- 0, \textrm{if coin 2,}\\ -->
+<!-- 1, \textrm{if coin 1.} -->
+<!-- \end{cases}$$ -->
+<!-- Considering *coin 2*, the above equation would result in -->
+<!-- $$\theta_2 = \beta_0,$$ -->
+<!-- which is the *intercept* and indicates the proportion of head coming up for coin 2. -->
+<!-- Considering by contrast coin 1, then the equation would result in: -->
+<!-- $$\theta_1 = \beta_0 + \beta_1.$$ -->
+<!-- The proportion of coming up head for coin 1 has to be calculated by summing up the *intercept* $\beta_0$ and the *slope* $\beta_1$. -->
+<!-- Taken together: *What is the interpretation of the slope $\beta_1$?* -->
+<!-- The difference $\delta=\theta_1-\theta2$ is -->
+<!-- $$\theta_1 - \theta_2 = (\beta_0+\beta_1)-\beta_0=\beta_1=\delta,$$ -->
+<!-- the slope $\beta_1$, thus, we can see that this parameterization enables us to estimate the difference between two groups. When in comes to estimation and interpretation the results will be the intercept $b_0$ and the slope $b_1$. -->
+<!-- ### Simple linear regression model (revisited) -->
+
+<!-- # Multinomial regression -->
+<!-- todo -->
+
+<!-- # Ordinal regression -->
+<!-- todo -->
+
+<!-- # Hierarchical regression {#ch-05-05-hierarchical-modeling} -->
+<!-- todo  -->
+
+</div>
 <!-- </div> -->
-<!-- ### Plots -->
-<!-- This is a plot of quite a famous dataset [@anscombe1973]: -->
-<!-- ```{r ch-preface-a_plot_example_01, fig.cap="Anscombe's Quartet: four different data sets all of which receive the same correlation score."} -->
-<!-- tibble( -->
-<!--   grp = rep(c("I", "II", "III", "IV"), each = 11), -->
-<!--   x = c(anscombe$x1, anscombe$x2, anscombe$x3, anscombe$x4), -->
-<!--   y = c(anscombe$y1, anscombe$y2, anscombe$y3, anscombe$y4) -->
-<!-- ) %>%  -->
-<!--   ggplot(aes(x, y)) + -->
-<!--     geom_smooth(method = lm, se = F, color = "black") + -->
-<!--     geom_point(color = project_colors[3], size = 2) + -->
-<!--     scale_y_continuous(breaks = scales::pretty_breaks()) + -->
-<!--     scale_x_continuous(breaks = scales::pretty_breaks()) + -->
-<!--     labs(title = "Anscombe's Quartet", x = NULL, y = NULL, -->
-<!--          subtitle = bquote(y == 0.5 * x + 3 ~ (R^2 %~~% .667) ~ "for all datasets")) + -->
-<!--     facet_wrap(~grp, ncol = 2, scales = "free_x") + -->
-<!--     theme(strip.background = element_rect(fill = "#f2f2f2", colour = "white")) -->
-<!-- ``` -->
-<!-- Here's a plot showcasing our custom palellet for discrete factors: -->
-<!-- ```{r ch-preface-Setosa, fig.cap="A figure to test the contrast of the first three project colors"} -->
-<!-- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + geom_point(size=3) -->
-<!-- ``` -->
-<!-- ### Shiny Apps -->
-<!-- Embedding Shiny Apps is as easy as pie! -->
-<!-- ```{r shiny_example} -->
-<!-- knitr::include_app("https://marauderpixie.shinyapps.io/dist_chisq/", height = "800px") -->
-<!-- ``` -->
-
-</div>
 
 
 
@@ -315,8 +359,8 @@ code span.wa { color: #bf0303; } /* Warning */
           </div>
         </div>
       </div>
-
-<a href="general-introduction.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="Chap-04-02-beyond-simple-regression.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="app-90-further-material.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
