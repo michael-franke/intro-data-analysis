@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>11.2 Akaike Information Criterion | Introduction to Data Analysis</title>
+  <title>14.3 Interaction terms in factorial designs | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.17.2 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="11.2 Akaike Information Criterion | Introduction to Data Analysis" />
+  <meta property="og:title" content="14.3 Interaction terms in factorial designs | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="11.2 Akaike Information Criterion | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="14.3 Interaction terms in factorial designs | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Chap-03-06-model-comparison-case-study.html"/>
-<link rel="next" href="Chap-03-06-model-comparison-LR-test.html"/>
+<link rel="prev" href="more-than-two-categorical-predictors.html"/>
+<link rel="next" href="app-90-further-material.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -502,154 +502,78 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="Chap-03-06-model-comparison-AIC" class="section level2">
-<h2><span class="header-section-number">11.2</span> Akaike Information Criterion</h2>
-<p>A wide-spread approach to model comparison used in the frequentist paradigm is to use the <strong>Akaike information criterion (AIC)</strong>. The AIC is the most common instance of a class of measures for model comparison known as <em>information criteria</em>, which all draw on information-theoretic notions to compare how good each model is.</p>
-<p>If <span class="math inline">\(M_i\)</span> is a frequentist model, specified by likelihood function <span class="math inline">\(P(D \mid \theta_i, M_i)\)</span>, with <span class="math inline">\(k\)</span> model parameters in parameter vector <span class="math inline">\(\theta_i\)</span>, and if <span class="math inline">\(D_\text{obs}\)</span> is the observed data, then the AIC score of model <span class="math inline">\(M_i\)</span> given <span class="math inline">\(D_\text{obs}\)</span> is defined as:</p>
-<p><span class="math display">\[
-\begin{aligned}
-\text{AIC}(M_i, D_\text{obs}) &amp; = 2k - 2\log P(D_\text{obs} \mid \hat{\theta_i}, M_i)
-\end{aligned}
-\]</span>
-Here, <span class="math inline">\(\hat{\theta}_i = \arg \max_{\theta_i} P(D_\text{obs} \mid \theta_i, M_i)\)</span> is the best-fitting parameter vector, i.e., the maximum likelihood estimate (MLE), and <span class="math inline">\(k\)</span> is the number of free parameters in model <span class="math inline">\(M_i\)</span>.</p>
-<p>The lower an AIC score the better the model (in comparison to other models for the same data <span class="math inline">\(D_\text{obs}\)</span>). All else equal, the higher the number of free parameters <span class="math inline">\(k\)</span> the worse the model’s AIC score. The first summand in the definition above can, therefore, be conveived of as a measure of <strong>model complexity</strong>. As for the second summand, think of <span class="math inline">\(- \log P(D_\text{obs} \mid \hat{\theta}_i)\)</span> as a measure of (information-theoretic) surprisal: how surprising is the observed data <span class="math inline">\(D_\text{obs}\)</span> from the point of view of model <span class="math inline">\(M\)</span> under the most favorable circumstances (that is, the MLE of <span class="math inline">\(\theta_i\)</span>). The higher the probability <span class="math inline">\(P(D_\text{obs} \mid \hat{\theta}_i)\)</span>, the better the model’s AIC score, all else equal.</p>
-<p>To apply AIC-based model comparison to the recall models, we first need to compute the MLE of each model (see Chapter <a href="ch-03-03-estimation-frequentist.html#ch-03-03-estimation-frequentist">9.2</a>). Here are functions that return the negative log-likelihood of each model, for any (suitable) pair of parameter values:</p>
-<div class="sourceCode" id="cb444"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb444-1" data-line-number="1"><span class="co"># generic neg-log-LH function (covers both models)</span></a>
-<a class="sourceLine" id="cb444-2" data-line-number="2">nLL_generic &lt;-<span class="st"> </span><span class="cf">function</span>(par, model_name) {</a>
-<a class="sourceLine" id="cb444-3" data-line-number="3">  w1 &lt;-<span class="st"> </span>par[<span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb444-4" data-line-number="4">  w2 &lt;-<span class="st"> </span>par[<span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb444-5" data-line-number="5">  <span class="co"># make sure paramters are in acceptable range</span></a>
-<a class="sourceLine" id="cb444-6" data-line-number="6">  <span class="cf">if</span> (w1 <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">|</span><span class="st"> </span>w2 <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">|</span><span class="st"> </span>w1 <span class="op">&gt;</span><span class="st"> </span><span class="dv">20</span> <span class="op">|</span><span class="st"> </span>w2 <span class="op">&gt;</span><span class="st"> </span><span class="dv">20</span>) {</a>
-<a class="sourceLine" id="cb444-7" data-line-number="7">    <span class="kw">return</span>(<span class="ot">NA</span>)</a>
-<a class="sourceLine" id="cb444-8" data-line-number="8">  }</a>
-<a class="sourceLine" id="cb444-9" data-line-number="9">  <span class="co"># calculate predicted recall rates for given parameters</span></a>
-<a class="sourceLine" id="cb444-10" data-line-number="10">  <span class="cf">if</span> (model_name <span class="op">==</span><span class="st"> &quot;exponential&quot;</span>) {</a>
-<a class="sourceLine" id="cb444-11" data-line-number="11">    theta &lt;-<span class="st"> </span>w1<span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>w2<span class="op">*</span>t)  <span class="co"># exponential model</span></a>
-<a class="sourceLine" id="cb444-12" data-line-number="12">  } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb444-13" data-line-number="13">    theta &lt;-<span class="st"> </span>w1<span class="op">*</span>t<span class="op">^</span>(<span class="op">-</span>w2)     <span class="co"># power model</span></a>
-<a class="sourceLine" id="cb444-14" data-line-number="14">  }</a>
-<a class="sourceLine" id="cb444-15" data-line-number="15">  <span class="co"># avoid edge cases of infinite log-likelihood</span></a>
-<a class="sourceLine" id="cb444-16" data-line-number="16">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-4</span></a>
-<a class="sourceLine" id="cb444-17" data-line-number="17">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-4</span></a>
-<a class="sourceLine" id="cb444-18" data-line-number="18">  <span class="co"># return negative log-likelihood of data</span></a>
-<a class="sourceLine" id="cb444-19" data-line-number="19">  <span class="op">-</span><span class="st"> </span><span class="kw">sum</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>, <span class="dt">log =</span> T))</a>
-<a class="sourceLine" id="cb444-20" data-line-number="20">}</a>
-<a class="sourceLine" id="cb444-21" data-line-number="21"><span class="co"># negative log likelihood of exponential model</span></a>
-<a class="sourceLine" id="cb444-22" data-line-number="22">nLL_exp &lt;-<span class="st"> </span><span class="cf">function</span>(par) {<span class="kw">nLL_generic</span>(par, <span class="st">&quot;exponential&quot;</span>)}</a>
-<a class="sourceLine" id="cb444-23" data-line-number="23"><span class="co"># negative log likelihood of power model</span></a>
-<a class="sourceLine" id="cb444-24" data-line-number="24">nLL_pow &lt;-<span class="st"> </span><span class="cf">function</span>(par) {<span class="kw">nLL_generic</span>(par, <span class="st">&quot;power&quot;</span>)}</a></code></pre></div>
-<p>These functions are then optimized with built-in function <code>optim</code>. The results are shown in the table below.</p>
-<div class="sourceCode" id="cb445"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb445-1" data-line-number="1"><span class="co"># getting the best fitting values</span></a>
-<a class="sourceLine" id="cb445-2" data-line-number="2">bestExpo &lt;-<span class="st"> </span><span class="kw">optim</span>(nLL_exp, <span class="dt">par =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="fl">0.5</span>))</a>
-<a class="sourceLine" id="cb445-3" data-line-number="3">bestPow  &lt;-<span class="st"> </span><span class="kw">optim</span>(nLL_pow, <span class="dt">par =</span> <span class="kw">c</span>(<span class="fl">0.5</span>,<span class="fl">0.2</span>))</a>
-<a class="sourceLine" id="cb445-4" data-line-number="4">MLEstimates =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">model =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;exponential&quot;</span>, <span class="st">&quot;power&quot;</span>), <span class="dt">each =</span> <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb445-5" data-line-number="5">                         <span class="dt">parameter =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;d&quot;</span>),</a>
-<a class="sourceLine" id="cb445-6" data-line-number="6">                         <span class="dt">value =</span> <span class="kw">c</span>(bestExpo<span class="op">$</span>par, bestPow<span class="op">$</span>par))</a>
-<a class="sourceLine" id="cb445-7" data-line-number="7">knitr<span class="op">::</span><span class="kw">kable</span>(MLEstimates)</a></code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="left">model</th>
-<th align="left">parameter</th>
-<th align="right">value</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">exponential</td>
-<td align="left">a</td>
-<td align="right">1.0701722</td>
-</tr>
-<tr class="even">
-<td align="left">exponential</td>
-<td align="left">b</td>
-<td align="right">0.1308151</td>
-</tr>
-<tr class="odd">
-<td align="left">power</td>
-<td align="left">c</td>
-<td align="right">0.9531330</td>
-</tr>
-<tr class="even">
-<td align="left">power</td>
-<td align="left">d</td>
-<td align="right">0.4979154</td>
-</tr>
-</tbody>
-</table>
-<p>The MLE-predictions of each model are shown in Figure <a href="Chap-03-06-model-comparison-AIC.html#fig:Chap-03-06-model-comparison-MLE-fits">11.2</a> below, alongside the observed data.</p>
-<div class="figure" style="text-align: center"><span id="fig:Chap-03-06-model-comparison-MLE-fits"></span>
-<img src="I2DA_files/figure-html/Chap-03-06-model-comparison-MLE-fits-1.png" alt="Predictions of the exponential and the power model under best-fitting parameter values." width="672" />
-<p class="caption">
-Figure 11.2: Predictions of the exponential and the power model under best-fitting parameter values.
-</p>
+<div id="interaction-terms-in-factorial-designs" class="section level2">
+<h2><span class="header-section-number">14.3</span> Interaction terms in factorial designs</h2>
+
+<!-- # Logistic regression -->
+<!-- ### Beta-Binomial model - one group (revisited) -->
+<!-- Sofar the existence of the underlying probability $\theta$ for observing head as outcome of a coin flip has been discussed. But the estimation of $\theta$ has been ignored until yet. Although "estimation" will be topic of next chapter, it is helpful at this point to discuss the introduced models further. In order to estimate $\theta$ *parameter(s)* are needed. When it comes to estimation exactly this/these parameter(s) will be the result(s), therefore is is important to see already the connection to the models that were developed in this chapter. -->
+<!-- For the coin flip example the value of interest is the underlying probability, thus, only one parameter is needed:$\beta_0$. (Note: Latin letters are used when we refer to the sample, Greek letters are used when we refer to the population.) -->
+<!-- How is $\beta_0$ linked to the latent variable $\theta$? -->
+<!-- Considering for example the simplest case: a *linear relationship* (see next plot left side). The problem which arises at this point is that $\theta$ represents a probability, and is therefore bounded to the range 0-1 (grey shaded area). -->
+<!-- ```{r} -->
+<!-- #Different relationships between the parameter and expected value -->
+<!-- x <- seq(from=-4, to=4, length.out = 100) -->
+<!-- y <- x                 #linear relationship -->
+<!-- y.log <- inv_logit_scaled(x)   #logistic relationship -->
+<!-- par(mfrow = c(1, 2))   #set both plot beside each other -->
+<!-- plot(x, y, type="l", ylab=expression(theta), xlab=expression(beta[0])) -->
+<!-- rect(-5, 0, 5, 1, col = rgb(0.5, 0.5, 0.5, 1/4), border = NA) -->
+<!-- plot(x, y.log, type="l", ylab=expression(logit~(theta)), xlab=expression(beta[0])) -->
+<!-- rect(-5, 0, 5, 1, col = rgb(0.5, 0.5, 0.5, 1/4), border = NA) -->
+<!-- ``` -->
+<!-- A mathematical transformation is needed such that the parameter $\beta_0$ can take any value while $\theta$ is bounded to the range 0-1. One transformation that offers exactly this possibility is the *logit link function* (see above plot right side) -->
+<!-- $$logit(\theta) = \beta_0.$$ -->
+<!-- As the underlying assumption maps the parameter to the latent variable $\theta$ (and not the other way around) from a conceptional point of view the *inverse link function* is more appropriate, which is the *logistic link* in this case: -->
+<!-- $$\theta = logistic(\beta_0).$$ -->
+<!-- It is defined as -->
+<!-- $$\theta=\frac{exp(\beta_0)}{1+exp(\beta_0)}.$$ -->
+<!-- Both expression, *logit* and *logistic* link achieve mathematically the same result but it is conceptually just a different matter of emphasis [@kruschke2015]. -->
+<!-- #### Notation of beta-binomial model - one group (revisited) -->
+<!-- The current descriptive model incorporates the idea that parameter $\beta_0$ is estimated from the given sample. It defines the latent variable $\theta$. The parameter is mapped to $\theta$ by a logistic link function. The underlying probability $\theta$ designates the observed number of upcoming heads. The number of upcoming heads in turn, is assumed to be distributed as Binomial distribution. -->
+<!-- <!-- [here graphical notation including textual notation... but I don't know how to write it properly down... what is the right order????] -->
+<p>–&gt;</p>
+<!-- ### Beta-Binomial model - two groups (revisited) -->
+<!-- In the above model for two coins the latent variable $\delta$ was already introduced. It is defined by the difference between the underlying probabilities $\theta_1-\theta_2$. -->
+<!-- Which parameters should be used in order to estimate the difference between both groups? As we will see, it turns out that the same mathematical form can be used, as one would use for simple linear regression: -->
+<!-- $$\theta_j=\beta_0+\beta_1*X_{Group_j},$$ -->
+<!-- $$\textrm{with } X_{Group_j}=\begin{cases} -->
+<!-- 0, \textrm{if coin 2,}\\ -->
+<!-- 1, \textrm{if coin 1.} -->
+<!-- \end{cases}$$ -->
+<!-- Considering *coin 2*, the above equation would result in -->
+<!-- $$\theta_2 = \beta_0,$$ -->
+<!-- which is the *intercept* and indicates the proportion of head coming up for coin 2. -->
+<!-- Considering by contrast coin 1, then the equation would result in: -->
+<!-- $$\theta_1 = \beta_0 + \beta_1.$$ -->
+<!-- The proportion of coming up head for coin 1 has to be calculated by summing up the *intercept* $\beta_0$ and the *slope* $\beta_1$. -->
+<!-- Taken together: *What is the interpretation of the slope $\beta_1$?* -->
+<!-- The difference $\delta=\theta_1-\theta2$ is -->
+<!-- $$\theta_1 - \theta_2 = (\beta_0+\beta_1)-\beta_0=\beta_1=\delta,$$ -->
+<!-- the slope $\beta_1$, thus, we can see that this parameterization enables us to estimate the difference between two groups. When in comes to estimation and interpretation the results will be the intercept $b_0$ and the slope $b_1$. -->
+<!-- ### Simple linear regression model (revisited) -->
+
+<!-- # Multinomial regression -->
+<!-- todo -->
+
+<!-- # Ordinal regression -->
+<!-- todo -->
+
+<!-- # Hierarchical regression {#ch-05-05-hierarchical-modeling} -->
+<!-- todo  -->
+
 </div>
-<p>It is impossible to say by visual inspection of Figure <a href="Chap-03-06-model-comparison-AIC.html#fig:Chap-03-06-model-comparison-MLE-fits">11.2</a> which model should be preferred. Numbers might help see more fine-grained differences:</p>
-<div class="sourceCode" id="cb446"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb446-1" data-line-number="1">predExp &lt;-<span class="st"> </span><span class="kw">expo</span>(t,a,b)</a>
-<a class="sourceLine" id="cb446-2" data-line-number="2">predPow &lt;-<span class="st"> </span><span class="kw">power</span>(t,c,d)</a>
-<a class="sourceLine" id="cb446-3" data-line-number="3">modelStats &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb446-4" data-line-number="4">  <span class="dt">model =</span> <span class="kw">c</span>(<span class="st">&quot;expo&quot;</span>, <span class="st">&quot;power&quot;</span>),</a>
-<a class="sourceLine" id="cb446-5" data-line-number="5">  <span class="st">`</span><span class="dt">log likelihood</span><span class="st">`</span> =<span class="st"> </span><span class="kw">round</span>(<span class="kw">c</span>(<span class="op">-</span>bestExpo<span class="op">$</span>value, <span class="op">-</span>bestPow<span class="op">$</span>value),<span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb446-6" data-line-number="6">  <span class="dt">probability =</span> <span class="kw">signif</span>(<span class="kw">exp</span>(<span class="kw">c</span>(<span class="op">-</span>bestExpo<span class="op">$</span>value, <span class="op">-</span>bestPow<span class="op">$</span>value)),<span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb446-7" data-line-number="7">  <span class="co"># sum of squared errors</span></a>
-<a class="sourceLine" id="cb446-8" data-line-number="8">  <span class="dt">SS =</span> <span class="kw">round</span>(<span class="kw">c</span>( <span class="kw">sum</span>((predExp<span class="op">-</span>y)<span class="op">^</span><span class="dv">2</span>), <span class="kw">sum</span>((predPow<span class="op">-</span>y)<span class="op">^</span><span class="dv">2</span>)),<span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb446-9" data-line-number="9">)</a>
-<a class="sourceLine" id="cb446-10" data-line-number="10">modelStats</a></code></pre></div>
-<pre><code>## # A tibble: 2 x 4
-##   model `log likelihood` probability    SS
-##   &lt;chr&gt;            &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;
-## 1 expo             -18.7    7.82e- 9 0.019
-## 2 power            -26.7    2.47e-12 0.057</code></pre>
-<p>The exponential model has a higher log-likelihood, a higher probability, and a lower sum of squares. This suggests that the exponential model is better.</p>
-<p>The AIC-score of these models is a direct function of the negative log-likelihood. Since both models have the same number of parameters, we also arrive at the same verdict: based on comparison of AIC-scores, the exponential model is the better model.</p>
-<div class="sourceCode" id="cb448"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb448-1" data-line-number="1">get_AIC &lt;-<span class="st"> </span><span class="cf">function</span>(optim_fit) {</a>
-<a class="sourceLine" id="cb448-2" data-line-number="2">  <span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw">length</span>(optim_fit<span class="op">$</span>par) <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>optim_fit<span class="op">$</span>value</a>
-<a class="sourceLine" id="cb448-3" data-line-number="3">}</a>
-<a class="sourceLine" id="cb448-4" data-line-number="4">AIC_scores &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb448-5" data-line-number="5">  <span class="dt">AIC_exponential =</span> <span class="kw">get_AIC</span>(bestExpo),</a>
-<a class="sourceLine" id="cb448-6" data-line-number="6">  <span class="dt">AIC_power =</span> <span class="kw">get_AIC</span>(bestPow)</a>
-<a class="sourceLine" id="cb448-7" data-line-number="7">)</a>
-<a class="sourceLine" id="cb448-8" data-line-number="8">AIC_scores</a></code></pre></div>
-<pre><code>## # A tibble: 1 x 2
-##   AIC_exponential AIC_power
-##             &lt;dbl&gt;     &lt;dbl&gt;
-## 1            41.3      57.5</code></pre>
-<p>How should we interpret the difference in AIC-scores? Some suggest that differences in AIC-scores larger than 10 should be treated as implying that the weaker model has practically no empirical support <span class="citation">(Burnham and Anderson <a href="#ref-BurnhamAnderson2002:Model-Selection">2002</a>)</span>. Adopting such a criterion, we would therefore favor the exponential model based on the data observed.</p>
-<p>But we could also try to walk a more nuanced, a more quantitative road. Indeed, we can look at relative AIC-scores in terms of so-called <strong>Akaike weights</strong> <span class="citation">(Wagenmakers and Farrell <a href="#ref-WagenmakersFarrell2004:AIC-model-selec">2004</a>; Burnham and Anderson <a href="#ref-BurnhamAnderson2002:Model-Selection">2002</a>)</span>. If models <span class="math inline">\(M_1, \dots, M_n\)</span> are on the table and <span class="math inline">\(\text{AIC}(M_i, D)\)</span> is the AIC-score of model <span class="math inline">\(M_i\)</span> for observed data <span class="math inline">\(D\)</span>, then the Akaike weight of model <span class="math inline">\(M_i\)</span> is defined as:</p>
-<p><span class="math display">\[
-\begin{aligned}
-w_{\text{AIC}}(M_i, D) &amp; = \frac{\exp (- 0.5 * \Delta_{\text{AIC}}(M_i,D) )} {\sum_{j=1}^k\exp (- 0.5 * \Delta_{\text{AIC}}(M_j,D) )}\, \ \ \ \ \text{where} \\
-\Delta_{\text{AIC}}(M_i,D) &amp; = \text{AIC}(M_i, D) - \min_j \text{AIC}(M_j, D)
-\end{aligned}
-\]</span></p>
-<p>Akaike weights are relative and normalized measures, and may serve as an approximate measure of a model’s posterior probability given the data:</p>
-<p><span class="math display">\[ P(M_i \mid D) \approx w_{\text{AIC}}(M_i, D) \]</span></p>
-<p>For the running example at hand, this would mean that we could conclude that the posterior probability of the exponential model is approximately:</p>
-<div class="sourceCode" id="cb450"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb450-1" data-line-number="1">delta_AIC_power &lt;-<span class="st"> </span>AIC_scores<span class="op">$</span>AIC_power <span class="op">-</span><span class="st"> </span>AIC_scores<span class="op">$</span>AIC_exponential</a>
-<a class="sourceLine" id="cb450-2" data-line-number="2">delta_AIC_exponential &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb450-3" data-line-number="3">Akaike_weight_exponential &lt;-<span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>delta_AIC_exponential) <span class="op">/</span></a>
-<a class="sourceLine" id="cb450-4" data-line-number="4"><span class="st">  </span>(<span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>delta_AIC_exponential) <span class="op">+</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>delta_AIC_power))</a>
-<a class="sourceLine" id="cb450-5" data-line-number="5">Akaike_weight_exponential</a></code></pre></div>
-<pre><code>## [1] 0.9996841</code></pre>
-<p>We would conclude from this approximate quantitative assessment that the evidence in favor of the exponential model is rather strong.</p>
-<p>Our approximation is better, the more data we have. We will see a method below, the Bayesian method, which computes <span class="math inline">\(P(M_i \mid D)\)</span> in a non-approximate way.</p>
-</div>
-<h3>References</h3>
-<div id="refs" class="references">
-<div id="ref-BurnhamAnderson2002:Model-Selection">
-<p>Burnham, Kenneth P., and David R. Anderson. 2002. <em>Model Selection and Multimodel Inference: A Practical Information-Theoretic Approach</em>. Berlin: Springer.</p>
-</div>
-<div id="ref-WagenmakersFarrell2004:AIC-model-selec">
-<p>Wagenmakers, Eric-Jan, and Simon Farrell. 2004. “AIC Model Selection Using Akaike Weights.” <em>Psychonomic Bulletin &amp; Review</em> 11 (1): 192–96.</p>
-</div>
-</div>
+<!-- </div> -->
+
+
+
             </section>
 
           </div>
         </div>
       </div>
-<a href="Chap-03-06-model-comparison-case-study.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="Chap-03-06-model-comparison-LR-test.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="more-than-two-categorical-predictors.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="app-90-further-material.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

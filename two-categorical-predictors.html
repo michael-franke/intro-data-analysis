@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="Chap-04-02-beyond-simple-regression.html"/>
-<link rel="next" href="app-90-further-material.html"/>
+<link rel="next" href="more-than-two-categorical-predictors.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -410,6 +410,8 @@ code span.wa { color: #bf0303; } /* Warning */
 </ul></li>
 <li class="chapter" data-level="14" data-path="Chap-04-02-beyond-simple-regression.html"><a href="Chap-04-02-beyond-simple-regression.html"><i class="fa fa-check"></i><b>14</b> Beyond simple linear regression</a><ul>
 <li class="chapter" data-level="14.1" data-path="two-categorical-predictors.html"><a href="two-categorical-predictors.html"><i class="fa fa-check"></i><b>14.1</b> Two categorical predictors</a></li>
+<li class="chapter" data-level="14.2" data-path="more-than-two-categorical-predictors.html"><a href="more-than-two-categorical-predictors.html"><i class="fa fa-check"></i><b>14.2</b> More than two categorical predictors</a></li>
+<li class="chapter" data-level="14.3" data-path="interaction-terms-in-factorial-designs.html"><a href="interaction-terms-in-factorial-designs.html"><i class="fa fa-check"></i><b>14.3</b> Interaction terms in factorial designs</a></li>
 </ul></li>
 <li class="appendix"><span><b>Appendix</b></span></li>
 <li class="chapter" data-level="A" data-path="app-90-further-material.html"><a href="app-90-further-material.html"><i class="fa fa-check"></i><b>A</b> Further useful material</a><ul>
@@ -553,81 +555,65 @@ code span.wa { color: #bf0303; } /* Warning */
 ##   &lt;fct&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
 ## 1 delta      -21.0 -10.9 -0.384</code></pre>
 <p>The mean of the <span class="math inline">\(\delta\)</span> parameter looks suscpiciously similar to the ominous <code>groupB</code> parameter shown in the output of the <code>bmrs</code> model fit. The 95% HDIs of the estimated posterior for the <span class="math inline">\(\delta\)</span> parameter also look suspiciously like the values of the 95% interquantile range for the <code>groupB</code> parameter. This is no conincidence! In fact, the regression model that <code>bmrs</code> calculates here is essentially the same as the <span class="math inline">\(t\)</span>-test model we implemented in <code>greta</code> by hand except for slight different in the choice of the priors and inessential differences in mathematical formulation of the group mean comparison.</p>
-<ul>
-<li>show plots of posterior side-by-side</li>
-<li>spell out models, show graphs</li>
-</ul>
-<p>The upshot is, that we can conceive of a <span class="math inline">\(t\)</span>-test as a special case of a linear regression model!</p>
-
-<!-- # Logistic regression -->
-<!-- ### Beta-Binomial model - one group (revisited) -->
-<!-- Sofar the existence of the underlying probability $\theta$ for observing head as outcome of a coin flip has been discussed. But the estimation of $\theta$ has been ignored until yet. Although "estimation" will be topic of next chapter, it is helpful at this point to discuss the introduced models further. In order to estimate $\theta$ *parameter(s)* are needed. When it comes to estimation exactly this/these parameter(s) will be the result(s), therefore is is important to see already the connection to the models that were developed in this chapter. -->
-<!-- For the coin flip example the value of interest is the underlying probability, thus, only one parameter is needed:$\beta_0$. (Note: Latin letters are used when we refer to the sample, Greek letters are used when we refer to the population.) -->
-<!-- How is $\beta_0$ linked to the latent variable $\theta$? -->
-<!-- Considering for example the simplest case: a *linear relationship* (see next plot left side). The problem which arises at this point is that $\theta$ represents a probability, and is therefore bounded to the range 0-1 (grey shaded area). -->
-<!-- ```{r} -->
-<!-- #Different relationships between the parameter and expected value -->
-<!-- x <- seq(from=-4, to=4, length.out = 100) -->
-<!-- y <- x                 #linear relationship -->
-<!-- y.log <- inv_logit_scaled(x)   #logistic relationship -->
-<!-- par(mfrow = c(1, 2))   #set both plot beside each other -->
-<!-- plot(x, y, type="l", ylab=expression(theta), xlab=expression(beta[0])) -->
-<!-- rect(-5, 0, 5, 1, col = rgb(0.5, 0.5, 0.5, 1/4), border = NA) -->
-<!-- plot(x, y.log, type="l", ylab=expression(logit~(theta)), xlab=expression(beta[0])) -->
-<!-- rect(-5, 0, 5, 1, col = rgb(0.5, 0.5, 0.5, 1/4), border = NA) -->
-<!-- ``` -->
-<!-- A mathematical transformation is needed such that the parameter $\beta_0$ can take any value while $\theta$ is bounded to the range 0-1. One transformation that offers exactly this possibility is the *logit link function* (see above plot right side) -->
-<!-- $$logit(\theta) = \beta_0.$$ -->
-<!-- As the underlying assumption maps the parameter to the latent variable $\theta$ (and not the other way around) from a conceptional point of view the *inverse link function* is more appropriate, which is the *logistic link* in this case: -->
-<!-- $$\theta = logistic(\beta_0).$$ -->
-<!-- It is defined as -->
-<!-- $$\theta=\frac{exp(\beta_0)}{1+exp(\beta_0)}.$$ -->
-<!-- Both expression, *logit* and *logistic* link achieve mathematically the same result but it is conceptually just a different matter of emphasis [@kruschke2015]. -->
-<!-- #### Notation of beta-binomial model - one group (revisited) -->
-<!-- The current descriptive model incorporates the idea that parameter $\beta_0$ is estimated from the given sample. It defines the latent variable $\theta$. The parameter is mapped to $\theta$ by a logistic link function. The underlying probability $\theta$ designates the observed number of upcoming heads. The number of upcoming heads in turn, is assumed to be distributed as Binomial distribution. -->
-<!-- <!-- [here graphical notation including textual notation... but I don't know how to write it properly down... what is the right order????] -->
-<p>–&gt;</p>
-<!-- ### Beta-Binomial model - two groups (revisited) -->
-<!-- In the above model for two coins the latent variable $\delta$ was already introduced. It is defined by the difference between the underlying probabilities $\theta_1-\theta_2$. -->
-<!-- Which parameters should be used in order to estimate the difference between both groups? As we will see, it turns out that the same mathematical form can be used, as one would use for simple linear regression: -->
-<!-- $$\theta_j=\beta_0+\beta_1*X_{Group_j},$$ -->
-<!-- $$\textrm{with } X_{Group_j}=\begin{cases} -->
-<!-- 0, \textrm{if coin 2,}\\ -->
-<!-- 1, \textrm{if coin 1.} -->
-<!-- \end{cases}$$ -->
-<!-- Considering *coin 2*, the above equation would result in -->
-<!-- $$\theta_2 = \beta_0,$$ -->
-<!-- which is the *intercept* and indicates the proportion of head coming up for coin 2. -->
-<!-- Considering by contrast coin 1, then the equation would result in: -->
-<!-- $$\theta_1 = \beta_0 + \beta_1.$$ -->
-<!-- The proportion of coming up head for coin 1 has to be calculated by summing up the *intercept* $\beta_0$ and the *slope* $\beta_1$. -->
-<!-- Taken together: *What is the interpretation of the slope $\beta_1$?* -->
-<!-- The difference $\delta=\theta_1-\theta2$ is -->
-<!-- $$\theta_1 - \theta_2 = (\beta_0+\beta_1)-\beta_0=\beta_1=\delta,$$ -->
-<!-- the slope $\beta_1$, thus, we can see that this parameterization enables us to estimate the difference between two groups. When in comes to estimation and interpretation the results will be the intercept $b_0$ and the slope $b_1$. -->
-<!-- ### Simple linear regression model (revisited) -->
-
-<!-- # Multinomial regression -->
-<!-- todo -->
-
-<!-- # Ordinal regression -->
-<!-- todo -->
-
-<!-- # Hierarchical regression {#ch-05-05-hierarchical-modeling} -->
-<!-- todo  -->
-
+<p>The model computed implicitly in the call to <code>brm</code> above is a linear regression model of the following form:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\hat{y}_i &amp; = \beta_0 + \beta_1 x_i &amp; y_i &amp; \sim \text{Normal}(\mu = \hat{y}_i, \sigma)
+\end{aligned}
+\]</span></p>
+<p>The only important point is that the vector <span class="math inline">\(x\)</span>, which corresponds to the group information in the column <code>group</code> (which contains entries of strings <code>&quot;A&quot;</code> and <code>&quot;B&quot;</code>), is implicitly treated as a vector of zeros and ones. Implicitly, <code>brm</code> has chosen the string <code>&quot;A&quot;</code> as the <strong>reference category</strong> which is encoded as zero. The string <code>&quot;B&quot;</code> is the other category, encoded as number 1. As a consequence, the linear model’s intercept parameter <span class="math inline">\(\beta_0\)</span> can be interpreted as the predicted mean of the reference category: if for some <span class="math inline">\(i\)</span> we have <span class="math inline">\(x_i = 0\)</span>, then the predictor <span class="math inline">\(\hat{y}_i\)</span> will just be <span class="math inline">\(\hat{y}_i = \beta_0\)</span>; whence that the intercept <span class="math inline">\(\beta_0\)</span> will be fitted to the mean of the reference category. If for some <span class="math inline">\(i\)</span> we have <span class="math inline">\(x_i = 1\)</span> instead, the predicted value will be computed as <span class="math inline">\(\hat{y}_i = \beta_0 + \beta_1\)</span>, so that the slope term <span class="math inline">\(\beta_1\)</span> will effectively play the role of the difference <span class="math inline">\(\delta\)</span> between the mean of the groups. Modulo choice of priors and variable naming, the <code>brm</code> model encodes a Bayesian <span class="math inline">\(t\)</span>-test model exactly like we previously did using <code>greta</code>. The upshot is, that we can conceive of a <span class="math inline">\(t\)</span>-test as a special case of a linear regression model!</p>
+<p>Of course, nothing in this correspondence depends on a Bayesian analysis.</p>
+<div class="sourceCode" id="cb526"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb526-1" data-line-number="1">fit_glm_eco &lt;-<span class="st"> </span><span class="kw">glm</span>(</a>
+<a class="sourceLine" id="cb526-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
+<a class="sourceLine" id="cb526-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
+<a class="sourceLine" id="cb526-4" data-line-number="4">  <span class="dt">formula =</span> measurement <span class="op">~</span><span class="st"> </span>group,</a>
+<a class="sourceLine" id="cb526-5" data-line-number="5">  <span class="co"># which data to use</span></a>
+<a class="sourceLine" id="cb526-6" data-line-number="6">  <span class="dt">data =</span> eco_sensitivity_data</a>
+<a class="sourceLine" id="cb526-7" data-line-number="7">)</a>
+<a class="sourceLine" id="cb526-8" data-line-number="8"><span class="kw">summary</span>(fit_glm_eco)</a></code></pre></div>
+<pre><code>## 
+## Call:
+## glm(formula = measurement ~ group, data = eco_sensitivity_data)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -35.933  -13.933   -4.444   10.556   57.067  
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  118.933      3.783   31.44   &lt;2e-16 ***
+## groupB       -11.489      5.497   -2.09   0.0412 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for gaussian family taken to be 429.3552)
+## 
+##     Null deviance: 25490  on 56  degrees of freedom
+## Residual deviance: 23615  on 55  degrees of freedom
+## AIC: 511.27
+## 
+## Number of Fisher Scoring iterations: 2</code></pre>
+<p>The <span class="math inline">\(p\)</span>-value associated with the test of whether the slope coefficient (the difference between means) is plausibly zero corresponds to the result we get from a <span class="math inline">\(t\)</span>-test (when assuming equal variance in groups; an assumption that the linear modeling approach makes per default).</p>
+<div class="sourceCode" id="cb528"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb528-1" data-line-number="1"><span class="kw">t.test</span>(x_A, x_B, <span class="dt">paired =</span> F, <span class="dt">var.equal =</span> T)</a></code></pre></div>
+<pre><code>## 
+##  Two Sample t-test
+## 
+## data:  x_A and x_B
+## t = 2.0901, df = 55, p-value = 0.04124
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##   0.4732249 22.5045529
+## sample estimates:
+## mean of x mean of y 
+##  118.9333  107.4444</code></pre>
 </div>
-<!-- </div> -->
-
-
-
             </section>
 
           </div>
         </div>
       </div>
 <a href="Chap-04-02-beyond-simple-regression.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="app-90-further-material.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="more-than-two-categorical-predictors.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
