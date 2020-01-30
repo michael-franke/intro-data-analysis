@@ -4,12 +4,7 @@
 
 <hr>
 
-- "multiple" = "more than one predictor"
-  - interactions
-  - collinearity
-- categorical predictors
-  - relation to t-test and ANOVA
-  - different coding shemes
+This chapter introduces the basics of (simple) linear regression modeling with one explanatory variable. It covers ordinary least-squares regression, a frequentist maximum-likelihood approach, as well as a Bayesian approach. It addresses how hypotheses about the values of a regression model's parameters (so-called coefficients) can be adressed in a frequentist and a Bayesian approach.
 
 ## Data set: murder data
 
@@ -349,7 +344,7 @@ $$
 
 We can use `optim` to find maximum likelihood estimates:
 
-```{r}
+```{r, message = T}
 # data to be explained / predicted
 y <- murder_data %>% pull(murder_rate)
 # data to use for prediction / explanation
@@ -423,6 +418,8 @@ A Bayesian model for (simple) linear regression looks very much like the previou
 knitr::include_graphics("visuals/linear-regression-model.png")
 ```
 
+### Implementation in `greta`
+
 Here is an implementation of a Bayesian regression model for the running example murder data using `greta`:
 
 ```{r}
@@ -475,6 +472,36 @@ tidy_draws_murder_data %>%
 ```
 
 
+### Using the `brms` package
+
+Instead of hand-coding each Bayesian regression model, we can also use the `brms` package [@brms2017]. The main funtion of this package is `brm` (short for Bayesian regression model). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` behaves similar to the more general `lmer` function from the `lme4` package, which is even more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example for the current case study:
+
+```{r, eval = F}
+fit_brms_murder <- brm(
+  # specify what to explain in terms of what
+  #  using the formula syntax
+  formula = murder_rate ~ unemployment,
+  # which data to use
+  data = murder_data
+)
+```
+
+```{r, echo = F}
+# samples computed in models_brms/murder_data.R
+fit_brms_murder <- readRDS('models_brms/murder_data.rds')
+```
+
+
+The function `brm` returns a model-fit object, similar to `glm`. We can inspect it to get more information, using the `summary` function:
+
+```{r}
+summary(fit_brms_murder)
+```
+
+This output tells us about which model we fitted, states some properties of the MCMC sampling routine used to obtain samples from the posterior distribution, and it also gives us information about the posteriors under the heading "Population-Level Effects" we get summary statistics of the set of posterior samples for each regression coefficient, including the mean ("Estimate"), and the 95% interquantile range ("l-95%" is the lower bound and "u-95%" is the upper bound).^[Notice that the 95% interquantile range is not necessarily the same as the 95% HDI, but for large sample sizes the two will coincide.]
+
+
+
 ## Testing coefficients
 
 ### Bayesian approach
@@ -484,8 +511,8 @@ tidy_draws_murder_data %>%
 Bayes_estimates <- tidy_draws_murder_data %>% 
   group_by(Parameter) %>%
   summarise(
-    mean = mean(value),
     '|95%' = HDInterval::hdi(value)[1],
+    mean = mean(value),
     '95|%' = HDInterval::hdi(value)[2]
   )
 Bayes_estimates
