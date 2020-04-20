@@ -313,7 +313,7 @@ tibble(
 )
 ```
 
-A similar result exists also for regression with more than one predictor variable. This explains why the computation of best-fitting regression coefficients with a built-in function like `lm` is lightning fast (as compared to using `optim` or a Bayesian approach which relies on MCMC sampling).
+A similar result exists also for regression with more than one predictor variable. This explains why the computation of best-fitting regression coefficients with a built-in function like `lm` is lightning fast (as compared to using `optim` or a Bayesian approach which relies on MCMC sampling^[Bayesian approaches *can* also be calculated very quickly, when they can rely on specific (e.g., conjugate) priors for which a mathematical solution is known.]).
 
 ## A maximum-likelihood approach
 
@@ -328,8 +328,8 @@ $$
 
 $$
 \begin{aligned}
-y_{\text{pred}} & = \beta_0 + \beta_1 x  \\
-y_i & = y_{\text{pred}} + \epsilon_i \\
+y_{\text{pred},i} & = \beta_0 + \beta_1 x_i  \\
+y_i & = y_{\text{pred},i} + \epsilon_i \\
 \epsilon_i & \sim \text{Normal}(0, \sigma)  \\
 \end{aligned}
 $$
@@ -343,8 +343,7 @@ $$
 
 $$
 \begin{aligned}
-y_{\text{pred}} & = \beta_0 + \beta_1 x \\
-y & \sim \text{Normal}(\mu = y_{\text{pred}}, \sigma)
+y_i & \sim \text{Normal}(\beta_0 + \beta_1 x_i, \sigma)
 \end{aligned}
 $$
 
@@ -375,6 +374,7 @@ message(
   "\n\tSlope: ", fit_lh$par[2] %>%  signif(5),
   "\nNegative log-likelihood for best fit: ", fit_lh$value %>% signif(5)
 )
+
 ```
 
 It is no coincidence that these fitted values are (modulo number imprecision) the same as for the geometric OLS approach.
@@ -480,7 +480,7 @@ tidy_draws_murder_data %>%
 
 ### Using the `brms` package
 
-Instead of hand-coding each Bayesian regression model, we can also use the `brms` package [@brms2017]. The main funtion of this package is `brm` (short for Bayesian regression model). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` behaves similar to the more general `lmer` function from the `lme4` package, which is even more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example for the current case study:
+Instead of hand-coding each Bayesian regression model, we can also use the `brms` package [@brms2017]. The main funtion of this package is `brm` (short for **B**ayesian **R**egression **M**odel). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` behaves similar to the more general `lmer` function from the `lme4` package, which is even more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example for the current case study:
 
 ```{r, eval = F}
 fit_brms_murder <- brm(
