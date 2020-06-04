@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>9.1 Bayes rule of parameter estimation | Introduction to Data Analysis</title>
+  <title>E Solutions to exercises | Introduction to Data Analysis</title>
   <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   <meta name="generator" content="bookdown 0.19.1 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="9.1 Bayes rule of parameter estimation | Introduction to Data Analysis" />
+  <meta property="og:title" content="E Solutions to exercises | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="9.1 Bayes rule of parameter estimation | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="E Solutions to exercises | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="ch-03-04-parameter-inference.html"/>
-<link rel="next" href="ch-03-03-estimation-frequentist.html"/>
+<link rel="prev" href="app-93-data-sets-avocado.html"/>
+<link rel="next" href="chapter-1.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -509,188 +509,34 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="ch-03-03-estimation-bayes" class="section level2">
-<h2><span class="header-section-number">9.1</span> Bayes rule of parameter estimation</h2>
-<p>Fix a Bayesian model <span class="math inline">\(M\)</span> with likelihood <span class="math inline">\(P(D \mid \theta)\)</span> for observed data <span class="math inline">\(D\)</span> and prior over parameters <span class="math inline">\(P_M(\theta)\)</span>. We then update our prior beliefs <span class="math inline">\(P(\theta)\)</span> to obtained posterior beliefs by Bayes rule:<a href="references.html#fn43" class="footnote-ref" id="fnref43"><sup>43</sup></a></p>
-<p><span class="math display">\[P(\theta \mid D) = \frac{P(D \mid \theta) \ P(\theta)}{P(D)}\]</span></p>
-<p>The ingredients of this equation are:</p>
-<ul>
-<li>the <strong>posterior distribution</strong> <span class="math inline">\(P(\theta \mid D)\)</span> specifying our beliefs about how
-likely each value of <span class="math inline">\(\theta\)</span> is given fixed <span class="math inline">\(k\)</span>;</li>
-<li>the <strong>likelihood function</strong> <span class="math inline">\(P(D \mid \theta)\)</span> specifying how likely each observation
-of <span class="math inline">\(k\)</span> is for a fixed <span class="math inline">\(\theta\)</span> (here given by the binomial distribution);</li>
-<li>the <strong>prior distribution</strong> <span class="math inline">\(P(\theta)\)</span> specifying our initial (aka.~<em>a priori</em>)
-beliefs about how likely each value of <span class="math inline">\(\theta\)</span> might be;</li>
-<li>the <strong>marginal likelihood</strong> <span class="math inline">\(P(D) = \int P(D \mid \theta) \ P(\theta) \ \text{d}\theta\)</span>
-specifying how likely an observation of <span class="math inline">\(k\)</span> is under our prior beliefs about <span class="math inline">\(\theta\)</span>.</li>
-</ul>
-<p>A frequently used shorthand notation for probabilities is this:</p>
-<p><span class="math display">\[\underbrace{P(\theta \, | \, D)}_{posterior} \propto \underbrace{P(\theta)}_{prior} \ \underbrace{P(D \, | \, \theta)}_{likelihood}\]</span></p>
-<p>where the “proportional to” sign <span class="math inline">\(\propto\)</span> indicates that the probabilities on the LHS are defined in terms of the quantity on the RHS after normalization. So, if <span class="math inline">\(F \colon x \mapsto \mathbb{R}^+\)</span> is a positive function of non-normalized probabilities, <span class="math inline">\(P(x) \propto F(x)\)</span> is equivalent to <span class="math inline">\(P(x) = \frac{F(x)}{\sum_{x&#39;} F(x&#39;)}\)</span>.</p>
-<p>This notation makes particularly clear that the posterior distribution is a “mix” of prior and likelihood. Let’s explore this first, before worrying how to compute posteriors concretely.</p>
-<div id="the-effects-of-prior-and-likelihood-on-the-posterior" class="section level3">
-<h3><span class="header-section-number">9.1.1</span> The effects of prior and likelihood on the posterior</h3>
-<p>We consider the case of flipping a coin with unknown bias <span class="math inline">\(\theta\)</span> a total of <span class="math inline">\(N\)</span> times and observing <span class="math inline">\(k\)</span> heads (= successes). This is modeled with the <strong>Binomial Model</strong> (see Section <a href="Chap-03-03-models-examples.html#Chap-03-03-models-examples">8.5</a>), using priors expressed with a <a href="app-91-distributions-beta">Beta distribution</a>, giving us a model specification as:</p>
-<p><span class="math display">\[ 
-\begin{aligned}
-k &amp; \sim \text{Binomial}(N, \theta) \\ 
-\theta &amp; \sim \text{Beta}(\alpha, \beta)
-\end{aligned}
-\]</span></p>
-<div style="float:right; width:8%;">
-<p><img src="visuals/skull_king.png" alt="badge-data-wrangling"></p>
-</div>
-<p>To study the impact of the likelihood function, we compare two data sets. The first one is the contrived “24/7” example where <span class="math inline">\(N = 24\)</span> and <span class="math inline">\(k = 7\)</span>. The second example uses a much larger naturalistic data set stemming from the <a href="app-93-data-sets-king-of-france">King of France</a> example, namely <span class="math inline">\(k = 109\)</span> for <span class="math inline">\(N=311\)</span>. These numbers are the count of “true” responses for all conditions except for Condition 1, which did not involve a presupposition.</p>
-<div class="sourceCode" id="cb356"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb356-1" data-line-number="1">data_KoF_cleaned &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/king-of-france_data_cleaned.csv&#39;</span>))</a></code></pre></div>
-<div class="sourceCode" id="cb357"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb357-1" data-line-number="1">data_KoF_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(condition <span class="op">!=</span><span class="st"> &quot;Condition 1&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(response) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb357-4" data-line-number="4"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">count</span>()</a></code></pre></div>
-<pre><code>## # A tibble: 2 x 2
-## # Groups:   response [2]
-##   response     n
-##   &lt;lgl&gt;    &lt;int&gt;
-## 1 FALSE      202
-## 2 TRUE       109</code></pre>
-<p>We can plot the likelihood function for both data sets like so:</p>
-<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-246"></span>
-<img src="I2DA_files/figure-html/unnamed-chunk-246-1.png" alt="Likelihood for the two examples of bimoial data." width="672" />
-<p class="caption">
-Figure 9.1: Likelihood for the two examples of bimoial data.
-</p>
-</div>
-<p>Picking up the example from Section <a href="Chap-03-03-models-parameters-priors.html#Chap-03-02-models-priors">8.2.2</a>, we will consider the four types of priors show below:</p>
-<div class="figure" style="text-align: center"><span id="fig:ch-03-03-estimation-types-of-priors"></span>
-<img src="I2DA_files/figure-html/ch-03-03-estimation-types-of-priors-1.png" alt="Examples of different kinds of Bayesian priors for the Binomial Model." width="672" />
-<p class="caption">
-Figure 9.2: Examples of different kinds of Bayesian priors for the Binomial Model.
-</p>
-</div>
-<p>Combining the four different priors and the two different data sets, we see that the posterior is indeed a mix of prior and likelihood. In particular we see that the strong informative prior has only little effect if there are many data points (the KoF data).</p>
-<div class="figure" style="text-align: center"><span id="fig:ch-03-03-estimation-posteriors-comparison"></span>
-<img src="I2DA_files/figure-html/ch-03-03-estimation-posteriors-comparison-1.png" alt="Posterior beliefs over coin biases under different priors and different data sets." width="672" />
-<p class="caption">
-Figure 9.3: Posterior beliefs over coin biases under different priors and different data sets.
-</p>
-</div>
-</div>
-<div id="posterior-means-and-credible-intervals" class="section level3">
-<h3><span class="header-section-number">9.1.2</span> Posterior means and credible intervals</h3>
-<p>Let’s consider the “24/7” example with a flat prior again, concisely repeated in Figure <a href="ch-03-03-estimation-bayes.html#fig:ch-03-03-estimation-24-7-overview">9.4</a>.</p>
-<div class="figure" style="text-align: center"><span id="fig:ch-03-03-estimation-24-7-overview"></span>
-<img src="I2DA_files/figure-html/ch-03-03-estimation-24-7-overview-1.png" alt="Prior (uninformative), likelihood and posterior for the 24/7 example." width="672" />
-<p class="caption">
-Figure 9.4: Prior (uninformative), likelihood and posterior for the 24/7 example.
-</p>
-</div>
-<p>The posterior probability distribution in Figure <a href="ch-03-03-estimation-bayes.html#fig:ch-03-03-estimation-24-7-overview">9.4</a> contains rich information. It specifies how likely each value of <span class="math inline">\(\theta\)</span> is, obtained by updating the original prior beliefs with the observed data. Such rich information is difficult to process and communicate in language. It is therefore convenient to have conventional means of summarizing the rich information carried in a probability distribution like in Figure <a href="ch-03-03-estimation-bayes.html#fig:ch-03-03-estimation-24-7-overview">9.4</a>. Customarily, we summarize in terms of a point-estimate and/or an interval estimate. The <em>point estimate</em> gives information about a “best value”, i.e., a salient point, such as the expectation (in Bayesian approaches) or the most likely value (in frequentist approaches (see below)). The <em>interval estimate</em> gives, usually, an indication of how closely other <em>good values</em> are scattered around the <em>best value</em>.</p>
-<p>A common Bayesian point estimate of coin bias parameter <span class="math inline">\(\theta\)</span> is <strong>the mean of the posterior distribution</strong>. It gives the value of <span class="math inline">\(\theta\)</span> which we would expect to see, when basing out expectations on the posterior distribution:
-<span class="math display">\[
-\begin{aligned}
-  \mathbb{E}_{P(\theta \mid D)} = \int \theta \ P(\theta \mid D) \ \text{d}\theta
-\end{aligned}
-\]</span>
-If we start with flat beliefs, the expected value of <span class="math inline">\(\theta\)</span> after <span class="math inline">\(k\)</span> successes in <span class="math inline">\(N\)</span> flips
-can be calculated rather easily as <span class="math inline">\(\frac{k+1}{n+2}\)</span>.<a href="references.html#fn44" class="footnote-ref" id="fnref44"><sup>44</sup></a> For our example case, we calculate the expected value of
-<span class="math inline">\(\theta\)</span> as <span class="math inline">\(\frac{8}{26} \approx 0.308\)</span> (see also Figure <a href="ch-03-03-estimation-bayes.html#fig:ch-03-03-estimation-24-7-overview">9.4</a>).</p>
-
-<div class="infobox">
-<p><strong>Remark: Maximum <em>a posteriori</em></strong> Another salient point-estimate to summarize a Bayesian posterior distribution is the MAP (maximum <em>a posteriori</em>). The map is the parameter value (tuple) that maximizes the posterior distribution:</p>
-<p><span class="math display">\[ \text{MAP}(P(\theta \mid D)) =  \arg \max_\theta P(\theta \mid D) \]</span></p>
-While the mean of the posterior is “holistic” in the sense that it depends on the whole distribution, the MAP does not. The mean is therefore more faithful to the Bayesian ideal of taking the full posterior distribution into account. Moreover, depending on how Bayesian posteriors are computed / approximated, the estimation of a mean can be more reliable than that of a MAP.
-</div>
-
-<p>A common Bayesian interval estimate of coin bias parameter <span class="math inline">\(\theta\)</span> is a <strong>credible interval</strong>.<a href="references.html#fn45" class="footnote-ref" id="fnref45"><sup>45</sup></a> An interval <span class="math inline">\([l;u]\)</span> is a <span class="math inline">\(\gamma\%\)</span> credible interval for a random variable <span class="math inline">\(X\)</span> if two conditions hold, namely
-<span class="math display">\[
-\begin{aligned}
-  P(l \le X \le u) = \frac{\gamma}{100}
-\end{aligned}
-\]</span>
-and, secondly, for every <span class="math inline">\(x \in[l;u]\)</span> and <span class="math inline">\(x&#39; \not \in[l;u]\)</span> we have <span class="math inline">\(P(X=x) &gt; P(X = x&#39;)\)</span>. Intuitively, a <span class="math inline">\(95\%\)</span> credible interval gives the range of values in which we believe with
-relatively high certainty that the true value resides. Figure <a href="ch-03-03-estimation-bayes.html#fig:ch-03-03-estimation-24-7-overview">9.4</a> indicates the <span class="math inline">\(95\%\)</span> credible interval, based on the posterior distribution <span class="math inline">\(P(\theta \mid D)\)</span> of <span class="math inline">\(\theta\)</span>, for the 24/7 example.<a href="references.html#fn46" class="footnote-ref" id="fnref46"><sup>46</sup></a></p>
-</div>
-<div id="computing-bayesian-posteriors-with-conjugate-priors" class="section level3">
-<h3><span class="header-section-number">9.1.3</span> Computing Bayesian posteriors with conjugate priors</h3>
-<p>Bayesian posterior distributions can be hard to compute. Usually, the prior <span class="math inline">\(P(\theta)\)</span> is easy to compute (otherwise we might choose a different one for practicality). Usually, the likelihood function <span class="math inline">\(P(D \mid \theta)\)</span> is also fast to compute. Everything seems innocuous when we just write:</p>
-<p><span class="math display">\[\underbrace{P(\theta \, | \, D)}_{posterior} \propto \underbrace{P(\theta)}_{prior} \ \underbrace{P(D \, | \, \theta)}_{likelihood}\]</span></p>
-<p>But the real pain is the normalizing constant, i.e., the marginalize likelihood a.k.a. the “integral of doom”, which to compute can be intractable, especially if the parameter space is large and not well-behaved:</p>
-<p><span class="math display">\[P(D) = \int P(D \mid \theta) \ P(\theta) \ \text{d}\theta\]</span></p>
-<p>Section <a href="Ch-03-03-estimation-algorithms.html#Ch-03-03-estimation-algorithms">9.5</a> will therefore enlarge on methods to compute or approximate the posterior distribution efficiently.</p>
-<p>Fortunately, computing Bayesian posterior distributions need not always be intractable. If the prior and the likelihood function cooperate, so to speak, the computation of the posterior can be as simple as sleep. The nature of the data often prescribes which likelihood function is plausible. But we have more wiggle room in the choice of the priors. If prior <span class="math inline">\(P(\theta)\)</span> and posterior <span class="math inline">\(P(\theta \, | \, D)\)</span> are of the same family, i.e., if they are the same kind of distribution albeit possibly with different parameterizations, we say that they <strong>conjugate</strong>. In that case, the prior <span class="math inline">\(P(\theta)\)</span> is called <strong>conjugate prior</strong> for the likelihood function <span class="math inline">\(P(D \, | \, \theta)\)</span>. from which the posterior <span class="math inline">\(P(\theta \, | \, D)\)</span> is derived.</p>
-
-<div class="theorem">
-<span id="thm:Conjugacy-beta-binomial" class="theorem"><strong>Theorem 9.1  </strong></span>The Beta distribution is the conjugate prior of binomial likelihood. For <span class="math inline">\(\theta \sim \text{Beta}(a,b)\)</span> as prior and data <span class="math inline">\(k\)</span> and <span class="math inline">\(N\)</span>, the posterior is <span class="math inline">\(\theta \sim \text{Beta}(a+k, b+ N-k)\)</span>.
-</div>
-
-
-<div class="proof">
-<p> <span class="proof"><em>Proof. </em></span> By construction, the posterior is:
-<span class="math display">\[P(\theta \mid \langle{k, n \rangle}) \propto \text{Binomial}(k ; n, \theta) \ \text{Beta}(\theta \, | \, a, b) \]</span></p>
-<p>We extend the RHS by definitions:</p>
-<p><span class="math display">\[
-\begin{aligned} 
-\text{Binomial}(k ; n, \theta) \ \text{Beta}(\theta \, | \, a, b) &amp; = \theta^{k} \, (1-\theta)^{n-k} \, \theta^{a-1} \, (1-\theta)^{b-1}  \\  &amp; = \theta^{k + a - 1} \, (1-\theta)^{n-k +b -1}
-\end{aligned}
-\]</span></p>
-<p>This latter expression is the non-normalized Beta-distribution for parameters <span class="math inline">\(a + k\)</span> and <span class="math inline">\(b + N - k\)</span>, so that we conclude with what was to be shown:</p>
-<span class="math display">\[
-\begin{aligned} 
-P(\theta \mid \langle k, n \rangle) &amp; = \text{Beta}(\theta \, | \, a + k, b+ N-k)
-\end{aligned}
-\]</span>
-</div>
-
-<p> </p>
-</div>
-<div id="sequential-updating" class="section level3">
-<h3><span class="header-section-number">9.1.4</span> Sequential updating</h3>
-<p>Ancient wisdom has coined the widely popular proverb: “Today’s posterior is tomorrow’s prior.” Suppose we collected data from an experiment, like <span class="math inline">\(k = 7\)</span> in <span class="math inline">\(N = 24\)</span>. Using uninformative priors at the outset, our posterior belief after the experiment is <span class="math inline">\(\theta \sim \text{Beta}(8,18)\)</span>. But now consider what happened at half-time. After half the experiment, we had <span class="math inline">\(k = 2\)</span> and <span class="math inline">\(N = 12\)</span>, so our beliefs followed <span class="math inline">\(\theta \sim \text{Beta}(3, 10)\)</span> at this moment in time. But using these beliefs as priors, and observing the rest of the data would consequently result in updating the prior <span class="math inline">\(\theta \sim \text{Beta}(3, 10)\)</span> with another set of observations <span class="math inline">\(k = 5\)</span> and <span class="math inline">\(N = 12\)</span>, giving us the same posterior belief as what we would have gotten if we updated in one swoop. Figure <a href="ch-03-03-estimation-bayes.html#fig:ch-03-03-estimation-sequential-updates">9.5</a> shows steps through belief space, starting uninformed, and observing one piece of data at a time (going right for each outcome of heads, down for each outcome of tails).</p>
-<div class="figure" style="text-align: center"><span id="fig:ch-03-03-estimation-sequential-updates"></span>
-<img src="I2DA_files/figure-html/ch-03-03-estimation-sequential-updates-1.png" alt="Beta distributions for different parameters. Starting from an uninformative prior (top left), we arrive at the posterior distribution in the bottom left, in any sequence of sequentially updating with the data." width="672" />
-<p class="caption">
-Figure 9.5: Beta distributions for different parameters. Starting from an uninformative prior (top left), we arrive at the posterior distribution in the bottom left, in any sequence of sequentially updating with the data.
-</p>
-</div>
-<p>This sequential updating is not a peculiarity of the Beta-Binomial case or of conjugacy. It holds in general for Bayesian inference. Sequential updating is a very intuitive property, but it is not shared by all other forms of inference from data. That Bayesian inference is sequential and commutative follows from commutativity of multiplication of likelihoods (and the definition of Bayes rule).</p>
-
-<div class="theorem">
-<p><span id="thm:Sequential-update" class="theorem"><strong>Theorem 9.2  </strong></span>Bayesian posterior inference is sequential and commutative in the sense that for a data set <span class="math inline">\(D\)</span> which is comprised of two mutually exclusive subsets <span class="math inline">\(D_1\)</span> and <span class="math inline">\(D_2\)</span> such that <span class="math inline">\(D_1 \cup D_2 = D\)</span>,we have:</p>
-<p><span class="math display">\[ P(\theta \mid D ) \propto P(\theta \mid D_1) \ P(D_2 \mid \theta) \]</span></p>
-</div>
-
-
-<div class="proof">
- <span class="proof"><em>Proof. </em></span> <span class="math display">\[
-\begin{aligned}
-P(\theta \mid D) &amp; = \frac{P(\theta) \ P(D \mid \theta)}{ \int P(\theta&#39;) \ P(D \mid \theta&#39;) \text{d}\theta&#39;} \\
-&amp; = \frac{P(\theta) \ P(D_1 \mid \theta) \ P(D_2 \mid \theta)}{ \int P(\theta&#39;) \ P(D_1 \mid \theta&#39;) \ P(D_2 \mid \theta&#39;) \text{d}\theta&#39;} &amp; \text{[from multiplicativity of likelihood]} \\
-&amp; = \frac{P(\theta) \ P(D_1 \mid \theta) \ P(D_2 \mid \theta)}{ \frac{k}{k} \int P(\theta&#39;) \ P(D_1 \mid \theta&#39;) \ P(D_2 \mid \theta&#39;) \text{d}\theta&#39;} &amp; \text{[for random positive k]} \\
-&amp; = \frac{\frac{P(\theta) \ P(D_1 \mid \theta)}{k} \ P(D_2 \mid \theta)}{\int \frac{P(\theta&#39;) \ P(D_1 \mid \theta&#39;)}{k} \ P(D_2 \mid \theta&#39;) \text{d}\theta&#39;} &amp; \text{[rules of integration; basic calculus]} \\
-&amp; = \frac{P(\theta \mid D_1) \ P(D_2 \mid \theta)}{\int P(\theta&#39; \mid D_1) \ P(D_2 \mid \theta&#39;) \text{d}\theta&#39;} &amp; \text{[Bayes rule with } k = \int P(\theta) P(D_1 \mid \theta) \text{d}\theta ]\\
-\end{aligned}
-\]</span>
-</div>
-
-<p> </p>
-</div>
-</div>
-<div class="footnotes">
-<hr />
-<ol start="43">
-<li id="fn43"><p>Since parameter estimation is only about one model, it should do not harm to omit the index <span class="math inline">\(M\)</span> in the probability notation. Moreover, since in many contexts the meaning will be clear enough, we follow common practice and write <span class="math inline">\(P(D \mid \theta)\)</span> as a shortcut for <span class="math inline">\(P(\mathcal{D} = D \mid \Theta = \theta)\)</span>. Here <span class="math inline">\(\mathcal{D}\)</span> is the class of all relevant observable data and <span class="math inline">\(\Theta\)</span> is the range of a possibly high-dimensional vector of parameter values. We diverge from common practice of using capital roman letters for random variables and small roman letters for values from these random variables, because parameter vectors are traditionally written as <span class="math inline">\(\theta\)</span> and the small letter <span class="math inline">\(\textrm{d}\)</span> (albeit non-italic) is reserved fro differentials.<a href="ch-03-03-estimation-bayes.html#fnref43" class="footnote-back">↩</a></p></li>
-<li id="fn44"><p>This is also known as <em>Laplace’s
-rule</em>, or the <em>rule of succession</em>.<a href="ch-03-03-estimation-bayes.html#fnref44" class="footnote-back">↩</a></p></li>
-<li id="fn45"><p>Also frequently called “highest-density intervals”, even when we are dealing not with density but probability mass.<a href="ch-03-03-estimation-bayes.html#fnref45" class="footnote-back">↩</a></p></li>
-<li id="fn46"><p>Not all random variables have a credible interval for a given <span class="math inline">\(\gamma\)</span>, according to this definition. A bimodal distribution might not, for example. A bi-modal distribution has two regions of high probability. We can therefore generalize the concept to a finite set of disjoint convex <em>credible regions</em>, all of which have the second property of the definition above and all of which conjointly are realized with <span class="math inline">\(\gamma\%\)</span> probability. Unfortunately, common parlor uses the term “credible interval” to refer to credible regions as well. The same disaster occurs with alternative terms, such as “<span class="math inline">\(\gamma\%\)</span> highest-density intervals”, which also often refers to what should better be called “highest-density regions”.<a href="ch-03-03-estimation-bayes.html#fnref46" class="footnote-back">↩</a></p></li>
+<div id="app-98-solutions-exercises" class="section level1">
+<h1><span class="header-section-number">E</span> Solutions to exercises</h1>
+<div class="exercises">
+<p><strong>Exercises</strong></p>
+<ol style="list-style-type: decimal">
+<li>Solve for <span class="math inline">\(x\)</span>:
+<ol style="list-style-type: lower-alpha">
+<li><span class="math inline">\(3x = 3\)</span></li>
+<li><span class="math inline">\(4x = 2\)</span></li>
+</ol></li>
+<li>Predict the outcome of this:</li>
 </ol>
+<div class="sourceCode" id="cb646"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb646-1" data-line-number="1">x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb646-2" data-line-number="2">x[<span class="dv">1</span>]</a></code></pre></div>
+<div align="right">
+Solutions are in Appendix <a href="chapter-1.html#app-98-solutions-exercises-Ch1-Ex1">E.1.1</a>
+</div>
+</div>
+<hr>
+<p>Solutions to exercises are provided in the following.</p>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="ch-03-04-parameter-inference.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="ch-03-03-estimation-frequentist.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="app-93-data-sets-avocado.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="chapter-1.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
