@@ -4,11 +4,11 @@
 
 <hr>
 
-This chapter introduces the basics of (simple) linear regression modeling with one explanatory variable. It covers ordinary least-squares regression, a frequentist maximum-likelihood approach, as well as a Bayesian approach. It addresses how hypotheses about the values of a regression model's parameters (so-called coefficients) can be adressed in a frequentist and a Bayesian approach.
+This chapter introduces the basics of (simple) linear regression modeling with one explanatory variable. It covers ordinary least-squares regression, a frequentist maximum-likelihood approach, as well as a Bayesian approach. It addresses how hypotheses about the values of a regression model's parameters (so-called coefficients) can be addressed in a frequentist and a Bayesian approach.
 
 ## Data set: murder data
 
-As a running example we use data on murder rates in cities of different population size, also containing further socio-economic information.
+As a running example, we use data on murder rates in cities of different population sizes, also containing further socio-economic information.
 
 ```{r, echo = F}
 murder_data <- read_csv('data_sets/murder_rates.csv') %>% 
@@ -48,37 +48,37 @@ GGally::ggpairs(murder_data, title = "Murder rate data")
 The diagonal of this graph shows the density curve of the data in each column. Scatter plots below the diagonal show pairs of values from two columns plotted against each other. The information above the diagonal gives the correlation score of each pair of variables.
 
 
-## Ordinary least-squares regression
+## Ordinary least squares regression
 
-This section introduces ordinary least-squares linear regression. The main idea is that we look for the best-fitting line in a (multi-dimensional) clouod of points, where "best-fitting" is defined in terms of a geometrical measure of distance (squared prediction error).
+This section introduces an ordinary least squares linear regression. The main idea is that we look for the best-fitting line in a (multi-dimensional) cloud of points, where "best-fitting" is defined in terms of a geometrical measure of distance (squared prediction error).
 
 ### Prediction without any further information
 
-We are interested in explaining or predicting the murder rates in a city. Suppose we have nothing to explain it with, i.e., we only have a vector of murder rates. Let's plot the murder rate for every city (just numbered consecutively):
+We are interested in explaining or predicting the murder rates in a city. Suppose we have no other information to explain it with, i.e., we only have a vector of murder rates. Let's plot the murder rate for every city (just numbered consecutively):
 
 ```{r, echo = F}
 murder_data %>% 
   ggplot(aes(x = 1:20, y = murder_rate)) +
   geom_point() +
   labs(
-    x = "city",
+    x = "n-th city",
     y = "murder rate"
   ) 
 ```
 
-Suppose we knew all observed murder rates. If we then wanted to predict the murder rate of a random city , but had no further information about that city, our best guess would be the mean of the observed murder rates, because this is what minimizes (on average) the distance to the observed murder rates. 
+Suppose we knew all observed murder rates. If we then wanted to predict the murder rate of a random city but had no further information about that city, our best guess would be the mean of the observed murder rates, because that is what minimizes the distance to the observed murder rates on average. 
 
 The plot below visualizes the prediction we make by this naive approach. The black dots show the data points, the red line shows the prediction we make (the mean murder rate), the small hollow dots show the specific predictions for each observed value $x_i$ and the gray lines show the distance between our prediction and the actual data observation.
 
 ```{r echo = F}
 mean_y <- murder_data %>% pull(murder_rate) %>% mean()
 murder_data %>% 
-  ggplot(aes(x = unemployment, y = murder_rate)) +
+  ggplot(aes(x = 1:20, y = murder_rate)) +
   geom_segment(
     aes(
-      x = unemployment, 
+      x = 1:20, 
       y = murder_rate,
-      xend = unemployment, 
+      xend = 1:20, 
       yend = mean_y
     ),
     color = "lightgray"
@@ -87,12 +87,12 @@ murder_data %>%
   geom_point(aes(y = mean_y), shape = "O", alpha = 0.5) +
   geom_point() +
   labs(
-    x = "city",
+    x = "n-th city",
     y = "murder rate"
   ) 
 ```
 
-The mean distance could be captured in terms of the **total sum of squares** like this, where $y$ is the $n$-placed vector of observed murder rates and $\bar{y}$ is its mean:
+The mean distance could be captured in terms of the **total sum of squares** like this, where $y$ is the $n$-dimensional vector of observed murder rates and $\bar{y}$ is its mean:
 
 $$
 \text{TSS} = \sum_{i=1}^n (y_i - \bar{y})^2
@@ -122,7 +122,7 @@ murder_data %>%
 ```
 
 
-Let us assume, for the sake of current illustration, that we expect a very particular functional relationship between the variables `murder_rate` and `unemployment`. For some reason or other, we hypothesize that even with 0% unemployment, the murder rate would be positive, namely at 4 murders per million inhabitants. We further hypothesize that with each increase of 1% in the unemployment percentage, the murder rate per million increases by 2. The functional relationship between dependent variable $y$ (= murder rate) and predictor variable $x$ (= unemployment) would then be expressible as a linear function (the hat on variable $y$ indicates that these are not data observations but predictions):
+Let us assume, for the sake of current illustration, that we expect a very particular functional relationship between the variables `murder_rate` and `unemployment`. For some reason or other, we hypothesize that even with 0% unemployment, the murder rate would be positive, namely at 4 murders per million inhabitants. We further hypothesize that with each increase of 1% in the unemployment percentage, the murder rate per million increases by 2. The functional relationship between dependent variable $y$ (= murder rate) and predictor variable $x$ (= unemployment) can then be expressed as a linear function (the hat on variable $y$ indicates that these are not data observations but predictions):
 
 $$
 \hat{y}_i = 2x_i + 4
@@ -148,7 +148,7 @@ murder_data %>%
   labs(y = "murder rate")
 ```
 
-We can again quantify our prediction error in terms of a sum of squares like we did before. For the case of a prediction vector $\hat{y}$, the quantity in question is called **residual sum of squares**.
+We can again quantify our prediction error in terms of a sum of squares like we did before. For the case of a prediction vector $\hat{y}$, the quantity in question is called the **residual sum of squares**.
 
 $$
 \text{RSS} = \sum_{i=1}^n (y_i - \hat{y})^2
@@ -167,17 +167,24 @@ rss_guesswork
 
 Compared to the previous prediction, which was based on the mean $\bar{y}$ only, this linear function reduces the prediction error (measured here geometrically in terms of a sum of squares).
 
+
+<!-- # Exercise 13.1 -->
+<!-- Compare RSS and TSS. In which component do they differ from each other? Think about which information the difference between the two measures conveys. -->
+
+
+<!-- TSS computes the distance between a data point and the mean, whereas RSS computes the distance between a data point and its predictor. The difference between these two measures tells us how good our prediction is in comparison to a naive prediction (using just the mean). -->
+
 ### Simple linear regression: general problem formulation
 
-Suppose we have $k$ predictor variables $x_1, \dots , x_k$ and dependent variable $y$. 
-We consider the simple linear relation (where the hat on top of vector $y$ symbolizes that this is a vector of predictions): 
+Suppose we have $k$ predictor variables $x_1, \dots , x_k$ and a dependent variable $y$. 
+We consider the simple linear relation (where the hat on top of vector $y$ symbolizes that this is a vector of predicted $y$ values): 
 
 $$ \hat{y}_i = \beta_0 + \beta_1 x_{1i} + \dots + \beta_k x_{ki}$$
 
 The parameters $\beta_0, \beta_1, \dots, \beta_k$ of this equation are called **regression coefficients**. In particular, $\beta_0$ is called the **regression intercept** and $\beta_1, \dots, \beta_k$ are **regression slope coefficients**. 
 Based on the predictions of a parameter vector $\langle \hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k\rangle$, we consider the residual sum of squares as a measure of prediction error:
 
-$$\text{RSS}_{\langle {\beta}_0, {\beta}_1, \dots, {\beta}_k\rangle} = \sum_{i = 1}^k (y_i - \hat{y}_i)^2 $$
+$$\text{RSS}_{\langle {\beta}_0, {\beta}_1, \dots, {\beta}_k\rangle} = \sum_{i = 1}^k [y_i - \hat{y}_i ({\beta}_0, {\beta}_1, \dots, {\beta}_k) ]^2 $$
 
 We would like to find the best parameter values (denoted traditionally by a hat on the parameter's variable: $\hat{\beta}_i$) in the sense of minimizing the residual sum of squares:
 
@@ -186,7 +193,14 @@ $$
 $$
 
 
-For instance, the example started above, where we regressed `murder_rate` against `unemployment` has two regression coefficients: an intercept term and a slope for `unemployment`. The optimal solution for these (see next section) delivers the regression line in the graph below:
+
+<!-- # Exercise 13.2 -->
+<!-- How many coefficients does the naive model have? How can they be interpreted? -->
+
+<!-- THe naive model have only $\beta_0$ as its coefficient with $\hat{\beta}_0$ = $\bar{y}$. -->
+
+
+In the aobve example, where we regressed `murder_rate` against `unemployment`, the model has two regression coefficients: an intercept term and a slope for `unemployment`. The optimal solution for these (see next section) delivers the regression line in the graph below:
 
 ```{r, echo = F}
 lm_fit_murder <- lm(murder_rate ~ unemployment, data = murder_data)
@@ -223,11 +237,11 @@ tss_best
 
 ### Finding the OLS-solution
 
-In the following we discuss several methods of finding the best-fitting values for regression coefficients that minimize the residual sum of squares.
+In the following, we discuss several methods of finding the best-fitting values for regression coefficients that minimize the residual sum of squares.
 
 #### Finding optimal parameters with `optim`
 
-We can use the `optim` function to find the best-fitting parameter values for a simple linear regression. Here is an example based on the murder data. 
+We can use the `optim` function to find the best-fitting parameter values for simple linear regression. Here is an example based on the murder data. 
 
 ```{r, message = T}
 # data to be explained / predicted
@@ -240,8 +254,8 @@ get_rss = function(y, x, beta_0, beta_1) {
   sum((y-yPred)^2) 
 }
 # finding best-fitting values for TSS
-fit_rss = optim(par = c(0, 1), 
-  fn = function(par) {
+fit_rss = optim(par = c(0, 1),  # initial parameter values
+  fn = function(par) {  # function to minimize
     get_rss(y, x, par[1], par[2])
   }
 )
@@ -297,10 +311,98 @@ $$
 ```
 
 ```{proof}
-TBD
+*[See e.g., @kirchner2003, pp. 1-3; @olive2017, pp. 57-59]*
+
+Given a set of $n$ observations $(X_i,Y_i)$ (or points on a scatter plot), we want to find the best-fit line,
+$$\hat y_i=\hat\beta_0+\hat\beta_1x_i,\tag{1.1.1}$$
+such that the sum of squared errors (RSS) in $Y$ is minimized:
+
+$$RSS=\sum_{i=1}^n (y_i - \hat{y}_i)^2 \rightarrow min.\tag{1.1.2}$$
+
+Let the *Residual Sum of Squares (RSS)*  be denoted as $Q$ with,
+
+$$\begin{align}
+Q=RSS&=\sum_{i=1}^{n}(y_i-\hat y_i)^2\\ &=\sum_{i=1}^{n}(y_i-\hat\beta_0-\hat\beta_1x_i)^2.
+\tag{1.1.3}
+\end{align}$$
+
+We want to minimize $Q$ (that is minimizing *RSS*) at the values of $\hat\beta_0$ and $\hat\beta_1$ for which $\frac{\partial Q}{\partial \hat\beta_0}=0$ (1) and $\frac{\partial Q}{\partial \hat\beta_1}=0$ (2), since all partial derivatives equal to 0 at the global minimum.
+
+The first condition (1) is,
+
+$$ \begin{align} \frac{\partial Q}{\partial \hat\beta_0}=\sum_{i=1}^{n}-2(y_i-\hat\beta_0-\hat\beta_1x_i)&= 0\\
+&=-\sum_{i=1}^ny_i+\sum_{i=1}^n\hat \beta_0+\sum_{i=1}^n\hat\beta_1x_i\\
+&=-\sum_{i=1}^ny_i+n\hat\beta_0+\sum_{i=1}^n\hat\beta_1x_i
+\tag{1.1.4}
+\end{align}$$
+
+
+which, if we solve for $\hat\beta_0$, becomes
+
+$$\begin{align}
+\hat\beta_0&=\frac{1}{n}\sum_{i=1}^{n}y_i-\frac{1}{n}\hat\beta_1\sum_{i=1}^{n}x_i\\
+&=\bar y - \hat\beta_1\bar x,
+\tag{1.1.5}
+\end{align}$$
+
+which says that the constant $\hat\beta_0$ (the y-intercept) is set such that the line must go through the mean of $x$ and $y$. This makes sense because this point is the "center" of the data cloud.
+
+The solution is indeed a minimum as the second partial derivative is positive:
+
+$\frac{\partial^2 Q}{\partial\hat\beta_0^2}=2n>0. \tag{1.1.6}$
+
+The second condition (2) is,
+
+$$ \begin{align}
+\frac{\partial Q}{\partial \hat\beta_1}=\sum_{i=1}^{n}-2x_i(y_i-\hat\beta_0-\hat\beta_1x_i)&=0\\
+&=\sum_{i=1}^{n}(-x_iy_i+\hat\beta_0x_i+\hat\beta_1x_i^2)\\
+&=-\sum_{i=1}^{n}x_iy_i+\hat\beta_0\sum_{i=1}^{n}x_i+\hat\beta_1\sum_{i=1}^{n}x_i^2
+\tag{1.1.7}
+\end{align}$$
+
+If we substitute $\hat\beta_0$ by (1.1.5), we get,
+
+$$ \begin{align}
+0&=-\sum_{i=1}^{n}x_iy_i+(\bar y - \hat\beta_1\bar x)\sum_{i=1}^{n}x_i+\hat\beta_1\sum_{i=1}^{n}x_i^2\\
+&=-\sum_{i=1}^{n}x_iy_i+\bar y\sum_{i=1}^{n}x_i-\hat\beta_1\bar x\sum_{i=1}^{n}x_i+\hat\beta_1\sum_{i=1}^{n}x_i^2
+\tag{1.1.8}
+\end{align}$$
+
+separating this into two sums,
+
+$$ \sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)-\hat\beta_1\sum_{i=1}^{n}\left(x_i^2-x_i\bar x\right)=0 \tag{1.1.9}$$
+
+becomes,
+
+$$ \hat\beta_1 = \frac{\sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)}{\sum_{i=1}^{n}\left( x_i^2-x_i\bar x\right)} = \frac{\sum_{i=1}^{n}\left( x_iy_i\right)-n\bar x\bar y}{\sum_{i=1}^{n}\left( x_i^2\right)-n \bar x^2} \tag{1.1.10}$$
+
+The model assumes that the deviation from the values from the mean is zero, so that the positive and negative values are in balance, thus
+
+$$ \sum_{i=1}^{n}\left( \bar x^2-x_i\bar x\right)=0, \tag{1.1.11}$$
+
+and
+
+$$ \sum_{i=1}^{n}\left(\bar x \bar y - y_i \bar x\right)=0. \tag{1.1.12}$$
+
+This can be used in order to expand the previous term and finally to rewrite $\hat\beta_1$ as the ratio of $Cov(x,y)$ to $Var(x)$:
+
+$$
+\begin{align}
+\hat\beta_1&=\frac{\sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)+\sum_{i=1}^{n}\left(\bar x\bar y - y_i \bar x\right)}{\sum_{i=1}^{n}\left( x_i^2-x_i\bar x\right)+\sum_{i=1}^{n}\left( \bar x^2-x_i\bar x\right)}=\frac{\sum_{i=1}^{n}\left( x_iy_i-x_i\bar y\right)+0}{\sum_{i=1}^{n}\left( x_i^2-x_i\bar x\right)+0}\\
+\\
+&=\frac{\frac{1}{n}\sum_{i=1}^{n}\left( x_i-\bar x\right) \left(y_i- \bar y \right)}{\frac{1}{n}\sum_{i=1}^{n}\left( x_i-\bar x\right)^2}\\
+\\
+&=\frac{Cov(x,y)}{Var(x)}.
+\tag{1.1.13}
+\end{align}$$
+
+The solution is indeed a minimum as the second partial derivative is positive:
+
+$$\frac{\partial^2Q}{\partial \hat\beta_1^2}= 2 \sum_{i=1}^{n}x_i^2 >0. \tag{1.1.14}$$
 ```
 
 &nbsp;
+
 
 Let's use these formulas to calculate regression coefficients for the running example as well:
 
@@ -333,18 +435,95 @@ $$
 ```
 
 ```{proof}
-TBD
+*[see e.g., @bremer2012, pp. 21-23; @gonzalez2014, pp. 5-15]*
+
+The model of multiple linear regression is given by the following expression:
+
+$$y=\beta_0+\beta_1x_1+\beta_2x_2+...+\beta_kx_k+\epsilon \tag{1.2.1}$$
+Suppose we have $n$ observations, then we can write:
+$$\begin{align}
+y_1&=\beta_0+\beta_{1}x_{11}+\beta_2x_{21}+...+\beta_kx_{k1}+\epsilon_1\\
+y_2&=\beta_0+\beta_{1}x_{12}+\beta_2x_{22}+...+\beta_kx_{k2}+\epsilon_2\\
+...\\
+y_n&=\beta_0+\beta_{1}x_{1n}+\beta_2x_{2n}+...+\beta_kx_{kn}+\epsilon_n
+\tag{1.2.2}
+\end{align}$$
+The model of multiple linear regression is often expressed in matrix notation:
+
+$$\begin{bmatrix} y_1\\y_2\\...\\y_n \end{bmatrix}= \begin{bmatrix}1&x_{11}& x_{21}&...&x_{k1}\\1&x_{12}& x_{22}&...&x_{k2}\\...& ...&...&...&...\\1&x_{1n}&x_{2n}&...&x_{kn}\end{bmatrix}\begin{bmatrix}\beta_0\\\beta_1\\...\\\beta_k \end{bmatrix}+\begin{bmatrix}\epsilon_1\\\epsilon_2\\...\\\epsilon_n \end{bmatrix} \tag{1.2.3}$$
+
+Which can be expressed in a compact form as
+
+$$\mathbf{Y=X\beta+\epsilon} \tag{1.2.4}$$
+where $y$ is a vector $n\times 1$, $X$ is a matrix $n \times k$, $\beta$ is a vector $k \times 1$ and $\epsilon$ is a vector $n \times 1$.
+
+The OLS estimator is obtained (like in the special case) by minimizing the residual sum of squares (RSS).
+
+$$RSS \rightarrow min.$$
+
+The RSS for the multiple linear regression model is
+
+$$Q=RSS=\sum_{i=1}^n \hat\epsilon_i^2=\sum_{i=1}^n (y_i - \hat{y}_i)^2=\sum_{i=1}^n \left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]^2 \tag{1.2.5}$$
+
+to apply the least-squares criterion in the model of multiple linear regression, thus to minimize $RSS$, we calculate the first partial derivative from $Q$ with respect to each $\hat\beta_j$in the expression:
+
+$$\begin{align}
+\frac{\partial Q}{\partial\hat\beta_0}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-1]\\
+\\
+\frac{\partial Q}{\partial\hat\beta_1}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{1i}]\\
+\\
+\frac{\partial Q}{\partial\hat\beta_2}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{2i}]\\
+...\\
+\frac{\partial Q}{\partial\hat\beta_k}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{ki}]
+\tag{1.2.6}
+\end{align}$$
+
+Then the derivative of each equation is set to zero:
+
+$$\begin{align}
+&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]=0\\
+&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{1i}=0\\
+&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{2i}=0\\
+&...\\
+&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{ki}=0
+\tag{1.2.7}
+\end{align}$$
+
+Alternatively, we can use matrix notation and combine the above equations into the following form:
+
+$$\mathbf{X'Y-X'X\hat\beta=0}.\tag{1.2.8}$$
+
+Whereby the following expression is known as **normal equations**:
+
+$$\mathbf{X'X\hat\beta=X'Y}.\tag{1.2.9}$$
+
+The system of normal equations in expanded matrix notation is:
+
+$$\begin{bmatrix} n&\sum_{i=1}^nx_{1i}&...&\sum_{i=1}^nx_{ki}\\
+\sum_{i=1}^nx_{1i}&\sum_{i=1}^nx_{1i}^2&...&\sum_{i=1}^nx_{1i}x_{ki}\\...&...&...&...\\
+\sum_{i=1}^nx_{ki}&\sum_{i=1}^nx_{ki}x_{1i}&...&\sum_{i=1}^nx_{ki}^2\end{bmatrix}\begin{bmatrix}\hat\beta_0\\\hat\beta_1\\...\\\hat\beta_k\end{bmatrix}=\begin{bmatrix}\sum_{i=1}^ny_i\\\sum_{i=1}^nx_{1i}y_i\\...\\\sum_{i=1}^nx_{ki}y_i
+\tag{1.2.10}
+\end{bmatrix}$$
+
+In order to obtain the estimator $\hat\beta$, we have to rearrange (1.2.10) and get the solution:
+
+$$\begin{bmatrix}\hat\beta_0\\\hat\beta_1\\...\\\hat\beta_k\end{bmatrix}=\mathbf{\hat\beta}=[\mathbf{X'X}]^{-1}\mathbf{X'Y}\tag{1.2.11}$$
+
+Where $\hat\beta$ is a global minimizer of the OLS criterion as the second order condition is always a semidefinite positive matrix.
+
+$$\frac{\partial^2 Q}{\partial \mathbf{\hat\beta}^2}=2X'X >0.$$
 ```
 
-The availability of these elegant mathematical solutions for OLS-regression explains why the computation of best-fitting regression coefficients with a built-in function like `lm` is lightning fast: it does not rely on optimization with `optim`, sampling methods or similar computational approaches.
+
+The availability of these elegant mathematical solutions for OLS-regression explains why the computation of best-fitting regression coefficients with a built-in function like `lm` is lightning fast: it does not rely on optimization with `optim`, sampling methods or other similar computational approaches. Instead, it instantaneously calculates the analytical solution.
 
 ## A maximum-likelihood approach
 
-In order to be able to extend regression modeling to predictor variables other than metric variables (so-called generalized linear regression models), the geometric approach needs to be abandoned in favor of a likelihood-based approach. 
+In order to be able to extend regression modeling to predictor variables other than metric variables (so-called generalized linear regression models), the geometric approach needs to be abandoned in favor of a likelihood-based approach. The likelihood-based approach tries to find coefficients that explain the observed data most plausibly. 
 
-### A liklihood-based model
+### A likelihood-based model
 
-There are two equivalent formulation of a (simple) linear regression model, using a likelihood-based approach. The first is more explicit, showing clearly that the model assumes that for each observation $y_i$, the model assumes an error term $\epsilon_i$, which is an iid sample from a Normal distribution. (Notice that the likelihood-based model assumes an additional parameter $\sigma$, the standard deviation of the error terms.)
+There are two equivalent formulations of a (simple) linear regression model using a likelihood-based approach. The first is more explicit, showing clearly that the model assumes that for each observation $y_i$ an error term $\epsilon_i$, which is an iid sample from a Normal distribution. (Notice that the likelihood-based model assumes an additional parameter $\sigma$, the standard deviation of the error terms.)
 
 $$ 
 \text{likelihood-based regression }
@@ -411,7 +590,7 @@ It is no coincidence that these fitted values are (modulo number imprecision) th
 ```{theorem, "MLE-Solution", name = "MLE solution"}
 For a simple linear regression model with just one predictor, the solution for:
 
-$$\arg \max_{\langle \beta_0, \beta_1, \sigma \rangle} \prod_{i = 1}^k \text{Normal}(\mu = \beta_0 + \beta_1 x_{i}, \sigma)$$
+$$\arg \max_{\langle \beta_0, \beta_1, \sigma \rangle} \prod_{i = 1}^k \text{Normal}(y_i | \mu = \beta_0 + \beta_1 x_{i}, \sigma)$$
   
 is the same as for the OLS approach:
   
@@ -425,7 +604,77 @@ $$
 ```
 
 ```{proof}
-TBD
+*[see e.g., @naveen2019; @croot2010; @eppes2019]*
+
+#### Maximum Likelihood Estimation
+We consider again the linear regression model of the population with:
+
+$$Y= \beta_0 + \beta_1X + \epsilon.\tag{2.1}$$
+
+This simplifies to the following form on the observed data:
+
+$$y= \beta_0 + \beta_1x + \epsilon.\tag{2.2}$$
+
+Using a sample in order to obtain the **maximum likelihood estimates** the equation simplifies to:
+
+$$y= \hat\beta_0 + \hat\beta_1x. \tag{2.3}$$
+
+**Assumptions** that we make for the model:
+
+- True underlying distribution of the errors is Gaussian,
+- Expected value of the error term is 0,
+- Variance of the error term is constant with respect to x, and
+- the 'lagged' errors are independent of each other
+where the error term is normally distributed.
+
+We can thus write:
+
+$$ \epsilon \sim N(0,\sigma^2).\tag{2.4}$$
+
+Since $Y$ is a linear function of $\epsilon$ it will also be normally distributed.
+
+$$f(\epsilon|\beta_0,\beta_1)= \frac{1}{\sqrt{2\pi} \sigma} \exp\left[{-\frac{1}{2}\left(\frac{\epsilon^2}{\sigma^2}\right)}\right]. \tag{2.5}$$
+
+Given the whole data set with $i=1,...,n$ observations the **likelihood function** ($LH$) is the joint density of all the observations, given a value for the parameters $\beta_0$ and $\beta_1$. Since independence is assumed, this is simply the product of the individual densities from the previous equation.
+
+$$LH(\epsilon_i|\beta_0,\beta_1) =\prod_{i=1}^{n}\frac{1}{\sqrt{2\pi} \sigma} \exp\left[{-\frac{1}{2}\left(\frac{\epsilon_i^2}{\sigma^2}\right)}\right].\tag{2.6}$$
+
+In order to find the maximum of (2.6) we have to find the first derivative.
+
+But as the derivation of a product with a lot of factors is inconvenient, we take first the logarithm of the likelihood, called **log-likelihhod**. This is possible as $\log$ is a monotone transformation and the maximum likelihood estimate does not change on log transformation.
+
+The log-likelihood is the sum of the logs of the individual densities:
+
+$$\begin{align}
+LL&=\log \left(LH(\epsilon_i|\beta_0,\beta_1)\right)\\
+&=-\left( \frac{n}{2}\right) \log(2\pi)-\left( \frac{n}{2}\right) \log(\sigma^2)-\left( \frac{1}{2}\sigma^2\right) \sum_{i=1}^n(\epsilon_i)^2
+\tag{2.7}
+\end{align}$$
+
+The log-likelihood can be used in order to find the *Maximum Likelihood estimates* $\hat\beta_0$ and $\hat\beta_1$ for the parameters $\beta_0$ and $\beta_1$.
+
+
+$$\hat\beta_0,\hat\beta_1=\mathrm{argmax}_{\beta_0,\beta_1}LL=\mathrm{argmax}_{\beta_0,\beta_1}\left[-\left( \frac{n}{2}\right) \log(2\pi)-\left( \frac{n}{2}\right) \log(\sigma^2)-\left( \frac{1}{2}\sigma^2\right) \sum_{i=1}^n(\epsilon_i)^2\right].\tag{2.8}$$
+
+Removing the constant terms results in:
+
+$$\hat\beta_0,\hat\beta_1=\mathrm{argmax}_{\beta_0,\beta_1} \sum_{i=1}^n-\epsilon_i^2.\tag{2.9}$$
+
+Substituting $\epsilon$, derived from (2.2), gives:
+
+$$\hat\beta_0,\hat\beta_1=\mathrm{argmax}_{\beta_0,\beta_1} \sum_{i=1}^n-(y-\beta_0-\beta_1x)^2.\tag{2.10}$$
+
+**Conclusion:**
+
+Deriving parameter estimates according to the OLS method:
+
+$$Q_{OLS}=\sum_{i=1}^{n}(y_i-\hat\beta_0-\hat\beta_1x_i)^2 \rightarrow min.$$
+
+Deriving parameter estimates according to the ML method:
+
+$$Q_{ML}=\sum_{i=1}^n-(y_i-\hat\beta_0-\hat\beta_1x_i)^2 \rightarrow max.$$
+
+Maximizing $-z$ is equivalent to minimizing $z$, thus, the best parameter fit under ML is equivalent to the best fit under OLS.
 ```
 
 &nbsp;
@@ -434,7 +683,7 @@ The equivalence also extends to cases with more than one explanatory variable.
 
 ### Finding the MLE-solution with `glm`
 
-R also has a built-in way of approaching simple linear regression wiith a maximum-likelihood approach, namely by using the function `glm` (generalized linear model). Notice that the output looks slightly different from that of `lm`.
+R also has a built-in way of approaching simple linear regression with a maximum-likelihood approach, namely by using the function `glm` (generalized linear model). Notice that the output looks slightly different from that of `lm`.
 
 ```{r}
 fit_glm <- glm(murder_rate ~ unemployment, data = murder_data)
@@ -511,7 +760,7 @@ tidy_draws_murder_data %>%
 
 ### Using the `brms` package
 
-Instead of hand-coding each Bayesian regression model, we can also use the `brms` package [@brms2017]. The main funtion of this package is `brm` (short for **B**ayesian **R**egression **M**odel). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` behaves similar to the more general `lmer` function from the `lme4` package, which is even more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example for the current case study:
+Instead of hand-coding each Bayesian regression model, we can also use the `brms` package [@brms2017]. The main function of this package is `brm` (short for **B**ayesian **R**egression **M**odel). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` behaves similarly to the more general `lmer` function from the `lme4` package, which is even more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example of the current case study:
 
 ```{r, eval = F}
 fit_brms_murder <- brm(
@@ -535,7 +784,7 @@ The function `brm` returns a model-fit object, similar to `glm`. We can inspect 
 summary(fit_brms_murder)
 ```
 
-This output tells us about which model we fitted, states some properties of the MCMC sampling routine used to obtain samples from the posterior distribution, and it also gives us information about the posteriors under the heading "Population-Level Effects" we get summary statistics of the set of posterior samples for each regression coefficient, including the mean ("Estimate"), and the 95% interquantile range ("l-95%" is the lower bound and "u-95%" is the upper bound).^[Notice that the 95% interquantile range is not necessarily the same as the 95% HDI, but for large sample sizes the two will coincide.]
+This output tells us about which model we fitted, states some properties of the MCMC sampling routine used to obtain samples from the posterior distribution, and it also gives us information about the posteriors under the heading "Population-Level Effects" we get summary statistics of the set of posterior samples for each regression coefficient, including the mean ("Estimate"), and the 95% inter-quantile range ("l-95%" is the lower bound and "u-95%" is the upper bound).^[Notice that the 95% inter-quantile range is not necessarily the same as the 95% HDI, but for large sample sizes the two will coincide.]
 
 
 ### Bayesian regression with non-informative standard priors
@@ -690,7 +939,7 @@ summary(glm(murder_rate ~ unemployment, data = murder_data))
 <!-- \tag{1.1.5} -->
 <!-- \end{align}$$ -->
 
-<!-- which says that the constant $\hat\beta_0$ (the y-intercept) is set such that the line must go through the mean of $x$ and $y$. This makes sense, because this point is the "center" of the data cloud. -->
+<!-- which says that the constant $\hat\beta_0$ (the y-intercept) is set such that the line must go through the mean of $x$ and $y$. This makes sense because this point is the "center" of the data cloud. -->
 
 <!-- The solution is indeed a minimum as the second partial derivative is positive: -->
 
@@ -777,7 +1026,7 @@ summary(glm(murder_rate ~ unemployment, data = murder_data))
 
 <!-- $$Q=RSS=\sum_{i=1}^n \hat\epsilon_i^2=\sum_{i=1}^n (y_i - \hat{y}_i)^2=\sum_{i=1}^n \left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]^2 \tag{1.2.5}$$ -->
 
-<!-- to apply the least squares criterion in the model of multiple linear regression, thus to minimize $RSS$, we calculate the first partial derivative from $Q$ with respect to each $\hat\beta_j$in the expression: -->
+<!-- to apply the least-squares criterion in the model of multiple linear regression, thus to minimize $RSS$, we calculate the first partial derivative from $Q$ with respect to each $\hat\beta_j$in the expression: -->
 
 <!-- $$\begin{align} -->
 <!-- \frac{\partial Q}{\partial\hat\beta_0}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-1]\\ -->
@@ -821,7 +1070,7 @@ summary(glm(murder_rate ~ unemployment, data = murder_data))
 
 <!-- $$\begin{bmatrix}\hat\beta_0\\\hat\beta_1\\...\\\hat\beta_k\end{bmatrix}=\mathbf{\hat\beta}=[\mathbf{X'X}]^{-1}\mathbf{X'Y}\tag{1.2.11}$$ -->
 
-<!-- Where $\hat\beta$ is a global minimizer of the OLS criterion as the scond order condition is always a semidefinite positive matrix. -->
+<!-- Where $\hat\beta$ is a global minimizer of the OLS criterion as the second order condition is always a semidefinite positive matrix. -->
 
 <!-- $$\frac{\partial^2 Q}{\partial \mathbf{\hat\beta}^2}=2X'X >0.$$ -->
 
@@ -908,7 +1157,7 @@ summary(glm(murder_rate ~ unemployment, data = murder_data))
 
 <!-- $$Q_{ML}=\sum_{i=1}^n-(y_i-\hat\beta_0-\hat\beta_1x_i)^2 \rightarrow max.$$ -->
 
-<!-- Maximizing $-z$ is equivalent to minimizing $z$, thus, the best parameter fit under ML is equivalent with best fit under OLS. -->
+<!-- Maximizing $-z$ is equivalent to minimizing $z$, thus, the best parameter fit under ML is equivalent to the best fit under OLS. -->
 
 <!-- --- -->
 
@@ -970,7 +1219,7 @@ summary(glm(murder_rate ~ unemployment, data = murder_data))
 
 <!-- [see e.g., @urban2018 pp. 56-72, 101-103 ] -->
 
-<!-- We will first derive the variance explained $R^2$ considering a bivariate model (simple linear regression), afterwards some note to the generalized case of multiple regression are made. -->
+<!-- We will first derive the variance explained $R^2$ considering a bivariate model (simple linear regression), afterward some note to the generalized case of multiple regression is made. -->
 
 <!-- The variance explained can be derived in the bivariate model from the regression coefficient $\beta$ and the standard deviation of $X$ and $Y$, whereby the following holds: -->
 
@@ -987,7 +1236,7 @@ summary(glm(murder_rate ~ unemployment, data = murder_data))
 <!-- \tag{4.2} -->
 <!-- \end{align}$$ -->
 
-<!-- On the other hand, if we assume $Y$ as dependent and $X$ as independent variable, we can write: -->
+<!-- On the other hand, if we assume $Y$ as dependent and $X$ as an independent variable, we can write: -->
 
 <!-- $$\beta_{yx}=\frac{\sum_{i=1}^{n}X_iY_i}{\sum_{i=1}^n X_i^2}. \tag{4.3}$$ -->
 
@@ -1092,4 +1341,4 @@ summary(glm(murder_rate ~ unemployment, data = murder_data))
 
 <!-- holds as well. Here the variance explained is equivalent to the squared multiple correlation coefficient between the estimated and observed Y-value ($r_{\hat Y Y}$). -->
 
-<!-- In the multiple linear regression model the variance explained is also dependent in the number of X-variables. Therefore an adjusted $R^2$ measure should be used. -->
+<!-- In the multiple linear regression model, the variance explained is also dependent on the number of X-variables. Therefore an adjusted $R^2$ measure should be used. -->
