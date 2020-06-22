@@ -1,6 +1,6 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-language: R
+language: r
 sudo: false
 latex: false # we're going to use tinytex
 cache:
@@ -19,17 +19,17 @@ cache:
 # Set github dependencies
 r_github_packages: dkahle/dirichlet
 
-before_install:
-  - |
-    # Install TinyTex manually if not already in cache
-    # Travis creates $HOME/.TinyTex if nonexistent, so we check bin subdir
-    if [ ! -d $HOME/.TinyTex/bin ]; then
-      Rscript -e "tinytex::install_tinytex()"
-    fi
+# before_install:
+#   - |
+#     # Install TinyTex manually if not already in cache
+#     # Travis creates $HOME/.TinyTex if nonexistent, so we check bin subdir
+#     if [ ! -d $HOME/.TinyTex/bin ]; then
+#       Rscript -e "tinytex::install_tinytex()"
+#     fi
 
 script:
   - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::gitbook", quiet = TRUE)'
-  - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::pdf_book", quiet = TRUE)'
+  # - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::pdf_book", quiet = TRUE)'
   
 after_success:
   - |
@@ -39,7 +39,7 @@ after_success:
 deploy:
   provider: pages
   # cleanup: false
-  github_token: $INTRO_DA
+  token: $INTRO_DA
   keep_history: true
   on:
     branch: master
