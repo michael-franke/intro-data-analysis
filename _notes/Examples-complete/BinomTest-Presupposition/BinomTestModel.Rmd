@@ -1,0 +1,195 @@
+---
+title: "BinomialTest"
+author: "Introduction into Statistics"
+date: "14 September 2019"
+output: 
+   html_document
+---
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+#Introduction into the example
+The logical fallacy of presupposition occurs when language is used that presupposes conclusions into the statements without first showing those statements to be true. A question that has a presupposition built in, is a question which contains a controversial or unjustified assumption. It is a form of misleading discourse, and it is a fallacy when the audience does not detect the assumed information implicit in the question and accepts it as a fact. For example the question "How many times per day do you beat your wife?". Even if the response is an emphatic, "none!" the damage has been done.  If you are hearing this question, you are more likely to accept the possibility that the person who was asked this question is a wife-beater, which is fallacious reasoning on your part.
+
+In the following test we introduce one test example asking the participant to rate if the statement is true or false.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.3\linewidth]{../BinomialModel/Test-example}
+	\caption{Test sentence}
+	\label{fig:test}
+\end{figure}
+
+```{r, warning=FALSE, message=FALSE}
+#load packages
+library(tidyverse)
+library(brms)
+library(rethinking)
+library(ggthemes)
+```
+
+```{r}
+#simulate data set
+sample.space <- c(0,1)
+theta <- 0.5 # we simulate guessing 
+N <- 30 # 30 participants take part in the experiment
+
+correct.raw <- sample(sample.space, 
+                size = N, 
+                replace = TRUE, 
+                prob = c(theta, 1 - theta))
+
+correct.answers <- data.frame(answer=correct.raw)
+head(correct.answers)
+```
+
+#Building the model
+
+##The data --- What do we observe?
+The test sentence was answered by N participants. The \emph{variable} "answer" has a dichotmous \emph{outcome} "1" and "0", where "1" indicates \emph{true} and "0" indicates \emph{false}. In order to see how the group of participants answered on average we can summarize the data.
+For example we can calculate the \emph{number of "true" answers} and the \emph{number of "false" answers}. 
+
+```{r}
+#number of correct answers
+tibble(true = sum(correct.answers$answer),
+       false = N-sum(correct.answers$answer))
+```
+As we know the number of participants ($N$) it is sufficent to look at the number of "true" answers, in the following referred to as $k$. The number of false answers can be derived automatically from that ($N-k$). 
+
+In the next step we want to define a \emph{descriptive model of the data} that is meaningful for our research question. That is, we are interested in identifying the probability for rating the test sentence as "true".
+
+##Identifying relevant variables
+We assume that there exists an underlying \emph{probability} variable that \emph{influences} the number of observed outcome. We will call this variable $\theta$. Or in other words, we would expect, dependent on the value of $\theta$, to observe different outcomes. 
+```{r}
+#Plot to illustrate conceptional background
+dummydata <- data.frame(x= c("theta"), y= c(0.4))
+ 
+ggplot(data = dummydata, mapping = aes(x=x,y=y))+
+  geom_col()+
+  ylim(0,1)+
+  xlab("Test sentence")+
+  ylab("Proportion for true (X=1)")+
+  scale_x_discrete(labels=c("theta"=expression(theta)))+
+  theme_classic()+
+  ggtitle("One group (dichotomous data)")
+```
+
+##Describing the random variation
+For example we assume $\theta$ to be 0.5, then we would expect to observe approximately as many "true" as "false" answers. But we would also allow for variation, e.g. a little more "true" as "false" answers or the other way around. Thus, we have to describe how the random variation of the actual number of "true" answers around the expected value $\theta$ should look like. We have to decide on a distribution family. Considering the following conditions:
+\begin{itemize}
+  \item a dependent variable with a dichotmous outcome (1 and 0) and
+  \item a constant probability $\theta$,
+\end{itemize}
+
+the distribution family with maximum entropy is the \emph{Bernoulli distribution}. (see section probability - distribtions)
+
+##Priors --- Considerations about prior knowledge 
+Following the Bayesian idea we have to incorporate prior knowledge. Which probability for rating "true" in the test sentence do we expect? Thus, which value will $\theta$ take most probably? Actually, we do not know the background knowledge of the participants, thus, we are \emph{ignorant} about the outcome. One possibility to formulize this ignorance would be to assume that all outcomes are \emph{equally probable}. An example distribution that fullfills this assumption is Beta(1,1):
+
+```{r}
+#simulates a beta(1,1) distribution
+dens(rbeta(1e6,1,1), ylim = c(0,1.5), xlab=expression(theta), main="Beta(1,1)")
+```
+
+#Notation of the model
+Sofar, we have make considerations about 
+\begin{itemize}
+  \item the dependet variable and the observed outcome $k$, 
+  \item the assumed underlying probability $\theta$, 
+  \item the appropriate distribution family which describes best the random variation of outcomes ($Bernoulli(\theta)$) and 
+  \item a distribution which describes our prior belief ($Beta(1,1)$).
+\end{itemize}
+
+##Graphical notation
+The graphical notation of the current model is:
+![alt text](https://github.com/michael-franke/intro-data-analysis/tree/master/notes/Examples-complete/BinomTest-Presupposition/Binom_one_group.png "Beta Binomial model - one group")
+
+##Textual notation 
+The textual notation of the current model from a Frequentist perspective (without prior):
+
+$$k \sim Bernoulli(\theta),$$
+and from a Bayesian perspective (with prior)
+
+$$k \sim Bernoulli(\theta),$$
+$$\theta \sim Beta(1,1).$$
+
+#Modelling revisited
+
+## Underlying parameters & link function
+Sofar we have assumed the existence of the probability $\theta$ that influences the shape of the distribution of the dependent variable, in this case the Bernoulli distribution. But we have not yet discussed how we want to estimate $\theta$. In order to estimate it, we need \emph{parameter(s)}. 
+
+For estimating the expected value $\theta$ of the Bernoulli distribution we need only one parameter (in the following referred to as $\beta_0$). But how is $\beta_0$ linked to the expected value $\theta$?
+
+For example, consider the simplest case: a \emph{linear relationship} (see next plot left side). The problem which arises at this point is that $\theta$ represents a probability, and is therefore bounded to the range 0-1 (grey shaded area). 
+
+```{r}
+#Different relationships between the parameter and expected value 
+x <- seq(from=-4, to=4, length.out = 100)
+y <- x                 #linear relationship
+y.log <- logistic(x)   #logistic relationship
+
+par(mfrow = c(1, 2))   #set both plot beside each other
+plot(x,y,type="l", ylab=expression(theta), xlab=expression(beta[0]))
+rect(-5,0,5,1,col = rgb(0.5,0.5,0.5,1/4), border = NA)
+plot(x,y.log,type="l", ylab=expression(logit~(theta)), xlab=expression(beta[0]))
+rect(-5,0,5,1,col = rgb(0.5,0.5,0.5,1/4), border = NA)
+```
+
+We need a mathematical transformation such that the parameter $\beta_0$ can have any value while $\theta$ is bounded to the range 0-1. One transformation that offers exactly this possibility is the \emph{logit link function} (see aboth plot right side)
+
+$$logit(\theta) = \beta_0.$$
+
+As we assume that the parameter are transformed in order to map to the expected value (and not the other way around) we should use the \emph{inverse link function}, which is the \emph{logistic link} in this case:
+
+$$\theta = logistic(\beta_0),$$
+which is defined as
+$$\theta=\frac{exp(\beta_0)}{1+exp(\beta_0)}.$$
+Both expression, \emph{logit} and \emph{logistic} link achieve mathematically the same result but it is conceptionally just a different matter of emphasis.
+
+##Notation of the model (revisited)
+The current descriptive model incorporates the idea that we estimate a parameter $\beta_0$ that defines the expected value $\theta$. The parameter is transformed by a logistic link, so it maps to $\theta$. The expected value $\theta$ is assumed to influence the observed number of "true" answers. While the variation of the outcome is assumed to follow a Bernoulli distribution.
+
+The Frquentist model is:
+$$\theta = logistic(\beta_0),$$
+$$k \sim Bernoulli(\theta).$$
+
+The model from a Bayesian perspective (with prior) is:
+
+$$\theta = logistic(\beta_0),$$
+$$k \sim Bernoulli(\theta),$$
+$$\theta \sim Beta(1,1).$$
+
+
+#Estimation and Inference
+
+##The Bayesian approach using brm
+```{r, results=FALSE,message= FALSE, warning=FALSE}
+#set the prior
+beta.prior <- set_prior(prior = "beta(1,1)", class = "Intercept")
+
+#define the model
+binom.bayes <- brm(formula = answer ~ 1, data = correct.answers, 
+                   family = bernoulli(link = "logit"), prior = beta.prior)
+```
+```{r, warning=FALSE}
+#show results
+binom.bayes
+```
+```{r}
+#transform estimate (intercept) into probabiliy
+##extract coefficient from the model
+estimate <- fixef(binom.bayes)
+
+##transform estimate into probability
+logistic(estimate[1,1])
+```
+
+##The Frequentist approach using binom.test
+```{r}
+#Frequentist model
+binom.test(x = sum(correct.answers), n = N, p = 0.5)
+```
+
