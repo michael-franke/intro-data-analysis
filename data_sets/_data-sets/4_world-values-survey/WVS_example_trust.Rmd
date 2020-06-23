@@ -1,0 +1,175 @@
+## World Values Survey (wave 6 | 2010-2014)
+
+### Nature, origin and rationale of the data
+
+The [World Values Survey](www.worldvaluessurvey.org) (WVS) aims to study *changing values and their impact on social and political life*. The WVS consists of nationally representative surveys conducted in almost 100 countries which contain almost 90 percent of the world's population, using a common questionnaire. The WVS is the largest non-commercial, cross-national, time series investigation of human beliefs and values.
+
+It currently includes interviews with almost *400,000 respondents*. Respondents are people in the age 18 and older residing within private households in each country, regardless of their nationality, citizenship or language.
+
+The main method of data collection in the WVS survey is *face-to-face interview* at respondent's home / place of residence.
+
+#### The questionnaire
+
+The survey was conducted by using a *structured* [questionnaire](../4_WV6_Official_Questionnaire.pdf), consisting of 250 questions (here: variables) ([overview of all variables](../3_WV6_Codebook.pdf)) that describe 10 thematic sub-sections:
+
+1. Perceptions of life,
+2. Environment,
+3. Work,
+4. Family,
+5. Politics and Society,
+6. Religion and Morale,
+7. National Identity,
+8. Security,
+9. Science, and
+10. Socio-demographics.
+
+(The document ["variable description"](../6_variable-description-wvs.csv) contains the assigment of variables to topics.)
+
+#### Theoretical motivation & hypotheses
+
+[**Inglehart's Concept of Postmaterialism**](#postmaterialism-index)
+[**Schwartz-Value-Scale**](#value-scale-from-schwartz)
+[WORKOUT POSSIBLE HYPOTHESES/ANALYSIS]
+
+### Loading and preprocessing the data
+
+```{r wvs loading data set}
+#d_raw_wvs <- readRDS("../data_sets/data-sets/4_world-values-survey/5_WV6.rds")
+d_raw_wvs <- readRDS("5_WV6.rds")
+head(d_raw_wvs)
+```
+
+#### Trust variable
+
+**dummy dependent variable** 
+Generally speaking, would you say that most people can be trusted or that you need to be very careful in dealing with people? 
+
+- *trust*(V24)
+  + 1 Most people can be trusted.
+  + 2 Need to be very careful.
+
+We argue that there are two types of the factors that may shape individual trust intentions. One is denoted by micro-level
+factors; the second is linked to macro-level institutions.
+
+**Micro-level factors**
+
+- *Age* (V242) 
+- *Gender* (V240)
+  + 1 Male
+  + 2 Female
+- *Education* (V248) 
+  + 1 No formal education
+  + 2 Incomplete primary school
+  + 3 Complete primary school
+  + 4 Incomplete secondary school: technical/vocational type
+  + 5 Complete secondary school: technical/vocational type
+  + 6 Incomplete secondary: university-preparatory type
+  + 7 Complete secondary: university-preparatory type
+  + 8 Some university-level education, without degree
+  + 9 University-level education, with degree
+- *Income* (V239)
+  + Each country has 10 scales of income: 1-10
+- *religious belief** (V144)
+No: 
+  + 0 do not belong to a denomination 
+Yes: 
+  + 1 Roman Catholic 
+  + 2 Protestant 
+  + 3 Orthodox (Russian/Greek/etc.) 
+  + 5 Muslim 
+  + 99 <-- Other (Reference Group)
+- *marital status* (V57) 
+  + 1 <-- 1 & 2 Married or living together as married
+  + 2 <-- 3 & 4 & 5 & 6 Divorced, Separated, Widowed, Single
+- *number of children* (V58)
+  + 0 No children
+  + 1 One child
+  + 2 Two children
+  + 3 Three children
+  + 4 Four children
+  + 5 Five children
+  + 6 Six children
+  + 7 Seven children
+  + 8 Eight or more children
+
+*final religious denominations considered in this study are Muslim, Orthodox, Protestant, Catholic, and "Other". "Other" is taken as the reference group.
+
+```{r wvs-trust select relevant variables}
+d_trust_raw <- d_raw_wvs %>% 
+  select(V2,V24, V242, V240, V248, V239, V57, V58, V144) %>% 
+  filter(V2 %in% c(276,288,804,156,780)) %>% 
+  replace_with_na_all(condition = ~.x %in% c(-5,-4,-3,-2,-1)) 
+
+d_trust <- d_trust_raw %>%  
+  transmute(
+    trust = ifelse(V24==1,1,0),            
+    country = factor(V2, levels = c(276,288,804,156,780), labels = c("Germany","Ghana","Ukraine", "China", "Trinidad")),
+    age = V242,
+    gender = factor(V240, levels = c(1,2), labels = c("male", "female")),
+    education = factor(V248, levels = c(1:9), labels = c("no edu.", "incompl. prim. school", "compl. prim. school", "incompl. sec. school-tec", "compl. sec. school-tec", "incompl. sec. school-univ", "compl. sec. school-univ", "univ. without degree", "univ. with degree")),
+    income = factor(V239),
+    marital = ifelse(V57 %in% c(1,2), "married, together", "single, divorced"),
+    children = V58,
+    religious_belief = ifelse(V144 == 64, "Catholic",
+                              ifelse(V144==25, "Evangelical",
+                                     ifelse(V144==52, "Orthodox",
+                                            ifelse(V144==49, "Muslim",
+                                                   "Other"))))
+  ) %>% 
+  na.omit() %>% 
+  print()
+```
+```{r}
+d_trust %>% 
+  group_by(country, gender, education) %>% 
+  summarize(
+    trust_sum = sum(trust),
+    obs = length(trust),
+    trust_perc = trust_sum/obs
+  )  %>% 
+  ggplot(mapping = aes(x = education, y = trust_perc)) +
+  geom_col() +
+  facet_wrap(gender~country, nrow = 2) +
+  scale_x_discrete(name = "education (higher number indicates higher degree)", labels = c(0,1,2,3,4,5,6,7,8))
+
+```
+```{r}
+d_trust %>% 
+  group_by(country, income, marital) %>% 
+  summarize(
+    trust_sum = sum(trust),
+    obs = length(trust),
+    trust_perc = trust_sum/obs
+  )  %>% 
+  ggplot(mapping = aes(x = income, y = trust_perc)) +
+  geom_col() + 
+  facet_wrap(marital~country, nrow = 2)
+```
+
+```{r}
+d_trust %>% 
+  group_by(country, children, religious_belief) %>% 
+  summarize(
+    trust_sum = sum(trust),
+    obs = length(trust),
+    trust_perc = trust_sum/obs
+  )  %>% 
+  ggplot(mapping = aes(x = religious_belief, y = trust_perc)) +
+  geom_col() + 
+  facet_wrap(~country, nrow = 3)
+```
+
+```{r}
+d_trust_DE <- d_trust %>% 
+  filter(country=="Germany")
+```
+
+
+```{r}
+model1 = trust ~ age + gender + education + income + marital + children
+
+brm(formula = model1, data = d_trust_DE, family = "bernoulli")
+```
+
+
+
