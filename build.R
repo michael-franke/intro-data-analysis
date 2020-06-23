@@ -1,14 +1,12 @@
-cat("delete old output...")
+cat("\n\ndelete old output...")
 unlink("_book", recursive = TRUE)
 unlink("_bookdown_files", recursive = TRUE)
 unlink("I2DA.Rmd")
 
-cat("render gitbook...")
-bookdown::render_book("index.Rmd", 
-                      output_format = "bookdown::gitbook",
-                      quiet = TRUE, clean_envir = FALSE)
+cat("\n\nrender gitbook...")
+bookdown::render_book("index.Rmd", quiet = FALSE,
+                      output_format = "bookdown::gitbook")
 
-# cat("render pdf...")
-# bookdown::render_book("index.Rmd",
-#                       output_format = "bookdown::pdf_book",
-#                       quiet = TRUE, clean_envir = FALSE)
+# cat("\n\nrender pdf...")
+# bookdown::render_book("index.Rmd", quiet = FALSE,
+#                       output_format = "bookdown::pdf_book")
