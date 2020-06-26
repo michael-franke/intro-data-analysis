@@ -1,4 +1,4 @@
-cat("\n\ndelete old output...")
+cat("\n\ndelete old output...\n")
 unlink("_book", recursive = TRUE)
 unlink("_bookdown_files", recursive = TRUE)
 unlink("I2DA.Rmd")
