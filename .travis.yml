@@ -1,7 +1,8 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-language: R
-sudo: false
+language: r
+pandoc_version: 2.7.3
+dist: "bionic"
 latex: false # we're going to use tinytex
 cache:
   packages: true
@@ -13,6 +14,8 @@ cache:
 apt_packages:
   - fonts-oflb-asana-math # Asana Math font for, well, math
   - fonts-roboto          # Roboto font family for a slightly more modern look
+  - libgit2-dev
+  - libxml2-dev
   # - fonts-roboto-slab     # Serif-Roboto
   # - fonts-firacode        # my go-to monospace font
   
@@ -22,16 +25,17 @@ r_github_packages: dkahle/dirichlet
 script:
   - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::gitbook", quiet = TRUE)'
   # - Rscript -e 'bookdown::render_book("index.Rmd", "bookdown::pdf_book", quiet = TRUE)'
+  # - Rscript -e 'source("build.R")'
   
-after_success:
-  - |
-    sed -i 's/pre{overflow:auto;word-wrap:normal;margin:0 0 1.275em;padding:.85em 1em;/pre{overflow:auto;word-wrap:normal;margin:0 0 0;padding:0 1em;/g' $TRAVIS_BUILD_DIR/_book/libs/gitbook-2.6.7/css/style.css
+# after_success:
+#   - |
+#     sed -i 's/pre{overflow:auto;word-wrap:normal;margin:0 0 1.275em;padding:.85em 1em;/pre{overflow:auto;word-wrap:normal;margin:0 0 0;padding:0 1em;/g' $TRAVIS_BUILD_DIR/_book/libs/gitbook-2.6.7/css/style.css
 
 
 deploy:
   provider: pages
   skip_cleanup: true
-  github_token: $INTRO_DA
+  token: $INTRO_DA
   keep_history: true
   on:
     branch: master
