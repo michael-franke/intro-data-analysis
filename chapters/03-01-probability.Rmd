@@ -71,13 +71,22 @@ A3. $P(A_1 \cup A_2 \cup A_3 \cup \dots) = P(A_1) + P(A_2) + P(A_3) + \dots$ whe
 Occasionally we encounter notation $P \in \Delta(\Omega)$ to express that $P$ is a probability
 distribution over $\Omega$. (E.g., in physics, theoretical economics or game theory. Less so in psychology or statistics.) If $\omega \in \Omega$ is an elementary event, we often write $P(\omega)$ as a shorthand for $P(\set{\omega})$. In fact, if $\Omega$ is finite, it suffices to assign probabilities to elementary outcomes.
 
-A number of rules follow immediately from the definition (prove this!):
+A number of rules follow immediately from the definition:
 
 C1. $P(\emptyset) = 0$
 
 C2. $P(\overline{A}) = 1 - P(A)$
 
 C3. $P(A \cup B) = P(A) + P(B) - P(A \cap B)$ for any $A, B \subseteq \Omega$
+
+# ```{block2, type='infobox'}
+# **Exercise 7.1 ** Prove C1, C2 and C3 using A1, A2 and A3.
+# ```
+# 
+# Solutions: C1: $P(\Omega \cup \emptyset) = P(\Omega) + P(\emptyset)  \Leftrightarrow  P(\Omega) = P(\Omega) + P(\emptyset)  \Leftrightarrow  0 = P(\emptyset)$ following A3 since $\omega$ and $\emptyset$ are mutually exclusive.
+# C2: $P(\Omega) = P(A \cup \overline{A}) = P(A) + P(\overline{A}) = 1 $.
+# C3: $P(A \cup B) = P((A-B) \cup (A \cap B) \cup (B-A)) = P(A-B) + P(A \cap B) + P(B-A) = (P(A \cup B) - P(B)) + P(A \cap B) + (P(A \cup B) - P(A)) = 2 P(A \cup B) - P(A) - P(B) + P(A \cap B)  \Leftrightarrow   P(A \cup B) = P(A) + P(B) - P(A \cap B)$
+
 
 ### Interpretations of probability
 
@@ -204,7 +213,7 @@ If $P$ is a joint-probability distribution over event space $\Omega = \Omega_1 \
 
 $$  P(A_i) = \sum_{A_1 \subseteq \Omega_{1}, \dots , A_{i-1} \subseteq \Omega_{i-1}, A_{i+1} \subseteq \Omega_{i+1}, \dots, A_n \subseteq \Omega_n} P(A_1, \dots, A_{i-1}, A_{i}, A_{i+1}, \dots A_n) $$
 
-For example, the marginal distribution of coin flips derivable from the joint probability distribution in Table \@ref(tab:flipdrawprobabilities) gives $P(\text{heads}) = P(\text{tails}) = 0.5$, since the sum of each column is exactly $0.5$. The marginal distribution of flips derivable from Table \@ref(tab:flipdrawprobabilities) has $P(\text{black}) = 0.3$ and $P(\text{black}) = 0.7$.^[The term ``marginal distribution'' derives from such probability tables, where traditionally the sum of each row/column was written in the margins.]
+For example, the marginal distribution of draws derivable from Table \@ref(tab:flipdrawprobabilities) has $P(\text{black}) = P(\text{heads, black}) + P(\text{heads, white}) = 0.3$ and $P(\text{white}) = 0.7$.^[The term ``marginal distribution'' derives from such probability tables, where traditionally the sum of each row/column was written in the margins.] The marginal distribution of coin flips derivable from the joint probability distribution in Table \@ref(tab:flipdrawprobabilities) gives $P(\text{heads}) = P(\text{tails}) = 0.5$, since the sum of each column is exactly $0.5$. 
 
 ## Conditional probability {#Chap-03-01-probability-conditional}
 
@@ -276,6 +285,14 @@ This result is quite intuitive. Drawing a black ball from urn 2 (i.e. after seei
 as likely as drawing a black ball from urn 1 (i.e. after seeing heads). Consequently, after
 seeing a black ball drawn, with equal probabilities of heads and tails, the probability that
 the coin landed tails is also twice as large as that it landed heads.
+
+# ```{block2, type='infobox'}
+# **Exercise 7.2 ** You have been coughing for the last few days and have been tested for COVID-19. The test result is negative (You are not immune to the virus). It is known that around 6% of the population has immunity against the virus. Furthermore, some information about the accuracy of the test are known. The specificity of the test (The test result is negative when the subject really does not have immunity, true negative) is 98%. The sensitivity of the test(true positive) is 95%. Can you tell how likely is it that you are truly not immune to the virus?
+# ```
+# 
+# Solutions: https://www.oehoedatascience.com/wp-content/uploads/2020/06/Bayes-Rule-Applied-on-Covid-19-Testing.pdf
+# First, lets abbreviate the test result being negative or positive as $t-$ and $t+$ and actual immunity as $-$ and $+$. What we want to find out is $P(-|t-)$. According to Bayes rule, $P(-|t-) = \frac {P(t-|-) P(-)} {P(t-)}$. We are given that $P(t-|-) = 0.98$, $P(t-|+) = 1 - P(t+|+) = 0.05$ and $P(-) = 1 - P(+) = 0.94$. Furthermore, $P(t-) = \sum_{i \in \text{immunity}} P(t-, i) = P(t-,+) + P(t-,-) = P(t-|+) P(+) + P(t-|-) P(-) = 0.9242$. Putting this all together, we get $P(-|t-) \approx 99.7 \%$. So it seems like you can be pretty certain that you never had a virus. 
+
 
 ```{block2, type="infobox"}
 **Excursion: Bayes rule for data analysis** In later chapters, we will use Bayes rule for data analysis. The flip-and-draw scenario structurally "preflects" what will happen later. Think of the color of the ball drawn as the *data* $D$ which we observe. Think of the coin as a *latent parameter* $\theta$ of a statistical model. Bayes rule for data analysis then looks like this:
