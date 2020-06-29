@@ -33,6 +33,3 @@ theme_set(
 
 # parallel execution of Stan code
 options(mc.cores = parallel::detectCores())
-
-# inspect package versions
-print((as.data.frame(installed.packages())[,c("Package", "Version")]))
