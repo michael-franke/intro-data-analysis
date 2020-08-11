@@ -43,7 +43,7 @@ The learning goals for this chapter are:
 
 ## Bayes rule of parameter estimation  {#ch-03-03-estimation-bayes}
 
-Fix a Bayesian model $M$ with likelihood $P(D \mid \theta)$ for observed data $D$ and prior over parameters $P_M(\theta)$. We then update our prior beliefs $P(\theta)$ to obtained posterior beliefs by Bayes rule:^[Since parameter estimation is only about one model, it should not harm to omit the index $M$ in the probability notation. Moreover, since in many contexts the meaning will be  clear enough, we follow the common practice and write $P(D \mid \theta)$ as a shortcut for $P(\mathcal{D} = D \mid \Theta = \theta)$. Here $\mathcal{D}$ is the class of all relevant observable data and $\Theta$ is the range of a possibly high-dimensional vector of parameter values. We diverge from the common practice of using capital roman letters for random variables and small roman letters for values from these random variables because parameter vectors are traditionally written as $\theta$ and the small letter $\textrm{d}$ (albeit non-italic) is reserved for differentials.]
+Fix a Bayesian model $M$ with likelihood $P(D \mid \theta)$ for observed data $D$ and prior over parameters $P_M(\theta)$. We then update our prior beliefs $P(\theta)$ to obtained posterior beliefs by Bayes rule:^[Since parameter estimation is only about one model, it should not harm to omit the index $M$ in the probability notation. Moreover, since in many contexts the meaning will be clear enough, we follow the common practice and write $P(D \mid \theta)$ as a shortcut for $P(\mathcal{D} = D \mid \Theta = \theta)$. Here $\mathcal{D}$ is the class of all relevant observable data and $\Theta$ is the range of a possibly high-dimensional vector of parameter values. We diverge from the common practice of using capital roman letters for random variables and small roman letters for values from these random variables because parameter vectors are traditionally written as $\theta$ and the small letter $\textrm{d}$ (albeit non-italic) is reserved for differentials.]
 
 $$P(\theta \mid D) = \frac{P(D \mid \theta) \ P(\theta)}{P(D)}$$
 
@@ -66,6 +66,15 @@ where the "proportional to" sign $\propto$ indicates that the probabilities on t
 
 This notation makes it particularly clear that the posterior distribution is a "mix" of prior and likelihood. Let's explore this first, before worrying about how to compute posteriors concretely.
 
+<!---
+Ex. 
+Based on notation above, which of the following statements you think is true?
+- prior always influence the posteror more, than likelihood (False)
+- the less the certainty in the prior, the more  posterior influenced by it (False)
+- the posterior is greater influenced by the likelihood if there is less certainty in the prior (True).
+-  likelihood always influence the posteror more, than the prior (False)
+
+-->
 ### The effects of prior and likelihood on the posterior
 
 We consider the case of flipping a coin with unknown bias $\theta$ a total of $N$ times and observing $k$ heads (= successes). This is modeled with the  **Binomial Model** (see Section \@ref(Chap-03-03-models-examples)), using priors expressed with a [Beta distribution](app-91-distributions-beta), giving us a model specification as: 
@@ -143,6 +152,7 @@ lh_tibble %>%
 ```
 
 
+
 Picking up the example from Section \@ref(Chap-03-02-models-priors), we will consider the four types of priors show below:
 
 ```{r ch-03-03-estimation-types-of-priors, echo = F, fig.cap = "Examples of different kinds of Bayesian priors for the Binomial Model."}
@@ -206,6 +216,8 @@ full_join(lh_tibble, prior_tibble, by = 'theta') %>%
     title = latex2exp::TeX("Posterior beliefs in $\\theta$ for different priors and data.")
   ) 
 ```
+
+
 
 ### Posterior means and credible intervals
 
@@ -351,6 +363,43 @@ $$
 
 &nbsp;
 
+<!-- Fill in the missing parts of the code to get the plot of the posterior distribution for the coin flip scenario with k=6, N=24. Use uninformative prior.  -->
+
+
+<!-- ```{r} -->
+<!-- theta = seq(0, -, length.out = 401) -->
+<!-- likelihood <-xxxxx -->
+<!-- prior <-xxxxx -->
+<!-- posterior_plot <- as_tibble(theta) %>%  -->
+<!--   mutate(posterior <- xxxx) %>%  -->
+<!--   ggplot(aes(xxx, xxx))+ -->
+<!--    geom_line()+ -->
+<!-- posterior_plot -->
+
+<!-- ```
+
+
+<!-- Solution: -->
+<!-- ```{r} -->
+<!-- theta = seq(0, 1, length.out = 401) -->
+<!-- likelihood <- dbinom(6, 24, theta) -->
+<!-- prior <- dbeta(theta, 1, 1) -->
+<!-- posterior_plot <- as_tibble(theta) %>%  -->
+<!--   mutate(posterior <- likelihood * prior) %>%  -->
+<!--   ggplot(aes(theta, posterior))+ -->
+<!--    geom_line()+ -->
+<!-- posterior_plot -->
+
+<!-- ```
+-->
+
+<!---
+EX. Calculate the posterior distribution for a Bayesian binomial model with prior $\text{Beta}(1,1)$, after observing 5 successes out of 12 trials
+
+A: $\theta \sim \text{Beta}(6,8)$ 
+-->
+
+
 ### Sequential updating
 
 Ancient wisdom has coined the widely popular proverb: "Today's posterior is tomorrow's prior." Suppose we collected data from an experiment, like $k = 7$ in $N = 24$. Using uninformative priors at the outset, our posterior belief after the experiment is $\theta \sim \text{Beta}(8,18)$. But now consider what happened at half-time. After half the experiment, we had $k = 2$ and $N = 12$, so our beliefs followed $\theta \sim \text{Beta}(3, 10)$ at this moment in time. But using these beliefs as priors, and observing the rest of the data would consequently result in updating the prior $\theta \sim \text{Beta}(3, 10)$ with another set of observations $k = 5$ and $N = 12$, giving us the same posterior belief as what we would have gotten if we updated in one swoop. Figure \@ref(fig:ch-03-03-estimation-sequential-updates) shows steps through belief space, starting uninformed, and observing one piece of data at a time (going right for each outcome of heads, down for each outcome of tails).
@@ -405,6 +454,12 @@ $$
 &nbsp;
 
 
+<!-- Suppose Jones flipped a coin with unknown bias 30 times. She observed 20 heads. She updates her beliefs rationally with Bayes rule. Her posterior beliefs have the form of a beta distribution with parameters a = 25, b = 15. What distribution and what parameter values of that distribution capture Jones' prior beliefs before updating her beliefs with this data?
+
+A: $\Beta(5,5)$
+-->
+
+
 ## A frequentist approach to parameter estimation {#ch-03-03-estimation-frequentist}
 
 
@@ -439,7 +494,9 @@ ggplot(plotdata_24_7_mle, aes(x = theta, y = lh)) + xlim(0,1) +
   geom_line(color = "black", size = 2) + ylab("likelihood")
 ```
 
-
+<!--
+Ex. Can you think of a situation, when MLE and MAP output are exactly the same? HINT(Think which prior eliminates the difference between them)
+-->
 
 ### Confidence intervals
 
@@ -995,4 +1052,24 @@ The actual posterior is multi-dimensional, and it always pays to inspect the ful
 ```{r}
 bayesplot::mcmc_pairs(draws)
 ```
+
+
+
+<!-- 
+Pick one correct answer:
+The most frequently used point-estimate of Bayesian parameter estimation looks at 
+- the median of the a posterior distribution
+- the maximum likelihood estimate
+- the mean of the posterior distribution
+ -the normalizing constant in Bayes rule 
+
+The most frequently used interval-based estimate in frequentist approaches is:
+-the support of the likelihood distribution
+-the credible interval
+-the hypothesis interval
+-the 95% highest-density interval of the maximum likelihood estimate
+
+-->
+
+
 
