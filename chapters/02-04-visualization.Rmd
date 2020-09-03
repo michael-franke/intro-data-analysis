@@ -40,7 +40,7 @@ There are four pairs of $x$ and $y$ coordinates. Unfortunately, these are stored
 ```{r}
 tidy_anscombe <- anscombe %>% as_tibble %>% 
   pivot_longer(
-    ## we want o pivot every column
+    ## we want to pivot every column
     everything(),
     ## use reg-exps to capture 1st and 2nd character
     names_pattern = "(.)(.)",      
@@ -103,7 +103,7 @@ Producing good data visualization is very difficult. There are no uncontroversia
 
 An absolute classic on data visualization is an early book by Edward @Tufte1983:The-Visual-Disp entitled "The Visual Display of Quantitative Information". A distilled and over-simplified summary of Tufte's proposal is that we should eliminate *chart junk* and increase the *data-ink ratio*, a concept which Tufte defines formally. The more information (=data) a plot conveys, the higher the data-ink ratio. The more ink it requires, the lower it is. 
 
-However, not all information in the data is equally relevant. Also, spending extra ink to reduce the recipients mental effort of retrieving the relevant information can be justified. Essentially, I would here propose to consider a special case of data visualization, common to scientific presentations. I want to speak of **hypothesis-driven visualization** as a way of communicating a clear message, the message we care most about at the current moment of (scientific) exchange. Though merely a special instances of all the goals one could pursue with data visualization, focusing on this special case is helpful because it allows us to formulate a (defeasible) rule of thumb for good visualization in analogy to how natural langauge ought to be used in order to achieve optimal cooperative information flow (at least as conceived by authors such as ...)
+However, not all information in the data is equally relevant. Also, spending extra ink to reduce the recipients mental effort of retrieving the relevant information can be justified. Essentially, I would here propose to consider a special case of data visualization, common to scientific presentations. I want to speak of **hypothesis-driven visualization** as a way of communicating a clear message, the message we care most about at the current moment of (scientific) exchange. Though merely a special instance of all the goals one could pursue with data visualization, focusing on this special case is helpful because it allows us to formulate a (defeasible) rule of thumb for good visualization in analogy to how natural language ought to be used in order to achieve optimal cooperative information flow (at least as conceived by authors such as ...)
 
 ```{block, type='infobox'}
 **The vague & defeasible rule of thumb of good data visualization (according to the author).**
@@ -153,7 +153,7 @@ large_contrast_data %>%
 
 
 
-The following examples use the [Bio-Logic Jazz-Metal data set](), in particular the following derived table of counts or the derived table of proprtions:
+The following examples use the [Bio-Logic Jazz-Metal data set](), in particular the following derived table of counts or the derived table of proportions:
 
 ```{r}
 BLJM_associated_counts
@@ -196,7 +196,7 @@ BLJM_associated_counts %>%
 <div class="infobox">
 **Info-Graphics.** Scientific communication with visualized data is different from other modes of communcation with visualized data. These other contexts come with different requirements for good data visualization. Good examples of highly successful *info-graphics* are produced by the famous illustrator Nigel Holmes, for instance. Figure \@ref(fig:chap-02-04-vampire-energy) is an example from Holmes' website showing different amounts of energy consumption for different household appliances. The purpose of this visualization is not (only) to communicate information about which of the listed household appliances is most energy intensive. It's main purpose is to raise awareness for the unexpectedly large energy consumption of housefold appliances in general (in stand-by mode).^[Image retrieved from [Nigel Holmes' website](http://www.nigelholmes.com) website on November 25 2019.]
 
-```{r chap-02-04-vampire-energy, echo = F, out.width='95%', fig.cap="Example of an infographic. While possibly considered 'chart junk' in a scientific context, the eye-catching and highly memorable (and pretty!) artwork serve a strong secondary purpose in contexts other than scientific ones where hypothesis-driven precise communication with visually presented data is key."}
+```{r chap-02-04-vampire-energy, echo = F, out.width='95%', fig.cap="Example of an infographic. While possibly considered 'chart junk' in a scientific context, the eye-catching and highly memorable (and pretty!) artwork serves a strong secondary purpose in contexts other than scientific ones where hypothesis-driven precise communication with visually presented data is key."}
 knitr::include_graphics("visuals/vampire-energy.png")
 ```
 
@@ -207,7 +207,7 @@ knitr::include_graphics("visuals/vampire-energy.png")
 
 In this section we will work towards a first plot with `ggplot`. It will be a scatter plot (more on different kinds of plots in Section \@ref(Chap-02-04-geoms)) for the [avocado price data](app-93-data-sets-avocado). Check out the [ggplot cheat sheet](https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) for a quick overview of the nuts and bolts of ggplot. 
 
-The following introduces the following key concepts of `ggplot`:
+The following introduces the key concepts of `ggplot`:
 
 - **incremental composition**: adding elements or changing attributes of a plot incrementally
 - **convenience functions & defaults**: a closer look at high-level convenience functions (like `geom_point`) and what they actually do
@@ -272,7 +272,7 @@ The process of mapping data onto a visualization essentially follows this route:
 
 > data -> statistical transformation -> geom. object -> aesthetics
 
-You supply (tidy) data. The data is then transformed (e.g., by computing a summary statistic) in some way or another. This could just be an "identity map" in which case you will visualize the data exactly as it is. The resulting data representation is mapped onto some spatial (geometric) appearance, like a line, a dot, or a geometric shape. Finally, there is room to alter the specific asthetics of this mapping from data to visual object, like adjusting the size or the color of a geometric object, possibly depending on some other properties it has (e.g., whether it is an observation for a conventional or an organically grown avocado).
+You supply (tidy) data. The data is then transformed (e.g., by computing a summary statistic) in some way or another. This could just be an "identity map" in which case you will visualize the data exactly as it is. The resulting data representation is mapped onto some spatial (geometric) appearance, like a line, a dot, or a geometric shape. Finally, there is room to alter the specific aesthetics of this mapping from data to visual object, like adjusting the size or the color of a geometric object, possibly depending on some other properties it has (e.g., whether it is an observation for a conventional or an organically grown avocado).
 
 To make explicit the steps which are implicitly carried out by `geom_points` in the example above, here is a fully verbose but output-equivalent sequence of commands that builds the same plot by defining all the basic components manually:
     
@@ -284,7 +284,7 @@ ggplot() +
   layer(
     # how to map columns onto ingredients in the plot
     mapping = aes(x = total_volume_sold, y = average_price),
-    # what statistical transformation should be use? - here: none
+    # what statistical transformation should be used? - here: none
     stat = "identity",
     # how should the transformed data be visually represented? - here: as points
     geom = "point",
@@ -299,7 +299,7 @@ ggplot() +
   coord_cartesian()
 ```  
 
-In this explicit call, we still need to specify the data and the mapping (which variable to map onto which axis). But we need to specify much more. We tell `ggplot` that we want standard (e.g., not log-transformed axis). We also tell it that our axis are continuous, that the data should not be transformed and that the visual shape (=geon) to which the data is to be mapped is a point (hence the name `geom_point`).
+In this explicit call, we still need to specify the data and the mapping (which variable to map onto which axis). But we need to specify much more. We tell `ggplot` that we want standard (e.g., not log-transformed axis). We also tell it that our axis are continuous, that the data should not be transformed and that the visual shape (=geom) to which the data is to be mapped is a point (hence the name `geom_point`).
 
 It is not important to understand all of these components right now. It is important to have seen them once, and to understand that `geom_point` is a wrapper around this call which assumes reasonable defaults (such as non-transformed axis, points for representation etc.).
 
@@ -634,7 +634,7 @@ BLJM_associated_counts %>%
 
 ### Barplot
 
-A barplot, plotted with `geom_bar` or `geom_col`, displays a single number for each of several groups for visual comparison by length. The difference between these two functions is that `geom_bar` relies on an implicit counting, while `geom_col` expects the numbers that translate into the lenght of the bars to be supplied for it. This book favors the use of `geom_col` by first wrangling the data to show the numbers to be visualized, since often this is the cleaner approach and the numbers are useful to have access to independently (e.g., for referring to in the text).
+A barplot, plotted with `geom_bar` or `geom_col`, displays a single number for each of several groups for visual comparison by length. The difference between these two functions is that `geom_bar` relies on an implicit counting, while `geom_col` expects the numbers that translate into the length of the bars to be supplied for it. This book favors the use of `geom_col` by first wrangling the data to show the numbers to be visualized, since often this is the cleaner approach and the numbers are useful to have access to independently (e.g., for referring to in the text).
 
 Here's an example of how `bar_plot` works (implicitly counting numbers of occurrences):
 
@@ -810,7 +810,7 @@ avocado_data %>%
 
 ### Annotation
 
-It can be useful add further elements to a plot. We might want to add text, or specific geometrical shapes to highlight aspects of data. The most general function for doing this is `annotate`. The function `annotate` takes as a first argument a `geom` argument, e.g., `text` or `rectangle`. It is therefore not a wrapper function in the `geom_` family of functions, but the underlying function around which connvenience functions like `geom_text` or `geom_rectangle` are wrapped. The further arguments that `annotate` expects depend on the geom it is supposed to realize. 
+It can be useful to add further elements to a plot. We might want to add text, or specific geometrical shapes to highlight aspects of data. The most general function for doing this is `annotate`. The function `annotate` takes as a first argument a `geom` argument, e.g., `text` or `rectangle`. It is therefore not a wrapper function in the `geom_` family of functions, but the underlying function around which connvenience functions like `geom_text` or `geom_rectangle` are wrapped. The further arguments that `annotate` expects depend on the geom it is supposed to realize. 
 
 Suppose we want to add textual information at a particular coordinate. We can do this with `annotate` as follows:
 
@@ -968,7 +968,7 @@ avocado_data %>%
     )
   ) +
   geom_point(alpha = 0.5) +
-  # no legned for grouping by color
+  # no legend for grouping by color
   guides(color = "none")
 ```
 
