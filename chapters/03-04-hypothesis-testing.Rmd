@@ -9,8 +9,8 @@
 Hypothesis testing is the workhorse of much of frequentist statistics.
 Researchers usually have a **research hypothesis**, such as: 
 
-- "truth-value judgements are at chance level for sentences with false presupositions" (a claim about data from the [King of France experiment](app-93-data-sets-king-of-france)); or: 
-- "discrimination takes longer than go/no-go decisions" (a claim about data from the [mental chronometry experiment](app-93-data-sets-mental-chronometry)).
+- "truth-value judgements are at chance level for sentences with false presuppositions" (a claim about data from the [King of France experiment](app-93-data-sets-king-of-france)); or: 
+- "discrimination takes longer than go/no-go decisions" (a claim about data from the [Mental Chronometry experiment](app-93-data-sets-mental-chronometry)).
 
 However, the hypothesis that is tested is not necessarily the research hypothesis. 
 What is tested is rather a so-called **null hypothesis** $H_0$.^[The term "null hypothesis" does not want to imply that the hypothesis is that some value of interest is equal to zero (although in practice that is frequently the case). The term rather implicates that this hypothesis is put out there in order to be possibly refuted, i.e., nullified, by the data [@Gigerenzer2004:Mindless-Statis].]
@@ -18,24 +18,20 @@ For technical reasons, the null hypothesis is usually a *point-valued hypothesis
 Classical hypothesis testing then looks at whether the null hypothesis is plausible, given some observed data.
 
 Of course, the null hypothesis is chosen in such a way as to give us information on the research question in the background.
-For example, depending on the framework we work in (see below), the null-hypothesis can be the research hypothesis, as in the case of the King of France example above.
-Alternatively, the research hypothesis is a statement about the existence of a difference between groups or an effect of an experimental manipulation, and in this case the null-hypothesis is opposed to the research hypothesis. E.g., the null-hypothesis could state that there is *no* difference in reaction times between discrimination and the go/no-go task.
+For example, depending on the framework we work in (see below), the null hypothesis can be the research hypothesis, as in the case of the King of France example above.
+Alternatively, the research hypothesis is a statement about the existence of a difference between groups or the effect of an experimental manipulation. In this case, the null hypothesis is opposed to the research hypothesis. E.g., the null hypothesis could state that there is *no* difference in reaction times between discrimination and the go/no-go task.
 
 Unfortunately, there is no single uncontroversially accepted and universally practiced recipe for frequentist hypothesis testing.^[There is no universally accepted Bayesian treatment either. This is why it is important to apply rational deliberation in each case, and not to succumb to the temptation of following easy recipes too quickly.]
-But there are three main approaches: Fisher's approach, the Neyman-Pearson apprach and the (modern) hybrid approch, often referred to simply as NHST (= null-hypothesis significance testing).
+But there are three main approaches: Fisher's approach, the Neyman-Pearson approach and the (modern) hybrid approach, often referred to simply as NHST (= null hypothesis significance testing).
 These approaches differ in the way they relate the null hypothesis to the research question.
 They also differ in several technical details. 
-We will cover differences and commonalities of these three major approaches in Section \@ref(ch-03-05-hypothesis-testing-3-approaches) at the end of this chapter, after we have covered basic technical notions and seen some appliations in terms of some common tests.
+We will cover the differences and commonalities of these three major approaches in Section \@ref(ch-03-05-hypothesis-testing-3-approaches) at the end of this chapter, after we have covered basic technical notions and seen some applications in terms of some common tests.
 
-More concretely, the chapter is structured as follows. Section \@ref(ch-03-05-hypothesis-p-values)) will elaborate on the notion of a $p$-value. 
-We will then pay a visit to a very important mathematical result, the Central Limit Theorem, in Section \@ref(ch-03-05-hypothesis-testing-CLT), which allows us to derive approximations of $p$-values for complex cases.
+More concretely, the chapter is structured as follows: Section \@ref(ch-03-05-hypothesis-p-values) will elaborate on the notion of a $p$-value. 
+In Section \@ref(ch-03-05-hypothesis-testing-CLT), we will then pay a visit to a very important mathematical result, the Central Limit Theorem, which allows us to derive approximations of $p$-values for complex cases.
 Section \@ref(ch-03-05-hypothesis-testing-tests) covers a select sample of important tests.
 Section \@ref(ch-03-05-hypothesis-testing-3-approaches) discusses the three major approaches to significance testing.
 Finally, Section \@ref(ch-03-05-hypothesis-testing-3-model-checking) takes a step back and shows how we can think of hypothesis testing also as something more general, namely a method of **model checking**. 
-
-
-and after we have seen some applications of these basic ingredients (in Section \@ref(ch-03-05-hypothesis-testing-tests)).
-
 
 ```{block, type='infobox'}
 The learning goals for this chapter are:
@@ -53,7 +49,7 @@ The learning goals for this chapter are:
 
 ## *p*-values {#ch-03-05-hypothesis-p-values}
 
-All prominent frequentist approaches to statistical hypothesis testing (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)) agree that if empirical observations are sufficiently *un*likely from the point of view of the null-hypothesis $H_0$, this should be treated (in some way or other) as evidence *against* the null-hypothesis.^[To preview later material (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)), the Neyman-Pearson approach goes further and also looks at evidence in favor of the null-hypothesis. It also tries to quantify something like evidence in favor of the research hypothesis. But Fisher's approach and some flavors of the hybrid approach only consider how much the data speaks against the null hypothesis.] 
+All prominent frequentist approaches to statistical hypothesis testing (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)) agree that if empirical observations are sufficiently *un*likely from the point of view of the null hypothesis $H_0$, this should be treated (in some way or other) as evidence *against* the null hypothesis.^[To preview later material (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)), the Neyman-Pearson approach goes further and also looks at evidence in favor of the null hypothesis. It also tries to quantify something like evidence in favor of the research hypothesis. But Fisher's approach and some flavors of the hybrid approach only consider how much the data speak against the null hypothesis.] 
 A measure, perhaps approximate, of how unlikely (some aspect of) the data is in the light of $H_0$ is the $p$-value.
 To preview the main definition and intuition (to be worked out in detail hereafter), let's first consider a verbal and then a mathematical formulation.
 
@@ -64,50 +60,51 @@ Formally, the $p$-value of observed data $D_\text{obs}$ is:
 $$
 p\left(D_{\text{obs}}\right) = P\left(T^{|H_0} \succeq^{H_{0,a}} t\left(D_{\text{obs}}\right)\right)  % = P(\mathcal{D}^{|H_0} \in \{D \mid t(D) \ge t(D_{\text{obs}})\}) 
 $$
-where $t \colon \mathcal{D} \rightarrow \mathbb{R}$ is a **test statistic** which picks out a relevant summary statistic of each potential data observation, $T^{|H_0}$ is the **sampling distribution**, namely the random variable derived from test statistic $t$ and the assumption that $H_0$ is true, and $\succeq^{H_{0,a}}$ is a linear order on the image of $t$ such that $t(D_1) \succeq^{H_{0,a}} t(D_2)$ expresses that test value $t(D_1)$ is at least as extreme evidence *against* $H_0$ as test value $t(D_2)$.^[This formulation in terms of a context-dependent (i.e., $H_0$-dependent ordering) is not usual. However, the interpretation *is* de facto context-dependent in this way, and so it makes sense to highlight this aspect of the use of $p$-values also formally. Notice, however, that we can get rid of the context-dependence by using different test-statistics. But this is also not how it is done in practice. Essentially, this definition aims for maximal generality so as to cover all cases of use. Since the class of use cases is fuzzy, the definition needs this flexibility. Alternative mathematical definitions that appear to be simpler just do not capture all the use cases.]
+where $t \colon \mathcal{D} \rightarrow \mathbb{R}$ is a **test statistic** which picks out a relevant summary statistic of each potential data observation, $T^{|H_0}$ is the **sampling distribution**, namely the random variable derived from test statistic $t$ and the assumption that $H_0$ is true, and $\succeq^{H_{0,a}}$ is a linear order on the image of $t$ such that $t(D_1) \succeq^{H_{0,a}} t(D_2)$ expresses that test value $t(D_1)$ is at least as extreme evidence *against* $H_0$ as test value $t(D_2)$.[^53]
 ```
 
+[^53]: This formulation in terms of a context-dependent, i.e., $H_0$-dependent, ordering is not usual. However, the interpretation *is* de facto context-dependent in this way, and so it makes sense to highlight this aspect of the use of $p$-values also formally. Notice, however, that we can get rid of the context-dependence by using different test statistics. But this is also not how it is done in practice. Essentially, this definition aims for maximal generality so as to cover all cases of use. Since the class of use cases is fuzzy, the definition needs this flexibility. Alternative mathematical definitions that appear to be simpler just do not capture all the use cases.
 
-A few aspects of this defintion are particularly important (and subsequent text is dedicated to making these aspects more comprehensible):
+A few aspects of this definition are particularly important (and subsequent text is dedicated to making these aspects more comprehensible):
 
 1. this is a frequentist approach in the sense that probabilities are entirely based on (hypothetical) repetitions of the assumed data-generating process, which assumes that $H_0$ is true;
 2. the test statistic *t* plays a fundamental role and should be chosen such that:
     - it must necessarily select exactly those aspects of the data that matter to our research question,
-    - it should optimally make it possible to derive a closed form (approximation) of $T$, and^[This latter aspect has been particularly important historically. Given more readily available computing power, alternative approaches based on Monte Carlo simulation of $p$-values can also be used.]
+    - it should optimally make it possible to derive a closed-form (approximation) of $T$, and^[This latter aspect has been particularly important historically. Given more readily available computing power, alternative approaches based on Monte Carlo simulation of $p$-values can also be used.]
     - it would be desirable (but not necessary) to formulate $t$ in such a way that the comparison relation $\succeq^{H_{0,a}}$ coincides with a simple comparison of numbers: $t(D_1) \succeq^{H_{0,a}} t(D_2)$ iff $t(D_1) \ge t(D_2)$;
 3. there is an assumed data-generating model buried inside notation $T^{|H_0}$; and
-4. the notion of "more extreme evidence against $H_0$", captured in comparison relation $\succeq^{H_{0,a}}$ depends on our epistemic purposes, i.e., what research question we are ultimately interested in.^[It is admittedly a bit of a notational overkill to write this comparison relation as a function of $H_0$ and $H_a$ (the alternative hypothesis). Other definitions of the $p$-value do not. But the comparison *is* context dependent, and you deserve to see this clearly. To see it clearly, a certain heaviness of notation is the price to pay.]
+4. the notion of "more extreme evidence against $H_0$", captured in comparison relation $\succeq^{H_{0,a}}$ depends on our epistemic purposes, i.e., what research question we are ultimately interested in.^[It is admittedly a bit of a notational overkill to write this comparison relation as a function of $H_0$ and $H_a$ (the alternative hypothesis). Other definitions of the $p$-value do not. But the comparison *is* context-dependent, and you deserve to see this clearly. To see it clearly, a certain heaviness of notation is the price to pay.]
 
 The following sections will elaborate on all of these points. It is important to mention that especially the third aspect (that there is an implicit data-generating model "inside of" classical hypothesis tests) is not something that receives a lot of emphasis in traditional statistics textbooks. Bad textbooks do not even mention the assumptions implicit in a given test. Better textbooks mention these assumptions, good ones stress them. Using a model-centric approach, as we do here, tries to go even a bit further. We will not only stress key assumptions behind a test but present all of the assumptions behind classical tests in a graphical model, similar to what we did for Bayesian models. This arguably makes all implicit assumptions maximally transparent in a concise and lucid representation. It will also help see parallels between Bayesian and frequentist approaches, thereby helping to see both as more of the same rather than as something completely different. In order to cash in this model-based approach, the following sections will therefore introduce new graphical tools to communicate the data-generating model implicit in the classical tests we cover.
   
 ### Binomial Model - frequentist version
 
-We start with the Binomial Model because it is the simplest and perhaps most intuitive case. We work out what a $p$-value is for data for this model and introduce the new graphical language to communicate "frequentist models" in the following. We also introduce the notions of *test statistic* and *sampling distribution* based on a case that should be very intuitive, if not familar.
+We start with the Binomial Model because it is the simplest and perhaps most intuitive case. We work out what a $p$-value is for data for this model and introduce the new graphical language to communicate "frequentist models" in the following. We also introduce the notions of *test statistic* and *sampling distribution* based on a case that should be very intuitive, if not familiar.
 
-The [Binomial Model](Chap-03-03-models-examples-binomial) was covered before from a Bayesian point of view, where we represented it using graphical notation like in Figure \@ref(fig:ch-03-04-Binomial-Model-repeated) (repeated from above). Remember that this is a model to draw inferences about a coin's bias $\theta$ based on observations of outcomes of flips of that coin. The Bayesian modeling approach treated the number of observed heads $k$ and the number of flips in total $N$ as given, and the coin's bias parameter $\theta$ as latent.
+The [Binomial Model](#Chap-03-03-models-examples-binomial) was covered before from a Bayesian point of view, where we represented it using graphical notation like in Figure \@ref(fig:ch-03-04-Binomial-Model-repeated) (repeated from before). Remember that this is a model to draw inferences about a coin's bias $\theta$ based on observations of outcomes of flips of that coin. The Bayesian modeling approach treated the number of observed heads $k$ and the number of flips in total $N$ as given, and the coin's bias parameter $\theta$ as latent.
 
 ```{r ch-03-04-Binomial-Model-repeated, echo = F, fig.cap="The Binomial Model (repeated from before) for a Bayesian approach to parameter inference/testing.", out.width = '40%'}
 knitr::include_graphics("visuals/binomial-model.png")
 ```
 
-Actually, this way of writing the Binomial Model is rather a shortcut. It glosses over each individual data observation (whether the $i$-the coin flip was heads or tails) and jumps directly to the most relevant summary statistic of how many of the $N$ flips were heads. This might, of course, be just the relevant level of analysis. If our assumption is true that the outcome of each coin flip is independent of any other flip, and given our goal to learn something about $\theta$, all that really matters is $k$. But to prepare ourselves for subsequent frequentist approaches, and in order to appreciate (later!) how powerful a tool a test statistic can be, we can also rewrite the Bayesian model from Figure \@ref(fig:ch-03-04-Binomial-Model-repeated) as the equivalent extended model in Figure \@ref(fig:ch-03-04-Binomial-Model-extended). In the latter representation, the individual outcomes of each flip are represented as $x_i \in \{0,1\}$. Each individual outcome is sampled from a [Bernoulli distribution](app-91-distributions-bernoulli). Based on the whole vector of $x_i$-s, together with knowledge of $N$, we derive the **test statistic** $k$, which maps each observation (a vector $x$ or zeros and ones) to a single number $k$ (the number of heads in the vector). Notice that the node for $k$ has a solid double edge, indicating that it follows deterministically from its parent nodes. This is why we can think of $k$ as a sample from a random variable constructed from "raw data" observations $x$.
+Actually, this way of writing the Binomial Model is rather a shortcut. It glosses over each individual data observation (whether the $i$-th coin flip was heads or tails) and jumps directly to the most relevant summary statistic of how many of the $N$ flips were heads. This might, of course, be just the relevant level of analysis. If our assumption is true that the outcome of each coin flip is independent of any other flip, and given our goal to learn something about $\theta$, all that really matters is $k$. But to prepare ourselves for subsequent frequentist approaches, and in order to appreciate (later!) how powerful a tool a test statistic can be, we can also rewrite the Bayesian model from Figure \@ref(fig:ch-03-04-Binomial-Model-repeated) as the equivalent extended model in Figure \@ref(fig:ch-03-04-Binomial-Model-extended). In the latter representation, the individual outcomes of each flip are represented as $x_i \in \{0,1\}$. Each individual outcome is sampled from a [Bernoulli distribution](#app-91-distributions-bernoulli). Based on the whole vector of $x_i$-s and our knowledge of $N$, we derive the **test statistic** $k$, which maps each observation (a vector $x$ of zeros and ones) to a single number $k$ (the number of heads in the vector). Notice that the node for $k$ has a solid double edge, indicating that it follows deterministically from its parent nodes. This is why we can think of $k$ as a sample from a random variable constructed from "raw data" observations $x$.
 
 ```{r ch-03-04-Binomial-Model-extended, echo = F, fig.cap="The Binomial Model for a Bayesian approach, extended to show 'raw observations' and the 'summary statistic' implicitly used.", out.width = '60%'}
 knitr::include_graphics("visuals/binomial-model-extended.png")
 ```
 
-Compare this latter representation in Figure \@ref(fig:ch-03-04-Binomial-Model-extended) with the frequentist Binomial Model in Figure \@ref(fig:ch-03-04-Binomial-Model-frequentist). The frequentist model treats the number of observations $N$ as observed, just like the Bayesian model. But it also fixes a specific value for the coin's bias $\theta$. This is where the (point-valued) null hypothesis comes in. For purposes of analysis, we fix the value of the relevant unobservable latent parameter to a specific value (because we do not want to assign probabilities to latent parameters, but we still like to talk about probabilities somehow). In our graphical model in Figure \@ref(fig:ch-03-04-Binomial-Model-frequentist) the node for the coin's bias is shaded (=treated as known) but also has a doted second edge to indicate that this is where our null-hypothesis assumption kicks in. We then treat the data vector $x$ and with it the associated test statistic $k$ as unobserved. The data we actually observed will, of course, come in at some point. But the frequentist model leaves the observed data out at first in order to bring in the kinds of probabilities frequentist approaches feel comfortable with: probabilities derived from (hypothetical) repetitions of chance events. So, the frequentist model can now make statements about the likelihood of (raw) data $x$ and values of the derived summary statistic $k$ based on the assumption that the null hypothesis is true. Indeed, for the case at hand, we already know that the **sampling distribution**, i.e., the distribution of values for $k$ given $\theta_0$ is the [Binomial distribution](app-91-distributions-binomial).
+Compare this latter representation in Figure \@ref(fig:ch-03-04-Binomial-Model-extended) with the frequentist Binomial Model in Figure \@ref(fig:ch-03-04-Binomial-Model-frequentist). The frequentist model treats the number of observations $N$ as observed, just like the Bayesian model. But it also fixes a specific value for the coin's bias $\theta$. This is where the (point-valued) null hypothesis comes in. For purposes of analysis, we fix the value of the relevant unobservable latent parameter to a specific value (because we do not want to assign probabilities to latent parameters, but we still like to talk about probabilities somehow). In our graphical model in Figure \@ref(fig:ch-03-04-Binomial-Model-frequentist), the node for the coin's bias is shaded (= treated as known) but also has a dotted second edge to indicate that this is where our null hypothesis assumption kicks in. We then treat the data vector $x$ and, with it, the associated test statistic $k$ as unobserved. The data we actually observed will, of course, come in at some point. But the frequentist model leaves the observed data out at first in order to bring in the kinds of probabilities frequentist approaches feel comfortable with: probabilities derived from (hypothetical) repetitions of chance events. So, the frequentist model can now make statements about the likelihood of (raw) data $x$ and values of the derived summary statistic $k$ based on the assumption that the null hypothesis is true. Indeed, for the case at hand, we already know that the **sampling distribution**, i.e., the distribution of values for $k$ given $\theta_0$ is the [Binomial distribution](#app-91-distributions-binomial).
 
 
 ```{r ch-03-04-Binomial-Model-frequentist, echo = F, fig.cap="The Binomial Model for a frequentist binomial test.", out.width = '80%'}
 knitr::include_graphics("visuals/binomial-model-frequentist.png")
 ```
 
-Let's take a step back. The frequentist model for the binomial case considers ("raw") data of the form $\langle x_1, \dots, x_N \rangle$ where each $x_i \in \{0,1\}$ indicates whether the $i$-th flip was a success (= heads, =1) or a failure (=tails, =0). We identify the set of all binary vectors of length $N$ as the set of hypothetical data which we could, in principle, observe in fictitious repetition of this data-generating process. $\mathcal{D}^{|H_0}$ is then the random variable that assigns each potential observation $D = \langle x_1, \dots, x_N \rangle$ the probability with which it would occur if $H_0$ (=a specific value of $\theta$) is true. In our case, that is:
+Let's take a step back. The frequentist model for the binomial case considers ("raw") data of the form $\langle x_1, \dots, x_N \rangle$ where each $x_i \in \{0,1\}$ indicates whether the $i$-th flip was a success (= heads, = 1) or a failure (= tails, = 0). We identify the set of all binary vectors of length $N$ as the set of hypothetical data that we could, in principle, observe in a fictitious repetition of this data-generating process. $\mathcal{D}^{|H_0}$ is then the random variable that assigns each potential observation $D = \langle x_1, \dots, x_N \rangle$ the probability with which it would occur if $H_0$ (= a specific value of $\theta$) is true. In our case, that is:
 
 $$P(\mathcal{D}^{|H_0} = \langle x_1, \dots, x_N \rangle) = \prod_{i=1}^N \text{Bernoulli}(x_i, \theta_0)$$
 
-The model does not work with this raw data and its implied distribution (represented by random variable $\mathcal{D}^{|H_0}$), it uses a (very natural!) **test statistic** $t \colon \langle x_1, \dots, x_N \rangle \mapsto \sum_{i=1}^N x_i$ instead. The **sampling distribution** for this model is therefore the distribution of values for the derived measure $k$ - a distribution which follows from the distribution of the raw data ($\mathcal{D}^{|H_0}$) and this particular test statistic $t$. In its most general form, we write the sampling distribution as $T^{|H_0} = t(\mathcal{D^{H_0}})$. ^[Most often the random variable capturing the sampling distribution is just written as $T$, but it does make sense to stress also notationally that $T$ depends crucially on $H_0$.] It just so happens (what a relief!) that we know how to express $T^{|H_0}$ in a mathematically very concise fashion. It's just the Binomial distribution, so that $k \sim \text{Binomial}(\theta_0, N)$. (Notice how the sampling distribution is really a function of $\theta_0$ (the null-hypothesis) and also of $N$.)
+The model does not work with this raw data and its implied distribution (represented by random variable $\mathcal{D}^{|H_0}$), it uses a (very natural!) **test statistic** $t \colon \langle x_1, \dots, x_N \rangle \mapsto \sum_{i=1}^N x_i$ instead. The **sampling distribution** for this model is therefore the distribution of values for the derived measure $k$ - a distribution which follows from the distribution of the raw data ($\mathcal{D}^{|H_0}$) and this particular test statistic $t$. In its most general form, we write the sampling distribution as $T^{|H_0} = t(\mathcal{D^{H_0}})$. ^[Most often, the random variable capturing the sampling distribution is just written as $T$, but it does make sense to stress also notationally that $T$ depends crucially on $H_0$.] It just so happens (what a relief!) that we know how to express $T^{|H_0}$ in a mathematically very concise fashion. It's just the Binomial distribution, so that $k \sim \text{Binomial}(\theta_0, N)$. (Notice how the sampling distribution is really a function of $\theta_0$, i.e., the null hypothesis, and also of $N$.)
 
 
 ### *p*-values for the Binomial Model
@@ -120,14 +117,14 @@ $$
   p(D_{\text{obs}}) = P(T^{|H_0} \succeq^{H_{0,a}} t(D_{\text{obs}})) % = P(\mathcal{D}^{|H_0} \in \{D \mid t(D) \ge t(D_{\text{obs}})\}) 
 $$
 
-To fill this with life, we need to set a null hypothesis, i.e., a value $\theta_0$ of coin bias $\theta$, that we would like to collect evidence *against*. A fixed $H_0$ will directly fix $T^{|H_0}$ but we will have to put extra thought into how to conceptualize $\succeq^{H_{0,a}}$ for any given $H_0$. To make exactly this clearer is the job of this section. Specifically, we will look at what is standardly called a **two-sided $p$-value** and a **one-sided $p$-value**.
+To fill this with life, we need to set a null hypothesis, i.e., a value $\theta_0$ of coin bias $\theta$, that we would like to collect evidence *against*. A fixed $H_0$ will directly fix $T^{|H_0}$, but we will have to put extra thought into how to conceptualize $\succeq^{H_{0,a}}$ for any given $H_0$. To make exactly this clearer is the job of this section. Specifically, we will look at what is standardly called a **two-sided $p$-value** and a **one-sided $p$-value**.
 
-As stated in the introduction to this chapter, since this testing routine is geared to give us evidence against $H_0$, we should choose $H_0$ in such a way as to give us information about the research question that really matter to us. So, let's suppose that our research question is either one of the following:
+As stated in the introduction to this chapter, since this testing routine is geared to give us evidence against $H_0$, we should choose $H_0$ in such a way as to give us information about the research question that really matters to us. So, let's suppose that our research question is either one of the following:
 
 - Is the coin fair ($\theta = 0.5$)?
 - Is the coin biased towards heads ($\theta > 0.5$)?
 
-As we will see below, in both cases the null hypothesis will be the same: we are going to assume that $\theta_0 = 0.5$. But given our research question, the **alternative hypothesis** $H_a$ to the null-hypothesis will be different. In the case of testing for fairness  ($\theta = 0.5$), the pair of null hypothesis and alternative hypothesis are:
+As we will see below, in both cases, the null hypothesis will be the same: we are going to assume that $\theta_0 = 0.5$. But given our research question, the **alternative hypothesis** $H_a$ to the null hypothesis will be different. In the case of testing for fairness  ($\theta = 0.5$), the pair of null hypothesis and alternative hypothesis are:
 
 $$
 \begin{aligned}
@@ -136,7 +133,9 @@ H_0 \colon \theta = 0.5 && H_a \colon \theta \neq 0.5
 $$
 Notice that here the alternative hypothesis $H_a$ is two-sided in the sense that it departs from $H_0$ left and right, so to speak.
 
-But in the case of testing whether there is a bias towards heads ($\theta > 0.5$), the null hypothesis is the same but the alternative hypothesis is one-sided:^[An alternative way of looking at this case is to say that, at first, we test the interval-range null hypothesis $\theta > 0.5$, so that research and null hypothesis coincide. To gather evidence against this interval-range null hypothesis, we will compare it to the alternative hypothesis $\theta < 0.5$. Since we need a point-value to easily generated the sampling distribution, the question becomes which point for the null-hypothesis to take. We then choose the value that if we gather evidence *against* this value, this is most disastrous to the null hypothesis in question.]
+But in the case of testing whether there is a bias towards heads ($\theta > 0.5$), the null hypothesis is the same, but the alternative hypothesis is one-sided:[^57]
+
+[^57]: An alternative way of looking at this case is to say that, at first, we test the interval-range null hypothesis $\theta > 0.5$, so that research and null hypothesis coincide. To gather evidence against this interval-range null hypothesis, we will compare it to the alternative hypothesis $\theta < 0.5$. Since we need a point-value to generate the sampling distribution easily, the question becomes which point for the null hypothesis to take. We then choose the value such that if we gather evidence *against* this value, this is most disastrous to the null hypothesis in question.
 
 $$
 \begin{aligned}
@@ -146,7 +145,7 @@ $$
 
 **Research question $\theta = 0.5$.** To begin with, assume that we want to address the question of whether the coin is fair, i.e., whether $\theta = 0.5$. In this case, we identify the research question with the null hypothesis and set $\theta_0 = 0.5$. Figure \@ref(fig:ch-03-04-testing-binomial-sampling-distribution) shows the sampling distribution of the test statistic $k$. The probability of the observed value of the sampling statistic is shown in red. 
 
-```{r ch-03-04-testing-binomial-sampling-distribution, echo = F, fig.cap = "Sampling distribution (here: Binomial distribution) and probability associated with observed data $k=7$ highlighted in red, for $N = 24$ coin flips, under the assumption of a null-hypothesis $\\theta = 0.5$."}
+```{r ch-03-04-testing-binomial-sampling-distribution, echo = F, fig.cap = "Sampling distribution (here: Binomial distribution) and probability associated with observed data $k=7$ highlighted in red, for $N = 24$ coin flips, under the assumption of a null hypothesis $\\theta = 0.5$."}
 plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
 plotData2 = data.frame(x = 7, y = dbinom(7, 24, 0.5))
 ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
@@ -157,16 +156,16 @@ ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray
   )
 ```
 
-The question we need to settle to obtain a $p$-value is which alternative values of $k$ would count as more extreme evidence against the chosen null hypothesis, i.e., how to interpret $\succeq^{H_{0,a}}$ for this case. The obvious approach is to use the probability of any value of the test statistic $k$ directly and say that observing $D_1$ counts as at least as extreme evidence against $H_0$ as observing $D_2$, $t(D_1) \succeq^{H_{0,a}} t(D_2)$, iff the probability of observing the test statistic associated with $D_1$ is at least as unlikely as observing $D_2$: $P(T^{|H_0} = t(D_1)) \le P(T^{|H_0} = t(D_1))$. To calculate the $p$-value in this way, we therefore need to sum up the probabilities of all values $k$ under the Binomial distribution (with parameters $N=24$ and $\theta = \theta_0 = 0.5$) that are no larger than the value of the observed $k = 7$. In mathematical language:^[Here, the bracket notation $[ \mathit{Boolean} ]$ is the [Iverson bracket](https://en.wikipedia.org/wiki/Iverson_bracket), evaluation to 1 if the Boolean expression is true and to 0 otherwise.]
+The question we need to settle to obtain a $p$-value is which alternative values of $k$ would count as more extreme evidence against the chosen null hypothesis, i.e., how to interpret $\succeq^{H_{0,a}}$ for this case. The obvious approach is to use the probability of any value of the test statistic $k$ directly and say that observing $D_1$ counts as at least as extreme evidence against $H_0$ as observing $D_2$, $t(D_1) \succeq^{H_{0,a}} t(D_2)$, iff the probability of observing the test statistic associated with $D_1$ is at least as unlikely as observing $D_2$: $P(T^{|H_0} = t(D_1)) \le P(T^{|H_0} = t(D_2))$. To calculate the $p$-value in this way, we therefore need to sum up the probabilities of all values $k$ under the Binomial distribution (with parameters $N=24$ and $\theta = \theta_0 = 0.5$) that are no larger than the value of the observed $k = 7$. In mathematical language:^[Here, the bracket notation $[ \mathit{Boolean} ]$ is the [Iverson bracket](https://en.wikipedia.org/wiki/Iverson_bracket), evaluation to 1 if the Boolean expression is true and to 0 otherwise.]
 
 $$
 p(k) = \sum_{k' = 0}^{N} [\text{Binomial}(k', N, \theta_0) <= \text{Binomial}(k, N, \theta_0)] \ \text{Binomial}(k', N, \theta_0)
 $$
 
-In code, we calculate the this $p$-value as follows:
+In code, we calculate this $p$-value as follows:
 
 ```{r}
-# exact p-value for k=7 with N=24 and null-hypothesis theta = 0.5
+# exact p-value for k = 7 with N = 24 and null hypothesis theta = 0.5
 k_obs <- 7
 N <-  24
 theta_0 <-  0.5
@@ -177,7 +176,7 @@ tibble( lh = dbinom(0:N, N, theta_0) ) %>%
 
 Figure \@ref(fig:ch-03-04-testing-binomial-p-value) shows the values that need to be summed over in red.
 
-```{r ch-03-04-testing-binomial-p-value, echo = F, fig.cap = "Sampling distribution (Binomial likelihood function) and $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null-hypothesis $\\theta = 0.5$."}
+```{r ch-03-04-testing-binomial-p-value, echo = F, fig.cap = "Sampling distribution (Binomial likelihood function) and $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null hypothesis $\\theta = 0.5$."}
 plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
 plotData2 = data.frame(x = c(0:7, 17:24), y = dbinom(c(0:7, 17:24), 24, 0.5))
 ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
@@ -197,21 +196,21 @@ Of course, R also has a built-in function for a Binomial test. We can use it to 
 ```{r}
 binom.test(
   x = 7,     # observed successes
-  n = 24,    # total nr. observations
+  n = 24,    # total no. of observations
   p = 0.5    # null hypothesis
 )
 ```
 
 
-**Research question $\theta < 0.5$.** Let's now look at the case where our research hypothesis is that $\theta > 0.5$, i.e., that there is a bias towards heads. Again we need to settle what the null hypothesis should be and how $\succeq^{H_{0,a}}$ should be interpreted. In this case, we could consider an interval-valued null hypothesis like $\theta_0 > 0.5$ (making the research hypothesis the null). But even so, we would still resort to testing a point-valed null hypothesis $\theta_0 = 0.5$ eventually. This is because point-valued null hypotheses are easy to work with.^[The problem for interval-valued null hypothesis is that we would need to specify some more information about how to rank parameters, if only to say that they are all ranked equally (plausible, *a priori*), which is something that we try to avoid in frequentist approaches.] It has therefore become customary to pick the value from the relevant interval which is most favorable of the interval-valued null-hypothesis. In case we find strong evidence *against* even the most favorable value from the interval, than this does consititute the strongest possible case *against* the whole interval-based null hypothesis.
+**Research question $\theta > 0.5$.** Let's now look at the case where our research hypothesis is that $\theta > 0.5$, i.e., that there is a bias towards heads. Again we need to settle what the null hypothesis should be and how $\succeq^{H_{0,a}}$ should be interpreted. In this case, we could consider an interval-valued null hypothesis like $\theta_0 > 0.5$ (making the research hypothesis the null). But even so, we would still resort to testing a point-valued null hypothesis $\theta_0 = 0.5$ eventually. This is because point-valued null hypotheses are easy to work with.^[The problem for interval-valued null hypotheses is that we would need to specify some more information about how to rank parameters, if only to say that they are all ranked equally (plausible, *a priori*), which is something that we try to avoid in frequentist approaches.] It has therefore become customary to pick the value from the relevant interval which is most favorable of the interval-valued null hypothesis. In case we find strong evidence *against* even the most favorable value from the interval, then this does constitute the strongest possible case *against* the whole interval-based null hypothesis.
 
-But even though we use the the same null-value of $\theta_0 = 0.5$, the calculation of the $p$-value will be different from the case we looked at previously. The reason lies in a change to what we should consider more extreme evidence against this interval-valued null hypothesis, i.e., the interpretation of $\succeq^{H_{0,a}}$. In the case at hand, observing values of $k$ larger than 12, even if they are unlikely for the point-valued hypothesis $\theta_0 = 0.5$ do not consititute evidence against the interval-valued hypothesis we are interested in. So, therefore, we disregard the contribution of the right hand side in Figure \@ref(fig:ch-03-04-testing-binomial-p-value) to arrive at a picture like in Figure \@ref(fig:ch-03-04-testing-binomial-p-value-one-sided). The associated $p$-value with this, so-called **one-sided test**, is consequently:
+But even though we use the same null-value of $\theta_0 = 0.5$, the calculation of the $p$-value will be different from the case we looked at previously. The reason lies in a change to what we should consider more extreme evidence against this interval-valued null hypothesis, i.e., the interpretation of $\succeq^{H_{0,a}}$. In the case at hand, observing values of $k$ larger than 12, even if they are unlikely for the point-valued hypothesis $\theta_0 = 0.5$, does not constitute evidence against the interval-valued hypothesis we are interested in. So, therefore, we disregard the contribution of the right-hand side in Figure \@ref(fig:ch-03-04-testing-binomial-p-value) to arrive at a picture like in Figure \@ref(fig:ch-03-04-testing-binomial-p-value-one-sided). The associated $p$-value with this so-called **one-sided test** is consequently:
 
 ```{r}
 k_obs <- 7
 N <- 24
 theta_0 <- 0.5
-# exact p-value for k=7 with N=24 and null-hypothesis theta > 0.5
+# exact p-value for k = 7 with N = 24 and null hypothesis theta > 0.5
 dbinom(0:k_obs, N, theta_0) %>% sum %>% round(5)
 ```
 
@@ -220,14 +219,14 @@ We can double-check against the built-in function `binom.test` when we ask for a
 ```{r}
 binom.test(
   x = 7,     # observed successes
-  n = 24,    # total nr. observations
+  n = 24,    # total no. of observations
   p = 0.5,    # null hypothesis
   alternative = "less" # the alternative to compare against is theta < 0.5
 )
 ```
 
 
-```{r ch-03-04-testing-binomial-p-value-one-sided, echo = F, fig.cap = "Sampling distribution (Binomial likelihood function) and $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null-hypothesis $\\theta > 0.5$."}
+```{r ch-03-04-testing-binomial-p-value-one-sided, echo = F, fig.cap = "Sampling distribution (Binomial likelihood function) and $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null hypothesis $\\theta > 0.5$."}
 plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
 plotData2 = data.frame(x = c(0:7), y = dbinom(c(0:7), 24, 0.5))
 ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
@@ -243,37 +242,37 @@ ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray
 
 ### Statistical significance
 
-Fisher's early writing suggests that he considered $p$-values as quantitative measures of strength of evidence against the null hypothesis. What would need to be done or concluded from such a quantitative measure would need to depend on further careful case-by-base deliberation. In contrast, present practice often uses $p$-values to check whether a test result is noteworthy in a categorical, not quantitative way. Fixing an $\alpha$-level of significance (with common values $\alpha \in \{0.05, 0.01, 0.001\}$), we say that a test result is sigificant if the $p$-value of the observed data is lower than the specified $\alpha$.
+Fisher's early writing suggests that he considered $p$-values as quantitative measures of strength of evidence against the null hypothesis. What would need to be done or concluded from such a quantitative measure would need to depend on further careful case-by-base deliberation. In contrast, present practice often uses $p$-values to check whether a test result is noteworthy in a categorical, not quantitative way. Fixing an $\alpha$-level of significance (with common values $\alpha \in \{0.05, 0.01, 0.001\}$), we say that a test result is significant if the $p$-value of the observed data is lower than the specified $\alpha$.
 
-Significance of a test result, as a categorical measure, can then be further interpreted as a trigger for decision making. Commonly, a significant test results is interpreted as the signal to reject the null hypothesis, i.e., to speak and act as if it was false. 
+Significance of a test result, as a categorical measure, can then be further interpreted as a trigger for decision making. Commonly, a significant test result is interpreted as the signal to reject the null hypothesis, i.e., to speak and act as if it was false. 
 
 ### *p*-values and $\alpha$-errors
 
-Some blends of frequentist statistics focus on establishing a tight regime of error control (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches) below): we want to keep a cap on the long-run amount of errors that we make in statistical decision making. The $p$-value is then related to the $\alpha$-error, or Type-I error, when decisions to reject the null hypothesis are made based on whether the $p$-value crosses a particular threshold.
+Some blends of frequentist statistics focus on establishing a tight regime of error control (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)): we want to keep a cap on the long-run amount of errors that we make in statistical decision making. The $p$-value is then related to the $\alpha$-error, or Type-I error, when decisions to reject the null hypothesis are made based on whether the $p$-value crosses a particular threshold.
 
 An $\alpha$-error occurs when we falsely reject the null hypothesis, i.e., we reject the null hypothesis (as implausible) when it is actually true.
 Suppose we decide to reject the null hypothesis that the coin is fair in a two-sided test exactly when the $p$-value of our test is smaller than $\alpha$, e.g., $\alpha = 0.05$. In this case, $\alpha$ is an upper bound on the $\alpha$-error.
 
 ### Relation of *p*-values to confidence intervals
 
-There is a close relation between $p$-values and confidence intervals.^[An important caveat applies here. There can be different (approximate) ways of defining $p$-values and confidence intervals. The relation described here does not hold, when the (approximate) way of computing the $p$-value does not match the (approximate) way of computing the confidence interval.] For a two sided test of null hypothesis $\theta = \theta_0$, with alternatve $H_a \colon \theta \neq \theta_0$, it holds for all possible data observations $D$ that
+There is a close relation between $p$-values and confidence intervals.^[An important caveat applies here. There can be different (approximate) ways of defining $p$-values and confidence intervals. The relation described here does not hold, when the (approximate) way of computing the $p$-value does not match the (approximate) way of computing the confidence interval.] For a two-sided test of a null hypothesis $H_0 \colon \theta = \theta_0$, with alternative hypothesis $H_a \colon \theta \neq \theta_0$, it holds for all possible data observations $D$ that
 
 $$ p(D) < \alpha \ \ \text{iff} \ \ \theta_0 \not \in \text{CI}(D) $$
 where $\text{CI}(D)$ is the $(1-\alpha) \cdot 100\%$ confidence interval constructed for data $D$.
 
-This connection is intuitive when we think about long-term error. Decisions to reject the null hypothesis are false in exactly $(\alpha \cdot 100)\%$ of the cases when the null hypothesis is true. The definition of a confidence interval was exactly the same: the true value should like outside a $(1-\alpha) \cdot 100\%$ confidence interval in exactly $(\alpha \cdot 100)\%$ of the cases. (Of course, this is only a vague and intuitively appealing argument based on the overall rate, not any particular case.)
+This connection is intuitive when we think about long-term error. Decisions to reject the null hypothesis are false in exactly $(\alpha \cdot 100)\%$ of the cases when the null hypothesis is true. The definition of a confidence interval was exactly the same: the true value should lay outside a $(1-\alpha) \cdot 100\%$ confidence interval in exactly $(\alpha \cdot 100)\%$ of the cases. (Of course, this is only a vague and intuitively appealing argument based on the overall rate, not any particular case.)
 
 ### Distribution of $p$-values
 
 A result that might seem surprising at first is that if the null hypothesis is true, the distribution of $p$-values is uniform. This, however, is intuitive on second thought. Mathematically it is a direct consequence of the **Probability Integral Transform Theorem**.
 
 ```{theorem, label = "Probability-Integral-Transform", name = "Probability Integral Transform"}
-If $X$ be a continuous random variable with cumulative distribution function $F_X$, the random variable $Y = F_X(X)$ is a uniformly distributed over interval $[0;1]$, i.e., $y \sim \text{Uniform}(0,1)$. 
+If $X$ is a continuous random variable with cumulative distribution function $F_X$, the random variable $Y = F_X(X)$ is uniformly distributed over the interval $[0;1]$, i.e., $y \sim \text{Uniform}(0,1)$. 
   
 ```
 
 ```{proof}
-Notice that the cumulative density function of a standard uniform distribution $y \sim \text{Uniform}(0,1)$ is linear line with intercept 0 and slope 1. It therefore suffices to show that $F_Y(y) = y$.
+Notice that the cumulative density function of a standard uniform distribution $y \sim \text{Uniform}(0,1)$ is a linear line with intercept 0 and slope 1. It therefore suffices to show that $F_Y(y) = y$.
 $$
 \begin{aligned}
 F_Y(y) & = P(Y \le y)  && [\text{def. of cumulative distribution}] \\
@@ -291,17 +290,126 @@ Seeing the uniform distribution of $p$-values (under a true null hypothesis) hel
 
 ### How (not) to interpret *p*-values
 
-Though central to much of frequentist statistics, $p$-values are frequently misinterpreted, even by seasoned scientists [@HallerKrauss2002:Misinterpretati]. To repeat, the $p$-value measures the probability of observing, if the null-hypothesis is correct, a value of the test statistic that is (in a specific, contextually specified sense) more extreme than the value of the test statistic that we assign to the observed data. We can therefore treat $p$-values as a measure of evidence *against* the null-hypothesis. And if we want to be even more precise, we interpret this as evidence against the whole assumed data-generating process, a central part of which is the null-hypothesis.
+Though central to much of frequentist statistics, $p$-values are frequently misinterpreted, even by seasoned scientists [@HallerKrauss2002:Misinterpretati]. To repeat, the $p$-value measures the probability of observing, if the null hypothesis is correct, a value of the test statistic that is (in a specific, contextually specified sense) more extreme than the value of the test statistic that we assign to the observed data. We can therefore treat $p$-values as a measure of evidence *against* the null hypothesis. And if we want to be even more precise, we interpret this as evidence against the whole assumed data-generating process, a central part of which is the null hypothesis.
 
 The $p$-value is *not* a statement about the probability of the null hypothesis given the data. So, it is *not* something like $P(H_0 \mid D)$. The latter is a very appealing notion, but it is one that the frequentist denies herself access to. It can also only be computed based on some consideration of prior plausibility of $H_0$ in relation to some alternative hypothesis. Indeed, to calculate $P(H_0 \mid D)$ is the topic of the chapter on [Model Comparison](#Chap-03-06-model-comparison).
 
+<!-- ### Exercise 10.1 -->
+
+<!-- <div class = "exercises"> -->
+<!-- **Exercises** -->
+
+<!-- 1. Which statement(s) about $p$-values is/are true? <br/> -->
+<!-- The $p$-value is... -->
+<!--    a. ...the probability that the null hypothesis $H_0$ is true. -->
+<!--    b. ...the probability that the alternative hypothesis $H_a$ is true. -->
+<!--    c. ...the probability, derived from the assumption that $H_0$ is true, of obtaining an outcome for the chosen test statistic that is the exact same as the observed outcome. -->
+<!--    d. ...a measure of evidence in favor of $H_0$. -->
+<!--    e. ...the probability, derived from the assumption that $H_0$ is true, of obtaining an outcome for the chosen test statistic that is the same as the observed outcome or more extreme towards $H_a$. -->
+<!--    f. ...the probability of a Type-I error. -->
+<!--    g. ...a measure of evidence against $H_0$. -->
+
+<!-- <hr> -->
+
+<!-- 2. If the $p$-value is larger than a *prespecified* significance threshold $\alpha$ (e.g., $\alpha$ = 0.05), we... -->
+<!--    a. ...accept $H_0$. -->
+<!--    b. ...reject $H_0$ in favor of $H_a$. -->
+<!--    c. ...fail to reject $H_0$. -->
+
+<!-- <hr> -->
+
+<!-- 3. Suppose that you and your friend want to play a board game. A coin flip will decide who starts: If it lands heads, you start; if it lands tails, it's your friend's turn. It lands heads, and just as you want to throw the dice, your (highly competitive) friend pretends to have been distracted and insists on tossing the coin again. You toss again...heads. And again...heads. After observing several heads in a row, your friend claims that the coin is biased. Instead of moving on to the board game, you two decide to conduct a hypothesis test to investigate the coin's fairness. You toss the coin $N$ = 10 times and observe $k$ = 8 heads. You set $\alpha$ = 0.05. -->
+
+<!--    a. What are the appropriate null and alternative hypotheses? -->
+<!--    b. Which alternative values of $k$ provide more extreme evidence against $H_0$? -->
+<!--    c. The 95% confidence interval ranges between 0.493 and 1.0. Based on this information, decide whether the $p$-value is significant or non-significant. Why? -->
+<!--    d. Below is the probability mass function of the [Binomial distribution](#app-91-distributions-binomial) (our sampling distribution). The probability of obtaining exactly $k$ successes in $N$ independent trials is defined as: $$P(X = k)=\binom{N}{k}p^k(1-p)^{N-k},$$ -->
+<!-- where $\binom{N}{k}=\frac{N!}{k!(N-k)!}$ is the Binomial coefficient. Given the formula, calculate the $p$-value (by hand) associated with our test statistic $k$, under the assumption that $H_0$ is true. -->
+<!--    e. Based on your result in d., decide whether to agree with your friend's proposition of a biased coin. -->
+<!--    f. Use R's built-in function for a Binomial test to check your results. -->
+<!--    g. The $p$-value is affected by the sample size $N$. Try out different values for $N$ while keeping the proportion of successes constant to 80%. What do you notice with regard to the $p$-value? -->
+
+<!-- <div align = "right">Solutions are in Appendix \@ref(app-98-solutions-exercises-Ch10-Ex1)</div> -->
+<!-- </div> -->
+
+<!-- TODO ÖÖ: After looked over, paste solutions below into Appendix E -->
+
+<!-- ## Chapter 10 -->
+
+<!-- ### Exercise 1 {#app-98-solutions-exercises-Ch10-Ex1} -->
+
+<!-- 1. Which statement(s) about $p$-values is/are true? <br/> -->
+<!-- The $p$-value is... -->
+<!--    a. ...the probability that the null hypothesis $H_0$ is true. -->
+<!--    b. ...the probability that the alternative hypothesis $H_a$ is true. -->
+<!--    c. ...the probability, derived from the assumption that $H_0$ is true, of obtaining an outcome for the chosen test statistic that is the exact same as the observed outcome. -->
+<!--    d. ...a measure of evidence in favor of $H_0$. -->
+<!--    e. <span style="background-color: #b3ffcc"> ...the probability, derived from the assumption that $H_0$ is true, of obtaining an outcome for the chosen test statistic that is the same as the observed outcome or more extreme towards $H_a$.</span> -->
+<!--    f. ...the probability of a Type-I error. -->
+<!--    g. <span style="background-color: #b3ffcc"> ...a measure of evidence against $H_0$.</span> -->
+<!-- <br/> -->
+<!-- <br/> -->
+<!-- <font size="1">Correct answers are highlighted.</font> -->
+
+<!-- <hr> -->
+
+<!-- 2. If the $p$-value is larger than a *prespecified* significance threshold $\alpha$ (e.g., $\alpha$ = 0.05), we... -->
+<!--    a. ...accept $H_0$. -->
+<!--    b. ...reject $H_0$ in favor of $H_a$. -->
+<!--    c. <span style="background-color: #b3ffcc"> ...fail to reject $H_0$.</span> -->
+<!-- <br/> -->
+<!-- <br/> -->
+<!-- <font size="1">Correct answers are highlighted.</font> -->
+
+<!-- <hr> -->
+
+<!-- 3. Suppose that you and your friend want to play a board game. A coin flip will decide who starts: If it lands heads, you start; if it lands tails, it's your friend's turn. It lands heads, and just as you want to throw the dice, your (highly competitive) friend pretends to have been distracted and insists on tossing the coin again. You toss again...heads. And again...heads. After observing several heads in a row, your friend claims that the coin is biased. Instead of moving on to the board game, you two decide to conduct a hypothesis test to investigate the coin's fairness. You toss the coin $N$ = 10 times and observe $k$ = 8 heads. You set $\alpha$ = 0.05. -->
+
+<!--    a. What are the appropriate null and alternative hypotheses? <br/> -->
+<!--       <span style = "color:firebrick">SOLUTION:</span> $H_0$: $\theta_0$ = 0.5, $H_a$: $\theta$ > 0.5. -->
+
+<!--    b. Which alternative values of $k$ provide more extreme evidence against $H_0$? <br/> -->
+<!--       <span style = "color:firebrick">SOLUTION:</span> Values greater than 8 (we conduct a one-sided hypothesis test). -->
+
+<!--    c. The 95% confidence interval ranges between 0.493 and 1.0. Based on this information, decide whether the $p$-value is significant or non-significant. Why? <br/> -->
+<!--       <span style = "color:firebrick">SOLUTION:</span> The $p$-value is non-significant because the value of the null hypothesis $H_0$: $\theta_0$ = 0.5 is contained within the 95% CI. Hence, it is not sufficiently unlikely that the observed outcome was generated by a fair coin. -->
+
+<!--    d. Below is the probability mass function of the [Binomial distribution](#app-91-distributions-binomial) (our sampling distribution). The probability of obtaining exactly $k$ successes in $N$ independent trials is defined as: $$P(X = k)=\binom{N}{k}p^k(1-p)^{N-k},$$ -->
+<!-- where $\binom{N}{k}=\frac{N!}{k!(N-k)!}$ is the Binomial coefficient. Given the formula, calculate the $p$-value (by hand) associated with our test statistic $k$, under the assumption that $H_0$ is true.<br/> -->
+<!--       <span style="color:firebrick">SOLUTION:</span> As this is a one-sided test, we look at those values of $k$ that provide more extreme evidence against $H_0$. We therefore compute the probability of at least 8 heads, given that $H_0$ is true: -->
+<!-- $$ -->
+<!-- P(X\geq8)=P(X=8)+P(X=9)+P(X=10)\\ -->
+<!-- P(X=8)=\binom{10}{8}0.5^8(1-0.5)^{10-8}=45\cdot0.5^{10}\\ -->
+<!-- P(X=9)=\binom{10}{9}0.5^9(1-0.5)^{10-9}=10\cdot0.5^{10}\\ -->
+<!-- P(X=10)=\binom{10}{10}0.5^{10}(1-0.5)^{10-10}=1\cdot0.5^{10}\\ -->
+<!-- P(X\geq8)=0.5^{10}(45+10+1)\approx 0.0547 -->
+<!-- $$ -->
+
+<!--    e. Based on your result in d., decide whether to agree with your friend's proposition of a biased coin. <br/> -->
+<!--       <span style = "color:firebrick">SOLUTION:</span> As we have a non-significant $p$-value ($p>\alpha$), we fail to reject the null hypothesis. Hence, we do not have evidence in favor of our friend's hypothesis that the coin is biased to land heads. -->
+
+<!--    f. Use R's built-in function for a Binomial test to check your results. <br/> -->
+<!--       <span style = "color:firebrick">SOLUTION:</span> -->
+
+<!-- ```{r} -->
+<!-- binom.test( -->
+<!--   x = 8, # observed successes -->
+<!--   n = 10, # total no. of observations -->
+<!--   p = 0.5, # null hypothesis -->
+<!--   alternative = "greater" # alternative hypothesis -->
+<!-- ) -->
+<!-- ``` -->
+
+<!--    g. The $p$-value is affected by the sample size $N$. Try out different values for $N$ while keeping the proportion of successes constant to 80%. What do you notice with regard to the $p$-value? <br/> -->
+<!--       <span style = "color:firebrick">SOLUTION:</span> With a larger sample size, the $p$-value is smaller compared to 10 coin flips. It requires only a few more samples to cross the significance threshold, allowing us to reject $H_0$. However, this is just the case if the null hypothesis is in fact false. NOTE: Don't collect more data **after** you observed the $p$-value! The sample size should be fixed prior to data collection and not increased afterwards. -->
+
 ## Central Limit Theorem {#ch-03-05-hypothesis-testing-CLT}
 
-The previous section expanded of the notion of a $p$-value and it showed how to calculate $p$-values for different kinds of research questions for data from repeated Bernoulli trials (= coin flips). We saw that a natural test statistic is the Binomial distribution. The Binomial distribution described the sampling distribution precisely, i.e., the sampling distribution for the frequentist Binomial Model as we set it up *is* the Binomial distribution. Unfortunately, there are models and types of data for which the sampling distribution is not known precisely. In these cases, frequentist statistics works with approximations to the true sampling distribution. These approximations get better the more data was observed, i.e., these are limit-approximations that hold in the limit when the amount of data observed goes towards infinity. For small samples, the error might be substantial. Rules of thumb have become conventional guides for judging when (not) to use a given approximation. Which (approximation for a) sampling distribution to use needs to be decided on a case-by-case basis.
+The previous section expanded on the notion of a $p$-value, and it showed how to calculate $p$-values for different kinds of research questions for data from repeated Bernoulli trials (= coin flips). We saw that a natural test statistic is the Binomial distribution. The Binomial distribution described the sampling distribution precisely, i.e., the sampling distribution for the frequentist Binomial Model as we set it up *is* the Binomial distribution. Unfortunately, there are models and types of data for which the sampling distribution is not known precisely. In these cases, frequentist statistics work with approximations to the true sampling distribution. These approximations get better the more data was observed, i.e., these are limit-approximations that hold in the limit when the amount of data observed goes towards infinity. For small samples, the error might be substantial. Rules of thumb have become conventional guides for judging when (not) to use a given approximation. Which (approximation for a) sampling distribution to use needs to be decided on a case-by-case basis.
 
 To establish that a particular distribution is a good approximation of the true sampling distribution, the most important formal result is the *Central Limit Theorem* (CLT). In rough terms, the CLT says that, under certain conditions, we can use a normal distribution as an approximation of the sampling distribution. 
 
-To appreciate the CLT, let's start with another seminal results, the **Law of Large Numbers**, which we have already relied on when we discussed a sample-based approach to representing probability distributions. For example, the Law of Large Numbers justifies why taking (large) samples from a random variable sufficiently approximates a mean (the most prominent Bayesian point-estimator of, e.g., a posterior approximated by samples from MCMC algorithms).
+To appreciate the CLT, let's start with another seminal result, the **Law of Large Numbers**, which we had already relied on when we discussed a sample-based approach to representing probability distributions. For example, the Law of Large Numbers justifies why taking (large) samples from a random variable sufficiently approximates a mean (the most prominent Bayesian point-estimator of, e.g., a posterior approximated by samples from MCMC algorithms).
 
 ```{theorem label = "Law-of-Large-Numbers", name = "Law of Large Numbers"}
 Let $X_1, \dots, X_n$ be a sequence of $n$ differentiable random variables with equal mean, such that $\mathbb{E}_{X_i} = \mu_X$ for all $1 \le i \le n$.^[Though the result is more general, it is convenient to think of a natural application as the case where all $X_i$ are samples from the exact same distribution.] As the number of samples $n$ goes to infinity the mean of any tuple of samples, one from each $X_i$, convergences almost surely to $\mu_X$:
@@ -310,7 +418,7 @@ $$ P \left(\lim_{n \rightarrow \infty} \frac{1}{n} \sum_{i = 1}^n X_i = \mu_X \r
 ```
 
 
-Computer simulation makes the point and usefulness of this fact easier to appreciate:
+Computer simulations makes the point and usefulness of this fact easier to appreciate:
 
 ```{r}
 # sample from a standard normal distribution (mean = 0, sd = 1)
@@ -333,7 +441,7 @@ For practical purposes, think of the Central Limit Theorem as an extension of th
 ```{theorem, label = "Central-Limit-Theorem", name = "Central Limit Theorem"}
 Let $X_1, \dots, X_n$ be a sequence of $n$ differentiable random variables with equal mean  $\mathbb{E}_{X_i} = \mu_X$ and equal finite variance $\text{Var}(X_i) = \sigma_X^2$ for all $1 \le i \le n$.^[As with the Law of Large Numbers, the most common application is the case where all $X_i$ are samples from the exact same distribution.] The random variable $S_n$ which captures the distribution of the sample mean for any $n$ is:
 $$ S_n = \frac{1}{n} \sum_{i=1}^n X_i $$
-As the number of samples $n$ goes to infinity the random variable $\sqrt{n} (S_n - \mu_X)$ converges in distribution to a normal distribution with mean 0 and standard deviation $\sigma_X$.
+As the number of samples $n$ goes to infinity, the random variable $\sqrt{n} (S_n - \mu_X)$ converges in distribution to a normal distribution with mean 0 and standard deviation $\sigma_X$.
   
 ```
 
@@ -341,13 +449,31 @@ As the number of samples $n$ goes to infinity the random variable $\sqrt{n} (S_n
 
 A proof of the CLT is not trivial, and we will omit it here. We will only point to the CLT when justifying approximations of sampling distributions, just as exemplified in the next section, which deals with Pearson's $\chi^2$-test.
 
+<!-- ### Hands-on -->
+<!-- TODO: Implement an interactive plot like the ones below for CLT with WebPPL -->
+<!-- Possibly combine continuous, discrete and custom population distributions in one plot. -->
+
+<!-- Below you can play around with different distributions and see how with increasing sample size -->
+
+<!-- 1. the sample mean approximates the population mean (Law of Large Numbers). -->
+<!-- 2. the distribution of sample means approximates a normal distribution (Central Limit Theorem). -->
+
+<!-- Also, try out custom distributions to appreciate that this holds for *every* distribution. -->
+
+<!-- #### Continuous population distribution -->
+<!-- <iframe height="600" width="100%" frameborder="no" src="https://istats.shinyapps.io/sampdist_cont/"> </iframe> -->
+
+<!-- #### Discrete population distribution -->
+<!-- <iframe height="600" width="100%" frameborder="no" src="https://istats.shinyapps.io/SampDist_discrete/"> -->
+<!-- </iframe> -->
+
 ## Selected tests {#ch-03-05-hypothesis-testing-tests}
 
 ### Pearson's $\chi^2$-tests {#ch-03-05-hypothesis-testing-Pearsons-Chi}
 
-There are many tests that use the [$\chi^2$-distribution](app-91-distributions-chi2) as an (approximate) sampling distribution. But given relevance and historical prominence, the name "$\chi^2$-test" is usually interpreted to refer to one of several flavor's of what we could specifically call "Pearson's $\chi^2$-test".
+There are many tests that use the [$\chi^2$-distribution](#app-91-distributions-chi2) as an (approximate) sampling distribution. But given relevance and historical prominence, the name "$\chi^2$-test" is usually interpreted to refer to one of several flavor's of what we could specifically call "Pearson's $\chi^2$-test".
 
-We will look at two flavors here. Pearson's $\chi^2$-test for **goodness of fit** tests whether an observed vector of counts is well explained by a given vector of predicted proportion. Pearson's $\chi^2$-test for **independence** tests whether a (two-dimensional) table of counts could plausibly have been generated by a process of independently selecting the column and the row category. We will explain how both of these work based on an application to the [BLJM data](app-93-data-sets-BLJM), which we load as usual:
+We will look at two flavors here. Pearson's $\chi^2$-test for **goodness of fit** tests whether an observed vector of counts is well explained by a given vector of predicted proportion. Pearson's $\chi^2$-test for **independence** tests whether a (two-dimensional) table of counts could plausibly have been generated by a process of independently selecting the column and the row category. We will explain how both of these tests work based on an application of the [BLJM data](app-93-data-sets-BLJM), which we load as usual:
 
 ```{r, echo = F}
 data_BLJM_processed <- read_csv('data_sets/bio-logic-jazz-metal-data-processed.csv',
@@ -374,13 +500,13 @@ BLJM_associated_counts <- data_BLJM_processed %>%
 BLJM_associated_counts
 ```
 
-Remember that the lecturer's bold conjecture was that a preference for Logic over Biology goes together with a preference for Metal over Jazz. Visualization suggests that there might be such a trend but that the (statistical) jury is still out as to whether this conjecture has empirical support.
+Remember that the lecturer's bold conjecture was that a preference for Logic over Biology goes together with a preference for Metal over Jazz. The visualization suggests that there might be such a trend, but the (statistical) jury is still out as to whether this conjecture has empirical support.
 
 #### Pearson's $\chi^2$-test for goodness of fit
 
-"Goodness of fit" is a term used in model checking (a.k.a. model criticism, model validation, ...). In such a context, tests for goodness-of-fit investigate whether a model's predictions compatible with the observed data. Pearson's $\chi^2$-test for goodness of fit does exactly this for categorical data. 
+"Goodness of fit" is a term used in model checking (a.k.a. model criticism, model validation, ...). In such a context, tests for goodness-of-fit investigate whether a model's predictions are compatible with the observed data. Pearson's $\chi^2$-test for goodness of fit does exactly this for categorical data. 
 
-Categorical data is data where each data observation falls into one of several unordered categories. If we have $k$ such categories, a **prediction vector** $\vec{p} = \langle p_1, \dots, p_k \rangle$  is a probability vector of length $k$ such that $p_i$ gives the probability with which a single data observation falls into the $i$-th category. The likelihood of a single data observation is given by the [Categorical distribution](), and the likelihood of $N$ data observations is given by the [Multinomial distribution](). These are generalizations of the Bernoulli and Binomial distributions, which cover the case of two unordered categories, to the case of more than two unordered categories.
+Categorical data is data where each data observation falls into one of several unordered categories. If we have $k$ such categories, a **prediction vector** $\vec{p} = \langle p_1, \dots, p_k \rangle$  is a probability vector of length $k$ such that $p_i$ gives the probability with which a single data observation falls into the $i$-th category. The likelihood of a single data observation is given by the [Categorical distribution](#app-91-distributions-categorical), and the likelihood of $N$ data observations is given by the [Multinomial distribution](#app-91-distributions-multinomial). These are generalizations of the Bernoulli and Binomial distributions, which expand the case of two unordered categories to more than two unordered categories.
 
 The BLJM data supplies us with categorical data. Here is the vector of counts of how many participants selected a given music+subject pair:
 
@@ -410,11 +536,11 @@ BLJM_associated_counts %>%
   geom_label(aes(x = 4, y = 27, label = "baseline expectation"), size = 3, color = "firebrick")
 ```
 
-Pearson's $\chi^2$-test for goodness of fit allows us to test whether this data could plausibly have been generated by (a model whose predictions are given by) a prediction vector $\vec{p} = \langle p_1, \dots, p_4 \rangle$, where $p_1$ would be the predicted probability of a choice pair "Biology-Jazz" occurring for a single participant etc. Frequently, this test is used to check whether a baseline equal distribution could have generated the data. We do that here, too. We form the null-hypothesis that $\vec{p} = \vec{p}_0$ with $p_{0i} = \frac{1}{4}$ for all categories $i$. 
+Pearson's $\chi^2$-test for goodness of fit allows us to test whether this data could plausibly have been generated by (a model whose predictions are given by) a prediction vector $\vec{p} = \langle p_1, \dots, p_4 \rangle$, where $p_1$ would be the predicted probability of a choice pair "Biology-Jazz" occurring for a single participant, and so on. Frequently, this test is used to check whether an equal baseline distribution could have generated the data. We do that here, too. We form the null hypothesis that $\vec{p} = \vec{p}_0$ with $p_{0i} = \frac{1}{4}$ for all categories $i$. 
 
-Figure \@ref(fig:ch-03-04-chi2-model-goodness) shows a graphical representation of the model implicitly assumed in the background for a Pearson's $\chi^2$-test for goodness of fit. The model assumes that the observed vector of counts (like our `counts_BLJM_choice_pairs_vector` from above) is follows a Multinomial distribution.^[Notice that for economy or presentation we now (again) gloss over the "raw" data of individual choices, and present the summarized count data instead. In the previous case of the Binomial Test it made good pedagogical sense to tease apart the "raw" observations from the summarized counts because this helped to show what the test statistic is for a case where the choice of test statistic was very, very obvious; so much so, that we would normally not even bother to make it explicit. Now that we understood what a test statistic is in principle, we can gloss over some steps of data summarizing.] Each vector of (hypothetical) data is associated with a test statistic, called $\chi^2$, which sums over the standardized squared deviation of the observed counts from the predicted baseline in each cell. It can be shown that, if the number of observations $N$ is large enough, the sampling distribution of the $\chi^2$ test statistic is approximated well enough by the [$\chi^2$ distribution](app-91-distributions-chi2) with $k-1$ degrees of freedom (where $k$ is the number of categories).^[A proof of this fact is non-trivial, but an intuition why this might be so is available, if we think of each cell independently first. In each cell, with more and more samples, the distribution of counts will approximate a normal distribution by the CLT. The $\chi^2$-distribution rests (by construction) on a sum of squared samples from a standard normal distribution.] Notice that the approximation by a $\chi^2$-distribution hinges on an approximation, which is only met when there are enough samples (just as we needed in the CLT). A rule-of-thumb is that at most 20% of all cells should have expected frequencies below 5 in order for the test to be applicable, i.e., $np_i < 5$ for all $i$ in Figure \@ref(fig:ch-03-04-chi2-model-goodness).
+Figure \@ref(fig:ch-03-04-chi2-model-goodness) shows a graphical representation of the model implicitly assumed in the background for a Pearson's $\chi^2$-test for goodness of fit. The model assumes that the observed vector of counts (like our `counts_BLJM_choice_pairs_vector` from above) follows a Multinomial distribution.^[Notice that for economy or presentation, we now (again) gloss over the "raw" data of individual choices and present the summarized count data instead. In the previous case of the Binomial Test, it made good pedagogical sense to tease apart the "raw" observations from the summarized counts because this helped to show what the test statistic is for a case, where the choice of it was very, very obvious; so much so, that we would normally not even bother to make it explicit. Now that we understood what a test statistic is in principle, we can gloss over some steps of data summarizing.] Each vector of (hypothetical) data is associated with a test statistic, called $\chi^2$, which sums over the standardized squared deviation of the observed counts from the predicted baseline in each cell. It can be shown that, if the number of observations $N$ is large enough, the sampling distribution of the $\chi^2$ test statistic is approximated well enough by the [$\chi^2$-distribution](#app-91-distributions-chi2) with $k-1$ degrees of freedom (where $k$ is the number of categories).^[A proof of this fact is non-trivial, but an intuition why this might be so is available if we think of each cell independently first. In each cell, with more and more samples, the distribution of counts will approximate a normal distribution by the CLT. The $\chi^2$-distribution rests (by construction) on a sum of squared samples from a standard normal distribution.] Notice that the approximation by a $\chi^2$-distribution hinges on an approximation, which is only met when there are enough samples (just as we needed in the CLT). A rule-of-thumb is that at most 20% of all cells should have expected frequencies below 5 in order for the test to be applicable, i.e., $np_i < 5$ for all $i$ in Figure \@ref(fig:ch-03-04-chi2-model-goodness).
 
-```{r ch-03-04-chi2-model-goodness, echo = F, fig.cap="Graphical representation of Pearson's $\\chi^2$ test for goodness of fit (testing a vector of predicted proportion).", out.width = '90%'}
+```{r ch-03-04-chi2-model-goodness, echo = F, fig.cap="Graphical representation of Pearson's $\\chi^2$-test for goodness of fit (testing a vector of predicted proportion).", out.width = '90%'}
 knitr::include_graphics("visuals/chi2-model-goodness.png" )
 ```
 
@@ -432,14 +558,14 @@ chi2_observed <- sum((n-e)^2 * 1/e)
 chi2_observed
 ```
 
-We can then compare this value to the sampling distribution, which is a $\chi^2$-distribution with $k-1 = 3$ degrees of freedom. We compute the $p$-value associated with our data as the tail of the sampling distribution, as shown also in Figure \@ref(fig:ch-03-04-chi2-plot):^[Notice that this is a one-sided test due to the nature of the test statistic, which measures squared deviation from the baseline and not deviation in any particular direction (because it is hard to say what a "direction" would be in this case anyway).]
+We can then compare this value to the sampling distribution, which is a $\chi^2$-distribution with $k-1 = 3$ degrees of freedom. We compute the $p$-value associated with our data as the tail of the sampling distribution, as also shown in Figure \@ref(fig:ch-03-04-chi2-plot):^[Notice that this is a one-sided test due to the nature of the test statistic, which measures squared deviation from the baseline and not deviation in any particular direction (because it is hard to say what a "direction" would be in this case anyway).]
 
 ```{r}
 p_value_BLJM <- 1 - pchisq(chi2_observed, df = 3)
 ```
 
 
-```{r ch-03-04-chi2-plot, echo = F, fig.cap="Sampling distribution for a Pearson's $\\chi^2$ test of goodness of fit ($\\chi^2$-distribution with $k-1 = 3$ degrees of freedom), testing a flat baseline null hypothesis based on the BLJM data. .", out.width = '90%'}
+```{r ch-03-04-chi2-plot, echo = F, fig.cap="Sampling distribution for a Pearson's $\\chi^2$-test of goodness of fit ($\\chi^2$-distribution with $k-1 = 3$ degrees of freedom), testing a flat baseline null hypothesis based on the BLJM data.", out.width = '90%'}
 tibble(
   x = seq(0,16, length.out = 1000) ,
   y = dchisq(x, df = 3)
@@ -477,18 +603,18 @@ tibble(
   
 ```
 
-Of course, these calculations can be performed also by using a built-in R function, namely `chisq.test`:
+Of course, these calculations can also be performed by using a built-in R function, namely `chisq.test`:
 
 ```{r}
 counts_BLJM_choice_pairs_vector <- BLJM_associated_counts %>% pull(n)
 chisq.test(counts_BLJM_choice_pairs_vector)
 ```
 
-The common interpretation of our calculations would be to say that the test yielded a significant result, at least at the significance level of $\alpha = 0.5$. In a research paper we might report this results roughly as follows:
+The common interpretation of our calculations would be to say that the test yielded a significant result, at least at the significance level of $\alpha = 0.5$. In a research paper, we might report these results roughly as follows:
 
 > Observed counts deviated significantly from what is expected if each category (here: pair of music+subject choice) was equally likely ($\chi^2$-test, with $\chi^2 \approx 9.53$, $df = 3$ and $p \approx 0.023$).
 
-Notice that this test is an "omnibus test of difference". We can conclude from a significant test result that the whole vector of observations is unlikely to have been generated from chance, but we cannot conclude from this result (without anything doing else) why, where or how the observations deviated from the assumed prediction vector. Looking at the plot of the data in Figure \@ref(fig:ch-03-04-BLJM-count-pairs-plot) above, it seems intuitive to think that Metal is disproportionally disfavored and that the combination of Biology and Jazz looks particularly outliery, when compared to baseline expectations.
+Notice that this test is an "omnibus test of difference". We can conclude from a significant test result that the whole vector of observations is unlikely to have been generated by chance. Still, we cannot conclude from this result (without doing anything else) why, where or how the observations deviated from the assumed prediction vector. Looking at the plot of the data in Figure \@ref(fig:ch-03-04-BLJM-count-pairs-plot) above, it seems intuitive to think that Metal is disproportionally disfavored and that the combination of Biology and Jazz looks particularly outliery when compared to the baseline expectation.
 
 #### Pearson's $\chi^2$-test for independence
 
@@ -501,7 +627,7 @@ BLJM_table <- BLJM_associated_counts %>%
 BLJM_table
 ```
 
-For easier computation and compatibility with the function `chisq.test` we handle the same data but stored as a matrix:
+For easier computation and compatibility with the function `chisq.test`, we handle the same data but stored as a matrix:
 
 ```{r}
 counts_BLJM_choice_pairs_matrix <- matrix(
@@ -514,7 +640,7 @@ colnames(counts_BLJM_choice_pairs_matrix) <- c("Biology", "Logic")
 counts_BLJM_choice_pairs_matrix
 ```
 
-Pearson's $\chi^2$-test of independence addresses the question of whether two-dimensional tabular count data like the above could plausibly have been generated by a prediction vector $\vec{p}$ which results from the assumption that the realizations of row- and column-choices are [stochastically independent](Chap-03-01-probability-independence). If row- and column-choices are independent, the probability of seeing an outcome result in cell $ij$ is the probability of realizing row $i$ times the probability of realizing column $j$. So, under an independence assumption, we expect a matrix, and a resulting vector of choice proportions like this:
+Pearson's $\chi^2$-test of independence addresses the question of whether two-dimensional tabular count data like the above could plausibly have been generated by a prediction vector $\vec{p}$, which results from the assumption that the realizations of row- and column-choices are [stochastically independent](#Chap-03-01-probability-independence). If row- and column-choices are independent, the probability of seeing an outcome result in cell $ij$ is the probability of realizing row $i$ times the probability of realizing column $j$. So, under an independence assumption, we expect a matrix and a resulting vector of choice proportions like this:
 
 ```{r}
 # number of observations in total
@@ -524,35 +650,35 @@ N <- sum(counts_BLJM_choice_pairs_matrix)
 row_prob <- counts_BLJM_choice_pairs_matrix %>% rowSums() / N
 # the following is the vector c in the model graph
 col_prob <- counts_BLJM_choice_pairs_matrix %>% colSums() / N
-# table of expected observation under independence assumption
+# table of expected observations under independence assumption
 # NB: %o% is the outer product of vectors
-BLJM_expectation_matrix <- (row_prob %o%  col_prob) * N 
+BLJM_expectation_matrix <- (row_prob %o% col_prob) * N 
 BLJM_expectation_matrix
 # the following is the vector p in the model graph
 BLJM_expectation_vector <- as.vector(BLJM_expectation_matrix)
 BLJM_expectation_vector
 ```
 
-Figure \@ref(fig:ch-03-04-chi2-model-independence) shows a graphical representation of the $\chi^2$-test of independence. The main difference to the previous test of goodness of fit is that we do no longer just fix any-old predicition vector $\vec{p}$, but consder $\vec{p}$ the deterministic results of independence *and* the best estimates (based on the data at hand) of the row- and column probabilities.
+Figure \@ref(fig:ch-03-04-chi2-model-independence) shows a graphical representation of the $\chi^2$-test of independence. The main difference to the previous test of goodness of fit is that we do no longer just fix any-old prediction vector $\vec{p}$, but consider $\vec{p}$ the deterministic results of independence *and* the best estimates (based on the data at hand) of the row- and column probabilities.
 
-```{r ch-03-04-chi2-model-independence, echo = F, fig.cap="Graphical representation of Pearson's $\\chi^2$ test for independence.", out.width = '90%'}
+```{r ch-03-04-chi2-model-independence, echo = F, fig.cap="Graphical representation of Pearson's $\\chi^2$-test for independence.", out.width = '90%'}
 knitr::include_graphics("visuals/chi2-model-independence.png")
 ```
 
-We can compute the observed $\chi^2$-test statistic as follows:
+We can compute the observed $\chi^2$-test statistic and the $p$-value as follows:
 
 ```{r}
 chi2_observed <- sum(
   (counts_BLJM_choice_pairs_matrix - BLJM_expectation_matrix)^2 / 
     BLJM_expectation_matrix
   )
-p_value_BLJM <- 1-pchisq(q = chi2_observed, df = 1)
-round(p_value_BLJM,5)
+p_value_BLJM <- 1 - pchisq(q = chi2_observed, df = 1)
+round(p_value_BLJM, 5)
 ```
 
 Figure \@ref(fig:ch-03-04-chi2-plot-independence) shows the sampling distribution, the value of the test statistic for the observed data and the $p$-value.
 
-```{r ch-03-04-chi2-plot-independence, echo = F, fig.cap="Sampling distribution for a Pearson's $\\chi^2$ test of independence ($\\chi^2$-distribution with $1$ degree of freedom), testing a flat baseline null hypothesis based on the BLJM data. .", out.width = '90%'}
+```{r ch-03-04-chi2-plot-independence, echo = F, fig.cap="Sampling distribution for a Pearson's $\\chi^2$ test of independence ($\\chi^2$-distribution with $1$ degree of freedom), testing a flat baseline null hypothesis based on the BLJM data.", out.width = '90%'}
 tibble(
   x = seq(0,4, length.out = 1000) ,
   y = dchisq(x, df = 1)
@@ -594,44 +720,187 @@ We can also use the built-in function `chisq.test` in R to obtain this result mo
 
 ```{r}
 chisq.test(
-  # supply data as a matrix, not as a vector, for test of independence
+  # supply data as a matrix, not as a vector, for a test of independence
   counts_BLJM_choice_pairs_matrix, 
   # do not use a the default correction (because we didn't introduce it)
   correct = FALSE
 )
 ```
 
-With $p$-value of about `r round(p_value_BLJM,5)` we should conclude that there is no indication of strong evidence *against* the assumption of independence. Consequently, there is no evidence *in favor* of the lecturer's conjecture of dependence of musical and academic preferences. In a research paper we might report this result as follows:
+With a $p$-value of about `r round(p_value_BLJM,5)`, we should conclude that there is no indication of strong evidence *against* the assumption of independence. Consequently, there is no evidence *in favor* of the lecturer's conjecture of dependence of musical and academic preferences. In a research paper, we might report this result as follows:
 
 > A $\chi^2$-test of independence did not yield a significant test result ($\chi^2$-test, with $\chi^2 \approx 0.44$, $df = 1$ and $p \approx 0.5$). Therefore, we cannot claim to have found any evidence for the research hypothesis of dependence.
 
+<!-- ##### Exercise 10.2 -->
+
+<!-- Taken from last term's prep exam (IDA-prep-exam-01.pdf on Stud.IP) -->
+<!-- Packages knitr and kableExtra needed -->
+
+<!-- <div class = "exercises"> -->
+<!-- **Exercises** -->
+
+<!-- Let us assume that there are two unordered categorical variables $A$ and $B$. Categorical variable $A$ has two levels $a_1$ and $a_2$. Categorical variable $B$ has three levels $b_1$, $b_2$ and $b_3$. Let us further assume that the (marginal) probabilities of a choice from categories $A$ or $B$ is as follows: -->
+
+<!-- $$ -->
+<!-- P(A=a_i)=\begin{cases} -->
+<!--           0.3 &\textbf{if \(i=1\)} \\ -->
+<!--           0.7 &\textbf{if \(i=2\)} -->
+<!--           \end{cases} -->
+<!-- \quad P(B=b_i)=\begin{cases} -->
+<!--                 0.2 &\textbf{if \(i=1\)}\\ -->
+<!--                 0.3 &\textbf{if \(i=2\)}\\ -->
+<!--                 0.5 &\textbf{if \(i=3\)} -->
+<!--                \end{cases} -->
+<!-- $$ -->
+
+<!-- a. If observations of pairs of instances from categories $A$ and $B$ are stochastically independent, what would the expected joint probability of each pair of potential observations be? -->
+
+<!-- ```{r echo=FALSE} -->
+<!-- knitr::kable( -->
+<!--   tibble( -->
+<!--     " " = c("$a_1$", "$a_2$"), -->
+<!--     "$b_1$" = c("", ""), -->
+<!--     "$b_2$" = c("", ""), -->
+<!--     "$b_3$" = c("", "") -->
+<!--   ), -->
+<!--   align = 'c', -->
+<!--   escape = F, -->
+<!--   booktabs = T -->
+<!-- ) %>% -->
+<!-- column_spec(1:4, width = "3cm") %>% -->
+<!-- kable_styling(bootstrap_options = c('bordered', 'condensed'), full_width = F) -->
+
+<!-- ``` -->
+
+<!-- b. Imagine you observe the following table of counts for each pair of instances of categories $A$ and $B$. Which of the $p$-values given below would you expect to see when feeding this table into a Pearson $\chi^2$-test of independence? (only one correct answer) -->
+
+<!-- ```{r echo=F} -->
+<!-- knitr::kable( -->
+<!--   tibble( -->
+<!--     " " = c("$a_1$", "$a_2$"), -->
+<!--     "$b_1$" = c("1", "19"), -->
+<!--     "$b_2$" = c("26", "4"), -->
+<!--     "$b_3$" = c("3", "47") -->
+<!--   ), -->
+<!--   align = 'c', -->
+<!--   escape = F, -->
+<!--   booktabs = T -->
+<!-- ) %>% -->
+<!-- column_spec(1:4, width = "3cm") %>% -->
+<!-- kable_styling(bootstrap_options = c('bordered', 'condensed'), full_width = F) -->
+<!-- ``` -->
+
+<!-- &emsp;&emsp;&ensp;&nbsp; I expect the following result from a Pearson $\chi^2$-test of independence: -->
+
+<!-- <ol type="i" start="1" style="margin-left: 2em;"> -->
+<!--   <li>$p \approx 1$</li> -->
+<!--   <li>$p \approx 0.5$</li> -->
+<!--   <li>$p \approx 0$</li> -->
+<!--   <li>I expect no result because the test is not suitable for this kind of data.</li> -->
+<!-- </ol> -->
+
+<!-- c. Explain the answer you gave in the previous part in at most three concise sentences. -->
+
+<!-- <div align = "right">Solutions are in Appendix \@ref(app-98-solutions-exercises-Ch10-Ex2)</div> -->
+<!-- </div> -->
+
+<!-- TODO ÖÖ: After looked over, paste solutions below into Appendix E -->
+
+<!-- ### Exercise 2 {#app-98-solutions-exercises-Ch10-Ex2} -->
+
+<!-- Let us assume that there are two unordered categorical variables $A$ and $B$. Categorical variable $A$ has two levels $a_1$ and $a_2$. Categorical variable $B$ has three levels $b_1$, $b_2$ and $b_3$. Let us further assume that the (marginal) probabilities of a choice from categories $A$ or $B$ is as follows: -->
+
+<!-- $$ -->
+<!-- P(A=a_i)=\begin{cases} -->
+<!--           0.3 &\textbf{if \(i=1\)} \\ -->
+<!--           0.7 &\textbf{if \(i=2\)} -->
+<!--           \end{cases} -->
+<!-- \quad P(B=b_i)=\begin{cases} -->
+<!--                 0.2 &\textbf{if \(i=1\)}\\ -->
+<!--                 0.3 &\textbf{if \(i=2\)}\\ -->
+<!--                 0.5 &\textbf{if \(i=3\)} -->
+<!--                \end{cases} -->
+<!-- $$ -->
+
+<!-- a. If observations of pairs of instances from categories $A$ and $B$ are stochastically independent, what would the expected joint probability of each pair of potential observations be? <br/> -->
+<!--    <span style="color:firebrick">SOLUTION:</span> -->
+
+<!-- ```{r echo=FALSE} -->
+<!-- knitr::kable( -->
+<!--   tibble( -->
+<!--     " " = c("$a_1$", "$a_2$"), -->
+<!--     "$b_1$" = c(".3 $\\times$ .2 = .06", ".7 $\\times$ .2 = .14"), -->
+<!--     "$b_2$" = c(".3 $\\times$ .3 = .09", ".7 $\\times$ .3 = .21"), -->
+<!--     "$b_3$" = c(".3 $\\times$ .5 = .15", ".7 $\\times$ .5 = .35") -->
+<!--   ), -->
+<!--   align = 'c', -->
+<!--   escape = F, -->
+<!--   booktabs = T -->
+<!-- ) %>% -->
+<!-- column_spec(1:4, width = "3cm") %>% -->
+<!-- kable_styling(bootstrap_options = c('bordered', 'condensed'), full_width = F) -->
+
+<!-- ``` -->
+
+<!-- b. Imagine you observe the following table of counts for each pair of instances of categories $A$ and $B$. Which of the $p$-values given below would you expect to see when feeding this table into a Pearson $\chi^2$-test of independence? (only one correct answer) -->
+
+<!-- ```{r echo=F} -->
+<!-- knitr::kable( -->
+<!--   tibble( -->
+<!--     " " = c("$a_1$", "$a_2$"), -->
+<!--     "$b_1$" = c("1", "19"), -->
+<!--     "$b_2$" = c("26", "4"), -->
+<!--     "$b_3$" = c("3", "47") -->
+<!--   ), -->
+<!--   align = 'c', -->
+<!--   escape = F, -->
+<!--   booktabs = T -->
+<!-- ) %>% -->
+<!-- column_spec(1:4, width = "3cm") %>% -->
+<!-- kable_styling(bootstrap_options = c('bordered', 'condensed'), full_width = F) -->
+<!-- ``` -->
+
+<!-- &emsp;&emsp;&ensp;&nbsp; I expect the following result from a Pearson $\chi^2$-test of independence: -->
+
+<!-- <ol type="i" start="1" style="margin-left: 2em;"> -->
+<!--   <li>$p \approx 1$</li> -->
+<!--   <li>$p \approx 0.5$</li> -->
+<!--   <li><span style="background-color: #b3ffcc">$p \approx 0$</span></li> -->
+<!--   <li>I expect no result because the test is not suitable for this kind of data.</li> -->
+<!--   <br/> -->
+<!--   <font size="1">Correct answers are highlighted.</font> -->
+<!-- </ol> -->
+
+<!-- c. Explain the answer you gave in the previous part in at most three concise sentences. <br/> -->
+<!--    <span style="color:firebrick">SOLUTION:</span> As the marginal proportions of observed counts for the table in b. equal the marginal probabilities given above, the joint probability table in a. actually gives the predicted probabilities under the assumption of independence. Comparing prediction against observed proportion (obtained by dividing the table in b. by the total count of 100), we see severe divergences, especially in the middle column. -->
+
 ### *z*-test {#ch-03-05-hypothesis-testing-z-test}
 
-The Central Limit Theorem tells us that, given enough data, we can treat means of repeated samples from any arbitrary probability distribution as approximately normally distributed. If we notice in addition that if $X$ and $Y$ are random variables following a normal distribution, then so is $Z = X - Y$ (see also the [chapter on the normal distribution](app-91-distributions-normal)), it becomes clear how research questions about means and about differences between means (e.g., in the Mental Chronometry experiment) can be addressed, at least approximately, by using tests that hinge on a sampling distribution which is a normal distribution (usually a standard normal distribution).
+The Central Limit Theorem tells us that, given enough data, we can treat means of repeated samples from any arbitrary probability distribution as approximately normally distributed. Notice in addition that if $X$ and $Y$ are random variables following a normal distribution, then so is $Z = X - Y$ (see also the [chapter on the normal distribution](#app-91-distributions-normal)). It now becomes clear how research questions about means and differences between means (e.g., in the Mental Chronometry experiment) can be addressed, at least approximately: We conduct tests that hinge on a sampling distribution which is a normal distribution (usually a standard normal distribution).
 
-The $z$-test is perhaps the simplest of a family of tests that rely on normality of the sampling distribution. Unfortunately, what makes it so simple is also what makes it inapplicable in a wide range of cases. The $z$-test assumes that a quantity which is normally distributed has an unknown mean (to be inferred by testing) but it also assumes that the *variance is known*. Since we do not know the variance in most cases of practical relevance, the $z$-test needs to be replace by a more adequate test, usually a test from the $t$-test family, to be discussed below.
+The $z$-test is perhaps the simplest of a family of tests that rely on normality of the sampling distribution. Unfortunately, what makes it so simple is also what makes it inapplicable in a wide range of cases. The $z$-test assumes that a quantity that is normally distributed has an unknown mean (to be inferred by testing), but it also assumes that the *variance is known*. Since we do not know the variance in most cases of practical relevance, the $z$-test needs to be replaced by a more adequate test, usually a test from the $t$-test family, to be discussed below.
 
-We start with the $z$-test nonetheless because of the added benefit to our understanding. Figure \@ref(fig:ch-03-04-z-test-model) shows the model which lies implicitly underneath a $z$-test for checking whether data $\vec{x}$, which are assumed to be normally distributed with known $\sigma$, could have been generated by a hypothesized mean $\mu = \mu_0$. The sampling distribution of the derived test statistic $z$ is a standard normal distribution. 
+We start with the $z$-test nonetheless because of the added benefit to our understanding. Figure \@ref(fig:ch-03-04-z-test-model) shows the model that implicitly underlies a $z$-test. It checks whether the data $\vec{x}$, which are assumed to be normally distributed with known $\sigma$, could have been generated by a hypothesized mean $\mu = \mu_0$. The sampling distribution of the derived test statistic $z$ is a standard normal distribution. 
 
 ```{r ch-03-04-z-test-model, echo = F, fig.cap="Graphical representation of a $z$-test.", out.width = '90%'}
 knitr::include_graphics("visuals/z-test-model.png")
 ```
 
-We know that IQ test results are normally distributed around a mean of 100 with a standard deviation of 15. This holds when the sample is representative of the whole population. But suppose we have reason to believe that the sample is from CogSci students. The standard deviation in a sample from CogSci students might still plausibly be fixed to 15, but we'd like to test whether the assumption that *this* sample was generated by a mean $\mu = 100$, out null hypothesis.
+We know that IQ test results are normally distributed around a mean of 100 with a standard deviation of 15. This holds when the sample is representative of the whole population. But suppose we have reason to believe that the sample is from CogSci students. The standard deviation in a sample from CogSci students might still plausibly be fixed to 15, but we'd like to test the assumption that *this* sample was generated by a mean $\mu = 100$, our null hypothesis.
 
-For illustration, suppose we observed this data set of IQ test results:
+For illustration, suppose we observed the following data set of IQ test results:
 
 ```{r}
-# fictitious IQ-data
+# fictitious IQ data
 IQ_data <- c(87, 91, 93, 97, 100, 101, 103, 104, 
              104, 105, 105, 106, 108, 110, 111, 
              112, 114, 115, 119, 121)
 mean(IQ_data)
 ```
 
-The mean of this data set is `r mean(IQ_data)`. Suspcicious!
+The mean of this data set is `r mean(IQ_data)`. Suspicious!
 
-Following the model in Figure \@ref(fig:ch-03-04-z-test-model) we calculate the value of the test statistic for the observed data.
+Following the model in Figure \@ref(fig:ch-03-04-z-test-model), we calculate the value of the test statistic for the observed data.
 
 ```{r}
 # number of observations
@@ -640,13 +909,13 @@ N <- length(IQ_data)
 mu_0 <- 100
 # standard deviation (known/assumed as true)
 sd <- 15
-z_observed <-  (mean(IQ_data) - mu_0) / (sd / sqrt(N))
+z_observed <- (mean(IQ_data) - mu_0) / (sd / sqrt(N))
 z_observed %>% round(4)
 ```
 
-We focus on a one-sided $p$-value because our "research" hypothesis is that CogSci students have, on average, a higher IQ. Since we oserved a mean of `r mean(IQ_data)` in the data, which is higher than the critical value of 100, we test the null hypothes $\mu = 100$ against an alternative hypothesis which assumes that the data was generated by mean *bigger* than 100 (which is exactly our research hypothesis).
+We focus on a one-sided $p$-value because our "research" hypothesis is that CogSci students have, on average, a higher IQ. Since we observed a mean of `r mean(IQ_data)` in the data, which is higher than the critical value of 100, we test the null hypothesis $\mu = 100$ against an alternative hypothesis that assumes that the data was generated by a mean *bigger* than 100 (which is exactly our research hypothesis).
 
-We can then compute the $p$-value, as before, by checking the area under the sampling distribution, here a standard normal, in the appropriate way. Figure \@ref(fig:ch-03-04-z-test) shows this result graphically.
+As before, we can then compute the $p$-value by checking the area under the sampling distribution, here a standard normal, in the appropriate way. Figure \@ref(fig:ch-03-04-z-test) shows this result graphically.
 
 ```{r}
 p_value_IQ_data_ztest <- 1 - pnorm(z_observed)
@@ -654,7 +923,7 @@ p_value_IQ_data_ztest %>% round(6)
 ```
 
 
-```{r ch-03-04-z-test, echo = F, fig.cap="Sampling distribution for a $z$-test, testing the null hypothesis based that the IQ-data was generated by $\\mu = 100$ (with assumed/known $\\sigma$).", out.width = '90%'}
+```{r ch-03-04-z-test, echo = F, fig.cap="Sampling distribution for a $z$-test, testing the null hypothesis based on the assumption that the IQ-data was generated by $\\mu = 100$ (with assumed/known $\\sigma$).", out.width = '90%'}
 tibble(
   x = seq(-4,4, length.out = 1000) ,
   y = dnorm(x)
@@ -692,33 +961,33 @@ We can also use a ready-made function for the $z$-test. However, as the $z$-test
 BSDA::z.test(x = IQ_data, mu = 100, sigma.x = 15, alternative = "greater")
 ```
 
-The conclusion to be drawn from this test could be formualted in a research report as follows:
+The conclusion to be drawn from this test could be formulated in a research report as follows:
 
-> We tested the null-hypothesis of a mean equal to 100, assuming a known standard deviation of 15, in a one-sided $z$-test against the alternative hypothesis that the data was generated by a mean greater than 100 (our research hypothesis). The test was not significant ($N = `r length(IQ_data)`$, $z \approx `r z_observed %>% round(4)`$, $p \approx `r p_value_IQ_data_ztest %>% round(5)`$), giving us no indication of strong evidence that the assumption that the mean is at most 100 if false.
+> We tested the null hypothesis of a mean equal to 100, assuming a known standard deviation of 15, in a one-sided $z$-test against the alternative hypothesis that the data was generated by a mean greater than 100 (our research hypothesis). The test was not significant ($N = `r length(IQ_data)`$, $z \approx `r z_observed %>% round(4)`$, $p \approx `r p_value_IQ_data_ztest %>% round(5)`$), giving us no indication of strong evidence against the assumption that the mean is at most 100.
 
 ### *t*-tests {#ch-03-05-hypothesis-testing-t-test}
 
-In most practical applications where a $z$-test might be useful the standard deviation is not known. If unknown, it should also not lightly be fixed by clever guess-work. This is where the family of $t$-tests comes in. We look at two examples of these, the one-sample $t$-test, which compares one set of samples to a fixed mean, and a two-sample $t$-test, which compares the means of two sets of samples.
+In most practical applications where a $z$-test might be useful, the standard deviation is not known. If unknown, it should also not lightly be fixed by clever guess-work. This is where the family of $t$-tests comes in. We will look at two examples of these: the one-sample $t$-test, which compares one set of samples to a fixed mean, and the two-sample $t$-test, which compares the means of two sets of samples.
 
 #### One-sample $t$-test
 
-The simplest example of this family, a $t$-test for one metric vector $\vec{x}$ of normally distributed observations, tests the null hypothesis, just like the $z$-test, that $\vec{x}$ was generated by some $\mu = \mu_0$. Unlike the $z$-test, a one-sample $t$-test does not, however, assume that the standard deviation is known. It rather uses the observed data to obtain an estimate for this parameter. More concretely, a one-sample $t$-test for $\vec{x}$ estimates the standard deviation in the usual way (see Chapter \@ref(Chap-02-03-summary-statistics)):
+The simplest example of this family, namely a $t$-test for one metric vector $\vec{x}$ of normally distributed observations, tests the null hypothesis that $\vec{x}$ was generated by some $\mu = \mu_0$ (just like the $z$-test). However, unlike the $z$-test, a one-sample $t$-test does not assume that the standard deviation is known. It rather uses the observed data to obtain an estimate for this parameter. More concretely, a one-sample $t$-test for $\vec{x}$ estimates the standard deviation in the usual way (see Chapter \@ref(Chap-02-03-summary-statistics)):
 
 $$\hat{\sigma}_x = \sqrt{\frac{1}{n-1} \sum_{i=1}^n (x_i - \mu_{\vec{x}})^2}$$
 
-Figure \@ref(fig:ch-03-04-t-test-model-one-population) shows a graphical representation of a one-sample $t$-test model. The light shading of the node for the standard deviation is meant to indicate that this parameter is estimated from the observed data. Importantly, the distribution of the test statistic $t$ is no longer well approximated by a normal distribution when the sample size is low. It is better captured by a [Student's $t$ distribution](app-91-distributions-students-t).
+Figure \@ref(fig:ch-03-04-t-test-model-one-population) shows a graphical representation of a one-sample $t$-test model. The light shading of the node for the standard deviation indicates that this parameter is estimated from the observed data. Importantly, the distribution of the test statistic $t$ is no longer well approximated by a normal distribution when the sample size is low. It is better captured by a [Student's $t$ distribution](#app-91-distributions-students-t).
 
 ```{r ch-03-04-t-test-model-one-population, echo = F, fig.cap="Graphical representation of the model underlying a frequentist one-sample $t$-test. Notice that the lightly shaded node for the standard deviation represents that the value for this parameter is estimated from the data.", out.width = '60%'}
 knitr::include_graphics("visuals/t-test-model-one-population.png")
 ```
 
-Let's revisit our IQ-data set from above to calculate a $t$-test. Using a $t$-test implies that we are assuming now that the standard deviation is actually unknown. We can calculate the value of the test statistic for the observed data and use this to compute a $p$-value, much like in the case of the $z$-test before.
+Let's revisit our IQ-data set from above to calculate a $t$-test. Using a $t$-test implies that we are now assuming that the standard deviation is actually unknown. We can calculate the value of the test statistic for the observed data and use this to compute a $p$-value, much like in the case of the $z$-test before.
 
 ```{r}
 N <- length(IQ_data)
 # fix the null hypothesis
 mean_0 <- 100
-# unlike in a z-test we use the sample to estimate SD
+# unlike in a z-test, we use the sample to estimate the SD
 sigma_hat <- sd(IQ_data) 
 t_observed <- (mean(IQ_data) - mean_0) / sigma_hat * sqrt(N)
 t_observed %>% round(4)
@@ -732,7 +1001,7 @@ p_value_t_test_IQ %>% round(6)
 ```
 
 
-```{r ch-03-04-t-test-one-sample, echo = F, fig.cap="Sampling distribution for a $t$-test, testing the null hypothesis based that the IQ-data was generated by $\\mu = 100$ (with unknown $\\sigma$).", out.width = '90%'}
+```{r ch-03-04-t-test-one-sample, echo = F, fig.cap="Sampling distribution for a $t$-test, testing the null hypothesis that the IQ-data was generated by $\\mu = 100$ (with unknown $\\sigma$).", out.width = '90%'}
 tibble(
   x = seq(-4,4, length.out = 1000) ,
   y = dt(x, df = N-1)
@@ -778,13 +1047,13 @@ t.test(x = IQ_data, mu = 100, alternative = "greater")
 
 These results could be stated in a research report much like so:
 
-> We tested the null-hypothesis of a mean equal to 100, assuming an unknown standard deviation, using a one-sided, one-sample $t$-test against the alternative hypothesis that the data was generated by a mean greater than 100 (our research hypothesis). The significant test result ($N = `r length(IQ_data)`$, $t \approx `r t_observed %>% round(4)`$, $p \approx `r p_value_t_test_IQ %>% round(6)`$) suggests that the data provides strong evidence against the assumption that the mean is not bigger than 100.
+> We tested the null hypothesis of a mean equal to 100, assuming an unknown standard deviation, using a one-sided, one-sample $t$-test against the alternative hypothesis that the data was generated by a mean greater than 100 (our research hypothesis). The significant test result ($N = `r length(IQ_data)`$, $t \approx `r t_observed %>% round(4)`$, $p \approx `r p_value_t_test_IQ %>% round(6)`$) suggests that the data provides strong evidence against the assumption that the mean is not bigger than 100.
 
-Notice that the conclusions we draw from the previous $z$-test and this one-sample $t$-test are quite different. Why is this so? Well, it is because we (cheekily) chose a data set `IQ_data` which was actually *not* generated by a normal distribution with standard deviation of 15, contrary to what we said about IQ-scores normally having this standard deviation. The assumption about $\sigma$ fed into the $z$-test was (deliberately!) wrong. The result of the $t$-test, at least for this example, is better. The data in `IQ_data` are actually samples from $\text{Normal}(105,10)$. This demonstrates why the one-sample $t$-test is usually preferred over a $z$-test: unshakable, true knowledge of $\sigma$ is very rare.
+Notice that the conclusions we draw from the previous $z$-test and this one-sample $t$-test are quite different. Why is this so? Well, it is because we (cheekily) chose a data set `IQ_data` that was actually *not* generated by a normal distribution with a standard deviation of 15, contrary to what we said about IQ-scores normally having this standard deviation. The assumption about $\sigma$ fed into the $z$-test was (deliberately!) wrong. The result of the $t$-test, at least for this example, is better. The data in `IQ_data` are actually samples from $\text{Normal}(105,10)$. This demonstrates why the one-sample $t$-test is usually preferred over a $z$-test: unshakable, true knowledge of $\sigma$ is very rare.
 
 #### Two-sample $t$-test (for unpaired data with equal variance and unequal sample sizes)
 
-The "mother of all experimental designs" compares two groups of measurements. We give a drug to one group of patients; a placebo to another. We take a metric measure (say, blood sugar level) and ask whether there is a difference between these two groups. Section \@ref(Chap-03-03-models-examples) introduced the $T$-Test Model for a Bayesian approach. Here, we look at a corresponding model for a frequentist approach, a so-called two-sample $t$-test. There are different kinds of such two-sample $t$-tests. The differences lie, e.g., in whether we assume that both groups have equal variance, in whether the sample sizes are the same in both groups, or in whether observations are paired (e.g., as in a within-subjects design, where we get two measurements from each participant, one from each condition / group). Here, we focus on unpaired data (as from a between-subjects design), assume equal variance but (possibly) unequal sample sizes. The case we look at is the [avocado data](app-93-data-sets-avocado), and we want to specifically investigate whether the weekly average price of organically grown avocados is higher than that of conventionally grown avocados.^[Notice that the original avocado data set contains information also about the place of measurement, which would in principle allow us to treat the price measurements as paired samples (one pair for each week and place). For simplicity, but with a note of care that this makes us lose possibly relevant structural information, we here treat the avocado data as if it contained unpaired samples.]
+The "mother of all experimental designs" compares two groups of measurements. We give a drug to one group of patients, a placebo to another. We take a metric measure (say, blood sugar level) and ask whether there is a difference between these two groups. Section \@ref(Chap-03-03-models-examples) introduced the $T$-Test Model for a Bayesian approach. Here, we look at a corresponding model for a frequentist approach, a so-called two-sample $t$-test. There are different kinds of such two-sample $t$-tests. The differences lie, e.g., in whether we assume that both groups have equal variance, in whether the sample sizes are the same in both groups, or in whether observations are paired (e.g., as in a within-subjects design, where we get two measurements from each participant, one from each condition/group). Here, we focus on unpaired data (as from a between-subjects design), assume equal variance but (possibly) unequal sample sizes. The case we look at is the [avocado data](app-93-data-sets-avocado), where we want to specifically investigate whether the weekly average price of organically grown avocados is higher than that of conventionally grown avocados.^[Notice that the original avocado data set contains information also about the place of measurement, which would in principle allow us to treat the price measurements as paired samples (one pair for each week and place). For simplicity, but with a note of care that this makes us lose possibly relevant structural information, we here treat the avocado data as if it contained unpaired samples.]
 
 The data to consider is this:
 
@@ -807,7 +1076,7 @@ avocado_data <- read_csv('data_sets/avocado.csv',
                            region = col_character()
                          )) %>% 
   # remove currently irrelevant columns
-  select( -X1 , - contains("Bags"), - year, - region) %>% 
+  select( - X1 , - contains("Bags"), - year, - region) %>% 
   # rename variables of interest for convenience
   rename(
     total_volume_sold = `Total Volume`,
@@ -821,7 +1090,7 @@ avocado_data <- read_csv('data_sets/avocado.csv',
 ```{r, eval = F}
 avocado_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado.csv')) %>% 
   # remove currently irrelevant columns
-  select( -X1 , - contains("Bags"), - year, - region) %>% 
+  select( - X1 , - contains("Bags"), - year, - region) %>% 
   # rename variables of interest for convenience
   rename(
     total_volume_sold = `Total Volume`,
@@ -842,13 +1111,13 @@ avocado_data %>%
   xlab('average weekly price') 
 ```
 
-A graphical representation of the two-sample $t$-test (for unpaired data with equal variance and unequal sample sizes), which we will apply to this case, is shown in Figure \@ref(fig:ch-03-04-t-test-model-two-populations). The model assumes that we have two vectors of metric measurements $\vec{x}_A$ and $\vec{x}_B$, with length $n_A$ and $n_B$ respectively. These are the price measures for conventionally grown and for organically grown avocados. The model assumes that measures in both $\vec{x}_A$ and $\vec{x}_B$ are iid samples from a normal distribution. The mean of one group (group $B$ in the graph) is assumed to be some unknown $\mu$. Interestingly, this parameter will cancel out eventually: the approximation of the sampling distribution turns out to be independent of this parameter.^[This is intuitively so because the test statistic is concerned only with the difference between sample means.] The mean of the other group (group $A$ in the graph) is computed as $\mu + \delta$, so with some additive paramater $\delta$ indicating the difference between means of these groups. This $\delta$ is the main parameter of interest for inferences regarding hypotheses concerning differences between the groups. Finally, the model assumes that both groups have the same standard deviation, an estimate of which is derived from the data (in a rather convoluted looking formula that is not important for our introductory concerns). As indicated in Figure \@ref(fig:ch-03-04-t-test-model-two-populations), the sampling distribution for this model is an instance of Student's $t$-distribution with mean 0, standard deviation 1 and degrees of freedom $\nu$ given as $n_A + n_B - 2$.
+A graphical representation of the two-sample $t$-test (for unpaired data with equal variance and unequal sample sizes), which we will apply to this case, is shown in Figure \@ref(fig:ch-03-04-t-test-model-two-populations). The model assumes that we have two vectors of metric measurements $\vec{x}_A$ and $\vec{x}_B$, with length $n_A$ and $n_B$, respectively. These are the price measures for conventionally grown and for organically grown avocados. The model assumes that measures in both $\vec{x}_A$ and $\vec{x}_B$ are i.i.d. samples from a normal distribution. The mean of one group (group $B$ in the graph) is assumed to be some unknown $\mu$. Interestingly, this parameter will cancel out eventually: the approximation of the sampling distribution turns out to be independent of this parameter.^[This is intuitively so because the test statistic is concerned only with the difference between sample means.] The mean of the other group (group $A$ in the graph) is computed as $\mu + \delta$, so with some additive parameter $\delta$ indicating the difference between means of these groups. This $\delta$ is the main parameter of interest for inferences regarding hypotheses concerning differences between groups. Finally, the model assumes that both groups have the same standard deviation, an estimate of which is derived from the data (in a rather convoluted looking formula that is not important for our introductory concerns). As indicated in Figure \@ref(fig:ch-03-04-t-test-model-two-populations), the sampling distribution for this model is an instance of Student's $t$-distribution with mean 0, standard deviation 1 and degrees of freedom $\nu$ given as $n_A + n_B - 2$.
 
-```{r ch-03-04-t-test-model-two-populations, echo = F, fig.cap="Graphical representation of the model underlying a frequentist two-population $t$-test (for unpaired data with equal variance and unequal sample sizes). Notice that the light shading of the node for the standard deviation indicates that the values for this parameter is estimated from the data.", out.width = '90%'}
+```{r ch-03-04-t-test-model-two-populations, echo = F, fig.cap="Graphical representation of the model underlying a frequentist two-population $t$-test (for unpaired data with equal variance and unequal sample sizes). Notice that the light shading of the node for the standard deviation indicates that the value for this parameter is estimated from the data.", out.width = '90%'}
 knitr::include_graphics("visuals/t-test-model-two-populations.png")
 ```
 
-Figure \@ref(fig:ch-03-04-t-test-model-two-populations) gives us the template to compute the value of the test statistic for the observed data.
+Figure \@ref(fig:ch-03-04-t-test-model-two-populations) gives us the template to compute the value of the test statistic for the observed data:
 
 ```{r}
 # fix the null hypothesis: no difference between groups
@@ -878,14 +1147,14 @@ t_observed
 We can use the value of the test statistic for the observed data to compute a one-sided $p$-value, as before. Notice that we use a one-sided test because we hypothesize that organically grown avocados are more expensive, not just that they have a different price (more expensive or cheaper).
 
 ```{r}
-p_value_t_test_avocado <- 1 - pt(q = t_observed, df = n_A + n_B - 1)
+p_value_t_test_avocado <- 1 - pt(q = t_observed, df = n_A + n_B - 2)
 p_value_t_test_avocado
 ```
 
-Owing to number imprecision, the calculated $p$-value comes up as a flat zero. We have a lot of data and the task of defending that conventionally grown avocados are not less expensive than organically grown is very tough. This also shows in the corresponding picture in Figure \@ref(fig:ch-03-04-t-test-two-sample). 
+Owing to number imprecision, the calculated $p$-value comes up as a flat zero. We have a lot of data, and the task of defending that conventionally grown avocados are not less expensive than organically grown is very tough. This also shows in the corresponding picture in Figure \@ref(fig:ch-03-04-t-test-two-sample). 
 
 
-```{r ch-03-04-t-test-two-sample, echo = F, fig.cap="Sampling distribution for a two-sample $t$-test, testing the null hypothesis of no difference between groups, based that the avocado data.", out.width = '90%'}
+```{r ch-03-04-t-test-two-sample, echo = F, fig.cap="Sampling distribution for a two-sample $t$-test, testing the null hypothesis of no difference between groups, based on the avocado data.", out.width = '90%'}
 tibble(
   x = seq(-50,120, length.out = 500) ,
   y = dt(x, df = N-1)
@@ -913,20 +1182,88 @@ We can also, of course, calculate this test result with the built-in function `t
 ```{r}
 t.test(
   x = x_A,           # first vector of data measurements
-  y = x_B,           # sec vector of data measurements
+  y = x_B,           # second vector of data measurements
   paired = FALSE,    # measurements are to be treated as unpaired
-  var.equal = TRUE,  # we assum equal variance in both groups
+  var.equal = TRUE,  # we assume equal variance in both groups
   mu = 0             # NH is delta = 0 (name 'mu' is misleading!)
 )
 ```
 
 The result could be reported as follows:
 
-> We used a two-sample $t$-test of differences of means (unpaired samples, equal variance, unequal sample sizes) to compare the average weekly price of conventionally-grown avocados to that of organically grown avocados. The test result indicates a significant difference for the null hypothesis that conventionally-grown avocados are not cheaper ($N_A = `r n_A`$, $N_B = `r n_B`$, $t \approx `r t_observed %>% round(6)`$, $p \approx `r p_value_t_test_avocado`$).
+> We conducted a two-sample $t$-test of differences of means (unpaired samples, equal variance, unequal sample sizes) to compare the average weekly price of conventionally grown avocados to that of organically grown avocados. The test result indicates a significant difference for the null hypothesis that conventionally grown avocados are not cheaper ($N_A = `r n_A`$, $N_B = `r n_B`$, $t \approx `r t_observed %>% round(6)`$, $p \approx `r p_value_t_test_avocado`$).
+
+<!-- ##### Exercise 10.3 -->
+
+<!-- <div class = "exercises"> -->
+<!-- **Exercises** -->
+
+<!-- One of your fellow students is skeptical of her flatmate's claim that pizzas from place $A$ have a smaller diameter than place $B$ (both pizzerias have just one pizza size, namely $\varnothing\ 32\ cm$). She decides to test that claim with a two-sample $t$-test and sets $H_0: \mu_A = \mu_B$ ($\delta = 0$), $H_a: \mu_A < \mu_B$, $\alpha = 0.05$. She then asks your stats class to always measure the pizza's diameter if ordered from one of the two places. You agreed to help her with the computation. At the end of the semester, she gives you the following table of measurements: -->
+
+<!-- ```{r echo=FALSE} -->
+<!-- knitr::kable( -->
+<!--   tibble( -->
+<!--     " " = c("mean", "standard deviation", "sample size"), -->
+<!--     "pizzeria $A$" = c("30.9", "2.3", "38"), -->
+<!--     "pizzeria $B$" = c("31.8", "2", "44"), -->
+<!--   ), -->
+<!--   align = 'c', -->
+<!--   booktabs = T -->
+<!-- ) %>% -->
+<!-- column_spec(1:3, width = "4cm") %>% -->
+<!-- kable_styling(bootstrap_options = c('bordered', 'condensed'), full_width = F) -->
+<!-- ``` -->
+
+<!-- a. How many degrees of freedom $\nu$ are there? -->
+<!-- b. Given the table above, calculate the test statistic $t$. -->
+<!-- c. Look at this so-called [t table](http://www.ttable.org/) and determine the critical value we have to exceed to get a statistically significant result. NB: We are looking for the critical value that is on the *left* side of the distribution. So, in order to have a statistically significant result, the test statistic from b. has to be smaller than the *negated* critical value in the table. -->
+<!-- d. Compare the test statistic from b. to the critical value from c. and interpret the result. -->
+
+<!-- <div align = "right">Solutions are in Appendix \@ref(app-98-solutions-exercises-Ch10-Ex3)</div> -->
+<!-- </div> -->
+
+<!-- TODO ÖÖ: After looked over, paste solutions below into Appendix E -->
+
+<!-- ### Exercise 3 {#app-98-solutions-exercises-Ch10-Ex3} -->
+
+<!-- One of your fellow students is skeptical of her flatmate's claim that pizzas from place $A$ have a smaller diameter than place $B$ (both pizzerias have just one pizza size, namely $\varnothing\ 32\ cm$). She decides to test that claim with a two-sample $t$-test and sets $H_0: \mu_A = \mu_B$ ($\delta = 0$), $H_a: \mu_A < \mu_B$, $\alpha = 0.05$. She then asks your stats class to always measure the pizza's diameter if ordered from one of the two places. You agreed to help her with the computation. At the end of the semester, she gives you the following table of measurements: -->
+
+<!-- ```{r echo=FALSE} -->
+<!-- knitr::kable( -->
+<!--   tibble( -->
+<!--     " " = c("mean", "standard deviation", "sample size"), -->
+<!--     "pizzeria $A$" = c("30.9", "2.3", "38"), -->
+<!--     "pizzeria $B$" = c("31.8", "2", "44"), -->
+<!--   ), -->
+<!--   align = 'c', -->
+<!--   booktabs = T -->
+<!-- ) %>% -->
+<!-- column_spec(1:3, width = "4cm") %>% -->
+<!-- kable_styling(bootstrap_options = c('bordered', 'condensed'), full_width = F) -->
+<!-- ``` -->
+
+<!-- a. How many degrees of freedom $\nu$ are there? <br/> -->
+<!--    <span style="color:firebrick">SOLUTION:</span> $\nu = n_A+n_B-2 = 38+44-2 = 80$ -->
+
+<!-- b. Given the table above, calculate the test statistic $t$. <br/> -->
+<!--    <span style="color:firebrick">SOLUTION:</span> -->
+
+<!-- $$ -->
+<!-- \hat{\sigma}=\sqrt{\frac{(n_A-1)\hat{\sigma}_A^2+(n_B-1)\hat{\sigma}^2_B}{n_A+n_B-2}(\frac{1}{n_A}+      \frac{1}{n_B})}\\ -->
+<!-- \hat{\sigma}=\sqrt{\frac{37\cdot2.3^2+43\cdot2^2}{80}(\frac{1}{38}+\frac{1}{44})}\approx 0.47\\ -->
+<!-- t=((\bar{x}_A-\bar{x}_B)-\delta)\cdot\frac{1}{\hat{\sigma}}\\ -->
+<!-- t=\frac{30.9-31.8}{0.47}\approx -1.91 -->
+<!-- $$ -->
+
+<!-- c. Look at this so-called [t table](http://www.ttable.org/) and determine the critical value we have to exceed to get a statistically significant result. NB: We are looking for the critical value that is on the *left* side of the distribution. So, in order to have a statistically significant result, the test statistic from b. has to be smaller than the *negated* critical value in the table. <br/> -->
+<!--    <span style="color:firebrick">SOLUTION:</span> The critical value is -1.664. -->
+
+<!-- d. Compare the test statistic from b. to the critical value from c. and interpret the result. <br/> -->
+<!--    <span style="color:firebrick">SOLUTION:</span> As the calculated test statistic from b. is smaller than the critical value, we know that the $p$-value is statistically significant. We therefore reject the null hypothesis in favor of the flatmate's claim. -->
 
 ### ANOVA {#ch-03-05-hypothesis-testing-ANOVA}
 
-We have $k$ groups of metric observations. For group $1 \le j \le k$, there are $n_j$ observations. Let $x_{ij}$ be observation $1 \le i \le n_j$ for group $1 \le j \le k$. Let $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ be the mean of group $j$ and let $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points. We would like to show that the total sum of squares can be decomposed into two summands: the within-group sum of squares and the between-group sum of squares:
+We have $k$ groups of metric observations. For group $1 \le j \le k$, there are $n_j$ observations. Let $x_{ij}$ be the observation $1 \le i \le n_j$ for group $1 \le j \le k$. Let $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ be the mean of group $j$ and let $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points. We would like to show that the total sum of squares can be decomposed into two summands: the within-group sum of squares and the between-group sum of squares:
 
 $$ 
 \underbrace{
@@ -1181,22 +1518,21 @@ p_value_anova <- 1 - pf(F_observed, 2, n_A + n_B + n_C -3)
 p_value_anova %>% round(4)
 ```
 
-
 ```{r}
 aov(formula = value ~ condition, anova_data) %>% summary()
 ```
 
-> Based on a one-way ANOVA, we find evidence against the assumption of equal means across all groups ($F(2, `r df2`) \approx 4.485$, $p \approx 0.0172$.)
+> Based on a one-way ANOVA, we find evidence against the assumption of equal means across all groups ($F(2, `r df2`) \approx 4.485$, $p \approx 0.0172$).
 
 ## Three approaches {#ch-03-05-hypothesis-testing-3-approaches}
 
 ### Fisher
 
-Frequentist hypothesis testing is superficially similar to Popperian falsificationism. It is, however, quite the opposite when looked at more carefully. Popper famously denied that empirical observation could constitute positive evidence in favor of a research hypothesis. Research hypotheses can only be refuted, viz., when their logically consequences are logically incompatible with the observed data. In a Popperian science, what is refuted are research hypotheses; frequentist statistics instead seeks to refute null-hypotheses and counts successful refutation of a null-hypothesis as evidence in favor of a research hypothesis.
+Frequentist hypothesis testing is superficially similar to Popperian falsificationism. It is, however, quite the opposite when looked at more carefully. Popper famously denied that empirical observation could constitute positive evidence in favor of a research hypothesis. Research hypotheses can only be refuted, viz., when their logical consequences are logically incompatible with the observed data. In a Popperian science, what is refuted are research hypotheses; frequentist statistics instead seeks to refute null hypotheses and counts successful refutation of a null hypothesis as evidence in favor of a research hypothesis.
 
 ### Neyman-Pearson
 
-A conventional threshold on $p$-values may govern a categorical decision whether to reject or not reject the null-hypothesis (in the Neyman-Pearson approach). This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null-hypothesis when it is in fact true (a so-called type-1 error or $\alpha$-error). 
+A conventional threshold on $p$-values may govern a categorical decision whether to reject or not reject the null hypothesis (in the Neyman-Pearson approach). This threshold is essentially an upper-bound on a particular kind of error, namely the error to falsely reject the null hypothesis when it is in fact true (a so-called type-1 error or $\alpha$-error). 
 
 ```{r, echo = F}
 plot_data <- tibble(
@@ -1322,7 +1658,7 @@ plot_data %>%
 ```
 
 
-### Hypbrid modern NHST
+### Hybrid modern NHST
 
 ## Relation to model checking Section {#ch-03-05-hypothesis-testing-3-model-checking}
 
