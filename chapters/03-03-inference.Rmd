@@ -66,13 +66,21 @@ where the "proportional to" sign $\propto$ indicates that the probabilities on t
 
 This notation makes it particularly clear that the posterior distribution is a "mix" of prior and likelihood. Let's explore this first, before worrying about how to compute posteriors concretely.
 
+<div class = "exercises">
 
-<!-- Ex.  -->
-<!-- Based on notation above, which of the following statements you think is true? -->
-<!-- - prior always influence the posteror more, than likelihood (False) -->
-<!-- - the less the certainty in the prior, the more  posterior influenced by it (False) -->
-<!-- - the posterior is greater influenced by the likelihood if there is less certainty in the prior (True). -->
-<!-- -  likelihood always influence the posteror more, than the prior (False) -->
+**Exercise E.1**  
+
+Based on notation above, which of the following statements you think is true?
+
+a. prior always influence the posteror more, than likelihood
+
+b. the less the certainty in the prior, the more  posterior influenced by it 
+
+c. the posterior is greater influenced by the likelihood if there is less certainty in the prior
+
+d. likelihood always influence the posteror more, than the prior 
+
+</div>
 
 ### The effects of prior and likelihood on the posterior
 
@@ -362,41 +370,24 @@ $$
 
 &nbsp;
 
-<!-- Fill in the missing parts of the code to get the plot of the posterior distribution for the coin flip scenario with k=6, N=24. Use uninformative prior.  -->
+<div class = "exercises">
+**Exercise E.2**  
 
+How should you fill the code to get the plot of the posterior distribution for the coin flip scenario with k=6, N=24?
 
-<!-- ```{r} -->
-<!-- theta = seq(0, -, length.out = 401) -->
-<!-- likelihood <-xxxxx -->
-<!-- prior <-xxxxx -->
-<!-- posterior_plot <- as_tibble(theta) %>%  -->
-<!--   mutate(posterior <- xxxx) %>%  -->
-<!--   ggplot(aes(xxx, xxx))+ -->
-<!--    geom_line()+ -->
-<!-- posterior_plot -->
+```{r, eval=F}
+theta = seq(0, 1, length.out = 401)
+likelihood <-dbinom(6, 24, theta) 
+prior <-dbeta(theta, 1, 1)
 
-<!-- ```
+posterior_plot <- as_tibble(theta) %>%
+  mutate(posterior <- ____ * ____) %>%
+  ggplot(aes(___, posterior))+
+   geom_line()+
+posterior_plot
+```
 
-
-<!-- Solution: -->
-<!-- ```{r} -->
-<!-- theta = seq(0, 1, length.out = 401) -->
-<!-- likelihood <- dbinom(6, 24, theta) -->
-<!-- prior <- dbeta(theta, 1, 1) -->
-<!-- posterior_plot <- as_tibble(theta) %>%  -->
-<!--   mutate(posterior <- likelihood * prior) %>%  -->
-<!--   ggplot(aes(theta, posterior))+ -->
-<!--    geom_line()+ -->
-<!-- posterior_plot -->
-
-<!-- ```
--->
-
-<!---
-EX. Calculate the posterior distribution for a Bayesian binomial model with prior $\text{Beta}(1,1)$, after observing 5 successes out of 12 trials
-
-A: $\theta \sim \text{Beta}(6,8)$ 
--->
+</div>
 
 
 ### Sequential updating
@@ -452,12 +443,11 @@ $$
 
 &nbsp;
 
+<div class = "exercises">
+**Exercise E.3**   
 
-<!-- Suppose Jones flipped a coin with unknown bias 30 times. She observed 20 heads. She updates her beliefs rationally with Bayes rule. Her posterior beliefs have the form of a beta distribution with parameters a = 25, b = 15. What distribution and what parameter values of that distribution capture Jones' prior beliefs before updating her beliefs with this data?
-
-A: $\Beta(5,5)$
--->
-
+Suppose Jones flipped a coin with unknown bias 30 times. She observed 20 heads. She updates her beliefs rationally with Bayes rule. Her posterior beliefs have the form of a beta distribution with parameters a = 25, b = 15. What distribution and what parameter values of that distribution capture Jones' prior beliefs before updating her beliefs with this data?
+</div>
 
 ## A frequentist approach to parameter estimation {#ch-03-03-estimation-frequentist}
 
@@ -493,7 +483,11 @@ ggplot(plotdata_24_7_mle, aes(x = theta, y = lh)) + xlim(0,1) +
   geom_line(color = "black", size = 2) + ylab("likelihood")
 ```
 
-<!-- Ex. Can you think of a situation, when MLE and MAP output are exactly the same? HINT(Think which prior eliminates the difference between them) -->
+<div class = "exercises">
+**Exercise E.4**   
+
+Can you think of a situation, when MLE and MAP output are exactly the same? HINT: Think which prior eliminates the difference between them!
+</div>
 
 ### Confidence intervals
 
@@ -714,6 +708,34 @@ results %>%
 
 ```
 
+<div class = "exercises">
+**Exercise E.5** 
+
+Pick one correct answer:
+The most frequently used point-estimate of Bayesian parameter estimation looks at 
+a. the median of the a posterior distribution
+b. the maximum likelihood estimate
+c. the mean of the posterior distribution
+d. the normalizing constant in Bayes rule 
+
+</div>
+
+
+<div class = "exercises">
+
+**Exercise E.6** 
+
+The most frequently used interval-based estimate in frequentist approaches is:
+
+a. the support of the likelihood distribution
+
+b. the credible interval
+
+c. the hypothesis interval
+
+d. the 95% highest-density interval of the maximum likelihood estimate
+
+</div>
 
 ## Algorithms for parameter estimation {#Ch-03-03-estimation-algorithms}
 
@@ -787,6 +809,21 @@ These samples were obtained without the knowledge of the normalizing constant. T
 The sequence of trees visited by a single Child is a **sample chain**. Usually, Nature sends out at least 2-4 Children. The first tree a Child visits is the **initialization of the chain**. Sometimes Nature selects initial trees strategically for each Child. Sometimes Nature lets randomness rule. In any case, a Child might be quiet far away from the meadow with lush apple trees, the so-called **critical region** (where to dwell makes the most sense). It might take many tree hops before a Child reaches this meadow. Nature, therefore, allows each Child to hop from tree to tree for a certain time, the **warm-up period**, before the Children start distributing apples and taking notes. If each Child only records every $k$-th tree it visits, Nature calls $k$ a **thinning factor**. Thinning generally reduces **autocorrelation** (think: the amount to which subsequent samples do not carry independent information about the distribution). Since every next hop depends on the current tree (and only on the current tree), the whole process is a **Markov process**. It is light on memory and parallelizable but also affected by autocorrelation. Since we are using samples, a so-called **Monte Carlo method**, the whole affair is a **Markov Chain Monte Carlo** algorithm. It is one of many. It's called **Metropolis Hastings**. More complex MCMC algorithms exist. One class of such MCMC algorithms is called **Hamiltonian Monte Carlo** and these approaches use gradients to optimize the **proposal function**, i.e., the choice of the next tree to consider going to. They use the warm-up period to initialize certain tuning parameters, making them much faster and more reliable (at least if the distribution of leaves among neighboring trees is well-behaved). 
 
 How could Nature be sure that the plan succeeded? If not even Nature knows the distribution $P(t)$, how can we be sure that the Children's list gives representative samples to work with? Certainty is petty. The reduction of uncertainty is a key! Since we send out several Children in parallel, and since each Child distributed many apples, we can compare the list of trees delivered by each Child (= the set of samples in each chain). For that purpose we can use statistics and ask: is it plausible that the set of samples in each chain has been generated from the same probability distribution? - The answer to this question can help reduce uncertainty about the quality of the sampling process.
+
+<div class = "exercises">
+**Exercise E.7**
+
+In which order should the listed Markov Chain Monte Carlo steps be?
+
+a. Compare the posterior value of the new proposal and the height of the posterior at the previous step.
+b. Compute the proportion of the posterior value of the new proposal and the height of the posterior at the previous step.
+c. If the new proposal has a higher posterior value than the most recent sample, then accept the new proposal.
+d. Set an initial value.
+e. Choose to accept or reject the new proposal in respect to the computed proportion.
+f. If the new proposal has a lower posterior value than the most recent sample, then 
+g. Generate a new value (proposal)
+
+</div >
 
 ## Probabilistic modeling with `greta` {#ch-03-03-estimation-greta}
 
@@ -1049,21 +1086,6 @@ The actual posterior is multi-dimensional, and it always pays to inspect the ful
 ```{r}
 bayesplot::mcmc_pairs(draws)
 ```
-
-
-<!-- Pick one correct answer: -->
-<!-- The most frequently used point-estimate of Bayesian parameter estimation looks at  -->
-<!-- - the median of the a posterior distribution -->
-<!-- - the maximum likelihood estimate -->
-<!-- - the mean of the posterior distribution -->
-<!--  -the normalizing constant in Bayes rule  -->
-
-<!-- The most frequently used interval-based estimate in frequentist approaches is: -->
-<!-- -the support of the likelihood distribution -->
-<!-- -the credible interval -->
-<!-- -the hypothesis interval -->
-<!-- -the 95% highest-density interval of the maximum likelihood estimate -->
-
 
 
 
