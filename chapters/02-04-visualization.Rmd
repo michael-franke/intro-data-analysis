@@ -545,6 +545,110 @@ avocado_data %>%
 save_last_plot("ch-02-04-avocado-final")
 ```
 
+<!-- exercise 1 -->
+<div class = "exercises">
+**Exercise E.1: Some algebra**
+
+Determine which graph was created with which code: 
+
+Code 1:
+```{r}
+
+code_1 <- ggplot(avocado_data,
+    mapping = aes(
+      x = average_price,
+      y = log(total_volume_sold), 
+      color = type
+    )
+  ) +
+  geom_point()+
+  geom_smooth(method = "lm")
+```
+
+Code 2: 
+```{r}
+
+code_2 <-ggplot(avocado_data,
+    mapping = aes(
+      x = log(total_volume_sold),
+      y = average_price,
+      color = type
+    )
+  ) +
+  geom_point()+
+  geom_smooth(method = "lm")
+```
+
+Code 3:
+```{r}
+
+code_3 <- ggplot(avocado_data,
+    mapping = aes(
+      x = log(total_volume_sold),
+      y = average_price
+    )
+  ) +
+  geom_smooth(method = "lm", color = "black") +
+  geom_point(alpha = 0.1, color = "blue")+
+   labs(
+    x = 'Total volume sold (on a log scale)',
+    y = 'Average price',
+    title = "Avocado prices against amount sold"
+  )
+```
+
+Code 4: 
+```{r}
+
+code_4 <- ggplot(avocado_data,
+    mapping = aes(
+      x = log(total_volume_sold),
+      y = average_price,
+      linetype = type
+    )
+  ) +
+  geom_smooth(method = "lm", color = "black") +
+  geom_point(alpha = 0.1, color = "blue")+
+   labs(
+    x = 'Total volume sold (on a log scale)',
+    y = 'Average price',
+    title = "Avocado prices against amount sold"
+  )
+```
+
+Plot 1: 
+```{r, echo=FALSE}
+#PLot1
+#Code 4
+code_4 + annotate("text", x = 15, y = 3, label = "Plot 1", color = "red")
+```
+
+Plot 2:
+```{r, echo=FALSE}
+#Plot2
+#Code 1
+code_1 + annotate("text", x = 3, y = 16, label = "Plot 2", color = "red")
+```
+
+Plot 3:
+```{r, echo=FALSE}
+#Plot3
+#Code 2
+code_2 + annotate("text", x = 15, y = 3, label = "Plot 3", color = "red")
+```
+
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+<p> Plot 1: Code 4 </p>
+<p> Plot 2: Code 1 </p>
+<p> Plot 3: Code 2 </p>
+</div>
+</div>
+</div>
+
+
 ## A rendezvous with popular geoms {#Chap-02-04-geoms}
 
 In the following we will cover some of the more basic `geom_` functions relevant for our present purposes. It might be useful to read this section top-to-bottom at least once, not to think of it as a mere reference list. More information is provided by the [ggplot cheat sheet](https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf). 
@@ -718,6 +822,45 @@ data_KoF_processed %>%
   scale_fill_manual(values = project_colors)
 ```
 
+<!-- exercise 2 -->
+<div class = "exercises">
+**Exercise E.2: Create a barplot**
+
+First, we need to load the data set, like so: 
+
+```{r}
+url_prefix <- "https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/"
+WHO_data_url  <- str_c(url_prefix, "WHO.csv")
+dataWHO <- read_csv(WHO_data_url)
+
+```
+Take a look at the data set first, in order to get familiar with it. 
+
+Create a bar plot, in which the Region is on the x-axis and LifeExpectancy is on the y-axis. Each bar should represent the mean value of LifeExpectancy for each Region. 
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+A possible solution would be this:
+
+```{r}
+dataWHO %>%
+  select( Region, LifeExpectancy) %>% 
+  group_by(Region) %>% 
+  summarise(
+    LifeExpectancy_mean= mean(LifeExpectancy)
+  ) %>%
+ ggplot(aes(
+   x = Region, 
+   y = LifeExpectancy_mean, 
+   fill = Region)) +
+  geom_col() 
+
+```
+
+</div>
+</div>
+</div>
 
 ### Plotting distributions: histograms, boxplots, densities and violins
 
@@ -882,6 +1025,31 @@ avocado_data_early_late %>%
   facet_wrap(type ~ early)
 ```
 
+<!-- exercise 3 -->
+<div class = "exercises">
+**Exercise E.3: Faceting**
+
+In you own words, describe what each line of the both codes above do:  
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+For both: 
+1. Defining which information should be placed on which axes. 
+2.A scatter plot is created using geom point to show data points. Furthermore, the alpha level is chosen and the color of the points is skyblue. 
+3.A line is added using `geom_smooth` and the method `lm`. The color of the line is dark orange. 
+4. Both `geom-point` and `geom_smooth` are currently following the mapping given at the beginning
+
+`facet_grid`:
+5. Now the grid is created with `facet_grid`, which divides the plot into type and time (early or late). In each part of the plot you now see the subplot, which contains only the data points that belong to the respective combination.Type and time are placed on different axes.  
+
+`facet_wrap`:
+5. Now the grid is created with `facet_grid`, which divides the plot into type and time (early or late). In each part of the plot you now see the subplot, which contains only the data points that belong to the respective combination. Here type and time are combined into pairs. 
+</div>
+</div>
+
+</div>
 With facet_wrap it is possible to specify the desired number of columns or rows:
 
 ```{r}
@@ -891,6 +1059,7 @@ avocado_data_early_late %>%
   geom_smooth(method = "lm", color = "darkorange") +
   facet_wrap(type ~ early, nrow = 1)
 ```
+
 
 
 
@@ -1069,3 +1238,9 @@ avocado_data %>%
   labs(title = latex2exp::TeX("We can use $\\LaTeX$ here: $\\sum_{i = 0}^n \\alpha^i$"))
 ```
 
+<!-- exercise 4 -->
+<div class = "exercises">
+**Exercise E.4: Customization**
+
+Feel free to play around with customising your previously created plots or plots that you find in this book. Try to make annotations or try out different themes and colours. It will help you understand these kinds of plots a little better
+</div>
