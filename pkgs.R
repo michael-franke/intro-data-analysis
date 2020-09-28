@@ -11,7 +11,7 @@ library(naniar)      # turn numbers (e.g. -5,99,..) into NA (handling of missing
 library(latex2exp)   # for TeX in plots
 library(cowplot)     # to arrange plots
 library(scales)      # to massage scales in plots
-library(greta)       # probabilistic modeling package
+# library(greta)       # probabilistic modeling package
 library(ggmcmc)      # tidy Bayes samples
 library(HDInterval)  # credible intervals
 library(binom)       # for binomial confidence intervals 
