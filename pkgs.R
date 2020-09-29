@@ -1,6 +1,6 @@
 ## load packages
 library(tidyverse)
-library(brms)
+# library(brms)
 library(ggsignif)
 library(gridExtra)
 library(Rlab)        # for dbern (used in appendix; maybe solve differently?)
