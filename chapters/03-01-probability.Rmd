@@ -81,6 +81,7 @@ C3. $P(A \cup B) = P(A) + P(B) - P(A \cap B)$ for any $A, B \subseteq \Omega$
 
 <div class = "exercises">
 **Exercise 7.1 [optional]**
+
 Prove C1, C2 and C3 using A1, A2 and A3.
 
 <div class="collapsibleSolution">
@@ -166,6 +167,65 @@ To sum this up concisely, we have a random process (drawing once from the urn) w
 
 This means that, for approximately computing with probability, we can represent distributions through samples or a sample-generating function. We do not need to know precise probability or be able to express them in a mathematical formula. Samples or **sampling is enough to approximate probability distributions**.
 
+<!-- Cannot be done this way cuz students cannot program in webbook -->
+<!-- <div class = "exercises"> -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- oracle <- function(){ -->
+<!--   rnorm(1, -10, 10) -->
+<!-- } -->
+<!-- ``` -->
+
+
+<!-- **Exercise 7.2** -->
+
+<!-- The function `oracle` returns a representative sample from a hidden distribution. Guess the shape of the distribution just by sampling from `oracle`. -->
+
+<!-- ```{r} -->
+<!-- oracle() -->
+<!-- ``` -->
+
+
+<!-- <div class="collapsibleSolution"> -->
+<!-- <button class="trigger">Solution</button> -->
+<!-- <div class="content"> -->
+<!-- `oracle` returns a sample from a normal distribution with a mean of -10 and standard deviation of 10. By increasing the number of samples, the sampling distribution closely approximates the true distribution. -->
+
+<!-- ```{r} -->
+<!-- oracle <- function(){ -->
+<!--   rnorm(1, -10, 10) -->
+<!-- } -->
+
+<!-- # collect samples -->
+<!-- samples <- array(0, dim = 1e4) -->
+<!-- for (i in 1:1e4) { -->
+<!--   samples[i] <- oracle() -->
+<!-- } -->
+
+<!-- # true distribution -->
+<!-- x <- seq(-50, 50, length=1000) -->
+<!-- plot(x,dnorm(x, -10, 10), type='l') -->
+
+<!-- # sampling distribution with 10 samples -->
+<!-- samples %>%  -->
+<!--   sample(., 10) %>%  -->
+<!--   tibble() %>%  -->
+<!--   ggplot() + -->
+<!--   geom_density(aes(x=.)) + -->
+<!--   xlim(c(-50,50)) -->
+
+<!-- # sampling distribution with 1e4 samples -->
+<!-- samples %>%  -->
+<!--   tibble() %>%  -->
+<!--   ggplot() + -->
+<!--   geom_density(aes(x=.)) + -->
+<!--   xlim(c(-50,50)) -->
+<!-- ``` -->
+
+</div>
+</div>
+</div>
+
 ## Structured events & marginal distributions {#Chap-03-01-probability-marginal}
 
 ### Probability table for a flip-and-draw scenario
@@ -219,6 +279,28 @@ If $P$ is a joint-probability distribution over event space $\Omega = \Omega_1 \
 $$  P(A_i) = \sum_{A_1 \subseteq \Omega_{1}, \dots , A_{i-1} \subseteq \Omega_{i-1}, A_{i+1} \subseteq \Omega_{i+1}, \dots, A_n \subseteq \Omega_n} P(A_1, \dots, A_{i-1}, A_{i}, A_{i+1}, \dots A_n) $$
 
 For example, the marginal distribution of draws derivable from Table \@ref(tab:flipdrawprobabilities) has $P(\text{black}) = P(\text{heads, black}) + P(\text{heads, white}) = 0.3$ and $P(\text{white}) = 0.7$.^[The term ``marginal distribution'' derives from such probability tables, where traditionally the sum of each row/column was written in the margins.] The marginal distribution of coin flips derivable from the joint probability distribution in Table \@ref(tab:flipdrawprobabilities) gives $P(\text{heads}) = P(\text{tails}) = 0.5$, since the sum of each column is exactly $0.5$. 
+
+<div class = "exercises">
+**Exercise 7.3**
+
+Given the following joint probability table, compute the probability that a student does not attend the lecture, i.e. $P(\text{miss})$.
+
+```{r ex73, echo = F}
+knitr::kable(
+  tibble(
+    " " = c("rainy", "dry"),
+    attend = c("0.1", "0.2"),
+    miss = c("0.6", "0.1")
+  ),
+  booktabs = T,
+  escape = F
+)
+```
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+$P(\text{miss}) = P(\text{miss, rainy}) + P(\text{miss, dry}) = 0.6 + 0.1 = 0.7$
 
 ## Conditional probability {#Chap-03-01-probability-conditional}
 
@@ -292,7 +374,8 @@ seeing a black ball drawn, with equal probabilities of heads and tails, the prob
 the coin landed tails is also twice as large as that it landed heads.
 
 <div class = "exercises">
-**Exercise 7.2 [optional]**
+**Exercise 7.4 [optional]**
+
 You have been coughing for the last few days and have been tested for COVID-19. The test result is negative (You are not immune to the virus). It is known that around 6% of the population has immunity against the virus. Furthermore, some information about the accuracy of the test is known. The specificity of the test (The test result is negative when the subject really does not have immunity, true negative) is 98%. The sensitivity of the test(true positive) is 95%. Can you tell how likely is it that you are truly not immune to the virus?
 
 <div class="collapsibleSolution">
@@ -506,17 +589,36 @@ The expected value is also frequently called the **mean**.
 
 The **variance** of a random variable $X$ is a measure of how much likely values of $X$ are spread or clustered around the expected value. If $X$ is discrete, the variance is:
 $$
-  \text{Var}(X) = \sum_x (\mathbb{E}_X - x)^2 \mult f_X(x)
+  \text{Var}(X) = \sum_x (\mathbb{E}_X - x)^2 \mult f_X(x) = \mathbb{E}_{X^2} -\mathbb{E}_X^2
 $$
 If $X$ is continuous, it is:
 $$
-  \text{Var}(X) = \int (\mathbb{E}_X - x)^2 \mult f_X(x) \ \text{d}x
+  \text{Var}(X) = \int (\mathbb{E}_X - x)^2 \mult f_X(x) \ \text{d}x = \mathbb{E}_{X^2} -\mathbb{E}_X^2
 $$
 
 <div class="infobox">
 **Example.** If we flip a coin with bias $\theta = 0.25$ a total of $n=24$ times, we expect on average to see $n \mult \theta = 24 \mult 0.25 = 6$ outcomes showing heads.^[This is not immediately obvious from our definition, but it is intuitive and you can derive it.] The variance of a binomally distributed variable is  $n \mult \theta \mult (1-\theta) = 24 \mult 0.25 \mult 0.75 = \frac{24 \mult 3}{16} = \frac{18}{4} = 4.5$.
 
 The expected value of a normal distribution is just its mean $\mu$ and its variance is $\sigma^2$.
+</div>
+
+<div class = "exercises">
+**Exercise 7.5**
+
+Compute the expected value and variance of a fair die.
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+```{r}
+expected_value <- 1*(1/6) + 2*(1/6) + 3*(1/6) + 4*(1/6) + 5*(1/6) + 6*(1/6)
+variance <- 1^2*(1/6) + 2^2*(1/6) + 3^2*(1/6) + 4^2*(1/6) + 5^2*(1/6) + 6^2*(1/6) - expected_value^2
+
+print(expected_value)
+variance
+``` 
+</div>
+</div>
 </div>
 
 ### Composite random variables
@@ -586,3 +688,17 @@ rnorm(n = 3, mean = 0, sd = 1)
 
 ```
 
+<div class = "exercises">
+**Exercise 7.6**
+
+What is the median of the exponential distribution with rate $\lambda = 1$?
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+```{r}
+qexp(0.5, rate = 1)
+```
+</div>
+</div>
+</div>
