@@ -1,0 +1,304 @@
+
+## Mental Chronometry {#app-93-data-sets-mental-chronometry}
+
+### Nature, origin and rationale of the data
+
+<div style = "float:right; width:20%;">
+<img src="visuals/badge-mental-chronometry.png" alt="badge-mental-chronometry">  
+</div>  
+
+[Francis Donders](https://en.wikipedia.org/wiki/Franciscus_Donders) is remembered as one of, if not the first experimental cognitive psychologists. He famously introduced the **subtraction logic** which looks at difference in reaction times across different tasks to infer difference in the complexity of the mental processes involved in these tasks. The Mental Chronometry data set presents the results of an online replication of one such subtraction-experiment.
+
+#### The experiment
+
+50 participants were recruited using the crowd-sourcing platform [Prolific](https://www.prolific.co) and paid for their participation.
+
+In each experiment trial, participants see either a blue square or a blue circle appear on the screen and are asked to respond as quickly as possible. The experiment consists of three parts, presented to all participants in the same order (see below). The parts differ in the adequate response to the visual stimuli.
+
+1. **Reaction task**
+
+	The participant presses the space bar whenever there is a stimulus (square or circle)
+
+	*Recorded*: reaction time
+
+2. **Go/No-Go task**
+
+	The participant presses the space bar whenever their target (one of the two stimuli) is on the screen
+
+	*Recorded*: the reaction time and the response
+
+3. **Discrimination task**
+
+	The participant presses the **F** key on the keybord when there is one of the stimuli and the **J** key when there is the other one of the stimuli on the screen.
+
+	*Recorded*: the reaction time and the response
+
+The **reaction time** measurement starts from the onset of the visual stimuli to the button press. The **response** variable records whether the reaction was correct or incorrect.
+
+For each participant, the experiment randomly allocates one shape (circle or square) as the target to be used in both the second and the third task.
+
+The experiment was realized using [_magpie](https://magpie-ea.github.io/magpie-site/index.html) and can be tried out [here](https://magpie-exp-mental-chronometry.netlify.com).
+
+#### Theoretical motivation & hypotheses
+
+We expect that reaction times of correct responses are lowest in the reaction task, higher in the Go/No-Go task, and highest in the discrimination task.
+
+
+### Loading and preprocessing the data
+
+The raw data produced by the online experiment is not particularly tidy. It needs substantial massages before plotting and analysis.
+
+```{r, echo = F}
+mc_data_raw <- read_csv('data_sets/mental-chrono-data_raw.csv',
+                        col_types = cols(
+                          .default = col_character(),
+                          submission_id = col_double(),
+                          RT = col_double(),
+                          age = col_double(),
+                          elemSize = col_double(),
+                          endTime = col_double(),
+                          experiment_id = col_double(),
+                          focalNumber = col_double(),
+                          key1 = col_logical(),
+                          pause = col_double(),
+                          startTime = col_double(),
+                          timeSpent = col_double(),
+                          total = col_double(),
+                          trial_number = col_double()
+                        ))
+glimpse(mc_data_raw)
+```
+
+```{r, eval = F}
+mc_data_raw <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_raw.csv'))
+glimpse(mc_data_raw)
+```
+
+The most pressing problem is that entries in the column `trial_type` contain two logically separate pieces of information: the block (reaction, go/no-go, discrimination) *and* whether the data comes from a practice trial (which we want to discard) or a main trial (which we want to analyze). We therefore separate this information, and perform some other massages, to finally select a preprocessed data set for further analysis:
+
+```{r}
+block_levels <- c("reaction", "goNoGo", "discrimination") # ordering of blocks for plotting, etc. 
+
+mc_data_preprocessed <- mc_data_raw %>% 
+  separate(trial_type, c("block", "stage"), sep = "_", remove = FALSE) %>%
+  mutate(comments = ifelse(is.na(comments), "non given", comments)) %>% 
+  filter(stage == "main") %>% 
+  mutate(
+    block = factor(block, ordered = T, levels = block_levels),
+    response = ifelse(is.na(response), "none", response)
+  ) %>%
+  filter(response != "wait") %>% 
+  rename(
+    handedness = languages, # variable name is simply wrong
+    total_time_spent = timeSpent
+  ) %>% 
+  select(
+    submission_id, 
+    trial_number, 
+    block, 
+    stimulus, 
+    RT, 
+    handedness, 
+    gender, 
+    total_time_spent,
+    comments
+  )
+
+# write_csv(mc_data_preprocessed, 'mental-chrono-data_preprocessed.csv')
+```
+
+
+### Cleaning the data
+
+Remeber that the criteria for data exclusion should ideally be defined before data collection (or at least inspection). They should definitely never be chosen in such a way as to maximize the "desirability" of an analysis. Data cleaning is not a way of making sure that your favorite research hypothesis "wins".
+
+Although we have not preregistered any data cleaning regime or analyses for this data set, we demonstrate a frequently used cleaning scheme for reaction time data, which does depend on the data in some sense, but does not require precise knowledge of the data. In particular, we are going to do this:
+
+1. We remove remove the data from an individual participant $X$ if there is an experimental condition $C$ such that the mean RT of $X$ for condition $C$ is more than 2 standard deviations away from the overal mean RT for condition $C$.
+2. From the remaining data, we then remove any individual trial $Y$ if the RT of $Y$ is more than 2 standard deviations away from the mean of experimental condition $C$ (where $C$ is the condition of $Y$, of course).
+
+Notice that in the case at hand, the experimental conditions are the three types of tasks.
+
+#### Cleaning by-participant
+
+Our rule for removing data from outlier participants is this:
+
+> We remove remove the data from an individual participant $X$ if there is an experimental condition $C$ such that the mean RT of $X$ for condition $C$ is more than 2 standard deviations away from the overal mean RT for condition $C$. We also remove all trials with reaction times below 100ms.
+
+This procedure is implemented in this code:
+
+```{r}
+
+# summary stats (means) for participants
+d_sum_stats_participants <- mc_data_preprocessed %>% 
+  group_by(submission_id, block) %>% 
+  summarise(
+    mean_P = mean(RT)
+  )
+
+# summary stats (means and SDs) for conditions
+d_sum_stats_conditions <- mc_data_preprocessed %>% 
+  group_by(block) %>% 
+  summarise(
+    mean_C = mean(RT),
+    sd_C   = sd(RT)
+  )
+  
+d_sum_stats_participants <- 
+  full_join(
+    d_sum_stats_participants,
+    d_sum_stats_conditions,
+    by = "block"
+  ) %>% 
+  mutate(
+    outlier_P = abs(mean_P - mean_C) > 2 * sd_C
+  )
+
+# show outlier participants
+d_sum_stats_participants %>% filter(outlier_P == 1) %>% show()
+```
+
+When plotting the data for this condition and this participant, we see that the high overall mean is not just caused by a single outlier, but several trials that took longer than 1 second.
+
+```{r}
+mc_data_preprocessed %>% 
+  semi_join(
+    d_sum_stats_participants %>% filter(outlier_P == 1), 
+    by = c("submission_id")
+  ) %>% 
+  ggplot(aes(x = trial_number, y = RT)) +
+  geom_point()
+```
+
+We are then going to exclude this participant's entire data from all subsequent analysis:^[This may seem a harsh step, but when data acquisition is cheap, it's generally not a bad strategy to be very strict in exclusion criteria, and to apply rules that are not strongly context-dependent.]
+
+```{r}
+mc_data_cleaned <- mc_data_preprocessed %>% 
+  filter(submission_id != d_sum_stats_participants$submission_id[1] )
+```
+
+
+#### Cleaning by-trial
+
+Our rule for exclusing data from individual trials is:
+
+> From the remaining data, we then remove any individual trial $Y$ if the RT of $Y$ is more than 2 standard deviations away from the mean of experimental condition $C$ (where $C$ is the condition of $Y$, of course). We also remove all trials with reaction times below 100ms.
+
+The following code implements this:
+
+```{r}
+
+# mark individual trials as outliers
+mc_data_cleaned <- mc_data_cleaned %>% 
+  full_join(
+    d_sum_stats_conditions,
+    by = "block"
+  ) %>% 
+  mutate(
+    trial_type = case_when(
+      abs(RT - mean_C) > 2 * sd_C ~ "too far from mean",
+      RT < 100 ~ "< 100ms",
+      TRUE ~ "acceptable"
+    ) %>% factor(levels = c("acceptable", "< 100ms", "too far from mean")),
+    trial = 1:nrow(mc_data_cleaned)
+  )
+
+# visualize outlier trials
+
+mc_data_cleaned %>% 
+  ggplot(aes(x = trial, y = RT, color = trial_type)) +
+  geom_point(alpha = 0.4) + facet_grid(~block) + 
+  geom_point(alpha = 0.9, data = filter(mc_data_cleaned, trial_type != "acceptable"))
+```
+
+So, we remove `r filter(mc_data_cleaned, trial_type != "acceptable") %>% nrow()` individual trials.
+
+```{r}
+mc_data_cleaned <- mc_data_cleaned %>% 
+  filter(trial_type == "acceptable")
+
+## this version of the data is stored as cleaned 
+# write_csv(mc_data_cleaned, "data_sets/mental-chrono-data_cleaned.csv")
+```
+
+
+### Exploration: summary stats & plots
+
+What's the distribution of `total_time_spent`, i.e., the time each participant took to complete the whole study?
+
+```{r}
+mc_data_cleaned %>% 
+  select(submission_id, total_time_spent) %>% 
+  unique() %>% 
+  ggplot(aes(x = total_time_spent)) +
+  geom_histogram()
+```
+
+There are two participants who took noticably longer than all the others, but we need not necessarily be concerned about this, because it is not unusual for participants of online experiments to open the experiment and wait before actually starting.
+
+Here are summary statistics for the reaction time measures for each condition (= block).
+
+```{r}
+mc_sum_stats_blocks_cleaned <- mc_data_cleaned %>%
+  group_by(block) %>%
+  nest() %>% 
+  summarise(
+    CIs = map(data, function(d) bootstrapped_CI(d$RT))
+  ) %>% 
+  unnest(CIs)
+
+mc_sum_stats_blocks_cleaned
+```
+
+And a plot of the summary:
+
+```{r}
+mc_sum_stats_blocks_cleaned %>% 
+  ggplot(aes(x = block, y = mean, fill = block)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = lower, ymax = upper), size = 0.3, width = 0.2 ) +
+  ylab("mean reaction time") + xlab("") +
+  scale_fill_manual(values = project_colors) +
+  theme(legend.position = "none") 
+```
+
+
+We can also plot the data in a manner that is more revealing of the distribution of measurements in each condition:
+
+```{r}
+mc_data_cleaned %>% 
+  ggplot(aes(x = RT, color = block, fill = block)) +
+  geom_density(alpha = 0.3)
+```
+
+
+<!-- To do: -->
+<!-- - give alternative to barplot with individual points -->
+
+### Data analysis 
+
+We are interested in seeing whether the mean RTs are smallest for the 'reaction' task, higher for the 'go/no-go' task, and highest for the 'discrimination' task. We test this with a hierarchical Bayesian regression model, taking participant-level variation of intercets and slopes for factor `block` into account. We make 'go/no-go' the default level of the `block` factor, so that we can directly test our directed hypothesis, using posterior parameter inference.
+
+<!-- TODO: write convenience function for this kind of releveling -->
+
+```{r, eval = F}
+# making 'go/no-go' the reference level
+## TODO: write convenience function for this kind of releveling
+reflevel <- "goNoGo"
+reflevel_index <- which(levels(mc_data_cleaned$block) == reflevel)
+contrasts(mc_data_cleaned$block) <- contr.treatment(
+  nlevels(mc_data_cleaned$block), 
+  reflevel_index
+)
+colnames(contrasts(mc_data_cleaned$block)) <- str_c("_",levels(mc_data_cleaned$block)[-reflevel_index])
+  
+regression_model_ME <- brm(
+  formula = RT ~ block + (1 + block | submission_id),
+  data = mc_data_cleaned
+)
+
+## TODO tidy and concise output
+regression_model_ME
+```
+
+We see that the value zero lies clearly outsie of the 95% credible interval for block 'reaction' and for block 'discrimination'. The deviation from the intercept (zero point) is in the expected direction. We may conclude that, as hypothesized, reaction times in the 'reaction' condition are lowest, higher in the 'go/no-go' condition, and highest in the 'discrimination' condition.

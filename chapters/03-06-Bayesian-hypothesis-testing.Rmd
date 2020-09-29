@@ -1,0 +1,611 @@
+# Bayesian hypothesis testing {#ch-03-07-hypothesis-testing-Bayes}
+
+<hr>
+
+The goal of this chapter is to compare previously covered frequentist testing of hypotheses to Bayesian methods of testing hypotheses. 
+
+We consider two types of hypotheses here. The first is the case where we are interested in testing a precise point-value of a parameter of interest, like $\theta = \theta^*$. The second type is using an interval-region around the parameter of interest. Suppose that instead of addressing the point-valued hypothesis $\theta = \theta^*$, we are able (e.g., through prior research or *a priori* conceptual considerations) to specify a reasonable *region of practical equivalence (= ROPE)* around the parameter value of interest. We could then address what we may call the **ROPE-d hypothesis** $\theta \in [\theta^* - \epsilon\ ;\ \theta^* + \epsilon]$, or $\theta = \theta^* \pm \epsilon$ for short.
+
+We consider two types of Bayesian approaches to testing either point-valued or ROPE-d hypotheses of the kind introduced above:
+
+- estimation-based: inspect the posterior distribution of the parameter of interest
+- comparison-based: compare a model that assumes $\theta = \theta^*$ or $\theta = \theta^* \pm \epsilon$ to a model that does not
+
+  <!-- - estimation-based: -->
+  <!--   - Lindley: point-null $\theta^* \in \text{HDI}$? -->
+  <!--   - Kruschke: ROPE-d $\theta^* \pm \epsilon \in \text{HDI}$? -->
+  <!-- - nested model comparison with Bayes factors -->
+  <!--   - Jeffreys: point-null -->
+  <!--   - ROPE-d null -->
+
+```{block, type='infobox'}
+The learning goals for this chapter are:
+
+- understand the logic of different Bayesian approaches to hypothesis testing
+  - qualitative vs. quantitative information
+  - support for/against the null model
+- be able to apply these approaches to (simple) case studies
+- become aware of the difference with frequentist testing
+- understand and be able to apply the Savage-Dickey method (and its extension)
+```
+
+
+
+## Data and models for this chapter
+
+### 24/7
+
+We will use the same (old) example of binomial data: $k = 7$ heads out of $N = 24$ flips. We are interested in whether the coin is fair, so we address the point-value $\theta = 0.5$. As a ROPE around this value, we consider a margin of $\epsilon = 0.01$.
+
+Just as before, we will use the standard binomial model with a flat Beta prior.
+
+```{r ch-03-06-Binomial-Model-repeated, echo = F, fig.cap="The Binomial Model (repeated from before).", out.width = '40%'}
+knitr::include_graphics("visuals/binomial-model.png")
+```
+
+### Eco-sensitivity (fictitious)
+
+Here are two sets of metric measurements. We assume that these are (metric) measurements from a test on **environmental awareness** (whatever that means). The measurements are taken from two groups of people. One group is measured after watching a political speech by Angela Merkel (Group A), the other after watching a political speech by Donald Trump (Group B). We are interested in whether our experimental manipulation (the type of video) has an effect on the eco-sensitivity measure.
+
+```{r}
+x_A <- c(
+  104, 105, 100, 91, 105, 118, 164, 168, 111, 107, 136, 149, 104, 114, 107, 95, 
+  83, 114, 171, 176, 117, 107, 108, 107, 119, 126, 105, 119, 107, 131
+)
+x_B <- c(
+  133, 115, 84, 79, 127, 103, 109, 128, 127, 107, 94, 95, 90, 118, 124, 108, 
+  87, 111, 96, 89, 106, 121, 99, 86, 115, 136, 114
+)
+```
+
+We are interested in the question of whether the mean eco-sensitivity is different across groups. Based on descriptive statistics, this might be the case:
+
+```{r}
+c(
+  mean_A = mean(x_A), 
+  mean_B = mean(x_B)
+)
+```
+
+Notice that we have different numbers of measures in each group and that we do not have strong reasons to assume that these groups have the same variance. A Bayesian model for inferences about the likely difference in means of eco-sensitivity between groups is shown in Figure \@ref(fig:ch-03-06-comparison-t-test-eco). Notice that this model uses priors that are data-aware. This is **not** generally a good choice, especially not if you have prior knowledge to bring to bear on the situation. We do this here to obtain priors that make fitting (with `greta`) maximally painless, but stress that ideally, if prior knowledge exists, the priors of the model should encode it.
+
+```{r ch-03-06-comparison-t-test-eco, echo = F, fig.cap="Bayesian $t$-test model for inferences about the difference in means in the eco-sensitivity data."}
+knitr::include_graphics("visuals/t-test-model-eco-data.png")
+```
+
+Here is the model from Figure \@ref(fig:ch-03-06-comparison-t-test-eco) implemented in `greta`:
+
+```{r, eval = F}
+# data as greta array
+y0 <- as_data(x_A)
+y1 <- as_data(x_B)
+# priors (regularizing (data-informed) for smooth fitting)
+sd_delta <- sd(c(x_A, x_B))
+mean_0   <- normal(mean(x_A), 10)
+delta    <- normal(0, sd_delta)
+sigma_0  <- normal(sd(x_A), 10, truncation = c(0, Inf))
+sigma_1  <- normal(sd(x_B), 10, truncation = c(0, Inf))
+mean_1   <- mean_0 + delta
+# likelihood 
+distribution(y0) <- normal(mean_0, sigma_0)
+distribution(y1) <- normal(mean_1, sigma_1)
+# model
+m <- model(delta)
+```
+
+```{r, echo = F}
+sd_delta <- sd(c(x_A, x_B))
+```
+
+
+Our research question is whether there is a difference in means between groups. We therefore focus on the point-value $\delta = 0$. We consider a ROPE around this value with $\epsilon = 2$ (completely arbitrary choice, since the data is made-up anyway).
+
+## Testing as posterior estimation
+
+
+
+### Example: 24/7
+
+The following repeats code and calculations from Chapter \@ref(ch-03-04-parameter-inference). We can calculate the 95% HDI as follows (via Beta/Binomial conjugacy):
+
+```{r}
+estimates_24_7 <- tibble(
+  `lower_Bayes` = HDInterval::hdi(function(x) qbeta(x, 8, 18))[1],
+  `upper_Bayes` = HDInterval::hdi(function(x) qbeta(x, 8, 18))[2],
+) %>% 
+  pivot_longer(
+    everything(),
+    names_pattern = "(.*)_(.*)",
+    names_to = c(".value", "approach")
+  )
+estimates_24_7
+```
+
+Here is a plot of the posterior.
+
+```{r, echo = F}
+posterior_plot_24_7
+```
+
+
+Using Lindley's approach, we notice that the point-value of interest, namely $\theta = 0.5$, is excluded from the 95% HDI. We therefore reject the idea of a fair coin as being sufficiently unlikely to act as if it was false. 
+Using the ROPE-approach of Kruschke, we notice that our ROPE of $\theta = 0.5 \pm 0.01$ is also fully outside of the 95% HDI. Here too, we conclude that the idea of a fair coin is sufficiently unlikely to act as if it was false.
+
+### Example: Eco-sensitivity
+
+We use `greta` to draw samples from the posterior distribution.
+
+```{r, eval = F}
+# sampling
+draws_t_test_2 <- greta::mcmc(m, n_samples = 4000)
+# cast results (type 'mcmc.list') into tidy tibble
+tidy_draws_tt2 = ggmcmc::ggs(draws_t_test_2)
+```
+
+
+```{r echo = T, eval = F}
+draws_t_test_2 <- readRDS('models_greta/ttest_2_draws.rds')
+tidy_draws_tt2 = ggmcmc::ggs(draws_t_test_2)
+```
+
+We then check the 95% HDI of the posterior.
+
+```{r, eval = F}
+# get the mean difference and 95% HDI
+Bayes_estimates_eco <- tidy_draws_tt2 %>% 
+  group_by(Parameter) %>%
+  summarise(
+    mean = mean(value),
+    '|95%' = HDInterval::hdi(value)[1],
+    '95|%' = HDInterval::hdi(value)[2]
+  )
+Bayes_estimates_eco
+```
+
+Figure \@ref(fig:ch-03-07-hypothesis-testing-Bayes-tt2-posterior) shows the posterior distribution and the 95% HDI (in red). [TODO: redo figure with Stan]
+
+```{r ch-03-07-hypothesis-testing-Bayes-tt2-posterior, echo = F, fig.cap = "Posterior density of the $\\delta$ parameter in Bayesian $t$-test model for (fictitious) eco-sensitivity data with the 95% HDI (in red).", eval = F}
+dens <- filter(tidy_draws_tt2, Parameter == "delta") %>% pull(value) %>% 
+  density()
+
+tibble(
+  delta = dens$x,
+  density = dens$y
+) %>% 
+  ggplot(aes(x = delta, y = density)) +
+  geom_line() +
+  geom_area(aes(x = ifelse(delta > Bayes_estimates_eco[1,3] %>% as.numeric & delta < Bayes_estimates_eco[1,4] %>% as.numeric , delta, 0)),
+            fill = "firebrick", alpha = 0.5) +
+  ylim(0, max(dens$y)) +
+  xlim(min(dens$x), max(dens$x))
+```
+
+Using Lindley's approach, we'd conclude from the fact that the critical value of $\delta = 0$ is outside the 95% HDI that the idea of group-mean equality is sufficiently unlikely to be practically dismissed. The ROPE $\delta = 0 \pm 2$, however, is neither fully included, nor fully outside of the 95% HDI. Using Kruschke's approach, we withhold judgement.
+
+<!-- ### Exercise 12.1 -->
+
+<!-- <div class = "exercises"> -->
+<!-- **Exercises** -->
+
+<!-- In this exercise, we will recap the decision rules of the two approaches introduced in this chapter. Using Lindley's approach, there are two possible outcomes, namely rejecting $H_0$ and failing to reject $H_0$. Following Kruschke's ROPE approach, we can also withhold judgement. For each outcome, draw any distribution representing the posterior, the approximate 95% HDI and an arbitrary point value of interest. For tasks c-e, also draw an arbitrary ROPE around the point value. -->
+
+<!-- Concretely, we'd like you to sketch... -->
+
+<!-- a. ...one instance where we would not reject a point-valued hypothesis $H_0: \theta = \theta^*$. -->
+<!-- b. ...one instance where we would reject a point-valued hypothesis $H_0: \theta = \theta^*$. -->
+<!-- c. ...two instances where we would not reject a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
+<!-- d. ...two instances where we would reject a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
+<!-- e. ...two instances where we would withhold judgement regarding a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
+
+<!-- <div align = "right">Solutions are in Appendix \@ref(app-98-solutions-exercises-Ch12-Ex1)</div> -->
+<!-- </div> -->
+
+<!-- TODO ÖÖ: after checked, paste solutions below in Appendix E -->
+
+<!-- ## Chapter 12 -->
+
+<!-- ### Exercise 1 {#app-98-solutions-exercises-Ch12-Ex1} -->
+
+<!-- In this exercise, we will recap the decision rules of the two approaches introduced in this chapter. Using Lindley's approach, there are two possible outcomes, namely rejecting $H_0$ and failing to reject $H_0$. Following Kruschke's ROPE approach, we can also withhold judgement. For each outcome, draw any distribution representing the posterior, the approximate 95% HDI and an arbitrary point value of interest. For tasks c-e, also draw an arbitrary ROPE around the point value. -->
+
+<!-- Concretely, we'd like you to sketch... -->
+
+<!-- a. ...one instance where we would not reject a point-valued hypothesis $H_0: \theta = \theta^*$. -->
+<!-- b. ...one instance where we would reject a point-valued hypothesis $H_0: \theta = \theta^*$. -->
+<!-- c. ...two instances where we would not reject a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
+<!-- d. ...two instances where we would reject a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
+<!-- e. ...two instances where we would withhold judgement regarding a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
+
+<!-- <span style="color:firebrick">SOLUTION:</span> <br /> -->
+
+<!-- One solution to this exercise might look as follows.  -->
+
+<!-- ```{r echo=FALSE} -->
+
+<!-- hdi <- tibble( -->
+<!--   `lower` = HDInterval::hdi(function(x) qnorm(x, mean = 0, sd = 0.3))[1], -->
+<!--   `upper` = HDInterval::hdi(function(x) qnorm(x, mean = 0, sd = 0.3))[2], -->
+<!--  )  -->
+
+<!-- base_plot <- ggplot(data.frame(x = c(-2, 2)), aes(x = x)) + -->
+<!--   stat_function(fun = dnorm, args = list(mean = 0, sd = 0.3)) + -->
+<!--   stat_function(fun = dnorm, args = list(mean = 0, sd = 0.3),  -->
+<!--                 geom = "area", fill = "firebrick", xlim = c(hdi$lower, hdi$upper), alpha = 0.4) + -->
+<!--   annotate(geom = "text", label = "95% HDI", x = 0, y = 0.5, color = "firebrick", size = 3, alpha = 0.5) + -->
+<!--   theme_void() -->
+
+<!-- # Lindley: accept -->
+<!-- a <- base_plot + -->
+<!--   geom_point(aes(x = -0.3, y = 0), size = 3) + -->
+<!--   annotate(geom = "text", label = "a)", x = -2, y = 1.1, fontface = "bold") -->
+
+<!-- # Lindley: reject -->
+<!-- b <- base_plot + -->
+<!--   geom_point(aes(x = 1, y = 0), size = 3) + -->
+<!--   annotate(geom = "text", label = "b)", x = -2, y = 1.1, fontface = "bold") -->
+
+<!-- # Kruschke: accept -->
+<!-- c1 <- base_plot + -->
+<!--   geom_point(aes(x = 0, y = 0), size = 3) + -->
+<!--   annotate(geom = "segment", x = -0.8, xend = 0.8, y = 0, yend = 0, size = 2) + -->
+<!--   annotate(geom = "text", label = "c)", x = -2, y = 1.1, fontface = "bold") -->
+
+<!-- # Kruschke: accept -->
+<!-- c2 <- base_plot + -->
+<!--   geom_point(aes(x = -0.7, y = 0), size = 3) + -->
+<!--   annotate(geom = "segment", x = -2, xend = 0.6, y = 0, yend = 0, size = 2) -->
+
+<!-- # Kruschke: reject -->
+<!-- d1 <- base_plot + -->
+<!--   geom_point(aes(x = -1.5, y = 0), size = 3) + -->
+<!--   annotate(geom = "segment", x = -1.8, xend = -1.2, y = 0, yend = 0, size = 2) + -->
+<!--   annotate(geom = "text", label = "d)", x = -2, y = 1.1, fontface = "bold") -->
+
+<!-- # Kruschke: reject -->
+<!-- d2 <- base_plot + -->
+<!--   geom_point(aes(x = 1.1, y = 0), size = 3) + -->
+<!--   annotate(geom = "segment", x = 0.6, xend = 1.6, y = 0, yend = 0, size = 2) -->
+
+<!-- # Kruschke: withhold judgement -->
+<!-- e1 <- base_plot + -->
+<!--   geom_point(aes(x = -1, y = 0), size = 3) + -->
+<!--   annotate(geom = "segment", x = -1.8, xend = -0.2 , y = 0, yend = 0, size = 2) + -->
+<!--   annotate(geom = "text", label = "e)", x = -2, y = 1.1, fontface = "bold") -->
+
+<!-- # Kruschke: withhold judgement -->
+<!-- e2 <- base_plot + -->
+<!--   geom_point(aes(x = 0.2, y = 0), size = 3) + -->
+<!--   annotate(geom = "segment", x = -0.1, xend = 0.5, y = 0, yend = 0, size = 2)  -->
+
+<!-- cowplot::plot_grid(a,b,c1,c2,d1,d2,e1,e2, ncol = 2) -->
+<!-- ``` -->
+
+<!-- The red shaded area under the curves shows the 95% credible interval. The black dots represent (arbitrary) point values of interest, and the horizontal bars in panels c)-e) depict the ROPE around a given point value. -->
+
+
+## The Savage-Dickey method
+
+The Savage-Dickey method is a very convenient way of computing Bayes factors for nested models, especially when models only differ with respect to one parameter.
+
+### Nested (Bayesian) models  
+
+Suppose that there are $n$ continuous parameters of interest $\theta = \langle \theta_1, \dots, \theta_n \rangle$. $M_1$ is a (Bayesian) model defined by $P(\theta \mid M_1)$ and $P(D \mid \theta, M_1)$. $M_0$ is **properly nested** under $M_1$ if:
+
+- $M_0$ assigns fixed values to parameters $\theta_i = x_i, \dots, \theta_n = x_n$
+- $P(D \mid \theta_1, \dots, \theta_{i-1}, M_0) = P(D \mid \theta_1, \dots, \theta_{i-1}, \theta_i = x_i, \dots, \theta_n = x_n, M_1)$
+- $\lim_{\theta_i \rightarrow x_i, \dots, \theta_n \rightarrow x_n} P(\theta_1, \dots, \theta_{i-1} \mid \theta_i, \dots, \theta_n, M_1) = P(\theta_1, \dots, \theta_{i-1} \mid M_0)$
+
+Notice that the last condition is satisfied in particular when $M_1$'s prior over $\theta_1, \dots, \theta_{i-1}$ is independent of the values for the remaining parameters.
+
+### Savage-Dickey theorem
+
+```{theorem, name = "Savage-Dickey Bayes factors for nested models"}
+Let $M_0$ be properly nested under $M_1$ s.t. $M_0$ fixes $\theta_i = x_i, \dots, \theta_n = x_n$. The Bayes factor $\text{BF}_{01}$ in favor of $M_0$ over $M_1$ is then given by the ratio of posterior probability to prior probability of the parameters $\theta_i = x_i, \dots, \theta_n = x_n$ from the point of view of the nesting model $M_1$:
+
+$$
+\begin{aligned}
+\text{BF}_{01} & = \frac{P(\theta_i = x_i, \dots, \theta_n = x_n \mid D, M_1)}{P(\theta_i = x_i, \dots, \theta_n = x_n \mid M_1)}
+\end{aligned}
+$$
+```
+
+
+```{proof}
+Let's assume that $M_0$ has parameters $\theta = \langle\phi, \psi\rangle$ with $\phi = \phi_0$, and that $M_1$ has parameters $\theta = \langle\phi, \psi \rangle$ with $\phi$ free to vary. If $M_0$ is properly nested under $M_1$, we know that $\lim_{\phi \rightarrow \phi_0} P(\psi \mid \phi, M_1) = P(\psi \mid M_0)$. We can then rewrite the marginal likelihood under $M_0$ as follows:
+
+$$ 
+\begin{aligned}
+P(D \mid M_0) & = \int P(D \mid \psi, M_0) P(\psi \mid M_0) \ \text{d}\psi
+& \text{[marginalization]}
+\\
+ & = \int P(D \mid \psi, \phi = \phi_0, M_1) P(\psi \mid \phi = \phi_0, M_1)  \ \text{d}\psi
+ & \text{[assumption of nesting]}
+ \\
+ & = P(D \mid \phi = \phi_0, M_1) 
+ & \text{[marginalization]}
+ \\
+ & = \frac{P(\phi = \phi_0 \mid D, M_1) P(D \mid M_1)}{P(\phi = \phi_0 \mid M_1)}
+ & \text{[Bayes rule]}
+\end{aligned}
+$$
+
+The result follows if we divide by $P(D \mid M_1)$ on both sides of the equation.
+
+```
+
+&nbsp;
+
+### Example: 24/7
+
+Here is an example based on the 24/7 data. For a nesting model with a flat prior ($\theta \sim^{M_1} \text{Beta}(1,1)$), and a point hypothesis $\theta^* = 0.5$, we calculate:
+
+```{r}
+# point-value of interest
+theta_star <- 0.5
+# posterior probability in nesting model
+posterior_theta_star <- dbeta(theta_star, 8, 18)
+# prior probability in nesting model
+prior_theta_star <- dbeta(theta_star, 1, 1)
+# Bayes factor (using Savage-Dickey)
+BF_01 <- posterior_theta_star / prior_theta_star
+BF_01
+```
+
+This is very minor evidence in favor of the alternative model (Bayes factor $\text{BF}_{10} \approx `r signif(1/BF_01,3)`$). We would not like to draw any (strong) categorical conclusions from this result regarding the question of whether the coin might be fair. Figure \@ref(fig:ch-03-07-hypothesis-testing-Bayes-SD-24-7) also shows the relation between prior and posterior at the point-value of interest. 
+
+```{r ch-03-07-hypothesis-testing-Bayes-SD-24-7, echo = F, fig.cap = "Illustration of the Savage-Dickey method of Bayes factor computation for the 24/7 case."}
+plotData <- tibble(
+  theta = seq(0.01,1, by = 0.01),
+  posterior = dbeta(theta, 8, 18 ),
+  prior = dbeta(theta, 1, 1)
+)
+plotData = pivot_longer(plotData, cols = c("posterior", "prior"), names_to = "distribution")
+pointData <- data.frame(x = c(0.5,0.5), y = c(dbeta(0.5,8,18),1))
+
+ggplot(plotData, aes(x = theta, y = value, color = distribution)) + xlim(0,1) + geom_line() + ylab("probability") +
+  geom_segment(aes(x = 0.52, y = 0, xend = 0.52, yend = 1), color = "darkgray") +
+  geom_segment(aes(x = 0.48, y = 0, xend = 0.48, yend = dbeta(0.5,8,18)), color = "darkgray") +
+  geom_segment(aes(x = 0.5, y = 1, xend = 0.52, yend = 1), color = "darkgray") +
+  geom_segment(aes(x = 0.5, y = dbeta(0.5,8,18), xend = 0.48, yend = dbeta(0.5,8,18)), color = "darkgray") +
+  annotate("point", x = 0.5, y = 1, color = "black") +
+  annotate("point", x = 0.5, y = dbeta(0.5,8,18), color = "black") + 
+  annotate("text", x = 0.3, y = 0.25, color = "darkgray", label = "P(0.5 | D, M1) = 0.516", size = 3) +
+  annotate("text", x = 0.68, y = 0.75, color = "darkgray", label = "P(0.5 | M1) = 1", size = 3)
+```
+
+### Example: Eco-sensitivity
+
+To apply the Savage-Dickey method to the eco-sensitivity model, we have to obtain an estimate for the posterior density at the critical value $\delta = 0$ from the posterior samples. An approximate method for obtaining this value is implemented in the `polspline` package (using polynomial splines to approximate the posterior curve). [TODO replace with Stan]
+
+```{r, eval = F}
+# extract the samples for the delta parameter
+delta_samples <- tidy_draws_tt2 %>% 
+  filter(Parameter == "delta") %>% 
+  pull(value)
+# estimating the posterior density at delta = 0 with Savage-Dickey
+fit.posterior <- polspline::logspline(delta_samples)
+posterior_delta_null <- polspline::dlogspline(0, fit.posterior)
+prior_delta_null <- dnorm(0, 0, sd_delta) 
+BF_delta_null = posterior_delta_null / prior_delta_null
+BF_delta_null
+```
+
+We conclude from this result that there is only very mild (unnoteworthy) evidence in favor of the alternative hypothesis.
+
+<!-- ### Exercise 12.2 -->
+
+<!-- Taken from last term's prep exam (IDA-prep-exam-02.pages.pdf on Stud.IP) -->
+
+<!-- <div class = "exercises"> -->
+<!-- **Exercises** -->
+
+<!-- Look at the plot below. You see the prior distribution and the posterior distribution over the $\delta$ parameter in a Bayesian $t$-test model. We are going to use this plot to determine (roughly) the Bayes Factor of two models: the full Bayesian $t$-test model, and a model nested under this full model which assumes that $\delta = 0$. -->
+
+<!-- ```{r echo=FALSE, fig.align="center", fig.width=4, fig.height=4, warning=FALSE} -->
+<!-- ggplot(data = NULL, aes(x = x, color = legend)) + -->
+<!--   stat_function(data = data.frame(x = -20:20, legend = factor(1)), fun = dnorm, args = list(mean = 1.5, sd = 3), size = 2) + -->
+<!--   stat_function(data = data.frame(x = -20:20, legend = factor(2)), fun = dnorm, args = list(mean = 0, sd = 8), size = 2) + -->
+<!--   scale_colour_manual(values = c("firebrick", "blue"), labels = c("posterior", "prior")) + -->
+<!--   theme(legend.title = element_blank(), legend.position = "top") + -->
+<!--   xlab(latex2exp::TeX("$\\delta$")) + -->
+<!--   ylab("") -->
+<!-- ``` -->
+
+<!-- a. Describe in intuitive terms what it means for a Bayesian model to be nested under another model. It is sufficient to neglect the conditions on the priors, i.e., focus on the meaning of “nesting” that also applies to a pair of frequentist models.  -->
+
+<!-- b. Write down the formula for the Bayes Factor in favor of the null model (where $\delta = 0$) over the full model using the Savage-Dickey theorem.  -->
+
+<!-- c. Give a natural language paraphrase of the formula you wrote down above.  -->
+
+<!-- d. Now look at the plot above. Give your approximate guess of the Bayes Factor in favor of the null model in terms of a fraction of whole integers (something like: $\frac{4}{3}$ or $\frac{27}{120}$, ...). -->
+
+<!-- e. Formulate a conclusion to be drawn from this numerical result about the research hypothesis that the mean of the two groups compared here are identical. Write one concise sentence like you would in a research paper.  -->
+
+<!-- <div align = "right">Solutions are in Appendix \@ref(app-98-solutions-exercises-Ch12-Ex2)</div> -->
+<!-- </div> -->
+
+<!-- TODO ÖÖ: after checked, paste solutions below in Appendix E -->
+
+<!-- ### Exercise 2 {#app-98-solutions-exercises-Ch12-Ex2} -->
+
+<!-- Look at the plot below. You see the prior distribution and the posterior distribution over the $\delta$ parameter in a Bayesian $t$-test -->
+<!-- model. We are going to use this plot to determine (roughly) the Bayes Factor of two models: the full Bayesian $t$-test model, and a model nested under this full model which assumes that $\delta = 0$. -->
+
+<!-- ```{r echo=FALSE, fig.align="center", fig.width=4, fig.height=4, warning=FALSE} -->
+<!-- ggplot(data = NULL, aes(x = x, color = legend)) + -->
+<!--   stat_function(data = data.frame(x = -20:20, legend = factor(1)), fun = dnorm, args = list(mean = 1.5, sd = 3), size = 2) + -->
+<!--   stat_function(data = data.frame(x = -20:20, legend = factor(2)), fun = dnorm, args = list(mean = 0, sd = 8), size = 2) + -->
+<!--   scale_colour_manual(values = c("firebrick", "blue"), labels = c("posterior", "prior")) + -->
+<!--   annotate(geom = "segment", x = 0, xend = 0, y = 0, yend = 0.049, arrow = arrow(length = unit(0.3, "cm"))) + -->
+<!--   annotate(geom = "text", x = -1, y = 0.03, label = "2", color = "blue") + -->
+<!--   annotate(geom = "segment", x = 1.5, xend = 1.5, y = 0, yend = 0.125, arrow = arrow(length = unit(0.3, "cm"))) + -->
+<!--   annotate(geom = "text", x = 3, y = 0.08, label = "5", color = "firebrick") + -->
+<!--   theme(legend.title = element_blank(), legend.position = "top") + -->
+<!--   xlab(latex2exp::TeX("$\\delta$")) + -->
+<!--   ylab("") -->
+<!-- ``` -->
+
+<!-- a. Describe in intuitive terms what it means for a Bayesian model to be nested under another model. It is sufficient to neglect the conditions on the priors, i.e., focus on the meaning of “nesting” that also applies to a pair of frequentist models. <br /> -->
+<!-- <span style="color:firebrick">SOLUTION:</span> A model nested under another model fixes certain parameters to specific values which may take on more than one value in the encompassing model. -->
+
+<!-- b. Write down the formula for the Bayes Factor in favor of the null model (where $\delta = 0$) over the full model using the Savage-Dickey theorem. <br /> -->
+<!-- <span style="color:firebrick">SOLUTION:</span> $BF_{01}=\frac{P(\delta = 0|D, M_1)}{P(\delta = 0|M_1)}$ -->
+
+<!-- c. Give a natural language paraphrase of the formula you wrote down above. <br /> -->
+<!-- <span style="color:firebrick">SOLUTION:</span> The Bayes Factor in favor of the embedded null model over the embedding model is given by the posterior density at $\delta = 0$ under the encompassing model divided by the prior in the encompassing model at $\delta = 0$. -->
+
+<!-- d. Now look at the plot above. Give your approximate guess of the Bayes Factor in favor of the null model in terms of a fraction of whole integers (something like: $\frac{4}{3}$ or $\frac{27}{120}$, ...). <br /> -->
+<!-- <span style="color:firebrick">SOLUTION:</span> $\approx \frac{5}{2}$ (see plot above) -->
+
+<!-- e. Formulate a conclusion to be drawn from this numerical result about the research hypothesis that the mean of the two groups compared here are identical. Write one concise sentence like you would in a research paper. <br /> -->
+<!-- <span style="color:firebrick">SOLUTION:</span> A BF of $\frac{5}{2}$ is mild evidence in favor of the null model, but conventionally not considered strong enough to be particularly noteworthy. -->
+
+
+## Bayes factors for ROPE-d hypotheses through encompassing models
+
+The Savage-Dickey method can be generalized to also cover interval-valued hypotheses in general, and therefore also ROPE-d hypotheses in particular. The previous literature has focused on inequality-based intervals/hypotheses (like $\theta \ge 0.5$) [@KlugkistKato2005:Bayesian-model;@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar]. Here, we show that this method also extends to arbitrary intervals. The advantage of this method is that we can use samples from the posterior distribution to approximate integrals, which is more robust than having to estimate point-values of posterior density. 
+
+Following previous work [@KlugkistKato2005:Bayesian-model;@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar], the main idea is to use so-called **encompassing priors**. Let $\theta$ be a single parameter of interest (for simplicity), which can in principle take on any real value. We are interested in the interval-based hypotheses:
+
+- $H_0 \colon \theta \in [a;b]$, and 
+- $H_a \colon \theta \not \in [a;b]$
+
+An **encompassing model** $M_e$ has a suitable likelihood function $P_{M_e}(D \mid \theta, \omega)$ (where $\omega$ is a vector of other parameters besides the parameter $\theta$ of interest). It also defines a prior $P_{M_e}(\theta, \omega)$, for which crucially:
+
+$$0 < P_{M_e}(\theta, \omega) < 1$$
+
+This latter constraint makes sure that the parameter ranges of $H_0$ and $H_a$ are not ruled out *a priori*.
+
+Generalizing over the Savage-Dickey approach, we construct *two* models, one for each hypothesis, *both* of which are nested under the encompassing model:
+
+- $M_0$ has prior $P_{M_0}(\theta, \omega) = P_{M_e}(\theta, \omega \mid \theta \in [a;b])$
+- $M_a$ has prior $P_{M_a}(\theta, \omega) = P_{M_e}(\theta, \omega \mid \theta \not \in [a;b])$
+
+Both $M_0$ and $M_a$ have the same likelihood function as $M_e$, which is why we drop the model index for better readability in the following. 
+
+Figure \@ref(fig:ch-03-07-hypothesis-testing-Bayes-encompassing-prior) shows an example of the priors of an encompassing model for two nested models based on a ROPE-d hypothesis testing approach.
+
+```{r ch-03-07-hypothesis-testing-Bayes-encompassing-prior, echo = F, fig.cap = "Example of the prior of an encompassing model and the priors of two models nested under it."}
+tibble(
+  delta = seq(-3,3,length.out = 1000),
+  encompassing = dnorm(delta)
+) %>%
+  mutate(
+    null = ifelse(-0.1 <= delta & delta <= 0.1,
+                  encompassing, 0),
+    alt  = ifelse(-0.1 >= delta | delta >= 0.1,
+                  encompassing, 0)
+  ) %>%
+  mutate(
+    encompassing = encompassing / sum(encompassing),
+    null = null / sum(null),
+    alt = alt / sum(alt)
+  ) %>%
+  pivot_longer(cols = -delta, names_to = "model", values_to = "density") %>%
+  mutate(model = factor(model, ordered = T, levels = c("encompassing", "null", "alt"))) %>%
+  ggplot(aes(x = delta, y = density)) +
+  geom_line() +
+  geom_area(fill = "lightgray", alpha = 0.6) +
+  facet_wrap(. ~ model, nrow = 3, scales = "free") +
+  labs(
+    x = "", y = ""
+  ) +
+  guides(fill = F) +
+  theme(
+    axis.text.y  = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+```
+
+
+
+```{theorem, "BF-ROPED-hypotheses"}
+Fix a Bayesian model $M$ (the encompassing model) with pior $P_M(\theta, \omega)$ and likelihood function $P_M(D \mid \theta, \omega)$, where $\theta$ is the parameter of interest and $\omega$ is a vector of other (nuisance) parameters. Assume that the priors over $\theta$ are independent of the nuisance parameters $\omega$. For an interval-valued hypothesis $H_0 \colon \theta = \theta^* \pm \epsilon$, the Bayes factor in favor of this hypothesis over its negation $H_a \colon \theta \neq \theta^* \pm \epsilon$ can be expressed as:
+
+$$ 
+\begin{aligned}
+\text {BF}_{01} & = \frac{\text{posterior-odds of } H_0}{\text{prior-odds of } H_0}  \\
+& = \frac{P_M(\theta = \theta^* \pm \epsilon \mid D)}{P_M(\theta \neq \theta^* \pm \epsilon \mid D)} \frac{P_M(\theta \neq \theta^* \pm \epsilon)}{P_M(\theta = \theta^* \pm \epsilon)}
+\end{aligned}
+$$
+
+```
+
+```{proof}
+TBD
+```
+
+### Example: 24/7
+
+The Bayes factor using the ROPE-d method to compute the interval-valued hypothesis $\theta = 0.5 \pm \epsilon$ is:
+
+```{r}
+# set the scene
+theta_null <- 0.5
+epsilon <- 0.01                 # epsilon margin for ROPE
+upper <- theta_null + epsilon   # upper bound of ROPE
+lower <- theta_null - epsilon   # lower bound of ROPE
+# calculate prior odds of the ROPE-d hypothesis
+prior_of_hypothesis <- pbeta(upper, 1, 1) - pbeta(lower, 1, 1)
+prior_odds <- prior_of_hypothesis / (1 - prior_of_hypothesis)
+# calculate posterior odds of the ROPE-d hypothesis
+posterior_of_hypothesis <- qbeta(upper, 8, 18) - qbeta(lower, 8, 18)
+posterior_odds <- posterior_of_hypothesis / (1 - posterior_of_hypothesis)
+# calculate Bayes factor
+bf_ROPEd_hypothesis <- posterior_odds / prior_odds
+bf_ROPEd_hypothesis
+```
+
+This is mild evidence in favor of the alternative hypothesis (Bayes factor $\text{BF}_{10} \approx `r signif(1/bf_ROPEd_hypothesis,3)`$).
+
+### Example: Eco-sensitivity
+
+[TODO replace with Stan]
+
+```{r, eval = F}
+# estimating the BF for ROPE-d hypothesis with encompassing priors
+delta_null <- 0
+epsilon <- 0.25                 # epsilon margin for ROPE
+upper <- delta_null + epsilon   # upper bound of ROPE
+lower <- delta_null - epsilon   # lower bound of ROPE
+# calculate prior odds of the ROPE-d hypothesis
+prior_of_hypothesis <- pnorm(upper, 0, sd_delta) - pnorm(lower, 0, sd_delta)
+prior_odds <- prior_of_hypothesis / (1 - prior_of_hypothesis)
+# calculate posterior odds of the ROPE-d hypothesis
+posterior_of_hypothesis <- mean( lower <= delta_samples & delta_samples <= upper )
+posterior_odds <- posterior_of_hypothesis / (1 - posterior_of_hypothesis)
+# calculate Bayes factor
+bf_ROPEd_hypothesis <- posterior_odds / prior_odds
+bf_ROPEd_hypothesis
+```
+
+This is only minor evidence in favor of the alternative hypothesis (Bayes factor $\text{BF}_{10} \approx `r signif(1/bf_ROPEd_hypothesis,3)`$).
+
+<!-- ### Exercise 12.3 -->
+
+<!-- <div class = "exercises"> -->
+<!-- **Exercises** -->
+
+<!-- Decide for the following statements whether they are true or false. -->
+
+<!-- a. An encompassing model for addressing ROPE-d hypotheses needs two competing models nested under it. -->
+<!-- b. A Bayes Factor of $BF_{01} = 20$ constitutes strong evidence in favor of the alternative hypothesis. -->
+<!-- c. A Bayes Factor of $BF_{10} = 20$ constitutes minor evidence in favor of the alternative hypothesis. -->
+<!-- d. We can compute the BF in favor of the alternative hypothesis with $BF_{10} = \frac{1}{BF_{01}}$. -->
+
+<!-- <div align = "right">Solutions are in Appendix \@ref(app-98-solutions-exercises-Ch12-Ex3)</div> -->
+<!-- </div> -->
+
+<!-- TODO ÖÖ: after checked, paste solutions below in Appendix E -->
+
+<!-- ### Exercise 3 {#app-98-solutions-exercises-Ch12-Ex3} -->
+
+<!-- Decide for the following statements whether they are true or false. -->
+
+<!-- a. <span style="background-color: #b3ffcc">An encompassing model for addressing ROPE-d hypotheses needs two competing models nested under it.</span> -->
+<!-- b. A Bayes Factor of $BF_{01} = 20$ constitutes strong evidence in favor of the alternative hypothesis. -->
+<!-- c. A Bayes Factor of $BF_{10} = 20$ constitutes minor evidence in favor of the alternative hypothesis. -->
+<!-- d. <span style="background-color: #b3ffcc">We can compute the BF in favor of the alternative hypothesis with $BF_{10} = \frac{1}{BF_{01}}$.</span> -->
+<!-- <br /> -->
+<!-- <br /> -->
+<!-- <font size="1">Correct answers are highlighted.</font> -->
