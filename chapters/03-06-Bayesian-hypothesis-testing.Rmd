@@ -106,7 +106,7 @@ Our research question is whether there is a difference in means between groups. 
 
 ### Example: 24/7
 
-The following repeats code and calculations from Chapter \@ref(ch-03-04-parameter-inference). We can calculate the 95% HDI as follows (via Beta/Binomial conjugacy):
+The following repeats code and calculations from Chapter \@ref(ch-03-04-parameter-estimation). We can calculate the 95% HDI as follows (via Beta/Binomial conjugacy):
 
 ```{r}
 estimates_24_7 <- tibble(
@@ -182,105 +182,91 @@ tibble(
 
 Using Lindley's approach, we'd conclude from the fact that the critical value of $\delta = 0$ is outside the 95% HDI that the idea of group-mean equality is sufficiently unlikely to be practically dismissed. The ROPE $\delta = 0 \pm 2$, however, is neither fully included, nor fully outside of the 95% HDI. Using Kruschke's approach, we withhold judgement.
 
-<!-- ### Exercise 12.1 -->
+<!-- exercise 1 -->
+<div class = "exercises">
+**Exercise E.2: Lindley vs. Kruschke**
 
-<!-- <div class = "exercises"> -->
-<!-- **Exercises** -->
+In this exercise, we will recap the decision rules of the two approaches introduced in this chapter. Using Lindley's approach, there are two possible outcomes, namely rejecting $H_0$ and failing to reject $H_0$. Following Kruschke's ROPE approach, we can also withhold judgement. For each outcome, draw any distribution representing the posterior, the approximate 95% HDI and an arbitrary point value of interest. For tasks c-e, also draw an arbitrary ROPE around the point value.
 
-<!-- In this exercise, we will recap the decision rules of the two approaches introduced in this chapter. Using Lindley's approach, there are two possible outcomes, namely rejecting $H_0$ and failing to reject $H_0$. Following Kruschke's ROPE approach, we can also withhold judgement. For each outcome, draw any distribution representing the posterior, the approximate 95% HDI and an arbitrary point value of interest. For tasks c-e, also draw an arbitrary ROPE around the point value. -->
+Concretely, we'd like you to sketch...
 
-<!-- Concretely, we'd like you to sketch... -->
+a. ...one instance where we would not reject a point-valued hypothesis $H_0: \theta = \theta^*$.
+b. ...one instance where we would reject a point-valued hypothesis $H_0: \theta = \theta^*$.
+c. ...two instances where we would not reject a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$.
+d. ...two instances where we would reject a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$.
+e. ...two instances where we would withhold judgement regarding a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$.
 
-<!-- a. ...one instance where we would not reject a point-valued hypothesis $H_0: \theta = \theta^*$. -->
-<!-- b. ...one instance where we would reject a point-valued hypothesis $H_0: \theta = \theta^*$. -->
-<!-- c. ...two instances where we would not reject a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
-<!-- d. ...two instances where we would reject a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
-<!-- e. ...two instances where we would withhold judgement regarding a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
 
-<!-- <div align = "right">Solutions are in Appendix \@ref(app-98-solutions-exercises-Ch12-Ex1)</div> -->
-<!-- </div> -->
+One solution to this exercise might look as follows.
 
-<!-- TODO ÖÖ: after checked, paste solutions below in Appendix E -->
+```{r echo=FALSE}
 
-<!-- ## Chapter 12 -->
+hdi <- tibble(
+  `lower` = HDInterval::hdi(function(x) qnorm(x, mean = 0, sd = 0.3))[1],
+  `upper` = HDInterval::hdi(function(x) qnorm(x, mean = 0, sd = 0.3))[2],
+ )
 
-<!-- ### Exercise 1 {#app-98-solutions-exercises-Ch12-Ex1} -->
+base_plot <- ggplot(data.frame(x = c(-2, 2)), aes(x = x)) +
+  stat_function(fun = dnorm, args = list(mean = 0, sd = 0.3)) +
+  stat_function(fun = dnorm, args = list(mean = 0, sd = 0.3),
+                geom = "area", fill = "firebrick", xlim = c(hdi$lower, hdi$upper), alpha = 0.4) +
+  annotate(geom = "text", label = "95% HDI", x = 0, y = 0.5, color = "firebrick", size = 3, alpha = 0.5) +
+  theme_void()
 
-<!-- In this exercise, we will recap the decision rules of the two approaches introduced in this chapter. Using Lindley's approach, there are two possible outcomes, namely rejecting $H_0$ and failing to reject $H_0$. Following Kruschke's ROPE approach, we can also withhold judgement. For each outcome, draw any distribution representing the posterior, the approximate 95% HDI and an arbitrary point value of interest. For tasks c-e, also draw an arbitrary ROPE around the point value. -->
+# Lindley: accept
+a <- base_plot +
+  geom_point(aes(x = -0.3, y = 0), size = 3) +
+  annotate(geom = "text", label = "a)", x = -2, y = 1.1, fontface = "bold")
 
-<!-- Concretely, we'd like you to sketch... -->
+# Lindley: reject
+b <- base_plot +
+  geom_point(aes(x = 1, y = 0), size = 3) +
+  annotate(geom = "text", label = "b)", x = -2, y = 1.1, fontface = "bold")
 
-<!-- a. ...one instance where we would not reject a point-valued hypothesis $H_0: \theta = \theta^*$. -->
-<!-- b. ...one instance where we would reject a point-valued hypothesis $H_0: \theta = \theta^*$. -->
-<!-- c. ...two instances where we would not reject a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
-<!-- d. ...two instances where we would reject a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
-<!-- e. ...two instances where we would withhold judgement regarding a ROPE-d hypothesis $H_0: \theta = \theta^* \pm \epsilon$. -->
+# Kruschke: accept
+c1 <- base_plot +
+  geom_point(aes(x = 0, y = 0), size = 3) +
+  annotate(geom = "segment", x = -0.8, xend = 0.8, y = 0, yend = 0, size = 2) +
+  annotate(geom = "text", label = "c)", x = -2, y = 1.1, fontface = "bold")
 
-<!-- <span style="color:firebrick">SOLUTION:</span> <br /> -->
+# Kruschke: accept
+c2 <- base_plot +
+  geom_point(aes(x = -0.7, y = 0), size = 3) +
+  annotate(geom = "segment", x = -2, xend = 0.6, y = 0, yend = 0, size = 2)
 
-<!-- One solution to this exercise might look as follows.  -->
+# Kruschke: reject
+d1 <- base_plot +
+  geom_point(aes(x = -1.5, y = 0), size = 3) +
+  annotate(geom = "segment", x = -1.8, xend = -1.2, y = 0, yend = 0, size = 2) +
+  annotate(geom = "text", label = "d)", x = -2, y = 1.1, fontface = "bold")
 
-<!-- ```{r echo=FALSE} -->
+# Kruschke: reject
+d2 <- base_plot +
+  geom_point(aes(x = 1.1, y = 0), size = 3) +
+  annotate(geom = "segment", x = 0.6, xend = 1.6, y = 0, yend = 0, size = 2)
 
-<!-- hdi <- tibble( -->
-<!--   `lower` = HDInterval::hdi(function(x) qnorm(x, mean = 0, sd = 0.3))[1], -->
-<!--   `upper` = HDInterval::hdi(function(x) qnorm(x, mean = 0, sd = 0.3))[2], -->
-<!--  )  -->
+# Kruschke: withhold judgement
+e1 <- base_plot +
+  geom_point(aes(x = -1, y = 0), size = 3) +
+  annotate(geom = "segment", x = -1.8, xend = -0.2 , y = 0, yend = 0, size = 2) +
+  annotate(geom = "text", label = "e)", x = -2, y = 1.1, fontface = "bold")
 
-<!-- base_plot <- ggplot(data.frame(x = c(-2, 2)), aes(x = x)) + -->
-<!--   stat_function(fun = dnorm, args = list(mean = 0, sd = 0.3)) + -->
-<!--   stat_function(fun = dnorm, args = list(mean = 0, sd = 0.3),  -->
-<!--                 geom = "area", fill = "firebrick", xlim = c(hdi$lower, hdi$upper), alpha = 0.4) + -->
-<!--   annotate(geom = "text", label = "95% HDI", x = 0, y = 0.5, color = "firebrick", size = 3, alpha = 0.5) + -->
-<!--   theme_void() -->
+# Kruschke: withhold judgement
+e2 <- base_plot +
+  geom_point(aes(x = 0.2, y = 0), size = 3) +
+  annotate(geom = "segment", x = -0.1, xend = 0.5, y = 0, yend = 0, size = 2)
 
-<!-- # Lindley: accept -->
-<!-- a <- base_plot + -->
-<!--   geom_point(aes(x = -0.3, y = 0), size = 3) + -->
-<!--   annotate(geom = "text", label = "a)", x = -2, y = 1.1, fontface = "bold") -->
+cowplot::plot_grid(a,b,c1,c2,d1,d2,e1,e2, ncol = 2)
+```
 
-<!-- # Lindley: reject -->
-<!-- b <- base_plot + -->
-<!--   geom_point(aes(x = 1, y = 0), size = 3) + -->
-<!--   annotate(geom = "text", label = "b)", x = -2, y = 1.1, fontface = "bold") -->
-
-<!-- # Kruschke: accept -->
-<!-- c1 <- base_plot + -->
-<!--   geom_point(aes(x = 0, y = 0), size = 3) + -->
-<!--   annotate(geom = "segment", x = -0.8, xend = 0.8, y = 0, yend = 0, size = 2) + -->
-<!--   annotate(geom = "text", label = "c)", x = -2, y = 1.1, fontface = "bold") -->
-
-<!-- # Kruschke: accept -->
-<!-- c2 <- base_plot + -->
-<!--   geom_point(aes(x = -0.7, y = 0), size = 3) + -->
-<!--   annotate(geom = "segment", x = -2, xend = 0.6, y = 0, yend = 0, size = 2) -->
-
-<!-- # Kruschke: reject -->
-<!-- d1 <- base_plot + -->
-<!--   geom_point(aes(x = -1.5, y = 0), size = 3) + -->
-<!--   annotate(geom = "segment", x = -1.8, xend = -1.2, y = 0, yend = 0, size = 2) + -->
-<!--   annotate(geom = "text", label = "d)", x = -2, y = 1.1, fontface = "bold") -->
-
-<!-- # Kruschke: reject -->
-<!-- d2 <- base_plot + -->
-<!--   geom_point(aes(x = 1.1, y = 0), size = 3) + -->
-<!--   annotate(geom = "segment", x = 0.6, xend = 1.6, y = 0, yend = 0, size = 2) -->
-
-<!-- # Kruschke: withhold judgement -->
-<!-- e1 <- base_plot + -->
-<!--   geom_point(aes(x = -1, y = 0), size = 3) + -->
-<!--   annotate(geom = "segment", x = -1.8, xend = -0.2 , y = 0, yend = 0, size = 2) + -->
-<!--   annotate(geom = "text", label = "e)", x = -2, y = 1.1, fontface = "bold") -->
-
-<!-- # Kruschke: withhold judgement -->
-<!-- e2 <- base_plot + -->
-<!--   geom_point(aes(x = 0.2, y = 0), size = 3) + -->
-<!--   annotate(geom = "segment", x = -0.1, xend = 0.5, y = 0, yend = 0, size = 2)  -->
-
-<!-- cowplot::plot_grid(a,b,c1,c2,d1,d2,e1,e2, ncol = 2) -->
-<!-- ``` -->
-
-<!-- The red shaded area under the curves shows the 95% credible interval. The black dots represent (arbitrary) point values of interest, and the horizontal bars in panels c)-e) depict the ROPE around a given point value. -->
+The red shaded area under the curves shows the 95% credible interval. The black dots represent (arbitrary) point values of interest, and the horizontal bars in panels c)-e) depict the ROPE around a given point value.
+  
+</div>
+</div>
+</div>
 
 
 ## The Savage-Dickey method
@@ -392,73 +378,68 @@ BF_delta_null
 
 We conclude from this result that there is only very mild (unnoteworthy) evidence in favor of the alternative hypothesis.
 
-<!-- ### Exercise 12.2 -->
+<!-- exercise 2 -->
+<!-- Taken from the prep exam (IDA-prep-exam-02.pages.pdf) -->
+<div class = "exercises">
+**Exercise E.2: Bayes factors with the Savage-Dickey method**
 
-<!-- Taken from last term's prep exam (IDA-prep-exam-02.pages.pdf on Stud.IP) -->
+Look at the plot below. You see the prior distribution and the posterior distribution over the $\delta$ parameter in a Bayesian $t$-test model. We are going to use this plot to determine (roughly) the Bayes factor of two models: the full Bayesian $t$-test model, and a model nested under this full model which assumes that $\delta = 0$.
 
-<!-- <div class = "exercises"> -->
-<!-- **Exercises** -->
+```{r echo=FALSE, fig.align="center", fig.width=4, fig.height=4, warning=FALSE}
+ggplot(data = NULL, aes(x = x, color = legend)) +
+  stat_function(data = data.frame(x = -20:20, legend = factor(1)), fun = dnorm, args = list(mean = 1.5, sd = 3), size = 2) +
+  stat_function(data = data.frame(x = -20:20, legend = factor(2)), fun = dnorm, args = list(mean = 0, sd = 8), size = 2) +
+  scale_colour_manual(values = c("#E69F00", "#0072B2"), labels = c("posterior", "prior")) +
+  theme_minimal() +
+  theme(legend.title = element_blank(), 
+        legend.position = "top",
+        axis.title.y = element_blank()) +
+  xlab(latex2exp::TeX("$\\delta$"))
+```
 
-<!-- Look at the plot below. You see the prior distribution and the posterior distribution over the $\delta$ parameter in a Bayesian $t$-test model. We are going to use this plot to determine (roughly) the Bayes Factor of two models: the full Bayesian $t$-test model, and a model nested under this full model which assumes that $\delta = 0$. -->
+a. Describe in intuitive terms what it means for a Bayesian model to be nested under another model. It is sufficient to neglect the conditions on the priors, i.e., focus on the meaning of “nesting” that also applies to a pair of frequentist models.
 
-<!-- ```{r echo=FALSE, fig.align="center", fig.width=4, fig.height=4, warning=FALSE} -->
-<!-- ggplot(data = NULL, aes(x = x, color = legend)) + -->
-<!--   stat_function(data = data.frame(x = -20:20, legend = factor(1)), fun = dnorm, args = list(mean = 1.5, sd = 3), size = 2) + -->
-<!--   stat_function(data = data.frame(x = -20:20, legend = factor(2)), fun = dnorm, args = list(mean = 0, sd = 8), size = 2) + -->
-<!--   scale_colour_manual(values = c("firebrick", "blue"), labels = c("posterior", "prior")) + -->
-<!--   theme(legend.title = element_blank(), legend.position = "top") + -->
-<!--   xlab(latex2exp::TeX("$\\delta$")) + -->
-<!--   ylab("") -->
-<!-- ``` -->
+b. Write down the formula for the Bayes factor in favor of the null model (where $\delta = 0$) over the full model using the Savage-Dickey theorem.
 
-<!-- a. Describe in intuitive terms what it means for a Bayesian model to be nested under another model. It is sufficient to neglect the conditions on the priors, i.e., focus on the meaning of “nesting” that also applies to a pair of frequentist models.  -->
+c. Give a natural language paraphrase of the formula you wrote down above.
 
-<!-- b. Write down the formula for the Bayes Factor in favor of the null model (where $\delta = 0$) over the full model using the Savage-Dickey theorem.  -->
+d. Now look at the plot above. Give your approximate guess of the Bayes factor in favor of the null model in terms of a fraction of whole integers (something like: $\frac{4}{3}$ or $\frac{27}{120}$, ...).
 
-<!-- c. Give a natural language paraphrase of the formula you wrote down above.  -->
+e. Formulate a conclusion to be drawn from this numerical result about the research hypothesis that the mean of the two groups compared here are identical. Write one concise sentence like you would in a research paper.
 
-<!-- d. Now look at the plot above. Give your approximate guess of the Bayes Factor in favor of the null model in terms of a fraction of whole integers (something like: $\frac{4}{3}$ or $\frac{27}{120}$, ...). -->
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
 
-<!-- e. Formulate a conclusion to be drawn from this numerical result about the research hypothesis that the mean of the two groups compared here are identical. Write one concise sentence like you would in a research paper.  -->
+```{r echo=FALSE, fig.align="center", fig.width=4, fig.height=4, warning=FALSE}
+ggplot(data = NULL, aes(x = x, color = legend)) +
+  stat_function(data = data.frame(x = -20:20, legend = factor(1)), fun = dnorm, args = list(mean = 1.5, sd = 3), size = 2) +
+  stat_function(data = data.frame(x = -20:20, legend = factor(2)), fun = dnorm, args = list(mean = 0, sd = 8), size = 2) +
+  scale_colour_manual(values = c("#E69F00", "#0072B2"), labels = c("posterior", "prior")) +
+  annotate(geom = "segment", x = 0, xend = 0, y = 0, yend = 0.049, arrow = arrow(length = unit(0.3, "cm"))) +
+  annotate(geom = "text", x = -1, y = 0.03, label = "2", color = "#0072B2") +
+  annotate(geom = "segment", x = 1.5, xend = 1.5, y = 0, yend = 0.125, arrow = arrow(length = unit(0.3, "cm"))) +
+  annotate(geom = "text", x = 3, y = 0.08, label = "5", color = "#E69F00") +
+  theme_minimal() +
+  theme(legend.title = element_blank(), 
+        legend.position = "top",
+        axis.title.y = element_blank()) +
+  xlab(latex2exp::TeX("$\\delta$"))
+```
 
-<!-- <div align = "right">Solutions are in Appendix \@ref(app-98-solutions-exercises-Ch12-Ex2)</div> -->
-<!-- </div> -->
+a. A model nested under another model fixes certain parameters to specific values which may take on more than one value in the nesting model.
 
-<!-- TODO ÖÖ: after checked, paste solutions below in Appendix E -->
+b. $BF_{01}=\frac{P(\delta = 0|D, M_1)}{P(\delta = 0|M_1)}$.
 
-<!-- ### Exercise 2 {#app-98-solutions-exercises-Ch12-Ex2} -->
+c. The Bayes factor in favor of the embedded null model over the embedding model is given by the posterior density at $\delta = 0$ under the nesting model divided by the prior in the nesting model at $\delta = 0$.
 
-<!-- Look at the plot below. You see the prior distribution and the posterior distribution over the $\delta$ parameter in a Bayesian $t$-test -->
-<!-- model. We are going to use this plot to determine (roughly) the Bayes Factor of two models: the full Bayesian $t$-test model, and a model nested under this full model which assumes that $\delta = 0$. -->
+d. $BF_{01} \approx \frac{5}{2}$ (see plot above).
 
-<!-- ```{r echo=FALSE, fig.align="center", fig.width=4, fig.height=4, warning=FALSE} -->
-<!-- ggplot(data = NULL, aes(x = x, color = legend)) + -->
-<!--   stat_function(data = data.frame(x = -20:20, legend = factor(1)), fun = dnorm, args = list(mean = 1.5, sd = 3), size = 2) + -->
-<!--   stat_function(data = data.frame(x = -20:20, legend = factor(2)), fun = dnorm, args = list(mean = 0, sd = 8), size = 2) + -->
-<!--   scale_colour_manual(values = c("firebrick", "blue"), labels = c("posterior", "prior")) + -->
-<!--   annotate(geom = "segment", x = 0, xend = 0, y = 0, yend = 0.049, arrow = arrow(length = unit(0.3, "cm"))) + -->
-<!--   annotate(geom = "text", x = -1, y = 0.03, label = "2", color = "blue") + -->
-<!--   annotate(geom = "segment", x = 1.5, xend = 1.5, y = 0, yend = 0.125, arrow = arrow(length = unit(0.3, "cm"))) + -->
-<!--   annotate(geom = "text", x = 3, y = 0.08, label = "5", color = "firebrick") + -->
-<!--   theme(legend.title = element_blank(), legend.position = "top") + -->
-<!--   xlab(latex2exp::TeX("$\\delta$")) + -->
-<!--   ylab("") -->
-<!-- ``` -->
-
-<!-- a. Describe in intuitive terms what it means for a Bayesian model to be nested under another model. It is sufficient to neglect the conditions on the priors, i.e., focus on the meaning of “nesting” that also applies to a pair of frequentist models. <br /> -->
-<!-- <span style="color:firebrick">SOLUTION:</span> A model nested under another model fixes certain parameters to specific values which may take on more than one value in the encompassing model. -->
-
-<!-- b. Write down the formula for the Bayes Factor in favor of the null model (where $\delta = 0$) over the full model using the Savage-Dickey theorem. <br /> -->
-<!-- <span style="color:firebrick">SOLUTION:</span> $BF_{01}=\frac{P(\delta = 0|D, M_1)}{P(\delta = 0|M_1)}$ -->
-
-<!-- c. Give a natural language paraphrase of the formula you wrote down above. <br /> -->
-<!-- <span style="color:firebrick">SOLUTION:</span> The Bayes Factor in favor of the embedded null model over the embedding model is given by the posterior density at $\delta = 0$ under the encompassing model divided by the prior in the encompassing model at $\delta = 0$. -->
-
-<!-- d. Now look at the plot above. Give your approximate guess of the Bayes Factor in favor of the null model in terms of a fraction of whole integers (something like: $\frac{4}{3}$ or $\frac{27}{120}$, ...). <br /> -->
-<!-- <span style="color:firebrick">SOLUTION:</span> $\approx \frac{5}{2}$ (see plot above) -->
-
-<!-- e. Formulate a conclusion to be drawn from this numerical result about the research hypothesis that the mean of the two groups compared here are identical. Write one concise sentence like you would in a research paper. <br /> -->
-<!-- <span style="color:firebrick">SOLUTION:</span> A BF of $\frac{5}{2}$ is mild evidence in favor of the null model, but conventionally not considered strong enough to be particularly noteworthy. -->
+e. A BF of $\frac{5}{2}$ is mild evidence in favor of the null model, but conventionally not considered strong enough to be particularly noteworthy.
+  
+</div>
+</div>
+</div>
 
 
 ## Bayes factors for ROPE-d hypotheses through encompassing models
@@ -516,7 +497,6 @@ tibble(
     axis.ticks.y = element_blank()
   )
 ```
-
 
 
 ```{theorem, "BF-ROPED-hypotheses"}
@@ -581,31 +561,23 @@ bf_ROPEd_hypothesis
 
 This is only minor evidence in favor of the alternative hypothesis (Bayes factor $\text{BF}_{10} \approx `r signif(1/bf_ROPEd_hypothesis,3)`$).
 
-<!-- ### Exercise 12.3 -->
+<!-- exercise 3 -->
+<div class = "exercises">
+**Exercise E.3: True or False?**
 
-<!-- <div class = "exercises"> -->
-<!-- **Exercises** -->
+Decide for the following statements whether they are true or false.
 
-<!-- Decide for the following statements whether they are true or false. -->
+a. An encompassing model for addressing ROPE-d hypotheses needs two competing models nested under it.
+b. A Bayes factor of $BF_{01} = 20$ constitutes strong evidence in favor of the alternative hypothesis.
+c. A Bayes factor of $BF_{10} = 20$ constitutes minor evidence in favor of the alternative hypothesis.
+d. We can compute the BF in favor of the alternative hypothesis with $BF_{10} = \frac{1}{BF_{01}}$.
 
-<!-- a. An encompassing model for addressing ROPE-d hypotheses needs two competing models nested under it. -->
-<!-- b. A Bayes Factor of $BF_{01} = 20$ constitutes strong evidence in favor of the alternative hypothesis. -->
-<!-- c. A Bayes Factor of $BF_{10} = 20$ constitutes minor evidence in favor of the alternative hypothesis. -->
-<!-- d. We can compute the BF in favor of the alternative hypothesis with $BF_{10} = \frac{1}{BF_{01}}$. -->
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
 
-<!-- <div align = "right">Solutions are in Appendix \@ref(app-98-solutions-exercises-Ch12-Ex3)</div> -->
-<!-- </div> -->
-
-<!-- TODO ÖÖ: after checked, paste solutions below in Appendix E -->
-
-<!-- ### Exercise 3 {#app-98-solutions-exercises-Ch12-Ex3} -->
-
-<!-- Decide for the following statements whether they are true or false. -->
-
-<!-- a. <span style="background-color: #b3ffcc">An encompassing model for addressing ROPE-d hypotheses needs two competing models nested under it.</span> -->
-<!-- b. A Bayes Factor of $BF_{01} = 20$ constitutes strong evidence in favor of the alternative hypothesis. -->
-<!-- c. A Bayes Factor of $BF_{10} = 20$ constitutes minor evidence in favor of the alternative hypothesis. -->
-<!-- d. <span style="background-color: #b3ffcc">We can compute the BF in favor of the alternative hypothesis with $BF_{10} = \frac{1}{BF_{01}}$.</span> -->
-<!-- <br /> -->
-<!-- <br /> -->
-<!-- <font size="1">Correct answers are highlighted.</font> -->
+Statements a. and d. are correct.
+  
+</div>
+</div>
+</div>
