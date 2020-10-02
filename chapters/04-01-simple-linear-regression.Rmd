@@ -167,12 +167,17 @@ rss_guesswork
 
 Compared to the previous prediction, which was based on the mean $\bar{y}$ only, this linear function reduces the prediction error (measured here geometrically in terms of a sum of squares).
 
+<div class = "exercises">
+**Exercise 13.1 [optional]**
+Compare RSS and TSS. In which component do they differ from each other? Think about which information the difference between the two measures conveys.
 
-<!-- # Exercise 13.1 -->
-<!-- Compare RSS and TSS. In which component do they differ from each other? Think about which information the difference between the two measures conveys. -->
-
-
-<!-- TSS computes the distance between a data point and the mean, whereas RSS computes the distance between a data point and its predictor. The difference between these two measures tells us how good our prediction is in comparison to a naive prediction (using just the mean). If the variance of the predictor variable(s) correlates strongly with the variance of the predicted variable, the difference between RSS and TSS will be bigger.   -->
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+TSS computes the distance between a data point and the mean, whereas RSS computes the distance between a data point and its predictor. The difference between these two measures tells us how good our prediction is in comparison to a naive prediction (using just the mean). If the variance of the predictor variable(s) correlates strongly with the variance of the predicted variable, the difference between RSS and TSS will be bigger.
+</div>
+</div>
+</div>
 
 ### Simple linear regression: general problem formulation
 
@@ -192,13 +197,17 @@ $$
 \langle \hat{\beta}_0, \hat{\beta}_1, \dots  , \hat{\beta}_k\rangle = \arg \min_{\langle \beta_0, \beta_1, \dots, \beta_k\rangle} \text{RSS}_{\langle {\beta}_0, {\beta}_1, \dots, {\beta}_k\rangle}
 $$
 
+<div class = "exercises">
+**Exercise 13.2**
+How many coefficients does the naive model have? How can they be interpreted?
 
-
-<!-- # Exercise 13.2 -->
-<!-- How many coefficients does the naive model have? How can they be interpreted? -->
-
-<!-- THe naive model have only $\beta_0$ as its coefficient with $\hat{\beta}_0$ = $\bar{y}$. -->
-
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+The naive model have only $\beta_0$ as its coefficient with it being the mean of $y$ values, i.e. $\hat{\beta}_0$ = $\bar{y}$.
+</div>
+</div>
+</div>
 
 In the above example, where we regressed `murder_rate` against `unemployment`, the model has two regression coefficients: an intercept term and a slope for `unemployment`. The optimal solution for these (see next section) delivers the regression line in the graph below:
 
@@ -521,6 +530,10 @@ The availability of these elegant mathematical solutions for OLS-regression expl
 
 In order to be able to extend regression modeling to predictor variables other than metric variables (so-called generalized linear regression models), the geometric approach needs to be abandoned in favor of a likelihood-based approach. The likelihood-based approach tries to find coefficients that explain the observed data most plausibly. 
 
+<!-- TODO -->
+<!-- https://medium.com/quick-code/maximum-likelihood-estimation-for-regression-65f9c99f815d -->
+<!-- Include the second figure if allowed by the author. Caption: In MLE approach, each predicted $y$ value decides mean of the normal distribution. Since the likelihood $f(y_i|\theta)$ is inversely proportional to the residual $\epsilon_i$, $\theta$ should be chosen such that sum of $\epsilon_i$ is minimised. -->
+
 ### A likelihood-based model
 
 There are two equivalent formulations of a (simple) linear regression model using a likelihood-based approach. The first is more explicit, showing clearly that the model assumes that for each observation $y_i$ an error term $\epsilon_i$, which is an iid sample from a Normal distribution. (Notice that the likelihood-based model assumes an additional parameter $\sigma$, the standard deviation of the error terms.)
@@ -606,7 +619,6 @@ $$
 ```{proof}
 *[see e.g., @naveen2019; @croot2010; @eppes2019]*
 
-#### Maximum Likelihood Estimation
 We consider again the linear regression model of the population with:
 
 $$Y= \beta_0 + \beta_1X + \epsilon.\tag{2.1}$$
@@ -681,6 +693,19 @@ Maximizing $-z$ is equivalent to minimizing $z$, thus, the best parameter fit un
 
 The equivalence also extends to cases with more than one explanatory variable.
 
+<div class = "exercises">
+**Exercise 13.3**
+
+Let's assume following the MLE approach, we obtained $\beta_0 = 1$, $\beta_1 = 2$ and $\sigma = 0.5$. For $x_i = 0$, which $y_i$ value will maximize the likelihood?
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+Since $y_i \sim \text{Normal} (\beta_0 + \beta_1 x_i , \sigma)$, the likelihood is maximized at the mean of the normal distribution, i.e. $y_i = \beta_0 + \beta_1 x_i = 1$.
+</div>
+</div>
+</div>
+
 ### Finding the MLE-solution with `glm`
 
 R also has a built-in way of approaching simple linear regression with a maximum-likelihood approach, namely by using the function `glm` (generalized linear model). Notice that the output looks slightly different from that of `lm`.
@@ -696,9 +721,31 @@ We might also risk a peek at the summary of `fit_glm`:
 summary(fit_glm)
 ```
 
+<div class = "exercises">
+**Exercise 13.4**
+
+Compare the output of `fit_lm` on the last page and `fit_glm` on this page. Why are the estimates of coefficients same?
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+By default, `glm` assumes a normal link function when it is not specified. `lm` can be seen as a more specific version of `glm` where the link function is fixed to be a normal distribution.
+</div>
+</div>
+</div>
+
 ## A Bayesian approach
 
 A Bayesian model for (simple) linear regression looks very much like the previous likelihood-based model, just that it also adds prior information. We have already seen a Bayesian linear regression model in Chapter \@ref(Chap-03-03-models-examples-linear-regression). It is repeated here in Figure \@ref(fig:ch-04-01-Simple-Linear-Regression-repeated).
+
+<!-- TODO -->
+<!-- Alternative formulation: In frequentist approach, the best fitting parameters are used to fit a single line. In Bayesian approach, multiple lines are fitted with varying degree of plausibility. -->
+
+<!-- ```{r ch-04-01-Bayesian-linear-regression, echo = F, out.width = '80%', fig.cap="Bayesian linear regression fits multiple lines."} -->
+<!-- knitr::include_graphics("visuals/bayesian_linear_reg.png") -->
+<!-- ``` -->
+<!-- Figure is from ABDA Week 03 bonus I -->
+
 
 ```{r ch-04-01-Simple-Linear-Regression-repeated, echo = F, out.width = '80%', fig.cap="Bayesian Simple Linear Regression Model (repeated from before)."}
 knitr::include_graphics("visuals/linear-regression-model.png")
@@ -786,9 +833,21 @@ summary(fit_brms_murder)
 
 This output tells us about which model we fitted, states some properties of the MCMC sampling routine used to obtain samples from the posterior distribution, and it also gives us information about the posteriors under the heading "Population-Level Effects" we get summary statistics of the set of posterior samples for each regression coefficient, including the mean ("Estimate"), and the 95% inter-quantile range ("l-95%" is the lower bound and "u-95%" is the upper bound).^[Notice that the 95% inter-quantile range is not necessarily the same as the 95% HDI, but for large sample sizes the two will coincide.]
 
+<div class = "exercises">
+**Exercise 13.5 [optional]**
+
+By default, `brms` assumes an appropriate prior for coefficients. What do you expect to happen to the estimate of the intercept when using a very strong prior for its value to be around 100?
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+The estimate will have a value that is bigger than the current one, especially if the number of data points are small.
+</div>
+</div>
+</div>
 
 ### Bayesian regression with non-informative standard priors
-
+<!-- TODO: include or not? Currently not populated at all. -->
 
 
 ## Testing coefficients
@@ -856,6 +915,18 @@ summary(lm(murder_rate ~ unemployment, data = murder_data))
 summary(glm(murder_rate ~ unemployment, data = murder_data))
 ```
 
+<div class = "exercises">
+**Exercise 13.6**
+
+Where can one finde $p$-values in the above output? What does it mean?
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+$p$-values can be found under the column 'Pr(>|t|)'. Low $p$-values are evidences against the null hypothesis, which in this case assumes that values of coefficients are $0$. In other word, we have strong evidence to believe that the mean difference between two groups are not 0.
+</div>
+</div>
+</div>
 
 
 
