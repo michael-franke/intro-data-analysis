@@ -5,20 +5,20 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>11.4 Bayes factors | Introduction to Data Analysis</title>
-  <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
+  <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
   <meta name="generator" content="bookdown 0.20.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="11.4 Bayes factors | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
+  <meta property="og:description" content="Introductory text for statistics and data analysis (using R)" />
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="11.4 Bayes factors | Introduction to Data Analysis" />
   
-  <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
+  <meta name="twitter:description" content="Introductory text for statistics and data analysis (using R)" />
   
 
 <meta name="author" content="Michael Franke" />
@@ -364,7 +364,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="10.4.2" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html#neyman-pearson"><i class="fa fa-check"></i><b>10.4.2</b> Neyman-Pearson</a></li>
 <li class="chapter" data-level="10.4.3" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html#hybrid-modern-nhst"><i class="fa fa-check"></i><b>10.4.3</b> Hybrid modern NHST</a></li>
 </ul></li>
-<li class="chapter" data-level="10.5" data-path="ch-03-05-hypothesis-testing-3-model-checking.html"><a href="ch-03-05-hypothesis-testing-3-model-checking.html"><i class="fa fa-check"></i><b>10.5</b> Relation to model checking Section</a></li>
+<li class="chapter" data-level="10.5" data-path="ch-03-05-hypothesis-testing-3-model-checking.html"><a href="ch-03-05-hypothesis-testing-3-model-checking.html"><i class="fa fa-check"></i><b>10.5</b> Relation to model checking</a></li>
 </ul></li>
 <li class="chapter" data-level="11" data-path="Chap-03-06-model-comparison.html"><a href="Chap-03-06-model-comparison.html"><i class="fa fa-check"></i><b>11</b> Model Comparison</a><ul>
 <li class="chapter" data-level="11.1" data-path="Chap-03-06-model-comparison-case-study.html"><a href="Chap-03-06-model-comparison-case-study.html"><i class="fa fa-check"></i><b>11.1</b> Case study: recall models</a></li>
@@ -616,50 +616,50 @@ P(d \mid M_{\text{pow}}) &amp; = \text{Uniform}(d, 0, 1.5)
 \end{aligned}
 \]</span></p>
 <p>We can also express these models in code, like so:</p>
-<div class="sourceCode" id="cb457"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb457-1" data-line-number="1"><span class="co"># prior exponential model</span></a>
-<a class="sourceLine" id="cb457-2" data-line-number="2">priorExp &lt;-<span class="st"> </span><span class="cf">function</span>(a, b){</a>
-<a class="sourceLine" id="cb457-3" data-line-number="3">  <span class="kw">dunif</span>(a, <span class="dv">0</span>, <span class="fl">1.5</span>) <span class="op">*</span><span class="st"> </span><span class="kw">dunif</span>(b, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb457-4" data-line-number="4">}</a>
-<a class="sourceLine" id="cb457-5" data-line-number="5"><span class="co"># likelihood function exponential model</span></a>
-<a class="sourceLine" id="cb457-6" data-line-number="6">lhExp &lt;-<span class="st"> </span><span class="cf">function</span>(a, b){</a>
-<a class="sourceLine" id="cb457-7" data-line-number="7">  theta &lt;-<span class="st"> </span>a<span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>b<span class="op">*</span>t)</a>
-<a class="sourceLine" id="cb457-8" data-line-number="8">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-5</span></a>
-<a class="sourceLine" id="cb457-9" data-line-number="9">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-5</span></a>
-<a class="sourceLine" id="cb457-10" data-line-number="10">  <span class="kw">prod</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>))</a>
-<a class="sourceLine" id="cb457-11" data-line-number="11">}</a>
-<a class="sourceLine" id="cb457-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb457-13" data-line-number="13"><span class="co"># prior power model</span></a>
-<a class="sourceLine" id="cb457-14" data-line-number="14">priorPow &lt;-<span class="st"> </span><span class="cf">function</span>(c, d){</a>
-<a class="sourceLine" id="cb457-15" data-line-number="15">  <span class="kw">dunif</span>(c, <span class="dv">0</span>, <span class="fl">1.5</span>) <span class="op">*</span><span class="st"> </span><span class="kw">dunif</span>(d, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb457-16" data-line-number="16">}</a>
-<a class="sourceLine" id="cb457-17" data-line-number="17"><span class="co"># likelihood function power model</span></a>
-<a class="sourceLine" id="cb457-18" data-line-number="18">lhPow &lt;-<span class="st"> </span><span class="cf">function</span>(c, d){</a>
-<a class="sourceLine" id="cb457-19" data-line-number="19">  theta &lt;-<span class="st"> </span>c<span class="op">*</span>t<span class="op">^</span>(<span class="op">-</span>d)</a>
-<a class="sourceLine" id="cb457-20" data-line-number="20">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-5</span></a>
-<a class="sourceLine" id="cb457-21" data-line-number="21">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-5</span></a>
-<a class="sourceLine" id="cb457-22" data-line-number="22">  <span class="kw">prod</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>))</a>
-<a class="sourceLine" id="cb457-23" data-line-number="23">}</a></code></pre></div>
+<div class="sourceCode" id="cb465"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb465-1" data-line-number="1"><span class="co"># prior exponential model</span></a>
+<a class="sourceLine" id="cb465-2" data-line-number="2">priorExp &lt;-<span class="st"> </span><span class="cf">function</span>(a, b){</a>
+<a class="sourceLine" id="cb465-3" data-line-number="3">  <span class="kw">dunif</span>(a, <span class="dv">0</span>, <span class="fl">1.5</span>) <span class="op">*</span><span class="st"> </span><span class="kw">dunif</span>(b, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb465-4" data-line-number="4">}</a>
+<a class="sourceLine" id="cb465-5" data-line-number="5"><span class="co"># likelihood function exponential model</span></a>
+<a class="sourceLine" id="cb465-6" data-line-number="6">lhExp &lt;-<span class="st"> </span><span class="cf">function</span>(a, b){</a>
+<a class="sourceLine" id="cb465-7" data-line-number="7">  theta &lt;-<span class="st"> </span>a<span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>b<span class="op">*</span>t)</a>
+<a class="sourceLine" id="cb465-8" data-line-number="8">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-5</span></a>
+<a class="sourceLine" id="cb465-9" data-line-number="9">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-5</span></a>
+<a class="sourceLine" id="cb465-10" data-line-number="10">  <span class="kw">prod</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>))</a>
+<a class="sourceLine" id="cb465-11" data-line-number="11">}</a>
+<a class="sourceLine" id="cb465-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb465-13" data-line-number="13"><span class="co"># prior power model</span></a>
+<a class="sourceLine" id="cb465-14" data-line-number="14">priorPow &lt;-<span class="st"> </span><span class="cf">function</span>(c, d){</a>
+<a class="sourceLine" id="cb465-15" data-line-number="15">  <span class="kw">dunif</span>(c, <span class="dv">0</span>, <span class="fl">1.5</span>) <span class="op">*</span><span class="st"> </span><span class="kw">dunif</span>(d, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb465-16" data-line-number="16">}</a>
+<a class="sourceLine" id="cb465-17" data-line-number="17"><span class="co"># likelihood function power model</span></a>
+<a class="sourceLine" id="cb465-18" data-line-number="18">lhPow &lt;-<span class="st"> </span><span class="cf">function</span>(c, d){</a>
+<a class="sourceLine" id="cb465-19" data-line-number="19">  theta &lt;-<span class="st"> </span>c<span class="op">*</span>t<span class="op">^</span>(<span class="op">-</span>d)</a>
+<a class="sourceLine" id="cb465-20" data-line-number="20">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-5</span></a>
+<a class="sourceLine" id="cb465-21" data-line-number="21">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-5</span></a>
+<a class="sourceLine" id="cb465-22" data-line-number="22">  <span class="kw">prod</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>))</a>
+<a class="sourceLine" id="cb465-23" data-line-number="23">}</a></code></pre></div>
 <p>To approximate each model’s marginal likelihood via grid approximation, we consider equally spaced values for both parameters (a tighly knit grid), asses the prior and likelihood for each parameter pair and finally take the sum over all of the visited values:</p>
-<div class="sourceCode" id="cb458"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb458-1" data-line-number="1"><span class="co"># make sure the functions accept vector input</span></a>
-<a class="sourceLine" id="cb458-2" data-line-number="2">lhExp &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(lhExp)</a>
-<a class="sourceLine" id="cb458-3" data-line-number="3">lhPow &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(lhPow)</a>
-<a class="sourceLine" id="cb458-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb458-5" data-line-number="5"><span class="co"># define the step size of the grid</span></a>
-<a class="sourceLine" id="cb458-6" data-line-number="6">stepsize &lt;-<span class="st"> </span><span class="fl">0.01</span></a>
-<a class="sourceLine" id="cb458-7" data-line-number="7"><span class="co"># calculate the &quot;evidence&quot; aka marginal likelihood</span></a>
-<a class="sourceLine" id="cb458-8" data-line-number="8">evidence &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(</a>
-<a class="sourceLine" id="cb458-9" data-line-number="9">  <span class="dt">x =</span> <span class="kw">seq</span>(<span class="fl">0.005</span>, <span class="fl">1.495</span>, <span class="dt">by =</span> stepsize),</a>
-<a class="sourceLine" id="cb458-10" data-line-number="10">  <span class="dt">y =</span> <span class="kw">seq</span>(<span class="fl">0.005</span>, <span class="fl">1.495</span>, <span class="dt">by =</span> stepsize)</a>
-<a class="sourceLine" id="cb458-11" data-line-number="11">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb458-12" data-line-number="12"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb458-13" data-line-number="13">    <span class="dt">lhExp =</span> <span class="kw">lhExp</span>(x,y), <span class="dt">priExp =</span> <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="kw">length</span>(x),  <span class="co"># uniform priors!</span></a>
-<a class="sourceLine" id="cb458-14" data-line-number="14">    <span class="dt">lhPow =</span> <span class="kw">lhPow</span>(x,y), <span class="dt">priPow =</span> <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="kw">length</span>(x)</a>
-<a class="sourceLine" id="cb458-15" data-line-number="15">  )</a>
-<a class="sourceLine" id="cb458-16" data-line-number="16"><span class="co"># output result</span></a>
-<a class="sourceLine" id="cb458-17" data-line-number="17"><span class="kw">message</span>(</a>
-<a class="sourceLine" id="cb458-18" data-line-number="18">  <span class="st">&quot;BF in favor of exponential model: &quot;</span>, </a>
-<a class="sourceLine" id="cb458-19" data-line-number="19">  <span class="kw">with</span>(evidence, <span class="kw">sum</span>(priExp<span class="op">*</span>lhExp)<span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(priPow<span class="op">*</span>lhPow)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb458-20" data-line-number="20">)</a></code></pre></div>
+<div class="sourceCode" id="cb466"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb466-1" data-line-number="1"><span class="co"># make sure the functions accept vector input</span></a>
+<a class="sourceLine" id="cb466-2" data-line-number="2">lhExp &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(lhExp)</a>
+<a class="sourceLine" id="cb466-3" data-line-number="3">lhPow &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(lhPow)</a>
+<a class="sourceLine" id="cb466-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb466-5" data-line-number="5"><span class="co"># define the step size of the grid</span></a>
+<a class="sourceLine" id="cb466-6" data-line-number="6">stepsize &lt;-<span class="st"> </span><span class="fl">0.01</span></a>
+<a class="sourceLine" id="cb466-7" data-line-number="7"><span class="co"># calculate the &quot;evidence&quot; aka marginal likelihood</span></a>
+<a class="sourceLine" id="cb466-8" data-line-number="8">evidence &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(</a>
+<a class="sourceLine" id="cb466-9" data-line-number="9">  <span class="dt">x =</span> <span class="kw">seq</span>(<span class="fl">0.005</span>, <span class="fl">1.495</span>, <span class="dt">by =</span> stepsize),</a>
+<a class="sourceLine" id="cb466-10" data-line-number="10">  <span class="dt">y =</span> <span class="kw">seq</span>(<span class="fl">0.005</span>, <span class="fl">1.495</span>, <span class="dt">by =</span> stepsize)</a>
+<a class="sourceLine" id="cb466-11" data-line-number="11">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb466-12" data-line-number="12"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb466-13" data-line-number="13">    <span class="dt">lhExp =</span> <span class="kw">lhExp</span>(x,y), <span class="dt">priExp =</span> <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="kw">length</span>(x),  <span class="co"># uniform priors!</span></a>
+<a class="sourceLine" id="cb466-14" data-line-number="14">    <span class="dt">lhPow =</span> <span class="kw">lhPow</span>(x,y), <span class="dt">priPow =</span> <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="kw">length</span>(x)</a>
+<a class="sourceLine" id="cb466-15" data-line-number="15">  )</a>
+<a class="sourceLine" id="cb466-16" data-line-number="16"><span class="co"># output result</span></a>
+<a class="sourceLine" id="cb466-17" data-line-number="17"><span class="kw">message</span>(</a>
+<a class="sourceLine" id="cb466-18" data-line-number="18">  <span class="st">&quot;BF in favor of exponential model: &quot;</span>, </a>
+<a class="sourceLine" id="cb466-19" data-line-number="19">  <span class="kw">with</span>(evidence, <span class="kw">sum</span>(priExp<span class="op">*</span>lhExp)<span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(priPow<span class="op">*</span>lhPow)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb466-20" data-line-number="20">)</a></code></pre></div>
 <p>Based on this computation, we would be entitled to conclude that the data provides overwhelming evidence in favor of the exponential model. No matter what we believed at the outset about which model is more likely, we should adjust these beliefs by a factor of more than 1000 in favor of the exponential model.</p>
 </div>
 <div id="naive-monte-carlo" class="section level3">
@@ -667,36 +667,36 @@ P(d \mid M_{\text{pow}}) &amp; = \text{Uniform}(d, 0, 1.5)
 <p>For simple models (with maybe 4-5 free parameters), we can also use naive Monte Carlo sampling to approximate Bayes factors. In particular, we can approximate the marginal likelihood by taking samples from the prior, calculating the likelihood of the data for each sampled parameter tuple, and then averaging over all calculated likelihoods:</p>
 <p><span class="math display">\[P(D, M_i) = \int P(D \mid \theta, M_i) \ P(\theta \mid M_i) \ \text{d}\theta \approx \frac{1}{n} \sum^{n}_{\theta_j \sim P(\theta \mid M_i)} P(D \mid \theta_j, M_i)\]</span></p>
 <p>Here is a calculation using one million samples from the prior of each model:</p>
-<div class="sourceCode" id="cb459"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb459-1" data-line-number="1">nSamples &lt;-<span class="st"> </span><span class="dv">1000000</span></a>
-<a class="sourceLine" id="cb459-2" data-line-number="2">a &lt;-<span class="st"> </span><span class="kw">runif</span>(nSamples, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb459-3" data-line-number="3">b &lt;-<span class="st"> </span><span class="kw">runif</span>(nSamples, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb459-4" data-line-number="4">lhExpVec &lt;-<span class="st"> </span><span class="kw">lhExp</span>(a,b)</a>
-<a class="sourceLine" id="cb459-5" data-line-number="5">lhPowVec &lt;-<span class="st"> </span><span class="kw">lhPow</span>(a,b)</a>
-<a class="sourceLine" id="cb459-6" data-line-number="6"><span class="kw">message</span>(</a>
-<a class="sourceLine" id="cb459-7" data-line-number="7"> <span class="st">&quot;BF in favor of exponential model: &quot;</span>, </a>
-<a class="sourceLine" id="cb459-8" data-line-number="8"> <span class="kw">signif</span>(<span class="kw">sum</span>(lhExpVec) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(lhPowVec)),<span class="dv">6</span> </a>
-<a class="sourceLine" id="cb459-9" data-line-number="9">)</a></code></pre></div>
+<div class="sourceCode" id="cb467"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb467-1" data-line-number="1">nSamples &lt;-<span class="st"> </span><span class="dv">1000000</span></a>
+<a class="sourceLine" id="cb467-2" data-line-number="2">a &lt;-<span class="st"> </span><span class="kw">runif</span>(nSamples, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb467-3" data-line-number="3">b &lt;-<span class="st"> </span><span class="kw">runif</span>(nSamples, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
+<a class="sourceLine" id="cb467-4" data-line-number="4">lhExpVec &lt;-<span class="st"> </span><span class="kw">lhExp</span>(a,b)</a>
+<a class="sourceLine" id="cb467-5" data-line-number="5">lhPowVec &lt;-<span class="st"> </span><span class="kw">lhPow</span>(a,b)</a>
+<a class="sourceLine" id="cb467-6" data-line-number="6"><span class="kw">message</span>(</a>
+<a class="sourceLine" id="cb467-7" data-line-number="7"> <span class="st">&quot;BF in favor of exponential model: &quot;</span>, </a>
+<a class="sourceLine" id="cb467-8" data-line-number="8"> <span class="kw">signif</span>(<span class="kw">sum</span>(lhExpVec) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(lhPowVec)),<span class="dv">6</span> </a>
+<a class="sourceLine" id="cb467-9" data-line-number="9">)</a></code></pre></div>
 <p>We can also check the time course of our MC-estimate by a plot like that in Figure <a href="Chap-03-06-model-comparison-BF.html#fig:Chap-03-06-model-comparison-MC-estimate-time">11.3</a>.</p>
-<div class="sourceCode" id="cb460"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb460-1" data-line-number="1">BFVec &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(</a>
-<a class="sourceLine" id="cb460-2" data-line-number="2">  <span class="co"># start at 10.000 and then inspect every 500 samples</span></a>
-<a class="sourceLine" id="cb460-3" data-line-number="3">  <span class="kw">seq</span>(<span class="dv">10000</span>, nSamples, <span class="dt">by =</span> <span class="dv">500</span>), </a>
-<a class="sourceLine" id="cb460-4" data-line-number="4">  <span class="cf">function</span>(i){</a>
-<a class="sourceLine" id="cb460-5" data-line-number="5">    <span class="co"># what&#39;s the BF-estimate at that point in time?</span></a>
-<a class="sourceLine" id="cb460-6" data-line-number="6">    <span class="kw">sum</span>(lhExpVec[<span class="dv">1</span><span class="op">:</span>i]) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(lhPowVec[<span class="dv">1</span><span class="op">:</span>i])</a>
-<a class="sourceLine" id="cb460-7" data-line-number="7">  } </a>
-<a class="sourceLine" id="cb460-8" data-line-number="8">)</a>
-<a class="sourceLine" id="cb460-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb460-10" data-line-number="10"><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb460-11" data-line-number="11">  <span class="dt">i =</span> <span class="kw">seq</span>(<span class="dv">10000</span>, nSamples, <span class="dt">by =</span> <span class="dv">500</span>), </a>
-<a class="sourceLine" id="cb460-12" data-line-number="12">  <span class="dt">BF =</span> BFVec</a>
-<a class="sourceLine" id="cb460-13" data-line-number="13">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb460-14" data-line-number="14"><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> i, <span class="dt">y =</span> BF)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb460-15" data-line-number="15"><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb460-16" data-line-number="16"><span class="st">  </span><span class="kw">geom_hline</span>(</a>
-<a class="sourceLine" id="cb460-17" data-line-number="17">    <span class="dt">yintercept =</span> <span class="dv">1221</span>, </a>
-<a class="sourceLine" id="cb460-18" data-line-number="18">    <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span></a>
-<a class="sourceLine" id="cb460-19" data-line-number="19">  ) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb460-20" data-line-number="20"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;number of samples&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb468"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb468-1" data-line-number="1">BFVec &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(</a>
+<a class="sourceLine" id="cb468-2" data-line-number="2">  <span class="co"># start at 10.000 and then inspect every 500 samples</span></a>
+<a class="sourceLine" id="cb468-3" data-line-number="3">  <span class="kw">seq</span>(<span class="dv">10000</span>, nSamples, <span class="dt">by =</span> <span class="dv">500</span>), </a>
+<a class="sourceLine" id="cb468-4" data-line-number="4">  <span class="cf">function</span>(i){</a>
+<a class="sourceLine" id="cb468-5" data-line-number="5">    <span class="co"># what&#39;s the BF-estimate at that point in time?</span></a>
+<a class="sourceLine" id="cb468-6" data-line-number="6">    <span class="kw">sum</span>(lhExpVec[<span class="dv">1</span><span class="op">:</span>i]) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(lhPowVec[<span class="dv">1</span><span class="op">:</span>i])</a>
+<a class="sourceLine" id="cb468-7" data-line-number="7">  } </a>
+<a class="sourceLine" id="cb468-8" data-line-number="8">)</a>
+<a class="sourceLine" id="cb468-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb468-10" data-line-number="10"><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb468-11" data-line-number="11">  <span class="dt">i =</span> <span class="kw">seq</span>(<span class="dv">10000</span>, nSamples, <span class="dt">by =</span> <span class="dv">500</span>), </a>
+<a class="sourceLine" id="cb468-12" data-line-number="12">  <span class="dt">BF =</span> BFVec</a>
+<a class="sourceLine" id="cb468-13" data-line-number="13">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb468-14" data-line-number="14"><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> i, <span class="dt">y =</span> BF)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb468-15" data-line-number="15"><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb468-16" data-line-number="16"><span class="st">  </span><span class="kw">geom_hline</span>(</a>
+<a class="sourceLine" id="cb468-17" data-line-number="17">    <span class="dt">yintercept =</span> <span class="dv">1221</span>, </a>
+<a class="sourceLine" id="cb468-18" data-line-number="18">    <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span></a>
+<a class="sourceLine" id="cb468-19" data-line-number="19">  ) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb468-20" data-line-number="20"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;number of samples&quot;</span>)</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:Chap-03-06-model-comparison-MC-estimate-time"></span>
 <img src="I2DA_files/figure-html/Chap-03-06-model-comparison-MC-estimate-time-1.png" alt="Temporal development (as more samples come in) of the Monte Carlo esimtate of the Bayes factor in favor of the exponential model over the power model of forgetting." width="672" />
 <p class="caption">

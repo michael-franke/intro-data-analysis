@@ -5,20 +5,20 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>14.2 More than two categorical predictors | Introduction to Data Analysis</title>
-  <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
+  <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
   <meta name="generator" content="bookdown 0.20.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="14.2 More than two categorical predictors | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
+  <meta property="og:description" content="Introductory text for statistics and data analysis (using R)" />
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="14.2 More than two categorical predictors | Introduction to Data Analysis" />
   
-  <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
+  <meta name="twitter:description" content="Introductory text for statistics and data analysis (using R)" />
   
 
 <meta name="author" content="Michael Franke" />
@@ -364,7 +364,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="10.4.2" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html#neyman-pearson"><i class="fa fa-check"></i><b>10.4.2</b> Neyman-Pearson</a></li>
 <li class="chapter" data-level="10.4.3" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html#hybrid-modern-nhst"><i class="fa fa-check"></i><b>10.4.3</b> Hybrid modern NHST</a></li>
 </ul></li>
-<li class="chapter" data-level="10.5" data-path="ch-03-05-hypothesis-testing-3-model-checking.html"><a href="ch-03-05-hypothesis-testing-3-model-checking.html"><i class="fa fa-check"></i><b>10.5</b> Relation to model checking Section</a></li>
+<li class="chapter" data-level="10.5" data-path="ch-03-05-hypothesis-testing-3-model-checking.html"><a href="ch-03-05-hypothesis-testing-3-model-checking.html"><i class="fa fa-check"></i><b>10.5</b> Relation to model checking</a></li>
 </ul></li>
 <li class="chapter" data-level="11" data-path="Chap-03-06-model-comparison.html"><a href="Chap-03-06-model-comparison.html"><i class="fa fa-check"></i><b>11</b> Model Comparison</a><ul>
 <li class="chapter" data-level="11.1" data-path="Chap-03-06-model-comparison-case-study.html"><a href="Chap-03-06-model-comparison-case-study.html"><i class="fa fa-check"></i><b>11.1</b> Case study: recall models</a></li>
@@ -528,39 +528,51 @@ code span.wa { color: #bf0303; } /* Warning */
 \text{RT in &#39;discrimination&#39;}
 \]</span></p>
 <p>So we are interested in the <span class="math inline">\(\delta\)</span>s, so to speak, between ‘reaction’ and ‘goNoGo’ and between ‘discrimination’ and ‘goNoGo’.</p>
-<div class="sourceCode" id="cb526"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb526-1" data-line-number="1">mc_url &lt;-<span class="st"> </span><span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_cleaned.csv&#39;</span>)</a>
-<a class="sourceLine" id="cb526-2" data-line-number="2">mc_data_cleaned &lt;-<span class="st"> </span><span class="kw">read_csv</span>(mc_url) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb526-3" data-line-number="3"><span class="st">  </span><span class="co"># renaming to make &#39;goNoGo&#39; the reference level </span></a>
-<a class="sourceLine" id="cb526-4" data-line-number="4"><span class="st">  </span><span class="co">#  (dirty hack, but simpler than to messing with contrast coding)</span></a>
-<a class="sourceLine" id="cb526-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb526-6" data-line-number="6">    <span class="dt">block =</span> <span class="kw">case_when</span>(</a>
-<a class="sourceLine" id="cb526-7" data-line-number="7">      block <span class="op">==</span><span class="st"> &quot;reaction&quot;</span>         <span class="op">~</span><span class="st"> &quot;B_reaction&quot;</span>,</a>
-<a class="sourceLine" id="cb526-8" data-line-number="8">      block <span class="op">==</span><span class="st"> &quot;goNoGo&quot;</span>           <span class="op">~</span><span class="st"> &quot;A_goNoGo&quot;</span>,</a>
-<a class="sourceLine" id="cb526-9" data-line-number="9">      block <span class="op">==</span><span class="st"> &quot;discrimination&quot;</span>   <span class="op">~</span><span class="st"> &quot;C_discrimination&quot;</span></a>
-<a class="sourceLine" id="cb526-10" data-line-number="10">    )</a>
-<a class="sourceLine" id="cb526-11" data-line-number="11">  )</a></code></pre></div>
+<div class="sourceCode" id="cb534"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb534-1" data-line-number="1">mc_url &lt;-<span class="st"> </span><span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_cleaned.csv&#39;</span>)</a>
+<a class="sourceLine" id="cb534-2" data-line-number="2">mc_data_cleaned &lt;-<span class="st"> </span><span class="kw">read_csv</span>(mc_url) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb534-3" data-line-number="3"><span class="st">  </span><span class="co"># renaming to make &#39;goNoGo&#39; the reference level </span></a>
+<a class="sourceLine" id="cb534-4" data-line-number="4"><span class="st">  </span><span class="co">#  (dirty hack, but simpler than to messing with contrast coding)</span></a>
+<a class="sourceLine" id="cb534-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb534-6" data-line-number="6">    <span class="dt">block =</span> <span class="kw">case_when</span>(</a>
+<a class="sourceLine" id="cb534-7" data-line-number="7">      block <span class="op">==</span><span class="st"> &quot;reaction&quot;</span>         <span class="op">~</span><span class="st"> &quot;B_reaction&quot;</span>,</a>
+<a class="sourceLine" id="cb534-8" data-line-number="8">      block <span class="op">==</span><span class="st"> &quot;goNoGo&quot;</span>           <span class="op">~</span><span class="st"> &quot;A_goNoGo&quot;</span>,</a>
+<a class="sourceLine" id="cb534-9" data-line-number="9">      block <span class="op">==</span><span class="st"> &quot;discrimination&quot;</span>   <span class="op">~</span><span class="st"> &quot;C_discrimination&quot;</span></a>
+<a class="sourceLine" id="cb534-10" data-line-number="10">    )</a>
+<a class="sourceLine" id="cb534-11" data-line-number="11">  )</a></code></pre></div>
 <p>To fit this model with <code>brm</code> we then just need a simple function call with the formula <code>RT ~ block</code> that precisely describes what we are interested in: to explain reaction times as a function of the experimental condition:</p>
-<div class="sourceCode" id="cb527"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb527-1" data-line-number="1">fit_brms_mc &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb527-2" data-line-number="2">  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></a>
-<a class="sourceLine" id="cb527-3" data-line-number="3">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</a>
-<a class="sourceLine" id="cb527-4" data-line-number="4">  <span class="dt">data =</span> mc_data_cleaned</a>
-<a class="sourceLine" id="cb527-5" data-line-number="5">)</a></code></pre></div>
+<div class="sourceCode" id="cb535"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb535-1" data-line-number="1">fit_brms_mc &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb535-2" data-line-number="2">  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></a>
+<a class="sourceLine" id="cb535-3" data-line-number="3">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</a>
+<a class="sourceLine" id="cb535-4" data-line-number="4">  <span class="dt">data =</span> mc_data_cleaned</a>
+<a class="sourceLine" id="cb535-5" data-line-number="5">)</a></code></pre></div>
 <p>To inspect the posterior fits of this model, we can extract the relevant summary statistics as before:</p>
-<div class="sourceCode" id="cb528"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb528-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_mc)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb536"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb536-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_mc)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                         Estimate  l-95% CI   u-95% CI
 ## Intercept              427.26357  419.6334  434.92959
 ## blockB_reaction       -127.38043 -136.8158 -117.98286
 ## blockC_discrimination   60.38725   50.8000   70.04778</code></pre>
 <p>Notice that there is an intercept term, as before. This corresponds to the mean reaction time of the reference level (here: ‘goNoGo’). There are two slope coefficients, one for the difference between the ‘goNoGo’ and the ‘reaction’ condition (‘blockB_reaction’) and another for the difference between the ‘goNoGo’ and the ‘discrimination’ condition (‘blockC_discrimination’). In formula, <span class="math inline">\(\hat{y}_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}\)</span>, whereas <span class="math inline">\(\beta_0\)</span>: Intercept, <span class="math inline">\(\beta_1\)</span>: blockB_reaction and <span class="math inline">\(\beta_2\)</span>: blockC_discrimination. <span class="math inline">\(x_{i1} = 1\)</span> iff the data point is from the ‘reaction’ condition and <span class="math inline">\(x_{i2} = 1\)</span> iff it’s from the ‘discrimination’ condition.</p>
 <p>As we may have expected, the 95% inter-quantile range for both slope coefficients (which, given the amount of data we have, is almost surely almost identical to the 95% HDI) does not include 0 by a very wide margin. We could, therefore, conclude, based on a Bayesian approach to hypothesis testing in terms of posterior estimation, that the reaction times of conditions are credibly different.</p>
+<div class="exercises">
+<p><strong>Exercise 14.2</strong></p>
+<p>Suppose that <span class="math inline">\(\beta_2\)</span> encodes the difference in reaction time between group B and group C. What should be the value of <span class="math inline">\((x_{i1}, x_{i2})\)</span> to get the mean reaction time of group A, group B and group C?</p>
+<div class="collapsibleSolution">
+<button class="trigger">
+Solution
+</button>
+<div class="content">
+<p>As group A is a reference category, <span class="math inline">\(\beta_0\)</span> express the mean reaction time of group A. The mean reaction time of group B is <span class="math inline">\(\beta_0 + \beta_1\)</span>, so we need <span class="math inline">\((x_{i1} =1 , x_{i2} = 0)\)</span>. In the text above, the mean reaction time of group C is given by <span class="math inline">\(\beta_0 + \beta_2\)</span>. However, now the value is given by <span class="math inline">\(\beta_0 + \beta_1 + \beta_2\)</span>, so <span class="math inline">\((x_{i1} =1 , x_{i2} = 1)\)</span> will give us the value we need.</p>
+</div>
+</div>
+</div>
 <p>The function call for a frequentist analysis with <code>glm</code> is almost identical:</p>
-<div class="sourceCode" id="cb530"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb530-1" data-line-number="1">fit_glm_mc &lt;-<span class="st"> </span><span class="kw">glm</span>(</a>
-<a class="sourceLine" id="cb530-2" data-line-number="2">  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></a>
-<a class="sourceLine" id="cb530-3" data-line-number="3">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</a>
-<a class="sourceLine" id="cb530-4" data-line-number="4">  <span class="dt">data =</span> mc_data_cleaned</a>
-<a class="sourceLine" id="cb530-5" data-line-number="5">)</a></code></pre></div>
+<div class="sourceCode" id="cb538"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb538-1" data-line-number="1">fit_glm_mc &lt;-<span class="st"> </span><span class="kw">glm</span>(</a>
+<a class="sourceLine" id="cb538-2" data-line-number="2">  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></a>
+<a class="sourceLine" id="cb538-3" data-line-number="3">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</a>
+<a class="sourceLine" id="cb538-4" data-line-number="4">  <span class="dt">data =</span> mc_data_cleaned</a>
+<a class="sourceLine" id="cb538-5" data-line-number="5">)</a></code></pre></div>
 <p>The summary of the model fit reveals <span class="math inline">\(p\)</span>-values for both slope coefficients, which indicate (unsurprisingly) that there is very strong evidence against the null hypothesis of no difference between the means of the two pairs of conditions we compare with this model:</p>
-<div class="sourceCode" id="cb531"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb531-1" data-line-number="1"><span class="kw">summary</span>(fit_glm_mc)</a></code></pre></div>
+<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb539-1" data-line-number="1"><span class="kw">summary</span>(fit_glm_mc)</a></code></pre></div>
 <pre><code>## 
 ## Call:
 ## glm(formula = RT ~ block, data = mc_data_cleaned)

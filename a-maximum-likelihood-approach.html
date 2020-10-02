@@ -5,20 +5,20 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>13.3 A maximum-likelihood approach | Introduction to Data Analysis</title>
-  <meta name="description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
+  <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
   <meta name="generator" content="bookdown 0.20.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="13.3 A maximum-likelihood approach | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
+  <meta property="og:description" content="Introductory text for statistics and data analysis (using R)" />
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="13.3 A maximum-likelihood approach | Introduction to Data Analysis" />
   
-  <meta name="twitter:description" content="Course Material for I2DA-2019 in Cognitive Science at University Osnabrück" />
+  <meta name="twitter:description" content="Introductory text for statistics and data analysis (using R)" />
   
 
 <meta name="author" content="Michael Franke" />
@@ -364,7 +364,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="10.4.2" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html#neyman-pearson"><i class="fa fa-check"></i><b>10.4.2</b> Neyman-Pearson</a></li>
 <li class="chapter" data-level="10.4.3" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html#hybrid-modern-nhst"><i class="fa fa-check"></i><b>10.4.3</b> Hybrid modern NHST</a></li>
 </ul></li>
-<li class="chapter" data-level="10.5" data-path="ch-03-05-hypothesis-testing-3-model-checking.html"><a href="ch-03-05-hypothesis-testing-3-model-checking.html"><i class="fa fa-check"></i><b>10.5</b> Relation to model checking Section</a></li>
+<li class="chapter" data-level="10.5" data-path="ch-03-05-hypothesis-testing-3-model-checking.html"><a href="ch-03-05-hypothesis-testing-3-model-checking.html"><i class="fa fa-check"></i><b>10.5</b> Relation to model checking</a></li>
 </ul></li>
 <li class="chapter" data-level="11" data-path="Chap-03-06-model-comparison.html"><a href="Chap-03-06-model-comparison.html"><i class="fa fa-check"></i><b>11</b> Model Comparison</a><ul>
 <li class="chapter" data-level="11.1" data-path="Chap-03-06-model-comparison-case-study.html"><a href="Chap-03-06-model-comparison-case-study.html"><i class="fa fa-check"></i><b>11.1</b> Case study: recall models</a></li>
@@ -518,6 +518,9 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="a-maximum-likelihood-approach" class="section level2">
 <h2><span class="header-section-number">13.3</span> A maximum-likelihood approach</h2>
 <p>In order to be able to extend regression modeling to predictor variables other than metric variables (so-called generalized linear regression models), the geometric approach needs to be abandoned in favor of a likelihood-based approach. The likelihood-based approach tries to find coefficients that explain the observed data most plausibly.</p>
+<!-- TODO -->
+<!-- https://medium.com/quick-code/maximum-likelihood-estimation-for-regression-65f9c99f815d -->
+<!-- Include the second figure if allowed by the author. Caption: In MLE approach, each predicted $y$ value decides mean of the normal distribution. Since the likelihood $f(y_i|\theta)$ is inversely proportional to the residual $\epsilon_i$, $\theta$ should be chosen such that sum of $\epsilon_i$ is minimised. -->
 <div id="a-likelihood-based-model" class="section level3">
 <h3><span class="header-section-number">13.3.1</span> A likelihood-based model</h3>
 <p>There are two equivalent formulations of a (simple) linear regression model using a likelihood-based approach. The first is more explicit, showing clearly that the model assumes that for each observation <span class="math inline">\(y_i\)</span> an error term <span class="math inline">\(\epsilon_i\)</span>, which is an iid sample from a Normal distribution. (Notice that the likelihood-based model assumes an additional parameter <span class="math inline">\(\sigma\)</span>, the standard deviation of the error terms.)</p>
@@ -546,30 +549,30 @@ y_i &amp; \sim \text{Normal}(\beta_0 + \beta_1 x_i, \sigma)
 <div id="finding-the-mle-solution-with-optim" class="section level3">
 <h3><span class="header-section-number">13.3.2</span> Finding the MLE-solution with <code>optim</code></h3>
 <p>We can use <code>optim</code> to find maximum likelihood estimates:</p>
-<div class="sourceCode" id="cb493"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb493-1" data-line-number="1"><span class="co"># data to be explained / predicted</span></a>
-<a class="sourceLine" id="cb493-2" data-line-number="2">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
-<a class="sourceLine" id="cb493-3" data-line-number="3"><span class="co"># data to use for prediction / explanation</span></a>
-<a class="sourceLine" id="cb493-4" data-line-number="4">x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</a>
-<a class="sourceLine" id="cb493-5" data-line-number="5"><span class="co"># function to calculate negative log-likelihood</span></a>
-<a class="sourceLine" id="cb493-6" data-line-number="6">get_nll =<span class="st"> </span><span class="cf">function</span>(y, x, beta_<span class="dv">0</span>, beta_<span class="dv">1</span>, sd) {</a>
-<a class="sourceLine" id="cb493-7" data-line-number="7">  <span class="cf">if</span> (sd <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>) {<span class="kw">return</span>( <span class="ot">Inf</span> )}</a>
-<a class="sourceLine" id="cb493-8" data-line-number="8">  yPred =<span class="st"> </span>beta_<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>x <span class="op">*</span><span class="st"> </span>beta_<span class="dv">1</span></a>
-<a class="sourceLine" id="cb493-9" data-line-number="9">  nll =<span class="st"> </span><span class="op">-</span><span class="kw">dnorm</span>(y, <span class="dt">mean=</span>yPred, <span class="dt">sd=</span>sd, <span class="dt">log =</span> T)</a>
-<a class="sourceLine" id="cb493-10" data-line-number="10">  <span class="kw">sum</span>(nll)</a>
-<a class="sourceLine" id="cb493-11" data-line-number="11">}</a>
-<a class="sourceLine" id="cb493-12" data-line-number="12"><span class="co"># finding MLE</span></a>
-<a class="sourceLine" id="cb493-13" data-line-number="13">fit_lh =<span class="st"> </span><span class="kw">optim</span>(<span class="dt">par =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>), </a>
-<a class="sourceLine" id="cb493-14" data-line-number="14">  <span class="dt">fn =</span> <span class="cf">function</span>(par) {</a>
-<a class="sourceLine" id="cb493-15" data-line-number="15">    <span class="kw">get_nll</span>(y, x, par[<span class="dv">1</span>], par[<span class="dv">2</span>], par[<span class="dv">3</span>])</a>
-<a class="sourceLine" id="cb493-16" data-line-number="16">  }</a>
-<a class="sourceLine" id="cb493-17" data-line-number="17">)</a>
-<a class="sourceLine" id="cb493-18" data-line-number="18"><span class="co"># output the results</span></a>
-<a class="sourceLine" id="cb493-19" data-line-number="19"><span class="kw">message</span>(</a>
-<a class="sourceLine" id="cb493-20" data-line-number="20">  <span class="st">&quot;Best fitting parameter values:&quot;</span>,</a>
-<a class="sourceLine" id="cb493-21" data-line-number="21">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Intercept: &quot;</span>, fit_lh<span class="op">$</span>par[<span class="dv">1</span>] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">signif</span>(<span class="dv">5</span>),</a>
-<a class="sourceLine" id="cb493-22" data-line-number="22">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Slope: &quot;</span>, fit_lh<span class="op">$</span>par[<span class="dv">2</span>] <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">signif</span>(<span class="dv">5</span>),</a>
-<a class="sourceLine" id="cb493-23" data-line-number="23">  <span class="st">&quot;</span><span class="ch">\n</span><span class="st">Negative log-likelihood for best fit: &quot;</span>, fit_lh<span class="op">$</span>value <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">signif</span>(<span class="dv">5</span>)</a>
-<a class="sourceLine" id="cb493-24" data-line-number="24">)</a></code></pre></div>
+<div class="sourceCode" id="cb501"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb501-1" data-line-number="1"><span class="co"># data to be explained / predicted</span></a>
+<a class="sourceLine" id="cb501-2" data-line-number="2">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
+<a class="sourceLine" id="cb501-3" data-line-number="3"><span class="co"># data to use for prediction / explanation</span></a>
+<a class="sourceLine" id="cb501-4" data-line-number="4">x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</a>
+<a class="sourceLine" id="cb501-5" data-line-number="5"><span class="co"># function to calculate negative log-likelihood</span></a>
+<a class="sourceLine" id="cb501-6" data-line-number="6">get_nll =<span class="st"> </span><span class="cf">function</span>(y, x, beta_<span class="dv">0</span>, beta_<span class="dv">1</span>, sd) {</a>
+<a class="sourceLine" id="cb501-7" data-line-number="7">  <span class="cf">if</span> (sd <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>) {<span class="kw">return</span>( <span class="ot">Inf</span> )}</a>
+<a class="sourceLine" id="cb501-8" data-line-number="8">  yPred =<span class="st"> </span>beta_<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>x <span class="op">*</span><span class="st"> </span>beta_<span class="dv">1</span></a>
+<a class="sourceLine" id="cb501-9" data-line-number="9">  nll =<span class="st"> </span><span class="op">-</span><span class="kw">dnorm</span>(y, <span class="dt">mean=</span>yPred, <span class="dt">sd=</span>sd, <span class="dt">log =</span> T)</a>
+<a class="sourceLine" id="cb501-10" data-line-number="10">  <span class="kw">sum</span>(nll)</a>
+<a class="sourceLine" id="cb501-11" data-line-number="11">}</a>
+<a class="sourceLine" id="cb501-12" data-line-number="12"><span class="co"># finding MLE</span></a>
+<a class="sourceLine" id="cb501-13" data-line-number="13">fit_lh =<span class="st"> </span><span class="kw">optim</span>(<span class="dt">par =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>), </a>
+<a class="sourceLine" id="cb501-14" data-line-number="14">  <span class="dt">fn =</span> <span class="cf">function</span>(par) {</a>
+<a class="sourceLine" id="cb501-15" data-line-number="15">    <span class="kw">get_nll</span>(y, x, par[<span class="dv">1</span>], par[<span class="dv">2</span>], par[<span class="dv">3</span>])</a>
+<a class="sourceLine" id="cb501-16" data-line-number="16">  }</a>
+<a class="sourceLine" id="cb501-17" data-line-number="17">)</a>
+<a class="sourceLine" id="cb501-18" data-line-number="18"><span class="co"># output the results</span></a>
+<a class="sourceLine" id="cb501-19" data-line-number="19"><span class="kw">message</span>(</a>
+<a class="sourceLine" id="cb501-20" data-line-number="20">  <span class="st">&quot;Best fitting parameter values:&quot;</span>,</a>
+<a class="sourceLine" id="cb501-21" data-line-number="21">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Intercept: &quot;</span>, fit_lh<span class="op">$</span>par[<span class="dv">1</span>] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">signif</span>(<span class="dv">5</span>),</a>
+<a class="sourceLine" id="cb501-22" data-line-number="22">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Slope: &quot;</span>, fit_lh<span class="op">$</span>par[<span class="dv">2</span>] <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">signif</span>(<span class="dv">5</span>),</a>
+<a class="sourceLine" id="cb501-23" data-line-number="23">  <span class="st">&quot;</span><span class="ch">\n</span><span class="st">Negative log-likelihood for best fit: &quot;</span>, fit_lh<span class="op">$</span>value <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">signif</span>(<span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb501-24" data-line-number="24">)</a></code></pre></div>
 <pre><code>## Best fitting parameter values:
 ##  Intercept: -28.517
 ##  Slope: 7.0783
@@ -594,7 +597,6 @@ y_i &amp; \sim \text{Normal}(\beta_0 + \beta_1 x_i, \sigma)
 
 <div class="proof">
 <p> <span class="proof"><em>Proof. </em></span> <em><span class="citation">(see e.g., Naveen <a href="#ref-naveen2019">2019</a>; Croot <a href="#ref-croot2010">2010</a>; Eppes <a href="#ref-eppes2019">2019</a>)</span></em></p>
-<h4 id="maximum-likelihood-estimation"><span class="header-section-number">13.3.3</span> Maximum Likelihood Estimation</h4>
 <p>We consider again the linear regression model of the population with:</p>
 <p><span class="math display">\[Y= \beta_0 + \beta_1X + \epsilon.\tag{2.1}\]</span></p>
 <p>This simplifies to the following form on the observed data:</p>
@@ -639,12 +641,24 @@ Maximizing <span class="math inline">\(-z\)</span> is equivalent to minimizing <
 
 <p> </p>
 <p>The equivalence also extends to cases with more than one explanatory variable.</p>
+<div class="exercises">
+<p><strong>Exercise 13.3</strong></p>
+<p>Let’s assume following the MLE approach, we obtained <span class="math inline">\(\beta_0 = 1\)</span>, <span class="math inline">\(\beta_1 = 2\)</span> and <span class="math inline">\(\sigma = 0.5\)</span>. For <span class="math inline">\(x_i = 0\)</span>, which <span class="math inline">\(y_i\)</span> value will maximize the likelihood?</p>
+<div class="collapsibleSolution">
+<button class="trigger">
+Solution
+</button>
+<div class="content">
+<p>Since <span class="math inline">\(y_i \sim \text{Normal} (\beta_0 + \beta_1 x_i , \sigma)\)</span>, the likelihood is maximized at the mean of the normal distribution, i.e. <span class="math inline">\(y_i = \beta_0 + \beta_1 x_i = 1\)</span>.</p>
+</div>
+</div>
+</div>
 </div>
 <div id="finding-the-mle-solution-with-glm" class="section level3">
 <h3><span class="header-section-number">13.3.4</span> Finding the MLE-solution with <code>glm</code></h3>
 <p>R also has a built-in way of approaching simple linear regression with a maximum-likelihood approach, namely by using the function <code>glm</code> (generalized linear model). Notice that the output looks slightly different from that of <code>lm</code>.</p>
-<div class="sourceCode" id="cb495"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb495-1" data-line-number="1">fit_glm &lt;-<span class="st"> </span><span class="kw">glm</span>(murder_rate <span class="op">~</span><span class="st"> </span>unemployment, <span class="dt">data =</span> murder_data)</a>
-<a class="sourceLine" id="cb495-2" data-line-number="2">fit_glm</a></code></pre></div>
+<div class="sourceCode" id="cb503"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb503-1" data-line-number="1">fit_glm &lt;-<span class="st"> </span><span class="kw">glm</span>(murder_rate <span class="op">~</span><span class="st"> </span>unemployment, <span class="dt">data =</span> murder_data)</a>
+<a class="sourceLine" id="cb503-2" data-line-number="2">fit_glm</a></code></pre></div>
 <pre><code>## 
 ## Call:  glm(formula = murder_rate ~ unemployment, data = murder_data)
 ## 
@@ -656,7 +670,7 @@ Maximizing <span class="math inline">\(-z\)</span> is equivalent to minimizing <
 ## Null Deviance:       1855 
 ## Residual Deviance: 467.6     AIC: 125.8</code></pre>
 <p>We might also risk a peek at the summary of <code>fit_glm</code>:</p>
-<div class="sourceCode" id="cb497"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb497-1" data-line-number="1"><span class="kw">summary</span>(fit_glm)</a></code></pre></div>
+<div class="sourceCode" id="cb505"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb505-1" data-line-number="1"><span class="kw">summary</span>(fit_glm)</a></code></pre></div>
 <pre><code>## 
 ## Call:
 ## glm(formula = murder_rate ~ unemployment, data = murder_data)
@@ -679,6 +693,18 @@ Maximizing <span class="math inline">\(-z\)</span> is equivalent to minimizing <
 ## AIC: 125.8
 ## 
 ## Number of Fisher Scoring iterations: 2</code></pre>
+<div class="exercises">
+<p><strong>Exercise 13.4</strong></p>
+<p>Compare the output of <code>fit_lm</code> on the last page and <code>fit_glm</code> on this page. Why are the estimates of coefficients same?</p>
+<div class="collapsibleSolution">
+<button class="trigger">
+Solution
+</button>
+<div class="content">
+<p>By default, <code>glm</code> assumes a normal link function when it is not specified. <code>lm</code> can be seen as a more specific version of <code>glm</code> where the link function is fixed to be a normal distribution.</p>
+</div>
+</div>
+</div>
 </div>
 </div>
 <h3>References</h3>
