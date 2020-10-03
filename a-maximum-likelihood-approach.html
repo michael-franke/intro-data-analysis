@@ -331,15 +331,9 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="9.1.3" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#computing-bayesian-posteriors-with-conjugate-priors"><i class="fa fa-check"></i><b>9.1.3</b> Computing Bayesian posteriors with conjugate priors</a></li>
 <li class="chapter" data-level="9.1.4" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#sequential-updating"><i class="fa fa-check"></i><b>9.1.4</b> Sequential updating</a></li>
 </ul></li>
-<li class="chapter" data-level="9.2" data-path="ch-03-03-estimation-frequentist.html"><a href="ch-03-03-estimation-frequentist.html"><i class="fa fa-check"></i><b>9.2</b> A frequentist approach to parameter estimation</a><ul>
-<li class="chapter" data-level="9.2.1" data-path="ch-03-03-estimation-frequentist.html"><a href="ch-03-03-estimation-frequentist.html#maximum-likelihood-estimate"><i class="fa fa-check"></i><b>9.2.1</b> Maximum likelihood estimate</a></li>
-<li class="chapter" data-level="9.2.2" data-path="ch-03-03-estimation-frequentist.html"><a href="ch-03-03-estimation-frequentist.html#confidence-intervals"><i class="fa fa-check"></i><b>9.2.2</b> Confidence intervals</a></li>
-</ul></li>
-<li class="chapter" data-level="9.3" data-path="ch-03-03-estimation-testing.html"><a href="ch-03-03-estimation-testing.html"><i class="fa fa-check"></i><b>9.3</b> Addressing point-valued hypotheses with parameter estimation</a></li>
-<li class="chapter" data-level="9.4" data-path="ch-03-03-estimation-comparison.html"><a href="ch-03-03-estimation-comparison.html"><i class="fa fa-check"></i><b>9.4</b> Comparing Bayesian and frequentist estimates</a></li>
-<li class="chapter" data-level="9.5" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html"><i class="fa fa-check"></i><b>9.5</b> Algorithms for parameter estimation</a><ul>
-<li class="chapter" data-level="9.5.1" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#optimizing-functions"><i class="fa fa-check"></i><b>9.5.1</b> Optimizing functions</a></li>
-<li class="chapter" data-level="9.5.2" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#approximating-posterior-distributions"><i class="fa fa-check"></i><b>9.5.2</b> Approximating posterior distributions</a></li>
+<li class="chapter" data-level="9.2" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html"><i class="fa fa-check"></i><b>9.2</b> Algorithms for parameter estimation</a><ul>
+<li class="chapter" data-level="9.2.1" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#optimizing-functions"><i class="fa fa-check"></i><b>9.2.1</b> Optimizing functions</a></li>
+<li class="chapter" data-level="9.2.2" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#approximating-posterior-distributions"><i class="fa fa-check"></i><b>9.2.2</b> Approximating posterior distributions</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="10" data-path="ch-03-05-hypothesis-testing.html"><a href="ch-03-05-hypothesis-testing.html"><i class="fa fa-check"></i><b>10</b> Hypothesis Testing</a><ul>
@@ -555,30 +549,30 @@ y_i &amp; \sim \text{Normal}(\beta_0 + \beta_1 x_i, \sigma)
 <div id="finding-the-mle-solution-with-optim" class="section level3">
 <h3><span class="header-section-number">13.3.2</span> Finding the MLE-solution with <code>optim</code></h3>
 <p>We can use <code>optim</code> to find maximum likelihood estimates:</p>
-<div class="sourceCode" id="cb505"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb505-1" data-line-number="1"><span class="co"># data to be explained / predicted</span></a>
-<a class="sourceLine" id="cb505-2" data-line-number="2">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
-<a class="sourceLine" id="cb505-3" data-line-number="3"><span class="co"># data to use for prediction / explanation</span></a>
-<a class="sourceLine" id="cb505-4" data-line-number="4">x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</a>
-<a class="sourceLine" id="cb505-5" data-line-number="5"><span class="co"># function to calculate negative log-likelihood</span></a>
-<a class="sourceLine" id="cb505-6" data-line-number="6">get_nll =<span class="st"> </span><span class="cf">function</span>(y, x, beta_<span class="dv">0</span>, beta_<span class="dv">1</span>, sd) {</a>
-<a class="sourceLine" id="cb505-7" data-line-number="7">  <span class="cf">if</span> (sd <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>) {<span class="kw">return</span>( <span class="ot">Inf</span> )}</a>
-<a class="sourceLine" id="cb505-8" data-line-number="8">  yPred =<span class="st"> </span>beta_<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>x <span class="op">*</span><span class="st"> </span>beta_<span class="dv">1</span></a>
-<a class="sourceLine" id="cb505-9" data-line-number="9">  nll =<span class="st"> </span><span class="op">-</span><span class="kw">dnorm</span>(y, <span class="dt">mean=</span>yPred, <span class="dt">sd=</span>sd, <span class="dt">log =</span> T)</a>
-<a class="sourceLine" id="cb505-10" data-line-number="10">  <span class="kw">sum</span>(nll)</a>
-<a class="sourceLine" id="cb505-11" data-line-number="11">}</a>
-<a class="sourceLine" id="cb505-12" data-line-number="12"><span class="co"># finding MLE</span></a>
-<a class="sourceLine" id="cb505-13" data-line-number="13">fit_lh =<span class="st"> </span><span class="kw">optim</span>(<span class="dt">par =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>), </a>
-<a class="sourceLine" id="cb505-14" data-line-number="14">  <span class="dt">fn =</span> <span class="cf">function</span>(par) {</a>
-<a class="sourceLine" id="cb505-15" data-line-number="15">    <span class="kw">get_nll</span>(y, x, par[<span class="dv">1</span>], par[<span class="dv">2</span>], par[<span class="dv">3</span>])</a>
-<a class="sourceLine" id="cb505-16" data-line-number="16">  }</a>
-<a class="sourceLine" id="cb505-17" data-line-number="17">)</a>
-<a class="sourceLine" id="cb505-18" data-line-number="18"><span class="co"># output the results</span></a>
-<a class="sourceLine" id="cb505-19" data-line-number="19"><span class="kw">message</span>(</a>
-<a class="sourceLine" id="cb505-20" data-line-number="20">  <span class="st">&quot;Best fitting parameter values:&quot;</span>,</a>
-<a class="sourceLine" id="cb505-21" data-line-number="21">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Intercept: &quot;</span>, fit_lh<span class="op">$</span>par[<span class="dv">1</span>] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">signif</span>(<span class="dv">5</span>),</a>
-<a class="sourceLine" id="cb505-22" data-line-number="22">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Slope: &quot;</span>, fit_lh<span class="op">$</span>par[<span class="dv">2</span>] <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">signif</span>(<span class="dv">5</span>),</a>
-<a class="sourceLine" id="cb505-23" data-line-number="23">  <span class="st">&quot;</span><span class="ch">\n</span><span class="st">Negative log-likelihood for best fit: &quot;</span>, fit_lh<span class="op">$</span>value <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">signif</span>(<span class="dv">5</span>)</a>
-<a class="sourceLine" id="cb505-24" data-line-number="24">)</a></code></pre></div>
+<div class="sourceCode" id="cb522"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb522-1" data-line-number="1"><span class="co"># data to be explained / predicted</span></a>
+<a class="sourceLine" id="cb522-2" data-line-number="2">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
+<a class="sourceLine" id="cb522-3" data-line-number="3"><span class="co"># data to use for prediction / explanation</span></a>
+<a class="sourceLine" id="cb522-4" data-line-number="4">x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</a>
+<a class="sourceLine" id="cb522-5" data-line-number="5"><span class="co"># function to calculate negative log-likelihood</span></a>
+<a class="sourceLine" id="cb522-6" data-line-number="6">get_nll =<span class="st"> </span><span class="cf">function</span>(y, x, beta_<span class="dv">0</span>, beta_<span class="dv">1</span>, sd) {</a>
+<a class="sourceLine" id="cb522-7" data-line-number="7">  <span class="cf">if</span> (sd <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>) {<span class="kw">return</span>( <span class="ot">Inf</span> )}</a>
+<a class="sourceLine" id="cb522-8" data-line-number="8">  yPred =<span class="st"> </span>beta_<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>x <span class="op">*</span><span class="st"> </span>beta_<span class="dv">1</span></a>
+<a class="sourceLine" id="cb522-9" data-line-number="9">  nll =<span class="st"> </span><span class="op">-</span><span class="kw">dnorm</span>(y, <span class="dt">mean=</span>yPred, <span class="dt">sd=</span>sd, <span class="dt">log =</span> T)</a>
+<a class="sourceLine" id="cb522-10" data-line-number="10">  <span class="kw">sum</span>(nll)</a>
+<a class="sourceLine" id="cb522-11" data-line-number="11">}</a>
+<a class="sourceLine" id="cb522-12" data-line-number="12"><span class="co"># finding MLE</span></a>
+<a class="sourceLine" id="cb522-13" data-line-number="13">fit_lh =<span class="st"> </span><span class="kw">optim</span>(<span class="dt">par =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>), </a>
+<a class="sourceLine" id="cb522-14" data-line-number="14">  <span class="dt">fn =</span> <span class="cf">function</span>(par) {</a>
+<a class="sourceLine" id="cb522-15" data-line-number="15">    <span class="kw">get_nll</span>(y, x, par[<span class="dv">1</span>], par[<span class="dv">2</span>], par[<span class="dv">3</span>])</a>
+<a class="sourceLine" id="cb522-16" data-line-number="16">  }</a>
+<a class="sourceLine" id="cb522-17" data-line-number="17">)</a>
+<a class="sourceLine" id="cb522-18" data-line-number="18"><span class="co"># output the results</span></a>
+<a class="sourceLine" id="cb522-19" data-line-number="19"><span class="kw">message</span>(</a>
+<a class="sourceLine" id="cb522-20" data-line-number="20">  <span class="st">&quot;Best fitting parameter values:&quot;</span>,</a>
+<a class="sourceLine" id="cb522-21" data-line-number="21">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Intercept: &quot;</span>, fit_lh<span class="op">$</span>par[<span class="dv">1</span>] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">signif</span>(<span class="dv">5</span>),</a>
+<a class="sourceLine" id="cb522-22" data-line-number="22">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Slope: &quot;</span>, fit_lh<span class="op">$</span>par[<span class="dv">2</span>] <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">signif</span>(<span class="dv">5</span>),</a>
+<a class="sourceLine" id="cb522-23" data-line-number="23">  <span class="st">&quot;</span><span class="ch">\n</span><span class="st">Negative log-likelihood for best fit: &quot;</span>, fit_lh<span class="op">$</span>value <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">signif</span>(<span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb522-24" data-line-number="24">)</a></code></pre></div>
 <pre><code>## Best fitting parameter values:
 ##  Intercept: -28.517
 ##  Slope: 7.0783
@@ -663,8 +657,8 @@ Solution
 <div id="finding-the-mle-solution-with-glm" class="section level3">
 <h3><span class="header-section-number">13.3.4</span> Finding the MLE-solution with <code>glm</code></h3>
 <p>R also has a built-in way of approaching simple linear regression with a maximum-likelihood approach, namely by using the function <code>glm</code> (generalized linear model). Notice that the output looks slightly different from that of <code>lm</code>.</p>
-<div class="sourceCode" id="cb507"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb507-1" data-line-number="1">fit_glm &lt;-<span class="st"> </span><span class="kw">glm</span>(murder_rate <span class="op">~</span><span class="st"> </span>unemployment, <span class="dt">data =</span> murder_data)</a>
-<a class="sourceLine" id="cb507-2" data-line-number="2">fit_glm</a></code></pre></div>
+<div class="sourceCode" id="cb524"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb524-1" data-line-number="1">fit_glm &lt;-<span class="st"> </span><span class="kw">glm</span>(murder_rate <span class="op">~</span><span class="st"> </span>unemployment, <span class="dt">data =</span> murder_data)</a>
+<a class="sourceLine" id="cb524-2" data-line-number="2">fit_glm</a></code></pre></div>
 <pre><code>## 
 ## Call:  glm(formula = murder_rate ~ unemployment, data = murder_data)
 ## 
@@ -676,7 +670,7 @@ Solution
 ## Null Deviance:       1855 
 ## Residual Deviance: 467.6     AIC: 125.8</code></pre>
 <p>We might also risk a peek at the summary of <code>fit_glm</code>:</p>
-<div class="sourceCode" id="cb509"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb509-1" data-line-number="1"><span class="kw">summary</span>(fit_glm)</a></code></pre></div>
+<div class="sourceCode" id="cb526"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb526-1" data-line-number="1"><span class="kw">summary</span>(fit_glm)</a></code></pre></div>
 <pre><code>## 
 ## Call:
 ## glm(formula = murder_rate ~ unemployment, data = murder_data)
