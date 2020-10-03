@@ -78,7 +78,7 @@ A statistical model is a **Bayesian model** if it also contains:
 
 3. a prior distribution: $P_M(\theta)$.
 
-The Bayesian prior over parameter values can be used to regularize inference and/or to represent any motivated and justifiable *a priori* assumptions about parameter values that are plausible given our knowledge so far. The [next section](Chap-03-03-models-parameters-priors) elaborates on parameters, priors, and key differences between frequentist and Bayesian models. But first, we should take a look at two simple examples of models.
+The Bayesian prior over parameter values can be used to regularize inference and/or to represent any motivated and justifiable *a priori* assumptions about parameter values that are plausible given our knowledge so far. The [next section](#Chap-03-03-models-parameters-priors) elaborates on parameters, priors, and key differences between frequentist and Bayesian models. But first, we should take a look at two simple examples of models.
 
 ### Example 1: a single draw from an urn {#Chap-03-03-models-general-urn-example}
 
@@ -104,10 +104,20 @@ A Bayesian model of this situation would additionally include a *prior* over par
 $$ P_M(k = i) = \frac{1}{11} \text{; for all } \ i \in \{0, 1, \dots, 10\} $$
 
 <div class = "exercises">
-**Exercise E.1**   
+**Exercise 8.1**   
 
  Calculate the probability of observing no more than 7 successes for $N= 24$ and $\theta =0.2$.
  
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+
+```{r, echo = F}
+  pbinom(7, 24, 0.2)
+```
+</div>
+</div>
 </div>
 
 ### Example 2: avocado prices by type
@@ -180,18 +190,23 @@ Our model assumes that the data observations in `average_price` are samples from
 $$ P_M(\vec{y} \mid \vec{x}, \theta) = 
 \prod_{i = 1}^k x_i \ \text{Normal}(y_i, \mu_c, \sigma_c) \ + \ (1- x_i) \  \text{Normal}(y_i, \mu_o, \sigma_o)  $$
 
-<div class = "exercises">
-**Exercise E.2** 
+**Exercise 8.2**   
 
-What should be in empty spaces in order to write the likelihood function in R.  
+What should be in empty spaces to write the likelihood function in R.
 
-```{r, eval=F}
-lh_ttest <- function(y0, y2, ____, sigma, delta) {
-  prod(dnorm(y0, ___, ____, log = F)) * prod(dnorm(y1, ____ + delta, ____, log = F))
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+```{r}
+lh_ttest <- function(y0, y2, mu, sigma, delta) {
+  prod(dnorm(y0, mu, sigma, log = F)) * prod(dnorm(y1, mu + delta, sigma, log = F))
 }
 ```
-
 </div>
+</div>
+</div>
+
 
 If we aspire to handle a Bayesian model, we need to supply a prior for parameters $\theta$ as well. General strategies of fixing priors for Bayesian data analysis are discussed in the next subsection. To give a concrete example for this case, we could assume that all parameter vectors are independent of each other and assume that the means $\mu_c$ and $\mu_o$ are themselves normally distributed. We could use a *truncated normal distribution*^[A truncated normal distribution is like a normal distribution, but restricted to a certain range of possible values. In general, if $P$ is a continuous probability distribution on some interval which properly contains $[a;b]$, a truncated version of $P$ to the interval $[a;b]$ such that:
 $$ \text{Trunc-}P(x, \text{min} = a, \text{max} = b) = 
@@ -224,7 +239,7 @@ $$
 
 More needs to be said about what a parameter is, what a prior distribution $P_M(\theta)$ is, and what the difference is between a non-Bayesian / frequentist model without priors over $\theta$ and a Bayesian model with priors over $\theta$.
 
-The running example for this section is the **Binomial Model**, which is also included in the cast of fine characters in Section \@ref(Chap-03-03-models-examples).^[We should actually speak of a class of (infinitely many) models, all sharing the same likelihood function. Sloppily, we still speak of "the" Binomial Model.] The Binomial Model is a generalization of [the urn-model covered in the previous section](Chap-03-03-models-general-urn-example). We imagine a flip of a coin with bias $\theta \in [0;1]$, which is flipped $N$ times. We are interested in the number $k$ of heads (where each outcome of heads is represented as the number 1, and a tails outcome is represented by number 0). The likelihood function for this model is the [Binomial distribution](app-91-distributions-binomial):
+The running example for this section is the **Binomial Model**, which is also included in the cast of fine characters in Section \@ref(Chap-03-03-models-examples).^[We should actually speak of a class of (infinitely many) models, all sharing the same likelihood function. Sloppily, we still speak of "the" Binomial Model.] The Binomial Model is a generalization of [the urn-model covered in the previous section](#Chap-03-03-models-general-urn-example). We imagine a flip of a coin with bias $\theta \in [0;1]$, which is flipped $N$ times. We are interested in the number $k$ of heads (where each outcome of heads is represented as the number 1, and a tails outcome is represented by number 0). The likelihood function for this model is the [Binomial distribution](#app-91-distributions-binomial):
 
 $$ P_M(k \mid \theta, N) = \text{Binomial}(k, N, \theta) = \binom{N}{k}\theta^k(1-\theta)^{N-k} $$
 
@@ -256,9 +271,18 @@ tibble(
 Several things are important to note, even though their significance might only reveal itself in full much later. Firstly, since there is a direct influence of a model parameter on the likelihood of data observations, we might be able to express subjective beliefs about that parameter value, even if the parameter itself is not fully interpretable in intuitive ways. In other words, we might not have intuitions about numerical values of abstract parameters, but we might nonetheless hold beliefs about the likelihood of the data that results from setting abstract parameter values one way or another. Therefore, we might get access to our (implicit) beliefs about parameter values via (more explicable) intuitions about the data. Secondly, not all parameters are equal. Some parameters may have a much stronger effect on the likelihood than others (all else equal). Just counting the number of model parameters as an indicator of model complexity will therefore not be enough. (This will be important when we look at different ways of comparing models in Section \@ref(Chap-03-06-model-comparison).)
 
 <div class = "exercises">  
-**Exercise E.3**  
+**Exercise 8.3**   
 
-You want to check if a coin is fair. You toss it for 100 times and 22 times get heads. Now you can compute if likelyhood (p==0.5) is accurate for it. Try it out in your R console!
+You want to check if a coin is fair. You toss it 100 times and 22 times get heads. Now you can compute if likelihood (p==0.5) is accurate for it. Try it out in your R console!
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+ll_coin <- dbinom(22, size=100, prob=0.5, log=FALSE)
+
+</div>
+</div>
 </div>
 
 
@@ -311,16 +335,30 @@ tibble(
 
 
 <div class = "exercises">  
-**Exercise E.4**   
+**Exercise 8.4**   
 
 You want to run a Bayesian model to calculate how many pizzas to order for a party. Which prior would You use if:
 
-    a. only close friends are coming and you know their habits?
-    b. not that close friends are coming and you have a rough idea of their habits?
-    c. you invited new acquaintances?
+    a. only close friends are coming and you know their habits
+    b. not that close friends are coming and you have a rough idea of their habits
+    c. you invited new acquaintances
+    
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+
+a. strongly informative
+
+
+b. weakly informative
+
+
+c. uninformative prior
 
 </div>
-
+</div>
+</div>
 
 ### Two notions of probability (revisited)
 
@@ -347,7 +385,7 @@ $$
 
 The formula above is obtained by marginalization over parameter values (represented here as an integral for the continuous case). If we do not want to commit to any relative weighing of parameters, not even an uninformative equal weighing of all parameter values, there is no way in which we can derive predictions of a model. 
 
-In the case of the Binomial Model when we use a Beta prior over $\theta$, the prior predictive distribution is so prominent that it has its own name and fame. It's called the [Beta-binomial distribution](app-91-distributions-beta-binomial). Figure \@ref(fig:ch-03-02-models-prior-predictives-binomial) shows the prior predictions for the four kinds of priors we looked at before when $N = 24$.
+In the case of the Binomial Model when we use a Beta prior over $\theta$, the prior predictive distribution is so prominent that it has its own name and fame. It's called the [Beta-binomial distribution](#app-91-distributions-beta-binomial). Figure \@ref(fig:ch-03-02-models-prior-predictives-binomial) shows the prior predictions for the four kinds of priors we looked at before when $N = 24$.
 
 ```{r ch-03-02-models-prior-predictives-binomial, echo = F, fig.cap = "Prior predicitive distributions for Binomial Models with different kind of Beta-priors."}
 trials <- 24
@@ -385,7 +423,7 @@ There are three main uses for models in statistical data analysis:
 
 The frequentist and the Bayesian approach each have their specific methods and techniques to do estimation, comparison, and prediction. Even within each approach (frequentist or Bayesian) and a particular goal (estimation, comparison, or prediction) there is not necessarily unanimity about the best method or technique. 
 
-Table \@ref(tab:ch-03-03-pillars-of-DA) lists the most common/salient methods used for each goal in the frequentist and Bayesian approach. A large part of the remainder of this course will be dedicated to understanding the methods name-dropped in this table, and to compare them against each other and further, as of yet unmentioned alternatives. Chapter \@ref(Chap-03-06-model-comparison) deals with model comparison, Chapter \@ref(ch-03-04-parameter-inference). The second main goal of this course is to understand the relation between model-based data analysis, as summarized in Table \@ref(tab:ch-03-03-pillars-of-DA), to test-based approaches as described in Chapter \@ref(ch-03-05-hypothesis-testing) and Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
+Table \@ref(tab:ch-03-03-pillars-of-DA) lists the most common/salient methods used for each goal in the frequentist and Bayesian approach. A large part of the remainder of this course will be dedicated to understanding the methods name-dropped in this table, and to compare them against each other and further, as of yet unmentioned alternatives. Chapter \@ref(Chap-03-06-model-comparison) deals with model comparison, Chapter \@ref(ch-03-04-parameter-inference) with parameter estimation. The second main goal of this course is to understand the relation between model-based data analysis, as summarized in Table \@ref(tab:ch-03-03-pillars-of-DA), to test-based approaches as described in Chapter \@ref(ch-03-05-hypothesis-testing) and Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
 
 ```{r ch-03-03-pillars-of-DA, echo = F}
 table_data <- tribble(
@@ -453,11 +491,11 @@ Ex.
 
 If it is important to communicate the assumptions underlying a statistical argument, and if models are means of making formally explicit these assumptions, then it follows that efficient communication of models is important too. We here follow the common practice of representing models using both a special purpose formulaic notation and, where useful, a graph-based visual display in which probabilistic dependencies are lucidly represented.
 
-The running example for this section is the **Binomial Model**, which is also included in the cast of main characters in Section \@ref(Chap-03-03-models-examples). The Binomial Model is a generalization of [the urn-model covered earlier in this chapter](Chap-03-03-models-general-urn-example). We imagine a flip of a coin with bias $\theta \in [0;1]$, which is flipped $N$ times. We are interested in the number $k$ of heads (represented as an outcome of 1). The likelihood function for this model is the [Binomial distribution](app-91-distributions-binomial):
+The running example for this section is the **Binomial Model**, which is also included in the cast of main characters in Section \@ref(Chap-03-03-models-examples). The Binomial Model is a generalization of [the urn-model covered earlier in this chapter](#Chap-03-03-models-general-urn-example). We imagine a flip of a coin with bias $\theta \in [0;1]$, which is flipped $N$ times. We are interested in the number $k$ of heads (represented as an outcome of 1). The likelihood function for this model is the [Binomial distribution](#app-91-distributions-binomial):
 
 $$ P_M(k \mid \theta, N) = \text{Binomial}(k, N, \theta) = \binom{N}{k}\theta^k(1-\theta)^{N-k} $$
 
-For purposes of illustration we use a [Beta distribution](app-91-distributions-beta) for the prior of $\theta$, but set its parameters so that the ensuing distribution is flat (uninformative priors):
+For purposes of illustration we use a [Beta distribution](#app-91-distributions-beta) for the prior of $\theta$, but set its parameters so that the ensuing distribution is flat (uninformative priors):
 
 $$ P_M(\theta) = \text{Beta}(\theta, 1, 1) $$ 
 
@@ -528,18 +566,26 @@ knitr::include_graphics("visuals/linear-regression-model.png")
 ```
 
 <div class = "exercises">
-**Exercise E.5**
+**Exercise 8.5**
 
-TRUE or FAULSE?
+TRUE or FALSE?
 
-a. For the Binomial model observed variables are number of trials and the probability of success.
+a. For the Binomial model observed variables are the number of trials and the probability of success.
 b. In the graphical representation for the T-test model $g_i$ stands for $"group_i"$
 c. Binomial Model can have only discrete observed variables. 
-d. In a Linear Regression Model $y_i$ id determened by it's underlying distribution.
+d. In a Linear Regression Model $y_i$ id determined by it's underlying distribution.
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+a. False
+b. True
+c. True
+d. False
 
 </div >
-
-
+</div >
+</div >
 ## Strolling the zoo of models {#Chap-03-03-models-examples}
 
 Let's have a look at some more models. Some of the characters we will encounter here, will play leading roles in the plot to come. Some are for familiarization and exercise. All are pleasant.
@@ -760,11 +806,12 @@ knitr::include_graphics("visuals/linear-regression-with-groups.png")
 
 
 <div class = "exercises">
-**Exercise E.6**   
+
+**Exercise 8.6**   
 
 Which model would you rather use do investigate the following:
 
-a. If there  is a difference between chocolate consumption per person in Germany and Belgium?
+a. If there is a difference between chocolate consumption per person in Germany and Belgium?
 
 b. You want to find out how many people visited your webpage for the first time.  You know that overall  50 people were there. And you see 7 comments, five of which are left by your old followers.  
 
@@ -772,10 +819,20 @@ c. If running speed increases with every 100m among sprinters, but not within ma
 
 d. Relationship between time spent on studying and the amount of coffee consumption.
 
-e. If a football referee biased and gives yellow cards more often to one of the teems. Consider that the fold probability is known for each team.
+e. If a football referee is biased and gives yellow cards more often to one of the teems. Consider that the fold probability is known for each team.
+ 
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
 
+a. T-Test Model
+b. Flip-and-Draw-Hypergeometric Model
+c. Linear Regression with Two Groups
+d. Simple Linear Regression Model
+e. Binomial
 </div>
-
+</div>
+</div>
 
 
 
@@ -1134,17 +1191,36 @@ Finally, we can also use model comparison to test hypotheses. In that case, we m
 
 
 <div class = "exercises">
-**Exercise E.7**
+**Exercise 8.7**
 
-TRUE OR FALSE? 
+TRUE or FALSE? 
+
 a. MLE (maximum likelihood estimate) is a method to check which model is more plausible
+
 
 b. MLE (maximum likelihood estimate) can help in predicting data when the model is given
 
+
 c. AIC (Akaike information criterion) can be used for model comparison
+
 
 d. With Bayesian approach one cannot perform a parameter estimation
 
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+a. False
+
+b. False
+
+c. True
+
+d. False
+
+</div>
+</div>
 </div>
 
 
