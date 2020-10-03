@@ -68,18 +68,35 @@ This notation makes it particularly clear that the posterior distribution is a "
 
 <div class = "exercises">
 
-**Exercise E.1**  
+<div class = "exercises">
+**Exercise 9.1**  
 
-Based on notation above, which of the following statements you think is true?
+Based on the notation above, which of the following statements you think is true?
 
-a. prior always influence the posteror more, than likelihood
+a. prior always influence the posterior more, than the likelihood
 
 b. the less the certainty in the prior, the more  posterior influenced by it 
 
 c. the posterior is greater influenced by the likelihood if there is less certainty in the prior
 
-d. likelihood always influence the posteror more, than the prior 
+d. likelihood always influence the posterior more, than the prior 
 
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+
+a. False
+
+b. False
+
+c. True
+
+d. False
+
+</div>
+</div>
 </div>
 
 ### The effects of prior and likelihood on the posterior
@@ -371,7 +388,7 @@ $$
 &nbsp;
 
 <div class = "exercises">
-**Exercise E.2**  
+**Exercise 9.2**  
 
 How should you fill the code to get the plot of the posterior distribution for the coin flip scenario with k=6, N=24?
 
@@ -387,8 +404,27 @@ posterior_plot <- as_tibble(theta) %>%
 posterior_plot
 ```
 
-</div>
 
+
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+```{r, eval=F}
+theta = seq(0, 1, length.out = 401)
+likelihood <- dbinom(6, 24, theta)
+prior <- dbeta(theta, 1, 1)
+posterior_plot <- as_tibble(theta) %>%
+  mutate(posterior <- likelihood * prior) %>%
+  ggplot(aes(theta, posterior))+
+   geom_line()+
+posterior_plot
+```
+
+</div>
+</div>
+</div>
 
 ### Sequential updating
 
@@ -444,11 +480,21 @@ $$
 &nbsp;
 
 <div class = "exercises">
-**Exercise E.3**   
+**Exercise 9.3**   
 
-Suppose Jones flipped a coin with unknown bias 30 times. She observed 20 heads. She updates her beliefs rationally with Bayes rule. Her posterior beliefs have the form of a beta distribution with parameters a = 25, b = 15. What distribution and what parameter values of that distribution capture Jones' prior beliefs before updating her beliefs with this data?
+Can you think of a situation, when MLE and MAP output are the same? HINT: Think which prior eliminates the difference between them!
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+MLE is a special case of MAP with a uniform the prior.
+
+</div>
+</div>
 </div>
 
+<div class = "exercises">
 ## A frequentist approach to parameter estimation {#ch-03-03-estimation-frequentist}
 
 
@@ -484,9 +530,19 @@ ggplot(plotdata_24_7_mle, aes(x = theta, y = lh)) + xlim(0,1) +
 ```
 
 <div class = "exercises">
-**Exercise E.4**   
 
-Can you think of a situation, when MLE and MAP output are exactly the same? HINT: Think which prior eliminates the difference between them!
+**Exercise 9.4**   
+
+Suppose Jones flipped a coin with unknown bias 30 times. She observed 20 heads. She updates her beliefs rationally with Bayes rule. Her posterior beliefs have the form of beta distribution with parameters a = 25, b = 15. What distribution and what parameter values of that distribution capture Jones' prior beliefs before updating her beliefs with this data?
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+ $\text{Beta}(5,5)$
+
+</div>
+</div>
 </div>
 
 ### Confidence intervals
@@ -709,21 +765,30 @@ results %>%
 ```
 
 <div class = "exercises">
-**Exercise E.5** 
+**Exercise 9.5** 
 
 Pick one correct answer:
 The most frequently used point-estimate of Bayesian parameter estimation looks at 
-a. the median of the a posterior distribution
+a. the median of the posterior distribution
+
 b. the maximum likelihood estimate
+
 c. the mean of the posterior distribution
+
 d. the normalizing constant in Bayes rule 
 
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+b.
+
+</div>
+</div>
 </div>
 
 
-<div class = "exercises">
-
-**Exercise E.6** 
+**Exercise 9.6** 
 
 The most frequently used interval-based estimate in frequentist approaches is:
 
@@ -735,8 +800,15 @@ c. the hypothesis interval
 
 d. the 95% highest-density interval of the maximum likelihood estimate
 
-</div>
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
 
+b.
+
+</div>
+</div>
+</div>
 ## Algorithms for parameter estimation {#Ch-03-03-estimation-algorithms}
 
 Statistical methods are also dictated by practicality: a model or a procedure is not useful if it's hard or even impossible to compute it with existing computational tools. We must understand that recent changes in statistical practice is a natural reaction to advances in computability. We also must percieve the classical notions and procedures in statistics from this perspective of computability. 
@@ -811,18 +883,31 @@ The sequence of trees visited by a single Child is a **sample chain**. Usually, 
 How could Nature be sure that the plan succeeded? If not even Nature knows the distribution $P(t)$, how can we be sure that the Children's list gives representative samples to work with? Certainty is petty. The reduction of uncertainty is a key! Since we send out several Children in parallel, and since each Child distributed many apples, we can compare the list of trees delivered by each Child (= the set of samples in each chain). For that purpose we can use statistics and ask: is it plausible that the set of samples in each chain has been generated from the same probability distribution? - The answer to this question can help reduce uncertainty about the quality of the sampling process.
 
 <div class = "exercises">
-**Exercise E.7**
+**Exercise 9.7**
 
 In which order should the listed Markov Chain Monte Carlo steps be?
 
-a. Compare the posterior value of the new proposal and the height of the posterior at the previous step.
-b. Compute the proportion of the posterior value of the new proposal and the height of the posterior at the previous step.
-c. If the new proposal has a higher posterior value than the most recent sample, then accept the new proposal.
-d. Set an initial value.
-e. Choose to accept or reject the new proposal in respect to the computed proportion.
-f. If the new proposal has a lower posterior value than the most recent sample, then 
+d. Set an initial value
+
 g. Generate a new value (proposal)
 
+a. Compare the posterior value of the new proposal and the height of the posterior at the previous step
+
+c.If the new proposal has a higher posterior value than the most recent sample, then accept the new proposal.
+
+f. if the new proposal has a lower posterior value than the most recent sample, then b.. compute the proportion of the posterior value of the new proposal and the height of the posterior at the previous step
+
+e. choose to accept or reject the new proposal concerning the computed proportion
+
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+d,g,a,c,f,b
+
+</div >
+</div >
 </div >
 
 <!-- ## Probabilistic modeling with `greta` {#ch-03-03-estimation-greta} -->
