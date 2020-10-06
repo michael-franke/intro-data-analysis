@@ -496,6 +496,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="D.7" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html"><i class="fa fa-check"></i><b>D.7</b> Annual average world surface temperature</a><ul>
 <li class="chapter" data-level="D.7.1" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#nature-origin-and-rationale-of-the-data-4"><i class="fa fa-check"></i><b>D.7.1</b> Nature, origin and rationale of the data</a></li>
 <li class="chapter" data-level="D.7.2" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#loading-and-preprocessing-the-data-4"><i class="fa fa-check"></i><b>D.7.2</b> Loading and preprocessing the data</a></li>
+<li class="chapter" data-level="D.7.3" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#hypothesis-modeling-approach"><i class="fa fa-check"></i><b>D.7.3</b> Hypothesis &amp; modeling approach</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="E" data-path="app-98-solutions-exercises.html"><a href="app-98-solutions-exercises.html"><i class="fa fa-check"></i><b>E</b> Solutions to exercises</a><ul>
@@ -526,7 +527,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <h2><span class="header-section-number">D.7</span> Annual average world surface temperature</h2>
 <div id="nature-origin-and-rationale-of-the-data-4" class="section level3">
 <h3><span class="header-section-number">D.7.1</span> Nature, origin and rationale of the data</h3>
-<div style="float:right; width:24%;">
+<div style="float:right; height:24%;">
 <p><img src="visuals/badge-thermometer.png" alt="badge-thermometer"></p>
 </div>
 <p>This data set has been downloaded from <a href="http://berkeleyearth.org/">Berkeley Earth</a>.<a href="#fn75" class="footnote-ref" id="fnref75"><sup>75</sup></a> More information on the origin and composition of this data set can be found on <a href="http://berkeleyearth.org/data-new/">here</a>. Specifically, what we will use here is the time series data for “land only” using the annual summary of monthly average temperature. We have added to the data set used here the absolute average temperature. (Berkeley Earth only lists the “annual anomaly”, i.e., the deviation from a grand mean.)</p>
@@ -541,17 +542,23 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="loading-and-preprocessing-the-data-4" class="section level3">
 <h3><span class="header-section-number">D.7.2</span> Loading and preprocessing the data</h3>
 <p>We load the data into a variable named <code>data_temperature</code>:</p>
-<div class="sourceCode" id="cb665"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb665-1" data-line-number="1">avocado_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/average-world-temperature.csv&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb665-2" data-line-number="2"><span class="st">  </span><span class="co"># remove currently irrelevant columns</span></a>
-<a class="sourceLine" id="cb665-3" data-line-number="3"><span class="st">  </span><span class="kw">select</span>( <span class="op">-</span>X1 , <span class="op">-</span><span class="st"> </span><span class="kw">contains</span>(<span class="st">&quot;Bags&quot;</span>), <span class="op">-</span><span class="st"> </span>year, <span class="op">-</span><span class="st"> </span>region) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb665-4" data-line-number="4"><span class="st">  </span><span class="co"># rename variables of interest for convenience</span></a>
-<a class="sourceLine" id="cb665-5" data-line-number="5"><span class="st">  </span><span class="kw">rename</span>(</a>
-<a class="sourceLine" id="cb665-6" data-line-number="6">    <span class="dt">total_volume_sold =</span> <span class="st">`</span><span class="dt">Total Volume</span><span class="st">`</span>,</a>
-<a class="sourceLine" id="cb665-7" data-line-number="7">    <span class="dt">average_price =</span> <span class="st">`</span><span class="dt">AveragePrice</span><span class="st">`</span>,</a>
-<a class="sourceLine" id="cb665-8" data-line-number="8">    <span class="dt">small  =</span> <span class="st">&#39;4046&#39;</span>,</a>
-<a class="sourceLine" id="cb665-9" data-line-number="9">    <span class="dt">medium =</span> <span class="st">&#39;4225&#39;</span>,</a>
-<a class="sourceLine" id="cb665-10" data-line-number="10">    <span class="dt">large  =</span> <span class="st">&#39;4770&#39;</span>,</a>
-<a class="sourceLine" id="cb665-11" data-line-number="11">  )</a></code></pre></div>
+<div class="sourceCode" id="cb665"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb665-1" data-line-number="1">data_temperature &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/average-world-temperature.csv&#39;</span>))</a></code></pre></div>
+<p>And inspect the first rows of data:</p>
+<div class="sourceCode" id="cb666"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb666-1" data-line-number="1"><span class="kw">head</span>(data_temperature)</a></code></pre></div>
+<pre><code>## # A tibble: 6 x 3
+##    year anomaly uncertainty
+##   &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;
+## 1  1750  -1.41        NA   
+## 2  1751  -1.52        NA   
+## 3  1753  -1.07         1.3 
+## 4  1754  -0.614        1.09
+## 5  1755  -0.823        1.24
+## 6  1756  -0.547        1.28</code></pre>
+</div>
+<div id="hypothesis-modeling-approach" class="section level3">
+<h3><span class="header-section-number">D.7.3</span> Hypothesis &amp; modeling approach</h3>
+<p>We care about whether the annual average temperature increased over time. We address this question with a simple linear regression model, in particular the relationship <code>avg_temp ~ year</code>. We are interested in whether the slope coefficient of that regression model is credibly/significantly bigger than zero.</p>
+<p>Using a simple linear regression here is clearly and blatantly way too simple a modeling approach, but it serves our purposes and the violent simplification should make you think how/why exactly the linear regression model is conceptually inadequate for this data and inference model.</p>
 
 </div>
 </div>
