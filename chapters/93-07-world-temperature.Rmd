@@ -3,11 +3,11 @@
 
 ### Nature, origin and rationale of the data
 
-<div style = "float:right; width:24%;">
+<div style = "float:right; height:24%;">
 <img src="visuals/badge-thermometer.png" alt="badge-thermometer">
 </div>
 
-This data set has been downloaded from [Berkeley Earth](http://berkeleyearth.org/).^[Downloaded on October 6th 2020.] More information on the origin and composition of this data set can be found on [here](http://berkeleyearth.org/data-new/). Specifically, what we will use here is the time series data for "land only" using the annual summary of monthly average temperature. We have added to the data set used here the absolute average temperature. (Berkeley Earth only lists the "annual anomaly", i.e., the deviation from a grand mean.) 
+This data set has been downloaded from [Berkeley Earth](http://berkeleyearth.org/).^[Downloaded on October 6th 2020.] More information on the origin and composition of this data set can be found on [here](http://berkeleyearth.org/data-new/). Specifically, what we will use here is the time series data for "land only" using the annual summary of monthly average temperature. We have added to the data set used here the absolute average temperature. (Berkeley Earth only lists the "annual anomaly", i.e., the deviation from a grand mean.)
 
 Columns of interest are:
 
@@ -25,16 +25,18 @@ data_temperature <- read_csv('data_sets/average-world-temperature.csv')
 ```
 
 ```{r, eval = F}
-avocado_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/average-world-temperature.csv')) %>% 
-  # remove currently irrelevant columns
-  select( -X1 , - contains("Bags"), - year, - region) %>% 
-  # rename variables of interest for convenience
-  rename(
-    total_volume_sold = `Total Volume`,
-    average_price = `AveragePrice`,
-    small  = '4046',
-    medium = '4225',
-    large  = '4770',
-  )
+data_temperature <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/average-world-temperature.csv'))
 ```
+
+And inspect the first rows of data:
+
+```{r}
+head(data_temperature)
+```
+### Hypothesis & modeling approach
+
+We care about whether the annual average temperature increased over time. We address this question with a simple linear regression model, in particular the relationship `avg_temp ~ year`. We are interested in whether the slope coefficient of that regression model is credibly/significantly bigger than zero.
+
+Using a simple linear regression here is clearly and blatantly way too simple a modeling approach, but it serves our purposes and the violent simplification should make you think how/why exactly the linear regression model is conceptually inadequate for this data and inference model.
+
 
