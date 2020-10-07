@@ -497,6 +497,8 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="D.7.1" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#nature-origin-and-rationale-of-the-data-4"><i class="fa fa-check"></i><b>D.7.1</b> Nature, origin and rationale of the data</a></li>
 <li class="chapter" data-level="D.7.2" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#loading-and-preprocessing-the-data-4"><i class="fa fa-check"></i><b>D.7.2</b> Loading and preprocessing the data</a></li>
 <li class="chapter" data-level="D.7.3" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#hypothesis-modeling-approach"><i class="fa fa-check"></i><b>D.7.3</b> Hypothesis &amp; modeling approach</a></li>
+<li class="chapter" data-level="D.7.4" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#plotting"><i class="fa fa-check"></i><b>D.7.4</b> Plotting</a></li>
+<li class="chapter" data-level="D.7.5" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#analysis-1"><i class="fa fa-check"></i><b>D.7.5</b> Analysis</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="E" data-path="app-98-solutions-exercises.html"><a href="app-98-solutions-exercises.html"><i class="fa fa-check"></i><b>E</b> Solutions to exercises</a><ul>
@@ -559,6 +561,45 @@ code span.wa { color: #bf0303; } /* Warning */
 <h3><span class="header-section-number">D.7.3</span> Hypothesis &amp; modeling approach</h3>
 <p>We care about whether the annual average temperature increased over time. We address this question with a simple linear regression model, in particular the relationship <code>avg_temp ~ year</code>. We are interested in whether the slope coefficient of that regression model is credibly/significantly bigger than zero.</p>
 <p>Using a simple linear regression here is clearly and blatantly way too simple a modeling approach, but it serves our purposes and the violent simplification should make you think how/why exactly the linear regression model is conceptually inadequate for this data and inference model.</p>
+</div>
+<div id="plotting" class="section level3">
+<h3><span class="header-section-number">D.7.4</span> Plotting</h3>
+<p>Here is a scatterplot of annual average temperature <code>avg_temp</code> against <code>year</code>. The straight line is the best linear predictor.</p>
+<div class="sourceCode" id="cb668"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb668-1" data-line-number="1">data_temperature <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb668-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> avg_temp)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb668-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb668-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb668-5" data-line-number="5"><span class="st">  </span><span class="kw">labs</span>(</a>
+<a class="sourceLine" id="cb668-6" data-line-number="6">    <span class="dt">y =</span> <span class="st">&quot;temperature (degrees Celcius)&quot;</span>,</a>
+<a class="sourceLine" id="cb668-7" data-line-number="7">    <span class="dt">title =</span> <span class="st">&quot;Annual average surface land temperature&quot;</span></a>
+<a class="sourceLine" id="cb668-8" data-line-number="8">  )</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-483-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="analysis-1" class="section level3">
+<h3><span class="header-section-number">D.7.5</span> Analysis</h3>
+<p>We run a simple linear regression model, for relationship <code>avg_temp ~ year</code>:</p>
+<div class="sourceCode" id="cb669"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb669-1" data-line-number="1">fit_avg_temp &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb669-2" data-line-number="2">  <span class="dt">formula =</span> avg_temp <span class="op">~</span><span class="st"> </span>year, </a>
+<a class="sourceLine" id="cb669-3" data-line-number="3">  <span class="dt">data =</span> data_temperature</a>
+<a class="sourceLine" id="cb669-4" data-line-number="4">  )</a></code></pre></div>
+<p>Based on the posterior samples, we would conclude that the slope parameter is credibly bigger than zero:</p>
+<div class="sourceCode" id="cb670"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb670-1" data-line-number="1"><span class="co"># </span><span class="al">TODO</span><span class="co"> remove this when aida package works</span></a>
+<a class="sourceLine" id="cb670-2" data-line-number="2">summarize_sample_vector &lt;-<span class="st"> </span><span class="cf">function</span>(samples, <span class="dt">name =</span> <span class="st">&#39;&#39;</span>) {</a>
+<a class="sourceLine" id="cb670-3" data-line-number="3">    <span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb670-4" data-line-number="4">        <span class="dt">Parameter =</span> name,</a>
+<a class="sourceLine" id="cb670-5" data-line-number="5">        <span class="st">&#39;|95%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(samples)[<span class="dv">1</span>],</a>
+<a class="sourceLine" id="cb670-6" data-line-number="6">        <span class="dt">mean  =</span> <span class="kw">mean</span>(samples),</a>
+<a class="sourceLine" id="cb670-7" data-line-number="7">        <span class="st">&#39;95%|&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(samples)[<span class="dv">2</span>]</a>
+<a class="sourceLine" id="cb670-8" data-line-number="8">    )</a>
+<a class="sourceLine" id="cb670-9" data-line-number="9">}</a>
+<a class="sourceLine" id="cb670-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb670-11" data-line-number="11"><span class="kw">posterior_samples</span>(fit_avg_temp) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb670-12" data-line-number="12"><span class="st">  </span><span class="kw">pull</span>(b_year) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarize_sample_vector</span>()</a></code></pre></div>
+<pre><code>## # A tibble: 1 x 4
+##   Parameter  `|95%`    mean  `95%|`
+##   &lt;chr&gt;       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 &quot;&quot;        0.00567 0.00627 0.00689</code></pre>
+<p>The estimated coefficient for variable <code>year</code> implies that we should expect an annual increase of average world temperature of about <code>posterior_samples(fit_avg_temp) %&gt;% pull(b_year) %&gt;% summarize_sample_vector() %&gt;% pull(mean) %&gt;% round(3)</code> degrees Celcius.</p>
 
 </div>
 </div>
