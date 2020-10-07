@@ -338,6 +338,10 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="9.2.1" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#optimizing-functions"><i class="fa fa-check"></i><b>9.2.1</b> Optimizing functions</a></li>
 <li class="chapter" data-level="9.2.2" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#approximating-posterior-distributions"><i class="fa fa-check"></i><b>9.2.2</b> Approximating posterior distributions</a></li>
 </ul></li>
+<li class="chapter" data-level="9.3" data-path="ch-03-03-estimation-Stan.html"><a href="ch-03-03-estimation-Stan.html"><i class="fa fa-check"></i><b>9.3</b> Probabilistic modeling with Stan</a><ul>
+<li class="chapter" data-level="9.3.1" data-path="ch-03-03-estimation-Stan.html"><a href="ch-03-03-estimation-Stan.html#basics-of-stan"><i class="fa fa-check"></i><b>9.3.1</b> Basics of Stan</a></li>
+<li class="chapter" data-level="9.3.2" data-path="ch-03-03-estimation-Stan.html"><a href="ch-03-03-estimation-Stan.html#binomial-model"><i class="fa fa-check"></i><b>9.3.2</b> Binomial Model</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="10" data-path="ch-03-05-hypothesis-testing.html"><a href="ch-03-05-hypothesis-testing.html"><i class="fa fa-check"></i><b>10</b> Hypothesis Testing</a><ul>
 <li class="chapter" data-level="10.1" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html"><i class="fa fa-check"></i><b>10.1</b> <em>p</em>-values</a><ul>
@@ -528,21 +532,21 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="two-categorical-predictors" class="section level2">
 <h2><span class="header-section-number">14.1</span> Two categorical predictors</h2>
 <p>Let’s revisit the (fictitious) eco-sensitivity data from Chapter <a href="ch-03-07-hypothesis-testing-Bayes.html#ch-03-07-hypothesis-testing-Bayes">12</a>:</p>
-<div class="sourceCode" id="cb543"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb543-1" data-line-number="1">x_A &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
-<a class="sourceLine" id="cb543-2" data-line-number="2">  <span class="dv">104</span>, <span class="dv">105</span>, <span class="dv">100</span>, <span class="dv">91</span>, <span class="dv">105</span>, <span class="dv">118</span>, <span class="dv">164</span>, <span class="dv">168</span>, <span class="dv">111</span>, <span class="dv">107</span>, <span class="dv">136</span>, <span class="dv">149</span>, <span class="dv">104</span>, <span class="dv">114</span>, <span class="dv">107</span>, <span class="dv">95</span>, </a>
-<a class="sourceLine" id="cb543-3" data-line-number="3">  <span class="dv">83</span>, <span class="dv">114</span>, <span class="dv">171</span>, <span class="dv">176</span>, <span class="dv">117</span>, <span class="dv">107</span>, <span class="dv">108</span>, <span class="dv">107</span>, <span class="dv">119</span>, <span class="dv">126</span>, <span class="dv">105</span>, <span class="dv">119</span>, <span class="dv">107</span>, <span class="dv">131</span></a>
-<a class="sourceLine" id="cb543-4" data-line-number="4">)</a>
-<a class="sourceLine" id="cb543-5" data-line-number="5">x_B &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
-<a class="sourceLine" id="cb543-6" data-line-number="6">  <span class="dv">133</span>, <span class="dv">115</span>, <span class="dv">84</span>, <span class="dv">79</span>, <span class="dv">127</span>, <span class="dv">103</span>, <span class="dv">109</span>, <span class="dv">128</span>, <span class="dv">127</span>, <span class="dv">107</span>, <span class="dv">94</span>, <span class="dv">95</span>, <span class="dv">90</span>, <span class="dv">118</span>, <span class="dv">124</span>, <span class="dv">108</span>, </a>
-<a class="sourceLine" id="cb543-7" data-line-number="7">  <span class="dv">87</span>, <span class="dv">111</span>, <span class="dv">96</span>, <span class="dv">89</span>, <span class="dv">106</span>, <span class="dv">121</span>, <span class="dv">99</span>, <span class="dv">86</span>, <span class="dv">115</span>, <span class="dv">136</span>, <span class="dv">114</span></a>
-<a class="sourceLine" id="cb543-8" data-line-number="8">)</a></code></pre></div>
+<div class="sourceCode" id="cb550"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb550-1" data-line-number="1">x_A &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
+<a class="sourceLine" id="cb550-2" data-line-number="2">  <span class="dv">104</span>, <span class="dv">105</span>, <span class="dv">100</span>, <span class="dv">91</span>, <span class="dv">105</span>, <span class="dv">118</span>, <span class="dv">164</span>, <span class="dv">168</span>, <span class="dv">111</span>, <span class="dv">107</span>, <span class="dv">136</span>, <span class="dv">149</span>, <span class="dv">104</span>, <span class="dv">114</span>, <span class="dv">107</span>, <span class="dv">95</span>, </a>
+<a class="sourceLine" id="cb550-3" data-line-number="3">  <span class="dv">83</span>, <span class="dv">114</span>, <span class="dv">171</span>, <span class="dv">176</span>, <span class="dv">117</span>, <span class="dv">107</span>, <span class="dv">108</span>, <span class="dv">107</span>, <span class="dv">119</span>, <span class="dv">126</span>, <span class="dv">105</span>, <span class="dv">119</span>, <span class="dv">107</span>, <span class="dv">131</span></a>
+<a class="sourceLine" id="cb550-4" data-line-number="4">)</a>
+<a class="sourceLine" id="cb550-5" data-line-number="5">x_B &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
+<a class="sourceLine" id="cb550-6" data-line-number="6">  <span class="dv">133</span>, <span class="dv">115</span>, <span class="dv">84</span>, <span class="dv">79</span>, <span class="dv">127</span>, <span class="dv">103</span>, <span class="dv">109</span>, <span class="dv">128</span>, <span class="dv">127</span>, <span class="dv">107</span>, <span class="dv">94</span>, <span class="dv">95</span>, <span class="dv">90</span>, <span class="dv">118</span>, <span class="dv">124</span>, <span class="dv">108</span>, </a>
+<a class="sourceLine" id="cb550-7" data-line-number="7">  <span class="dv">87</span>, <span class="dv">111</span>, <span class="dv">96</span>, <span class="dv">89</span>, <span class="dv">106</span>, <span class="dv">121</span>, <span class="dv">99</span>, <span class="dv">86</span>, <span class="dv">115</span>, <span class="dv">136</span>, <span class="dv">114</span></a>
+<a class="sourceLine" id="cb550-8" data-line-number="8">)</a></code></pre></div>
 <p>Remember that we are interested in the question of whether there is a difference in means of group A and group B. Previously we used a <span class="math inline">\(t\)</span>-test for this two-group comparison (frequentist or Bayesian). But we can also cast this as a regression problem. Here is how.</p>
 <p>Let’s first squeeze the data into a tibble:</p>
-<div class="sourceCode" id="cb544"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb544-1" data-line-number="1">eco_sensitivity_data &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb544-2" data-line-number="2">  <span class="dt">group =</span> <span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="kw">length</span>(x_A)), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="kw">length</span>(x_B))),</a>
-<a class="sourceLine" id="cb544-3" data-line-number="3">  <span class="dt">measurement =</span> <span class="kw">c</span>(x_A, x_B)</a>
-<a class="sourceLine" id="cb544-4" data-line-number="4">) </a>
-<a class="sourceLine" id="cb544-5" data-line-number="5">eco_sensitivity_data</a></code></pre></div>
+<div class="sourceCode" id="cb551"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb551-1" data-line-number="1">eco_sensitivity_data &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb551-2" data-line-number="2">  <span class="dt">group =</span> <span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="kw">length</span>(x_A)), <span class="kw">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="kw">length</span>(x_B))),</a>
+<a class="sourceLine" id="cb551-3" data-line-number="3">  <span class="dt">measurement =</span> <span class="kw">c</span>(x_A, x_B)</a>
+<a class="sourceLine" id="cb551-4" data-line-number="4">) </a>
+<a class="sourceLine" id="cb551-5" data-line-number="5">eco_sensitivity_data</a></code></pre></div>
 <pre><code>## # A tibble: 57 x 2
 ##    group measurement
 ##    &lt;chr&gt;       &lt;dbl&gt;
@@ -558,31 +562,31 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 10 A             107
 ## # … with 47 more rows</code></pre>
 <p>Notice that this tibble contains the data in a tidy format, i.e., each row contains a tuple of associated measurements. We want to explain or predict the variable <code>measurement</code> in terms of the variable <code>group</code>.We can then run a regression model with the formula <code>measurement ~ group</code>. Here’s such a model using the Bayesian approach:</p>
-<div class="sourceCode" id="cb546"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb546-1" data-line-number="1">fit_brms_eco_sensitivity &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb546-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
-<a class="sourceLine" id="cb546-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
-<a class="sourceLine" id="cb546-4" data-line-number="4">  <span class="dt">formula =</span> measurement <span class="op">~</span><span class="st"> </span>group,</a>
-<a class="sourceLine" id="cb546-5" data-line-number="5">  <span class="co"># which data to use</span></a>
-<a class="sourceLine" id="cb546-6" data-line-number="6">  <span class="dt">data =</span> eco_sensitivity_data</a>
-<a class="sourceLine" id="cb546-7" data-line-number="7">)</a></code></pre></div>
+<div class="sourceCode" id="cb553"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb553-1" data-line-number="1">fit_brms_eco_sensitivity &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb553-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
+<a class="sourceLine" id="cb553-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
+<a class="sourceLine" id="cb553-4" data-line-number="4">  <span class="dt">formula =</span> measurement <span class="op">~</span><span class="st"> </span>group,</a>
+<a class="sourceLine" id="cb553-5" data-line-number="5">  <span class="co"># which data to use</span></a>
+<a class="sourceLine" id="cb553-6" data-line-number="6">  <span class="dt">data =</span> eco_sensitivity_data</a>
+<a class="sourceLine" id="cb553-7" data-line-number="7">)</a></code></pre></div>
 <p>Let’s inspect the summary information for the posterior samples:</p>
-<div class="sourceCode" id="cb547"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb547-1" data-line-number="1"><span class="co"># just showing the currently most relevant information</span></a>
-<a class="sourceLine" id="cb547-2" data-line-number="2"><span class="kw">summary</span>(fit_brms_eco_sensitivity)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb554"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb554-1" data-line-number="1"><span class="co"># just showing the currently most relevant information</span></a>
+<a class="sourceLine" id="cb554-2" data-line-number="2"><span class="kw">summary</span>(fit_brms_eco_sensitivity)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##            Estimate  l-95% CI    u-95% CI
 ## Intercept 118.68533 111.42867 125.8595713
 ## groupB    -11.37756 -22.47929  -0.6354608</code></pre>
 <p>Compare this with the summary of the posterior estimates we obtained from the Bayesian <span class="math inline">\(t\)</span>-test model for this data which we implemented in <code>greta</code> and ran in Chapter <a href="ch-03-07-hypothesis-testing-Bayes.html#ch-03-07-hypothesis-testing-Bayes">12</a>. [TODO: redo with Stan]</p>
-<div class="sourceCode" id="cb549"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb549-1" data-line-number="1">draws_t_test_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&#39;models_greta/ttest_2_draws.rds&#39;</span>)</a>
-<a class="sourceLine" id="cb549-2" data-line-number="2">tidy_draws_tt2 =<span class="st"> </span>ggmcmc<span class="op">::</span><span class="kw">ggs</span>(draws_t_test_<span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb549-3" data-line-number="3"><span class="co"># get means and 95% HDI</span></a>
-<a class="sourceLine" id="cb549-4" data-line-number="4">Bayes_estimates_eco &lt;-<span class="st"> </span>tidy_draws_tt2 <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb549-5" data-line-number="5"><span class="st">  </span><span class="kw">group_by</span>(Parameter) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb549-6" data-line-number="6"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb549-7" data-line-number="7">    <span class="st">&#39;|95%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(value)[<span class="dv">1</span>],</a>
-<a class="sourceLine" id="cb549-8" data-line-number="8">    <span class="dt">mean =</span> <span class="kw">mean</span>(value),</a>
-<a class="sourceLine" id="cb549-9" data-line-number="9">    <span class="st">&#39;95|%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(value)[<span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb549-10" data-line-number="10">  )</a></code></pre></div>
-<div class="sourceCode" id="cb550"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb550-1" data-line-number="1">Bayes_estimates_eco</a></code></pre></div>
+<div class="sourceCode" id="cb556"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb556-1" data-line-number="1">draws_t_test_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&#39;models_greta/ttest_2_draws.rds&#39;</span>)</a>
+<a class="sourceLine" id="cb556-2" data-line-number="2">tidy_draws_tt2 =<span class="st"> </span>ggmcmc<span class="op">::</span><span class="kw">ggs</span>(draws_t_test_<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb556-3" data-line-number="3"><span class="co"># get means and 95% HDI</span></a>
+<a class="sourceLine" id="cb556-4" data-line-number="4">Bayes_estimates_eco &lt;-<span class="st"> </span>tidy_draws_tt2 <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb556-5" data-line-number="5"><span class="st">  </span><span class="kw">group_by</span>(Parameter) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb556-6" data-line-number="6"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb556-7" data-line-number="7">    <span class="st">&#39;|95%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(value)[<span class="dv">1</span>],</a>
+<a class="sourceLine" id="cb556-8" data-line-number="8">    <span class="dt">mean =</span> <span class="kw">mean</span>(value),</a>
+<a class="sourceLine" id="cb556-9" data-line-number="9">    <span class="st">&#39;95|%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(value)[<span class="dv">2</span>]</a>
+<a class="sourceLine" id="cb556-10" data-line-number="10">  )</a></code></pre></div>
+<div class="sourceCode" id="cb557"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb557-1" data-line-number="1">Bayes_estimates_eco</a></code></pre></div>
 <p>The mean of the <span class="math inline">\(\delta\)</span> parameter looks suspiciously similar to the ominous <code>groupB</code> parameter shown in the output of the <code>brms</code> model fit. The 95% HDIs of the estimated posterior for the <span class="math inline">\(\delta\)</span> parameter also look suspiciously like the values of the 95% inter-quantile range for the <code>groupB</code> parameter. This is no coincidence! In fact, the regression model that <code>brms</code> calculates here is essentially the same as the <span class="math inline">\(t\)</span>-test model we implemented in <code>greta</code> by hand except for slight differences in the choice of the priors and inessential differences in the mathematical formulation of the group mean comparison.</p>
 <p>The call to <code>brm</code> above implicitly computed a linear regression model of the following form:</p>
 <p><span class="math display">\[
@@ -592,14 +596,14 @@ code span.wa { color: #bf0303; } /* Warning */
 \]</span></p>
 <p>The only important point is that the vector <span class="math inline">\(x\)</span>, which corresponds to the group information in the column <code>group</code> (which contains entries of strings <code>&quot;A&quot;</code> and <code>&quot;B&quot;</code>), is implicitly treated as a vector of zeros and ones. Implicitly, <code>brm</code> has chosen the string <code>&quot;A&quot;</code> as the <strong>reference category</strong> which is encoded as zero. The string <code>&quot;B&quot;</code> is the other category, encoded as number 1. As a consequence, the linear model’s intercept parameter <span class="math inline">\(\beta_0\)</span> can be interpreted as the predicted mean of the reference category: if for some <span class="math inline">\(i\)</span> we have <span class="math inline">\(x_i = 0\)</span>, then the predictor <span class="math inline">\(\hat{y}_i\)</span> will just be <span class="math inline">\(\hat{y}_i = \beta_0\)</span>; whence that the intercept <span class="math inline">\(\beta_0\)</span> will be fitted to the mean of the reference category. If for some <span class="math inline">\(i\)</span> we have <span class="math inline">\(x_i = 1\)</span> instead, the predicted value will be computed as <span class="math inline">\(\hat{y}_i = \beta_0 + \beta_1\)</span>, so that the slope term <span class="math inline">\(\beta_1\)</span> will effectively play the role of the difference <span class="math inline">\(\delta\)</span> between the mean of the groups. Modulo choice of priors and variable naming, the <code>brm</code> model encodes a Bayesian <span class="math inline">\(t\)</span>-test model exactly like we previously did using <code>greta</code>. The upshot is, that we can conceive of a <strong><span class="math inline">\(t\)</span>-test as a special case of a linear regression model!</strong></p>
 <p>Of course, nothing in this correspondence depends on a Bayesian analysis in particular. Let’s look at the frequentist version:</p>
-<div class="sourceCode" id="cb551"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb551-1" data-line-number="1">fit_glm_eco &lt;-<span class="st"> </span><span class="kw">glm</span>(</a>
-<a class="sourceLine" id="cb551-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
-<a class="sourceLine" id="cb551-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
-<a class="sourceLine" id="cb551-4" data-line-number="4">  <span class="dt">formula =</span> measurement <span class="op">~</span><span class="st"> </span>group,</a>
-<a class="sourceLine" id="cb551-5" data-line-number="5">  <span class="co"># which data to use</span></a>
-<a class="sourceLine" id="cb551-6" data-line-number="6">  <span class="dt">data =</span> eco_sensitivity_data</a>
-<a class="sourceLine" id="cb551-7" data-line-number="7">)</a>
-<a class="sourceLine" id="cb551-8" data-line-number="8"><span class="kw">summary</span>(fit_glm_eco)</a></code></pre></div>
+<div class="sourceCode" id="cb558"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb558-1" data-line-number="1">fit_glm_eco &lt;-<span class="st"> </span><span class="kw">glm</span>(</a>
+<a class="sourceLine" id="cb558-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
+<a class="sourceLine" id="cb558-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
+<a class="sourceLine" id="cb558-4" data-line-number="4">  <span class="dt">formula =</span> measurement <span class="op">~</span><span class="st"> </span>group,</a>
+<a class="sourceLine" id="cb558-5" data-line-number="5">  <span class="co"># which data to use</span></a>
+<a class="sourceLine" id="cb558-6" data-line-number="6">  <span class="dt">data =</span> eco_sensitivity_data</a>
+<a class="sourceLine" id="cb558-7" data-line-number="7">)</a>
+<a class="sourceLine" id="cb558-8" data-line-number="8"><span class="kw">summary</span>(fit_glm_eco)</a></code></pre></div>
 <pre><code>## 
 ## Call:
 ## glm(formula = measurement ~ group, data = eco_sensitivity_data)
@@ -623,7 +627,7 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 
 ## Number of Fisher Scoring iterations: 2</code></pre>
 <p>The <span class="math inline">\(p\)</span>-value associated with the test of whether the slope coefficient (the difference between means) is plausibly zero corresponds to the result we get from a <span class="math inline">\(t\)</span>-test (when assuming equal variance in groups; an assumption that the linear modeling approach makes per default).</p>
-<div class="sourceCode" id="cb553"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb553-1" data-line-number="1"><span class="kw">t.test</span>(x_A, x_B, <span class="dt">paired =</span> F, <span class="dt">var.equal =</span> T)</a></code></pre></div>
+<div class="sourceCode" id="cb560"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb560-1" data-line-number="1"><span class="kw">t.test</span>(x_A, x_B, <span class="dt">paired =</span> F, <span class="dt">var.equal =</span> T)</a></code></pre></div>
 <pre><code>## 
 ##  Two Sample t-test
 ## 

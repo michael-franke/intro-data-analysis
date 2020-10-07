@@ -338,6 +338,10 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="9.2.1" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#optimizing-functions"><i class="fa fa-check"></i><b>9.2.1</b> Optimizing functions</a></li>
 <li class="chapter" data-level="9.2.2" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#approximating-posterior-distributions"><i class="fa fa-check"></i><b>9.2.2</b> Approximating posterior distributions</a></li>
 </ul></li>
+<li class="chapter" data-level="9.3" data-path="ch-03-03-estimation-Stan.html"><a href="ch-03-03-estimation-Stan.html"><i class="fa fa-check"></i><b>9.3</b> Probabilistic modeling with Stan</a><ul>
+<li class="chapter" data-level="9.3.1" data-path="ch-03-03-estimation-Stan.html"><a href="ch-03-03-estimation-Stan.html#basics-of-stan"><i class="fa fa-check"></i><b>9.3.1</b> Basics of Stan</a></li>
+<li class="chapter" data-level="9.3.2" data-path="ch-03-03-estimation-Stan.html"><a href="ch-03-03-estimation-Stan.html#binomial-model"><i class="fa fa-check"></i><b>9.3.2</b> Binomial Model</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="10" data-path="ch-03-05-hypothesis-testing.html"><a href="ch-03-05-hypothesis-testing.html"><i class="fa fa-check"></i><b>10</b> Hypothesis Testing</a><ul>
 <li class="chapter" data-level="10.1" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html"><i class="fa fa-check"></i><b>10.1</b> <em>p</em>-values</a><ul>
@@ -528,13 +532,13 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="data-set-murder-data" class="section level2">
 <h2><span class="header-section-number">13.1</span> Data set: murder data</h2>
 <p>As a running example, we use data on murder rates in cities of different population sizes, also containing further socio-economic information.</p>
-<div class="sourceCode" id="cb505"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb505-1" data-line-number="1">murder_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/murder_rates.csv&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb505-2" data-line-number="2"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">murder_rate =</span> annual_murder_rate_per_million_inhabitants,</a>
-<a class="sourceLine" id="cb505-3" data-line-number="3">         <span class="dt">low_income =</span> percentage_low_income, </a>
-<a class="sourceLine" id="cb505-4" data-line-number="4">         <span class="dt">unemployment =</span> percentage_unemployment) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb505-5" data-line-number="5"><span class="st">  </span><span class="kw">select</span>(murder_rate, low_income, unemployment, population)</a></code></pre></div>
+<div class="sourceCode" id="cb512"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb512-1" data-line-number="1">murder_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/murder_rates.csv&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb512-2" data-line-number="2"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">murder_rate =</span> annual_murder_rate_per_million_inhabitants,</a>
+<a class="sourceLine" id="cb512-3" data-line-number="3">         <span class="dt">low_income =</span> percentage_low_income, </a>
+<a class="sourceLine" id="cb512-4" data-line-number="4">         <span class="dt">unemployment =</span> percentage_unemployment) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb512-5" data-line-number="5"><span class="st">  </span><span class="kw">select</span>(murder_rate, low_income, unemployment, population)</a></code></pre></div>
 <p>We take a look at the data:</p>
-<div class="sourceCode" id="cb506"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb506-1" data-line-number="1">murder_data</a></code></pre></div>
+<div class="sourceCode" id="cb513"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb513-1" data-line-number="1">murder_data</a></code></pre></div>
 <pre><code>## # A tibble: 20 x 4
 ##    murder_rate low_income unemployment population
 ##          &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;      &lt;dbl&gt;
@@ -566,8 +570,8 @@ code span.wa { color: #bf0303; } /* Warning */
 <li><code>population</code>: number of inhabitants of a city</li>
 </ul>
 <p>Here’s a nice way of plotting each variable against each other:</p>
-<div class="sourceCode" id="cb508"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb508-1" data-line-number="1">GGally<span class="op">::</span><span class="kw">ggpairs</span>(murder_data, <span class="dt">title =</span> <span class="st">&quot;Murder rate data&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-370-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb515"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb515-1" data-line-number="1">GGally<span class="op">::</span><span class="kw">ggpairs</span>(murder_data, <span class="dt">title =</span> <span class="st">&quot;Murder rate data&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-375-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The diagonal of this graph shows the density curve of the data in each column. Scatter plots below the diagonal show pairs of values from two columns plotted against each other. The information above the diagonal gives the correlation score of each pair of variables.</p>
 </div>
             </section>

@@ -338,6 +338,10 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="9.2.1" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#optimizing-functions"><i class="fa fa-check"></i><b>9.2.1</b> Optimizing functions</a></li>
 <li class="chapter" data-level="9.2.2" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#approximating-posterior-distributions"><i class="fa fa-check"></i><b>9.2.2</b> Approximating posterior distributions</a></li>
 </ul></li>
+<li class="chapter" data-level="9.3" data-path="ch-03-03-estimation-Stan.html"><a href="ch-03-03-estimation-Stan.html"><i class="fa fa-check"></i><b>9.3</b> Probabilistic modeling with Stan</a><ul>
+<li class="chapter" data-level="9.3.1" data-path="ch-03-03-estimation-Stan.html"><a href="ch-03-03-estimation-Stan.html#basics-of-stan"><i class="fa fa-check"></i><b>9.3.1</b> Basics of Stan</a></li>
+<li class="chapter" data-level="9.3.2" data-path="ch-03-03-estimation-Stan.html"><a href="ch-03-03-estimation-Stan.html#binomial-model"><i class="fa fa-check"></i><b>9.3.2</b> Binomial Model</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="10" data-path="ch-03-05-hypothesis-testing.html"><a href="ch-03-05-hypothesis-testing.html"><i class="fa fa-check"></i><b>10</b> Hypothesis Testing</a><ul>
 <li class="chapter" data-level="10.1" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html"><i class="fa fa-check"></i><b>10.1</b> <em>p</em>-values</a><ul>
@@ -532,28 +536,28 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>To appreciate the CLT, let’s start with another seminal result, the <strong>Law of Large Numbers</strong>, which we had already relied on when we discussed a sample-based approach to representing probability distributions. For example, the Law of Large Numbers justifies why taking (large) samples from a random variable sufficiently approximates a mean (the most prominent Bayesian point-estimator of, e.g., a posterior approximated by samples from MCMC algorithms).</p>
 
 <div class="theorem">
-<p><span id="thm:Law-of-Large-Numbers" class="theorem"><strong>Theorem 10.2  (Law of Large Numbers)  </strong></span>Let <span class="math inline">\(X_1, \dots, X_n\)</span> be a sequence of <span class="math inline">\(n\)</span> differentiable random variables with equal mean, such that <span class="math inline">\(\mathbb{E}_{X_i} = \mu_X\)</span> for all <span class="math inline">\(1 \le i \le n\)</span>.<a href="#fn62" class="footnote-ref" id="fnref62"><sup>62</sup></a> As the number of samples <span class="math inline">\(n\)</span> goes to infinity the mean of any tuple of samples, one from each <span class="math inline">\(X_i\)</span>, convergences almost surely to <span class="math inline">\(\mu_X\)</span>:</p>
+<p><span id="thm:Law-of-Large-Numbers" class="theorem"><strong>Theorem 10.2  (Law of Large Numbers)  </strong></span>Let <span class="math inline">\(X_1, \dots, X_n\)</span> be a sequence of <span class="math inline">\(n\)</span> differentiable random variables with equal mean, such that <span class="math inline">\(\mathbb{E}_{X_i} = \mu_X\)</span> for all <span class="math inline">\(1 \le i \le n\)</span>.<a href="#fn63" class="footnote-ref" id="fnref63"><sup>63</sup></a> As the number of samples <span class="math inline">\(n\)</span> goes to infinity the mean of any tuple of samples, one from each <span class="math inline">\(X_i\)</span>, convergences almost surely to <span class="math inline">\(\mu_X\)</span>:</p>
 <span class="math display">\[ P \left(\lim_{n \rightarrow \infty} \frac{1}{n} \sum_{i = 1}^n X_i = \mu_X \right) = 1 \]</span>
 </div>
 
 <p>Computer simulations makes the point and usefulness of this fact easier to appreciate:</p>
-<div class="sourceCode" id="cb421"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb421-1" data-line-number="1"><span class="co"># sample from a standard normal distribution (mean = 0, sd = 1)</span></a>
-<a class="sourceLine" id="cb421-2" data-line-number="2">samples &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100000</span>)</a>
-<a class="sourceLine" id="cb421-3" data-line-number="3"><span class="co"># collect the mean after each 10 samples &amp; plot</span></a>
-<a class="sourceLine" id="cb421-4" data-line-number="4"><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb421-5" data-line-number="5">  <span class="dt">n =</span> <span class="kw">seq</span>(<span class="dv">100</span>, <span class="kw">length</span>(samples), <span class="dt">by =</span> <span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb421-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb421-7" data-line-number="7"><span class="st">  </span><span class="kw">group_by</span>(n) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb421-8" data-line-number="8"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb421-9" data-line-number="9">  <span class="dt">mu =</span> <span class="kw">mean</span>(samples[<span class="dv">1</span><span class="op">:</span>n])</a>
-<a class="sourceLine" id="cb421-10" data-line-number="10">)  <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb421-11" data-line-number="11"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> n, <span class="dt">y =</span> mu)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb421-12" data-line-number="12"><span class="st">  </span><span class="kw">geom_line</span>()</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-296-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb428"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb428-1" data-line-number="1"><span class="co"># sample from a standard normal distribution (mean = 0, sd = 1)</span></a>
+<a class="sourceLine" id="cb428-2" data-line-number="2">samples &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100000</span>)</a>
+<a class="sourceLine" id="cb428-3" data-line-number="3"><span class="co"># collect the mean after each 10 samples &amp; plot</span></a>
+<a class="sourceLine" id="cb428-4" data-line-number="4"><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb428-5" data-line-number="5">  <span class="dt">n =</span> <span class="kw">seq</span>(<span class="dv">100</span>, <span class="kw">length</span>(samples), <span class="dt">by =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb428-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb428-7" data-line-number="7"><span class="st">  </span><span class="kw">group_by</span>(n) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb428-8" data-line-number="8"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb428-9" data-line-number="9">  <span class="dt">mu =</span> <span class="kw">mean</span>(samples[<span class="dv">1</span><span class="op">:</span>n])</a>
+<a class="sourceLine" id="cb428-10" data-line-number="10">)  <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb428-11" data-line-number="11"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> n, <span class="dt">y =</span> mu)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb428-12" data-line-number="12"><span class="st">  </span><span class="kw">geom_line</span>()</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-301-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>For practical purposes, think of the Central Limit Theorem as an extension of the Law of Large Numbers. While the latter tells us that, as <span class="math inline">\(n \rightarrow \infty\)</span>, the mean of repeated samples from a random variable <span class="math inline">\(X\)</span> converges to the mean of <span class="math inline">\(X\)</span>, the Central Limit Theorem tells us something about the distribution of our estimate of <span class="math inline">\(X\)</span>’s mean. The Central Limit Theorem tells us that the sampling distribution of the mean approximates a normal distribution for large enough sample size.</p>
 
 <div class="theorem">
-<span id="thm:Central-Limit-Theorem" class="theorem"><strong>Theorem 10.3  (Central Limit Theorem)  </strong></span>Let <span class="math inline">\(X_1, \dots, X_n\)</span> be a sequence of <span class="math inline">\(n\)</span> differentiable random variables with equal mean <span class="math inline">\(\mathbb{E}_{X_i} = \mu_X\)</span> and equal finite variance <span class="math inline">\(\text{Var}(X_i) = \sigma_X^2\)</span> for all <span class="math inline">\(1 \le i \le n\)</span>.<a href="#fn63" class="footnote-ref" id="fnref63"><sup>63</sup></a> The random variable <span class="math inline">\(S_n\)</span> which captures the distribution of the sample mean for any <span class="math inline">\(n\)</span> is:
+<span id="thm:Central-Limit-Theorem" class="theorem"><strong>Theorem 10.3  (Central Limit Theorem)  </strong></span>Let <span class="math inline">\(X_1, \dots, X_n\)</span> be a sequence of <span class="math inline">\(n\)</span> differentiable random variables with equal mean <span class="math inline">\(\mathbb{E}_{X_i} = \mu_X\)</span> and equal finite variance <span class="math inline">\(\text{Var}(X_i) = \sigma_X^2\)</span> for all <span class="math inline">\(1 \le i \le n\)</span>.<a href="#fn64" class="footnote-ref" id="fnref64"><sup>64</sup></a> The random variable <span class="math inline">\(S_n\)</span> which captures the distribution of the sample mean for any <span class="math inline">\(n\)</span> is:
 <span class="math display">\[ S_n = \frac{1}{n} \sum_{i=1}^n X_i \]</span>
 As the number of samples <span class="math inline">\(n\)</span> goes to infinity, the random variable <span class="math inline">\(\sqrt{n} (S_n - \mu_X)\)</span> converges in distribution to a normal distribution with mean 0 and standard deviation <span class="math inline">\(\sigma_X\)</span>.
 </div>
@@ -575,9 +579,9 @@ As the number of samples <span class="math inline">\(n\)</span> goes to infinity
 </div>
 <div class="footnotes">
 <hr />
-<ol start="62">
-<li id="fn62"><p>Though the result is more general, it is convenient to think of a natural application as the case where all <span class="math inline">\(X_i\)</span> are samples from the exact same distribution.<a href="ch-03-05-hypothesis-testing-CLT.html#fnref62" class="footnote-back">↩</a></p></li>
-<li id="fn63"><p>As with the Law of Large Numbers, the most common application is the case where all <span class="math inline">\(X_i\)</span> are samples from the exact same distribution.<a href="ch-03-05-hypothesis-testing-CLT.html#fnref63" class="footnote-back">↩</a></p></li>
+<ol start="63">
+<li id="fn63"><p>Though the result is more general, it is convenient to think of a natural application as the case where all <span class="math inline">\(X_i\)</span> are samples from the exact same distribution.<a href="ch-03-05-hypothesis-testing-CLT.html#fnref63" class="footnote-back">↩</a></p></li>
+<li id="fn64"><p>As with the Law of Large Numbers, the most common application is the case where all <span class="math inline">\(X_i\)</span> are samples from the exact same distribution.<a href="ch-03-05-hypothesis-testing-CLT.html#fnref64" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>
