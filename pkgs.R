@@ -13,6 +13,7 @@ library(cowplot)     # to arrange plots
 library(scales)      # to massage scales in plots
 # library(greta)       # probabilistic modeling package
 library(ggmcmc)      # tidy Bayes samples
+library(tidybayes)   # tidy Bayes samples
 library(HDInterval)  # credible intervals
 library(binom)       # for binomial confidence intervals 
 library(BSDA)        # for z.test
