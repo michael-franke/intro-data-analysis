@@ -1,14 +1,14 @@
-theme_ida <- function(title.size = 16, text.size = 14,
-                      legend.position = "top", show.axis = FALSE, 
+theme_ida <- function(title.size = 16, text.size = 14, legend.position = "top", 
+                      show.axis = FALSE, show.grid = TRUE,
                       plot.margin = c(.2, .1, .2, .1)){
   # baseline
-  layout <- ggplot2::theme_classic()
+  layout <- theme_classic()
   layout <- layout + theme(text = element_text(size = text.size),
                            title = element_text(size = title.size, 
                                                 face = "bold"),
                            line = element_line(size = .5))
   
-  # axes
+  # axis
   if (inherits(show.axis, "character") | show.axis == FALSE){
     if (inherits(show.axis, "character")){
       show.axis <- tolower(show.axis)
@@ -23,6 +23,23 @@ theme_ida <- function(title.size = 16, text.size = 14,
                                axis.line.y = element_blank())
     }
   }
+  
+  # grid lines
+  if (show.grid == TRUE){
+    layout <- layout + theme(panel.grid.major = element_line(size = .2, 
+                                                             color = "#333333", 
+                                                             linetype = "dotted"))
+  }
+  
+  # axis titles
+  layout <- layout + theme(axis.title.x = element_text(margin = margin(t = 8)))
+  
+  # axis labels
+  layout <- layout + theme(axis.text = element_text(face = "plain"))
+  
+  # subtitle
+  layout <- layout + theme(plot.subtitle = element_text(face = "plain", 
+                                                        color = "#4d4d4d"))
   
   # legend
   layout <- layout + theme(legend.position = legend.position,
