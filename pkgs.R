@@ -17,19 +17,24 @@ library(tidybayes)   # tidy Bayes samples
 library(HDInterval)  # credible intervals
 library(binom)       # for binomial confidence intervals 
 library(BSDA)        # for z.test
+library(polspline)   # for reliable density estimates at point-values
+library(GGally)      # for ally plots 
 # for visualizing dirichlet distribution; 
 # needs github version, see .travis.yml for that
 if (!("dirichlet" %in% installed.packages())) {
   devtools::install_github("dkahle/dirichlet")
 }
 library(dirichlet)
-library(polspline)   # for reliable density estimates at point-values
-library(GGally)      # for ally plots 
+# same/similar  for aida-package:
+if (!("aida" %in% installed.packages())) {
+  devtools::install_github("michael-franke/aida-package")
+}
+library(aida)
 
 ## set defaults
-source("theme_ida.R")
+# source("theme_ida.R")
 theme_set(
-  theme_ida()
+  aida::theme_aida()
 )
 
 # parallel execution of Stan code
