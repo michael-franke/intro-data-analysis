@@ -408,7 +408,7 @@ As the number of samples $n$ goes to infinity, the random variable $\sqrt{n} (S_
 
 A proof of the CLT is not trivial, and we will omit it here. We will only point to the CLT when justifying approximations of sampling distributions, just as exemplified in the next section, which deals with Pearson's $\chi^2$-test.
 
-<!-- ### Hands-on -->
+### Hands-on
 <!-- TODO: Implement an interactive plot like the ones below for CLT with WebPPL -->
 <!-- Possibly combine continuous, discrete and custom population distributions in one plot. -->
 
@@ -425,6 +425,51 @@ A proof of the CLT is not trivial, and we will omit it here. We will only point 
 <!-- #### Discrete population distribution -->
 <!-- <iframe height="600" width="100%" frameborder="no" src="https://istats.shinyapps.io/SampDist_discrete/"> -->
 <!-- </iframe> -->
+
+<select onchange="selectDist()" id=select>
+  <option value="" selected disabled hidden>Population distribution</option>
+  <option>normally distributed</option>
+  <option>uniformly distributed</option>
+  <option>beta distributed</option>
+  <option>binomially distributed</option>
+  <option>custom</option>
+</select>
+
+<p id="empty"></p>
+
+<pre class=" CodeMirror-line " role="presentation"></pre>
+
+<script>
+function selectDist() {
+  var dist = document.getElementById("select");
+
+  if (dist.options[dist.selectedIndex].text == "normally distributed") {
+    document.getElementById("empty").innerHTML = "<pre class='gaussian'>var sample_size = 3;\nvar number_of_samples = 5;\n///fold:\n\n// Population distribution\n\nvar mu = 4; // mean\nvar sigma = 1; // standard deviation\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {gaussian({mu: mu, sigma: sigma})});\nvar population_mean = sum(population)/n_samples;\nprint('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\nprint('Distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
+    var type = 'gaussian';
+
+  } else if (dist.options[dist.selectedIndex].text == "uniformly distributed") {
+    document.getElementById("empty").innerHTML = "<pre class='uniform'>var sample_size = 2;\nvar number_of_samples = 6;\n///fold:\n\n// Population distribution\n\nvar a = 1; // lower bound\nvar b = 3; // upper bound (> a)\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {uniform({a: a, b: b})});\nvar population_mean = sum(population)/n_samples;\nprint('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\nprint('Distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
+    var type = 'uniform';
+
+  } else if (dist.options[dist.selectedIndex].text == "beta distributed") {
+    document.getElementById("empty").innerHTML = "<pre class='beta'>var sample_size = 3;\nvar number_of_samples = 3;\n///fold:\n\n// Population distribution\n\nvar a = 4; // shape parameter alpha\nvar b = 2; // shape parameter beta\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {beta({a: a, b: b})});\nvar population_mean = sum(population)/n_samples;\nprint('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\nprint('Distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
+    var type = 'beta';
+
+  } else if (dist.options[dist.selectedIndex].text == "binomially distributed") {
+    document.getElementById("empty").innerHTML = "<pre class='binomial'>var sample_size = 6;\nvar number_of_samples = 4;\n///fold:\n\n// Population distribution\n\nvar p = 0.5; // probability of success\nvar n = 10; // number of trials (>= 1)\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {binomial({p: p, n: n})});\nvar population_mean = sum(population)/n_samples;\nprint('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\nprint('Distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
+    var type = 'binomial';
+    
+  } else if (dist.options[dist.selectedIndex].text == "custom") {
+    document.getElementById("empty").innerHTML = "<pre class='custom'>var sample_size = 10;\nvar number_of_samples = 10;\nvar population = [1, 2, 4, 5, 5, 3, 7, 5, 3];\n///fold:\n\n// Population distribution\n\nvar population_mean = sum(population)/population.length;\nprint('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\nprint('Distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
+    var type = 'custom';
+
+  }
+  
+  // find all <pre> elements and set up the editor on them
+  var preEls = Array.prototype.slice.call(document.getElementsByClassName(type));
+  preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}); });  
+}
+</script>
 
 ## Selected tests {#ch-03-05-hypothesis-testing-tests}
 
