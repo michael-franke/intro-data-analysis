@@ -59,7 +59,7 @@ observation that it is not $A$.
 ### Probability distributions
 
 A **probability distribution** $P$ over $\Omega$ is a function
-$P \ \colon \ \mathfrak{P}(\Omega) \rightarrow \mathbb{R}$ ^[For any of you who are interested in the precise mathematical description of probability space, $\mathfrak{P}(\Omega)$ is called Borel set. It is important since probabilities can be only defined for measurable sets. https://en.wikipedia.org/wiki/Borel_set] that assigns to all events $A \subseteq \Omega$ a real number (from the unit interval, see A1 below), such that the following (so-called Kolmogorov axioms) are satisfied:
+$P \ \colon \ \mathfrak{P}(\Omega) \rightarrow \mathbb{R}$. ^[For any of you who are interested in the precise mathematical description of probability space, $\mathfrak{P}(\Omega)$ is called [https://en.wikipedia.org/wiki/Borel_set](Borel set) It is important since probabilities can be only defined for measurable sets.] that assigns to all events $A \subseteq \Omega$ a real number (from the unit interval, see A1 below), such that the following (so-called Kolmogorov axioms) are satisfied:
 
 A1. $0 \le P(A) \le 1$
 
@@ -86,9 +86,13 @@ Prove C1, C2 and C3 using A1, A2 and A3.
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
+
 C1: $P(\Omega \cup \emptyset) = P(\Omega) + P(\emptyset)  \Leftrightarrow  P(\Omega) = P(\Omega) + P(\emptyset)  \Leftrightarrow  0 = P(\emptyset)$ following A3 since $\omega$ and $\emptyset$ are mutually exclusive.
-C2: $P(\Omega) = P(A \cup \overline{A}) = P(A) + P(\overline{A}) = 1 $.
+
+C2: $P(\Omega) = P(A \cup \overline{A}) = P(A) + P(\overline{A}) = 1$.
+
 C3: $P(A \cup B) = P((A-B) \cup (A \cap B) \cup (B-A)) = P(A-B) + P(A \cap B) + P(B-A) = (P(A \cup B) - P(B)) + P(A \cap B) + (P(A \cup B) - P(A)) = 2 P(A \cup B) - P(A) - P(B) + P(A \cap B)  \Leftrightarrow   P(A \cup B) = P(A) + P(B) - P(A \cap B)$
+
 </div>
 </div>
 </div>
@@ -124,13 +128,13 @@ urn <- c(
   rep("white", 3)
 )
 
-# number of samples to take 
+# number of samples to take
 n_samples <- 10000
 
 # take `n_samples` samples from the urn (with replacement)
 draws <- sample(
   # vector to sample from (default probability is uniform)
-  x = urn, 
+  x = urn,
   # take a million samples
   size = n_samples,
   # put each ball back after drawing
@@ -142,21 +146,19 @@ tibble(
   draw_nr = 1:n_samples,
   draw = draws,
   # relative frequency of 'black' balls
-  prop_black = cumsum(draw == "black") / draw_nr 
-) %>% 
+  prop_black = cumsum(draw == "black") / draw_nr
+) %>%
   # take only multiples of 10 draws
-  filter(draw_nr %% 10 == 0) %>% 
+  filter(draw_nr %% 10 == 0) %>%
   ggplot(aes(x = draw_nr, y = prop_black)) +
   geom_line(color = "darkgray") +
-  # add a red line for the true limiting probability 
+  # add a red line for the true limiting probability
   geom_hline(aes(yintercept = 0.7), color = "firebrick") +
   labs(
     x = "number of draws",
     y = "proportion of 'black' balls drawn",
     title = "Temporal development of the proportion of draws from an urn"
   )
-
-  
 ```
 
 To sum this up concisely, we have a random process (drawing once from the urn) whose outcome is uncertain, and we convinced ourselves that the probability of an outcome corresponds to the relative frequency it occurs, in the limit of repeatedly executing the random process (i.e., sampling from the urn). From here it requires only a small step to a crucial but ultimately very liberating realization. If the probability of an event occurring can be approximated by its frequency in a large sample, then we can represent (say: internally in a computer) a probability distribution as one of two things:
@@ -165,16 +167,6 @@ To sum this up concisely, we have a random process (drawing once from the urn) w
 2. an oracle (e.g., in the form of a clever algorithm) which quickly returns a representative sample.
 
 This means that, for approximately computing with probability, we can represent distributions through samples or a sample-generating function. We do not need to know precise probability or be able to express them in a mathematical formula. Samples or **sampling is enough to approximate probability distributions**.
-
-<!-- Cannot be done this way cuz students cannot program in webbook -->
-<!-- <div class = "exercises"> -->
-
-<!-- ```{r, echo=FALSE} -->
-<!-- oracle <- function(){ -->
-<!--   rnorm(1, -10, 10) -->
-<!-- } -->
-<!-- ``` -->
-
 
 <!-- **Exercise 7.2** -->
 
@@ -221,18 +213,15 @@ This means that, for approximately computing with probability, we can represent 
 <!--   xlim(c(-50,50)) -->
 <!-- ``` -->
 
-</div>
-</div>
-</div>
+<!-- </div> -->
+<!-- </div> -->
+<!-- </div> -->
 
 ## Structured events & marginal distributions {#Chap-03-01-probability-marginal}
 
 ### Probability table for a flip-and-draw scenario
 
-Suppose we have two urns. Both have $N=10$ balls. Urn 1 has $k_1=2$ black and $N-k_1 = 8$ white
-balls. Urn 2 has $k_2=4$ black and $N-k_2=6$ white balls. We sometimes draw from urn 1,
-sometimes from urn 2. To decide from which urn a ball should be drawn, we flip a fair coin. If it comes up heads, we draw from urn 1;
-if it comes up tails, we draw from urn 2. The process is visualized in Figure \@ref(fig:03-01-flip-and-draw) below.
+Suppose we have two urns. Both have $N=10$ balls. Urn 1 has $k_1=2$ black and $N-k_1 = 8$ white balls. Urn 2 has $k_2=4$ black and $N-k_2=6$ white balls. We sometimes draw from urn 1, sometimes from urn 2. To decide from which urn a ball should be drawn, we flip a fair coin. If it comes up heads, we draw from urn 1; if it comes up tails, we draw from urn 2. The process is visualized in Figure \@ref(fig:03-01-flip-and-draw) below.
 
 An elementary outcome of this two-step process of flip-and-draw is a pair $\tuple{\text{outcome-flip}, \text{outcome-draw}}$. The set of all possible such outcomes is:
 
@@ -277,7 +266,7 @@ If $P$ is a joint-probability distribution over event space $\Omega = \Omega_1 \
 
 $$  P(A_i) = \sum_{A_1 \subseteq \Omega_{1}, \dots , A_{i-1} \subseteq \Omega_{i-1}, A_{i+1} \subseteq \Omega_{i+1}, \dots, A_n \subseteq \Omega_n} P(A_1, \dots, A_{i-1}, A_{i}, A_{i+1}, \dots A_n) $$
 
-For example, the marginal distribution of draws derivable from Table \@ref(tab:flipdrawprobabilities) has $P(\text{black}) = P(\text{heads, black}) + P(\text{heads, white}) = 0.3$ and $P(\text{white}) = 0.7$.^[The term ``marginal distribution'' derives from such probability tables, where traditionally the sum of each row/column was written in the margins.] The marginal distribution of coin flips derivable from the joint probability distribution in Table \@ref(tab:flipdrawprobabilities) gives $P(\text{heads}) = P(\text{tails}) = 0.5$, since the sum of each column is exactly $0.5$. 
+For example, the marginal distribution of draws derivable from Table \@ref(tab:flipdrawprobabilities) has $P(\text{black}) = P(\text{heads, black}) + P(\text{heads, white}) = 0.3$ and $P(\text{white}) = 0.7$.^[The term ``marginal distribution'' derives from such probability tables, where traditionally the sum of each row/column was written in the margins.] The marginal distribution of coin flips derivable from the joint probability distribution in Table \@ref(tab:flipdrawprobabilities) gives $P(\text{heads}) = P(\text{tails}) = 0.5$, since the sum of each column is exactly $0.5$.
 
 <div class = "exercises">
 **Exercise 7.3**
@@ -388,9 +377,9 @@ First, lets abbreviate the test result being negative or positive as $t-$ and $t
 
 ```{block2, type="infobox"}
 **Excursion: Bayes rule for data analysis** In later chapters, we will use Bayes rule for data analysis. The flip-and-draw scenario structurally "preflects" what will happen later. Think of the color of the ball drawn as the *data* $D$ which we observe. Think of the coin as a *latent parameter* $\theta$ of a statistical model. Bayes rule for data analysis then looks like this:
-  
+
   $$P(\theta \mid D) = \frac{P(D \mid \theta) \ P(\theta)}{P(D)}$$
-  
+
 We will discuss this at length in Chapter \@ref(Chap-03-03-models) and thereafter.
 ```
 
@@ -400,7 +389,7 @@ Event $A$ is **stochastically independent** of $B$ if, intuitively speaking, lea
 
 $$
 \begin{aligned}
- P(B \mid A) 
+ P(B \mid A)
  & =
  \frac{P(A \mid B) \ P(B)}{P(A)} && \text{[Bayes rule]}
  \\
@@ -436,13 +425,13 @@ Independence shows in Table \@ref(tab:flipdrawprobabilities-independent) in the 
 
 ```{proposition, label = "conjunction-independent-events", name = "Probability of conjunction of stochastically independent events"}
 For any pair of events $A$ and $B$ with non-zero probability:
-  
-$$P(A \cap B) = P(A) \ P(B) \, \ \ \ \ \text{[if } A \text{ and } B \text{ are stoch. independent]} $$ 
+
+$$P(A \cap B) = P(A) \ P(B) \, \ \ \ \ \text{[if } A \text{ and } B \text{ are stoch. independent]} $$
 ```
 
 ```{proof}
 By assumption of independence, it holds that $P(A \mid B) = P(A)$. But then:
-  
+
 $$
 \begin{aligned}
  P(A \cap B)
@@ -558,7 +547,7 @@ ggplot(data.frame(x = c(-8, 8)), aes(x = x)) +
   scale_colour_manual("standard deviation",
                       breaks = c("4", "1"),
                       values = project_colors) +
-  ylab(bquote("Norm(X = x;" ~ mu == 0 * "," ~ sigma * ")")) 
+  ylab(bquote("Norm(X = x;" ~ mu == 0 * "," ~ sigma * ")"))
 ```
 
 ```{r ch-03-NormalDistribution-Cumulative, echo = F, fig.cap = "Examples of the cumulative normal distribution corresponding to the previous probability density functions."}
@@ -569,7 +558,7 @@ ggplot(data.frame(x = c(-8, 8)), aes(x = x)) +
                       breaks = c("4", "1"),
                       values = project_colors) +
   # ylab("Norm(X <= x ; mu = 0, sd")
-  ylab(bquote("Norm(X" <= "x;" ~ mu == 0 * "," ~ sigma * ")")) 
+  ylab(bquote("Norm(X" <= "x;" ~ mu == 0 * "," ~ sigma * ")"))
 ```
 
 </div>
@@ -615,14 +604,14 @@ variance <- 1^2*(1/6) + 2^2*(1/6) + 3^2*(1/6) + 4^2*(1/6) + 5^2*(1/6) + 6^2*(1/6
 
 print(expected_value)
 variance
-``` 
+```
 </div>
 </div>
 </div>
 
 ### Composite random variables
 
-Composite random variables are random variables generated by mathematical operations conjoining other random variables. For example, if $X$ and $Y$ are random variables, then we can define a new derived random variable $Z$  using notation like: 
+Composite random variables are random variables generated by mathematical operations conjoining other random variables. For example, if $X$ and $Y$ are random variables, then we can define a new derived random variable $Z$  using notation like:
 
 $$Z = X + Y$$
 
@@ -634,24 +623,24 @@ Consider the following concrete example. $X$ is the probability distribution of 
 n_samples <- 1e6
 # `n_samples` rolls of a fair dice
 samples_x <- sample(
-  1:6, 
-  size = n_samples, 
+  1:6,
+  size = n_samples,
   replace = T
 )
 
 # `n_samples` flips of a biased coin
 samples_y <- sample(
-  c(0,1), 
-  prob = c(0.25, 0.75), 
-  size = n_samples, 
+  c(0,1),
+  prob = c(0.25, 0.75),
+  size = n_samples,
   replace = T
 )
 
 samples_z <- samples_x + samples_y
 
-tibble(outcome = samples_z) %>% 
-  dplyr::count(outcome) %>% 
-  mutate(n = n/sum(n)) %>% 
+tibble(outcome = samples_z) %>%
+  dplyr::count(outcome) %>%
+  mutate(n = n/sum(n)) %>%
   ggplot(aes(x = outcome, y = n)) +
   geom_col() +
   labs(y = "proportion")
