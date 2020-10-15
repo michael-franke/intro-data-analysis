@@ -247,8 +247,7 @@ Download and install the latest version of RTools from
 Download and install the latest version of RTools for macOS from
 [here](https://github.com/rmacoslib/r-macos-rtools/releases/)
 
-Note: you may need to register for an Apple Developer account (free of
-charge).
+Note: to open the installation package you have to press Control + right click and then choose "open". You also may need to register for an Apple Developer account (free of charge).
 
 **Linux (e.g. Ubuntu):**
 
@@ -262,13 +261,50 @@ installation of the packages we will use in this course. In this step,
 you'll install this package (and automatically install its
 dependencies).
 
-**For Windows and macOS:**
+**For Windows:**
 
 Open RStudio and run the following two commands in the console.
 
 `install.packages("devtools")`
 
 `devtools::install_github("n-kall/IDA2019-package")`
+
+**For  macOS:**
+
+Open RStudio and run the following two commands in the console.
+
+`install.packages("devtools")`
+
+`devtools::install_github("n-kall/IDA2019-package")`
+
+*Next steps are required to install RStan*
+
+Execute in the RStudio console:
+
+`install.packages("Rcpp", repos = "https://rcppcore.github.io/drat")` 
+
+Optimize the C++ compiler:
+
+`dotR <- file.path(Sys.getenv("HOME"), ".R")`
+`if (!file.exists(dotR)) dir.create(dotR)`
+`M <- file.path(dotR, "Makevars")`
+`if (!file.exists(M)) file.create(M)`
+`cat("\nCXX14FLAGS += -O3 -mtune=native -arch x86_64 -ftemplate-depth-256", file = M, sep = "\n", append = FALSE)`
+
+Then:
+`remove.packages("rstan")`
+`if (file.exists(".RData")) file.remove(".RData")`
+
+Restart R
+
+`Sys.setenv(MAKEFLAGS = "-j4")` # set desired number of cores to use
+
+`install.packages("rstan", type = "source")`
+
+Check if Stan installation was successful by running the example model:
+
+`library(rstan)`
+`example(stan_model,run.dontrun = TRUE)`
 
 **For Linux (e.g. Ubuntu):**
 
@@ -294,3 +330,32 @@ and then install via the the R console:
 Occasionally, we might have to add packages or functionality as we go through this course. In that case, you will have to update the package `IDA2019-package` that takes care of all updates. To update, use the following command in the R console:
 
 `devtools::install_github("n-kall/IDA2019-package")`
+
+
+In R Studio run:
+
+ `install.packages("Rcpp", repos = "https://rcppcore.github.io/drat")`
+
+Optimize the compiler:
+
+`dotR <- file.path(Sys.getenv("HOME"), ".R")`
+`if (!file.exists(dotR)) dir.create(dotR)`
+`M <- file.path(dotR, "Makevars")`
+`if (!file.exists(M)) file.create(M)`
+`cat("\nCXX14FLAGS += -O3 -mtune=native -arch x86_64 -ftemplate-depth-256", file = M, sep = "\n", append = FALSE)`
+
+Then:
+`remove.packages("rstan")`
+`if (file.exists(".RData")) file.remove(".RData")`
+
+Restart R
+
+ `Sys.setenv(MAKEFLAGS = "-j4")` # set desired number of cores to use
+
+`install.packages("rstan", type = "source")`
+
+Check if installation was successful by running the example model:
+
+`library(rstan)`
+`example(stan_model,run.dontrun = TRUE)`
+
