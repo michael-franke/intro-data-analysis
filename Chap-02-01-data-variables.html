@@ -530,34 +530,34 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="Chap-02-01-data-variables" class="section level2">
 <h2><span class="header-section-number">3.2</span> On the notion of “variables”</h2>
 <p>Data used for data analysis, even if it is “raw data”, i.e., data before preprocessing and cleaning, is usually structured or labeled in some way or other. Even if the whole data we have is a vector of numbers, we would usually know what these numbers represent. For instance, we might just have a quintuple of numbers, but we would (usually/ideally) know that these represent the results of an IQ test.</p>
-<div class="sourceCode" id="cb163"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb163-1" data-line-number="1"><span class="co"># a simple data vector of IQ-scores</span></a>
-<a class="sourceLine" id="cb163-2" data-line-number="2">IQ_scores &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">102</span>, <span class="dv">115</span>, <span class="dv">97</span>, <span class="dv">126</span>, <span class="dv">87</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb162-1" data-line-number="1"><span class="co"># a simple data vector of IQ-scores</span></a>
+<a class="sourceLine" id="cb162-2" data-line-number="2">IQ_scores &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">102</span>, <span class="dv">115</span>, <span class="dv">97</span>, <span class="dv">126</span>, <span class="dv">87</span>)</a></code></pre></div>
 <p>Or we might have a Boolean vector with the information of whether each of five students passed an exam. But even then we would (usually/ideally) know the association between names and test results, as in a table like this:</p>
-<div class="sourceCode" id="cb164"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb164-1" data-line-number="1"><span class="co"># who passed the exam</span></a>
+<div class="sourceCode" id="cb163"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb163-1" data-line-number="1"><span class="co"># who passed the exam</span></a>
+<a class="sourceLine" id="cb163-2" data-line-number="2">exam_results &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb163-3" data-line-number="3"><span class="st">  </span><span class="kw">tribble</span>(</a>
+<a class="sourceLine" id="cb163-4" data-line-number="4">    <span class="op">~</span>student,   <span class="op">~</span>pass,</a>
+<a class="sourceLine" id="cb163-5" data-line-number="5">    <span class="st">&quot;Jax&quot;</span>,      <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb163-6" data-line-number="6">    <span class="st">&quot;Jason&quot;</span>,    <span class="ot">FALSE</span>,</a>
+<a class="sourceLine" id="cb163-7" data-line-number="7">    <span class="st">&quot;Jamie&quot;</span>,    <span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb163-8" data-line-number="8">  )</a></code></pre></div>
+<p>Association of information, as between different columns in a table like the one above, is crucial. Most often, we have more than one kind of observation that we care about. Most often, we care about systematic relationships between different observables in the world. For instance, we might want to look at pass/fail results from an exam in co-occurrence with information about the proportion of attendance of the course’s tutorial sessions:</p>
+<div class="sourceCode" id="cb164"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb164-1" data-line-number="1"><span class="co"># proportion of tutorials attended and exam pass/fail</span></a>
 <a class="sourceLine" id="cb164-2" data-line-number="2">exam_results &lt;-<span class="st"> </span></a>
 <a class="sourceLine" id="cb164-3" data-line-number="3"><span class="st">  </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb164-4" data-line-number="4">    <span class="op">~</span>student,   <span class="op">~</span>pass,</a>
-<a class="sourceLine" id="cb164-5" data-line-number="5">    <span class="st">&quot;Jax&quot;</span>,      <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb164-6" data-line-number="6">    <span class="st">&quot;Jason&quot;</span>,    <span class="ot">FALSE</span>,</a>
-<a class="sourceLine" id="cb164-7" data-line-number="7">    <span class="st">&quot;Jamie&quot;</span>,    <span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb164-8" data-line-number="8">  )</a></code></pre></div>
-<p>Association of information, as between different columns in a table like the one above, is crucial. Most often, we have more than one kind of observation that we care about. Most often, we care about systematic relationships between different observables in the world. For instance, we might want to look at pass/fail results from an exam in co-occurrence with information about the proportion of attendance of the course’s tutorial sessions:</p>
-<div class="sourceCode" id="cb165"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb165-1" data-line-number="1"><span class="co"># proportion of tutorials attended and exam pass/fail</span></a>
-<a class="sourceLine" id="cb165-2" data-line-number="2">exam_results &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb165-3" data-line-number="3"><span class="st">  </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb165-4" data-line-number="4">    <span class="op">~</span>student,   <span class="op">~</span>tutorial_proportion,   <span class="op">~</span>pass,</a>
-<a class="sourceLine" id="cb165-5" data-line-number="5">    <span class="st">&quot;Jax&quot;</span>,      <span class="fl">0.0</span>,                    <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb165-6" data-line-number="6">    <span class="st">&quot;Jason&quot;</span>,    <span class="fl">0.78</span>,                   <span class="ot">FALSE</span>,</a>
-<a class="sourceLine" id="cb165-7" data-line-number="7">    <span class="st">&quot;Jamie&quot;</span>,    <span class="fl">0.39</span>,                   <span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb165-8" data-line-number="8">  )</a>
-<a class="sourceLine" id="cb165-9" data-line-number="9">exam_results</a></code></pre></div>
+<a class="sourceLine" id="cb164-4" data-line-number="4">    <span class="op">~</span>student,   <span class="op">~</span>tutorial_proportion,   <span class="op">~</span>pass,</a>
+<a class="sourceLine" id="cb164-5" data-line-number="5">    <span class="st">&quot;Jax&quot;</span>,      <span class="fl">0.0</span>,                    <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb164-6" data-line-number="6">    <span class="st">&quot;Jason&quot;</span>,    <span class="fl">0.78</span>,                   <span class="ot">FALSE</span>,</a>
+<a class="sourceLine" id="cb164-7" data-line-number="7">    <span class="st">&quot;Jamie&quot;</span>,    <span class="fl">0.39</span>,                   <span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb164-8" data-line-number="8">  )</a>
+<a class="sourceLine" id="cb164-9" data-line-number="9">exam_results</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 3
 ##   student tutorial_proportion pass 
 ##   &lt;chr&gt;                 &lt;dbl&gt; &lt;lgl&gt;
 ## 1 Jax                    0    TRUE 
 ## 2 Jason                  0.78 FALSE
 ## 3 Jamie                  0.39 TRUE</code></pre>
-<p>Data of this kind is also called <strong>rectangular data</strong>, i.e., data that fits into a rectangular table (More on the structure of rectangular data in Section <a href="Chap-02-02-data-tidy-data.html#Chap-02-02-data-tidy-data">4.2</a>.). In the example above, every column represents a <strong>variable</strong> of interest. A <em>(data) variable</em> stores the observations that are of the same kind.<a href="#fn12" class="footnote-ref" id="fnref12"><sup>12</sup></a></p>
+<p>Data of this kind is also called <strong>rectangular data</strong>, i.e., data that fits into a rectangular table (More on the structure of rectangular data in Section <a href="Chap-02-02-data-tidy-data.html#Chap-02-02-data-tidy-data">4.2</a>.). In the example above, every column represents a <strong>variable</strong> of interest. A <em>(data) variable</em> stores the observations that are of the same kind.<a href="#fn14" class="footnote-ref" id="fnref14"><sup>14</sup></a></p>
 <p>Common kinds of variables are distinguished based on the structural properties of the kinds of observations that they contain. Common types of empirical data collected are:</p>
 <ul>
 <li><strong>nominal variable</strong>: each observation is an instance of a (finite) set of clearly distinct categories, lacking a natural ordering;</li>
@@ -637,8 +637,8 @@ Solution
 </div>
 <div class="footnotes">
 <hr />
-<ol start="12">
-<li id="fn12"><p>This sense of “data variable” is not to be confused with the notion of a “random variable”, a concept we will introduce later in Section <a href="Chap-03-01-probability-random-variables.html#Chap-03-01-probability-random-variables">7.4</a>. The term “data variable” is not commonly used; the common term is merely “variable”.<a href="Chap-02-01-data-variables.html#fnref12" class="footnote-back">↩</a></p></li>
+<ol start="14">
+<li id="fn14"><p>This sense of “data variable” is not to be confused with the notion of a “random variable”, a concept we will introduce later in Section <a href="Chap-03-01-probability-random-variables.html#Chap-03-01-probability-random-variables">7.4</a>. The term “data variable” is not commonly used; the common term is merely “variable”.<a href="Chap-02-01-data-variables.html#fnref14" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>
