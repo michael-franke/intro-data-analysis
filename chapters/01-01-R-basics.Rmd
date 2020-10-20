@@ -608,30 +608,43 @@ reaction_times <- "123|234|345"
 str_split(reaction_times, "\\|", n = 3)
 ```
 
-
 ### Factors
 
-Factors are special vectors, which treat its elements as ordered or unordered categories. This is useful for representing data from experiments, e.g., of categorical or ordinal variables (see Chapter \@ref(Chap-02-01-data)). To create a factor, we can use the function `factor`. The following code creates an *unorderd factor*:
+Factors are special vectors, which treat its elements as instances of a finite set of categories. 
+To create a factor, we can use the function `factor`. 
+The following code creates a factor from a character vector.
+Notice that, when printing, we get information of the kinds of entries (=categories) that occured in the original character vector:
 
 ```{r}
 chr_vector <- c("huhu", "hello", "huhu", "ciao")
 factor(chr_vector)
 ```
 
-*Ordered factors* also register the order of the categories:
+For plotting or other representational purposes, it can help to manually specify an ordering on the levels of a factor using the `levels` argument:
+
+```{r}
+# the order of levels is changed manually
+factor(chr_vector, levels = c("huhu", "ciao", "hello"))
+```
+
+Even though we specified an ordering among factor levels, the last code chunk nonetheless creates what R treats as an *unordered factor*.
+There are also genuine *ordered factors*.
+An *ordered factor* is created by setting the argument `ordered = T`, and optionally also specifying a specific ordering of factor levels, like so: 
 
 ```{r}
 chr_vector <- c("huhu", "hello", "huhu", "ciao")
 factor(
   chr_vector,    # the vector to treat as factor
   ordered = T,   # make sure it's treated as ordered factor
-  levels = c("huhu", "ciao", "hello")  # specify order of levels
+  levels = c("huhu", "ciao", "hello")  # specify order of levels by hand
 )
 ```
 
-We will see that ordered factors are important, for example, in plotting when they determine the order in which different parts of data are arranged on the screen. They are also important for statistical analysis because they help determine how categories are compared to one another.
+Having both unordered and ordered factors is useful for representing data from experiments, e.g., from categorical or ordinal variables (see Chapter \@ref(Chap-02-01-data)).
+The difference between an unordered factor with explicit ordering information and an ordered factor is subtle and not important in the beginning.
+(This only matters, for example, in the context of regression modeling.)
 
-Factors are trickier to work with than mere lists because they are rigid about the represented factor levels. Adding an item that does not belong to any of a factor's levels, leads to trouble:
+Factors are trickier to work with than mere vectors because they are rigid about the represented factor levels. Adding an item that does not belong to any of a factor's levels, leads to trouble:
 
 ```{r}
 chr_vector <- c("huhu", "hello", "huhu", "ciao")
