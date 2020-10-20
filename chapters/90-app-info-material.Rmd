@@ -31,15 +31,38 @@
 
 - *Keyboard shortcuts* for Windows and Mac in RStudio: "Tools -> Keyboard Shortcuts Help" or also on the [RStudio support site](https://support.rstudio.com/hc/en-us/articles/200711853-Keyboard-Shortcuts)
 
-## Resources on WebPPL
+## Further information on WebPPL
 
-- [official website](webppl.org)
-- [documentation](http://docs.webppl.org/en/master/)
-- [short introduction tutorial](http://www.problang.org/chapters/app-06-intro-to-webppl.html)
-- [Bayesian Data Analysis using Probabilistic Programs: Statistics as pottery](https://mhtess.github.io/bdappl/) by webbook on BDA with WebPPL by MH Tessler
+WebPPL (pronounced "web people") is a probabilistic programming language embedded in JavaScript. Unlike JavaScript, WebPPL does not support
+looping constructs (such as `for` or `while`). Instead, it encourages a functional way of programming, using recursion and higher-order functions. Please refer to this [tutorial](http://www.problang.org/chapters/app-06-intro-to-webppl.html) for examples and further explanations.
+
+### Primitives and sampling functions
+
+We can use WebPPL to (easily) sample from probability distributions, many of which are already implemented and ready to use. A full list of built-in primitive distributions can be found in the [documentation](https://webppl.readthedocs.io/en/master/distributions.html#primitives). If we would like to draw one sample from, say, a standard normal distribution, we could run `sample(Gaussian({mu: 0, sigma: 1}))`. A more convenient expression would be to just use the respective sampling function, in this case `gaussian({mu: 0, sigma: 1})` (notice the lowercase letter in the function name). Sampling functions can be combined with the `repeat()` function to take more than one sample, ultimately leading to better approximations. 
+
+Let's look at a simple example to see how repeated sampling from a primitive distribution works. In the code box below, we take $1000$ samples from a [beta distribution](#app-91-distributions-beta) with parameters $\alpha = 4$ and $\beta = 6$ and visualize them (more on this below).
+
+<pre class="webppl">
+viz(repeat(1000, function(x) {beta({a: 4, b: 6})}));
+</pre>
+
+<pre class=" CodeMirror-line " role="presentation">
+</pre>
 
 
-<!-- webppl example
+<script>
+// find all <pre> elements and set up the editor on them
+var preEls = Array.prototype.slice.call(document.getElementsByClassName("webppl"));
+preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}); });
+</script> 
+
+
+### Inference with `Infer()`
+
+We might also want to create our own distribution objects (= probability distributions). For this purpose, the built-in function `Infer()` comes in pretty handy. It takes as input a function with no arguments and returns a distribution object. The function passed to `Infer()` is the sampling function that should be turned into a distribution object. Additionally, `Infer()` can take on another optional argument, namely the *method* for performing inference. If this argument is not specified, WebPPL will automatically choose a reasonable method for inference. More on this function and different methods [here](https://webppl.readthedocs.io/en/master/inference/index.html).
+
+Here's an example of how to perform inference using the MCMC method. Click on the yellowish box to check what the code does and how `Infer()` is used. Please re-visit Chapter \@ref(ch-03-03-MCMC) for more information on how the MCMC algorithm roughly works.
+
 <pre class="webppl">
 // data to explain
 var xs = [-10, -5, 2, 6, 10];
@@ -79,4 +102,57 @@ viz.auto(Infer({method: 'MCMC', samples: 10000, burn: 2000}, model));
 // find all <pre> elements and set up the editor on them
 var preEls = Array.prototype.slice.call(document.getElementsByClassName("webppl"));
 preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}); });
-</script> -->
+</script> 
+
+### Visualization
+
+WebPPL comes with a major benefit in that it makes plotting as easy as pie. All we have to do is basically wrap the `viz()` function of the `viz`-package around our data, and depending on the nature of the data (continuous or discrete), WebPPL will automatically come up with a visualization of it. Of course, we can also explicitly tell WebPPL how we want our data to be plotted. Much like in `ggplot`, we just add the (abbreviated) plotting method to the function name. An explicit way of plotting a histogram, for instance, would be to call `viz.hist()`. The supported methods for data visualization are documented [here](https://github.com/probmods/webppl-viz). 
+
+In the example below, the data stored in variable `xs` is plotted once with the default `viz()` function and once with the explicit `viz.hist()` function. What do you notice with regard to the output?
+
+<pre class="webppl">
+var xs = [-2, -1, 1, 2, 3, 4, 4, 5]; 
+
+viz(xs);
+viz.hist(xs);
+</pre>
+
+<pre class=" CodeMirror-line " role="presentation">
+</pre>
+
+
+<script>
+// find all <pre> elements and set up the editor on them
+var preEls = Array.prototype.slice.call(document.getElementsByClassName("webppl"));
+preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}); });
+</script> 
+
+
+### Installation
+
+You can run WebPPL code directly from within the editor on [webppl.org](http://webppl.org/). If you want to install WebPPL locally, follow the steps below:
+
+1. Install [git](https://git-scm.com/downloads).
+2. Install [Node.js](https://nodejs.org/en/).
+3. Run `npm install -g webppl` in your command line.
+
+Run `npm update -g webppl` to update your current version of WebPPL.
+
+These steps are also mentioned in the [documentation](https://webppl.readthedocs.io/en/master/installation.html).
+
+### Usage
+
+Run WebPPL programs locally with `webppl FILE_NAME.wppl`.
+
+### Keyboard shortcuts (for in-browser use)
+
+- Press `Ctrl` + `Enter` to run code.
+- Select code and press the `Tab` key to fix indentations.
+- Press `Ctrl` + `/` to comment or uncomment code (apparently, only works with an English keyboard).
+
+### Further resources
+
+- [official website](http://webppl.org)
+- [documentation](http://docs.webppl.org/en/master/)
+- [short introduction tutorial](http://www.problang.org/chapters/app-06-intro-to-webppl.html)
+- [Bayesian Data Analysis using Probabilistic Programs: Statistics as pottery](https://mhtess.github.io/bdappl/) by webbook on BDA with WebPPL by MH Tessler
