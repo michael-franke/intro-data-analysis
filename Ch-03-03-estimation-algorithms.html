@@ -542,33 +542,33 @@ code span.wa { color: #bf0303; } /* Warning */
 <h3><span class="header-section-number">9.2.1</span> Optimizing functions</h3>
 <p>Computing the maximum or minimum of a function, such as an MLE or MAP estimate, is a common problem. R has a built-in function <code>optim</code> that is useful for finding the minimum of a function. (If a maximum is needed, just multiply by <span class="math inline">\(-1\)</span> and search the minimum with <code>optim</code>.)</p>
 <p>We can use the <code>otpim</code> function to retrieve an MLE for the three free parameters of a simple linear regression of <code>average_price</code> based on <code>total_volume_sold</code> in the <a href="app-93-data-sets-avocado.html#app-93-data-sets-avocado">avocado data</a>, like so:</p>
-<div class="sourceCode" id="cb415"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb415-1" data-line-number="1"><span class="co"># function for the negative log-likelihood of the given</span></a>
-<a class="sourceLine" id="cb415-2" data-line-number="2"><span class="co"># data and fixed parameter values</span></a>
-<a class="sourceLine" id="cb415-3" data-line-number="3">nll =<span class="st"> </span><span class="cf">function</span>(y, x, beta_<span class="dv">0</span>, beta_<span class="dv">1</span>, sd) {</a>
-<a class="sourceLine" id="cb415-4" data-line-number="4">  <span class="co"># negative sigma is logically impossible</span></a>
-<a class="sourceLine" id="cb415-5" data-line-number="5">  <span class="cf">if</span> (sd <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>) {<span class="kw">return</span>( <span class="ot">Inf</span> )}</a>
-<a class="sourceLine" id="cb415-6" data-line-number="6">  <span class="co"># predicted values</span></a>
-<a class="sourceLine" id="cb415-7" data-line-number="7">  yPred =<span class="st"> </span>beta_<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>x <span class="op">*</span><span class="st"> </span>beta_<span class="dv">1</span></a>
-<a class="sourceLine" id="cb415-8" data-line-number="8">  <span class="co"># negative log-likelihood of each data point </span></a>
-<a class="sourceLine" id="cb415-9" data-line-number="9">  nll =<span class="st"> </span><span class="op">-</span><span class="kw">dnorm</span>(y, <span class="dt">mean=</span>yPred, <span class="dt">sd=</span>sd, <span class="dt">log =</span> T)</a>
-<a class="sourceLine" id="cb415-10" data-line-number="10">  <span class="co"># sum over all observations</span></a>
-<a class="sourceLine" id="cb415-11" data-line-number="11">  <span class="kw">sum</span>(nll)</a>
-<a class="sourceLine" id="cb415-12" data-line-number="12">}</a>
-<a class="sourceLine" id="cb415-13" data-line-number="13">fit_lh =<span class="st"> </span><span class="kw">optim</span>(</a>
-<a class="sourceLine" id="cb415-14" data-line-number="14">  <span class="co"># initial parameter values</span></a>
-<a class="sourceLine" id="cb415-15" data-line-number="15">  <span class="dt">par =</span> <span class="kw">c</span>(<span class="fl">1.5</span>, <span class="dv">0</span>, <span class="fl">0.5</span>),</a>
-<a class="sourceLine" id="cb415-16" data-line-number="16">  <span class="co"># function to optimize</span></a>
-<a class="sourceLine" id="cb415-17" data-line-number="17">  <span class="dt">fn =</span> <span class="cf">function</span>(par) {</a>
-<a class="sourceLine" id="cb415-18" data-line-number="18">    <span class="kw">with</span>(avocado_data, </a>
-<a class="sourceLine" id="cb415-19" data-line-number="19">         <span class="kw">nll</span>(average_price, total_volume_sold,</a>
-<a class="sourceLine" id="cb415-20" data-line-number="20">             par[<span class="dv">1</span>], par[<span class="dv">2</span>], par[<span class="dv">3</span>])</a>
-<a class="sourceLine" id="cb415-21" data-line-number="21">    )</a>
-<a class="sourceLine" id="cb415-22" data-line-number="22">  }</a>
-<a class="sourceLine" id="cb415-23" data-line-number="23">)</a>
-<a class="sourceLine" id="cb415-24" data-line-number="24">fit_lh<span class="op">$</span>par</a></code></pre></div>
+<div class="sourceCode" id="cb417"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb417-1" data-line-number="1"><span class="co"># function for the negative log-likelihood of the given</span></a>
+<a class="sourceLine" id="cb417-2" data-line-number="2"><span class="co"># data and fixed parameter values</span></a>
+<a class="sourceLine" id="cb417-3" data-line-number="3">nll =<span class="st"> </span><span class="cf">function</span>(y, x, beta_<span class="dv">0</span>, beta_<span class="dv">1</span>, sd) {</a>
+<a class="sourceLine" id="cb417-4" data-line-number="4">  <span class="co"># negative sigma is logically impossible</span></a>
+<a class="sourceLine" id="cb417-5" data-line-number="5">  <span class="cf">if</span> (sd <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>) {<span class="kw">return</span>( <span class="ot">Inf</span> )}</a>
+<a class="sourceLine" id="cb417-6" data-line-number="6">  <span class="co"># predicted values</span></a>
+<a class="sourceLine" id="cb417-7" data-line-number="7">  yPred =<span class="st"> </span>beta_<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>x <span class="op">*</span><span class="st"> </span>beta_<span class="dv">1</span></a>
+<a class="sourceLine" id="cb417-8" data-line-number="8">  <span class="co"># negative log-likelihood of each data point </span></a>
+<a class="sourceLine" id="cb417-9" data-line-number="9">  nll =<span class="st"> </span><span class="op">-</span><span class="kw">dnorm</span>(y, <span class="dt">mean=</span>yPred, <span class="dt">sd=</span>sd, <span class="dt">log =</span> T)</a>
+<a class="sourceLine" id="cb417-10" data-line-number="10">  <span class="co"># sum over all observations</span></a>
+<a class="sourceLine" id="cb417-11" data-line-number="11">  <span class="kw">sum</span>(nll)</a>
+<a class="sourceLine" id="cb417-12" data-line-number="12">}</a>
+<a class="sourceLine" id="cb417-13" data-line-number="13">fit_lh =<span class="st"> </span><span class="kw">optim</span>(</a>
+<a class="sourceLine" id="cb417-14" data-line-number="14">  <span class="co"># initial parameter values</span></a>
+<a class="sourceLine" id="cb417-15" data-line-number="15">  <span class="dt">par =</span> <span class="kw">c</span>(<span class="fl">1.5</span>, <span class="dv">0</span>, <span class="fl">0.5</span>),</a>
+<a class="sourceLine" id="cb417-16" data-line-number="16">  <span class="co"># function to optimize</span></a>
+<a class="sourceLine" id="cb417-17" data-line-number="17">  <span class="dt">fn =</span> <span class="cf">function</span>(par) {</a>
+<a class="sourceLine" id="cb417-18" data-line-number="18">    <span class="kw">with</span>(avocado_data, </a>
+<a class="sourceLine" id="cb417-19" data-line-number="19">         <span class="kw">nll</span>(average_price, total_volume_sold,</a>
+<a class="sourceLine" id="cb417-20" data-line-number="20">             par[<span class="dv">1</span>], par[<span class="dv">2</span>], par[<span class="dv">3</span>])</a>
+<a class="sourceLine" id="cb417-21" data-line-number="21">    )</a>
+<a class="sourceLine" id="cb417-22" data-line-number="22">  }</a>
+<a class="sourceLine" id="cb417-23" data-line-number="23">)</a>
+<a class="sourceLine" id="cb417-24" data-line-number="24">fit_lh<span class="op">$</span>par</a></code></pre></div>
 <pre><code>## [1]  1.425080e+00 -2.247373e-08  3.950978e-01</code></pre>
 <p>This result tells us that the best fitting parameter triple has an intercept of <span class="math inline">\(\beta_0 \approx 1.42\)</span>, a slope <span class="math inline">\(\beta_1 \approx -2.47\)</span> and a standard deviation <span class="math inline">\(\sigma \approx 0.39\)</span>. We can compare these values with a built-in function for linear regression models (which, however, does not return an estimate of <span class="math inline">\(\sigma\)</span> (see Chapter <a href="Chap-04-01-simple-linear-regression.html#Chap-04-01-simple-linear-regression">13</a> for more information)):</p>
-<div class="sourceCode" id="cb417"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb417-1" data-line-number="1"><span class="kw">lm</span>(average_price <span class="op">~</span><span class="st"> </span>total_volume_sold, avocado_data)<span class="op">$</span>coef</a></code></pre></div>
+<div class="sourceCode" id="cb419"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb419-1" data-line-number="1"><span class="kw">lm</span>(average_price <span class="op">~</span><span class="st"> </span>total_volume_sold, avocado_data)<span class="op">$</span>coef</a></code></pre></div>
 <pre><code>##       (Intercept) total_volume_sold 
 ##      1.425096e+00     -2.247455e-08</code></pre>
 </div>
