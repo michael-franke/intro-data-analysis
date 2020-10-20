@@ -280,7 +280,11 @@ Look up the help page for the command `round`. As you know about this function a
 
 ## Data types {#ch1-data-types}
 
-Let's briefly go through the data types that are most important for our later purposes. We can assess the type of an object stored in variable `x` with the function `typeof(x)`. 
+To learn about a new programming language entails to first learn something about what kinds of objects (elements, first-order citizens) you will have to deal with.
+Let's therefore briefly go through the data types that are most important for our later purposes.
+We will see how to deal with numeric information, Booleans, strings and so forth.
+In general, we can assess the type of an object stored in variable `x` with the function `typeof(x)`. 
+Let's just try this for a bunch of things, just to give you an overview of some of R's data types (not all of which are important to know about right from the start):
 
 ```{r, eval = F}
 typeof(3)        # returns type "double"
@@ -292,12 +296,14 @@ typeof(c)        # return 'builtin" (= deep system internal stuff)
 typeof(round)    # returns type "special" (= well, special stuff?)
 ```
 
-To learn more about an object, it can help to just print it out as a string:
+If you really wonder, you can sometimes learn more about an object, if you just print it out as a string:
 
 ```{r}
+# `lm` is actually a function ("linear model")
+# the function `str` casts this function into a string
+# the result is then printed to screen
 str(lm)
 ```
-
 
 It is sometimes possible to cast objects of one type into another type `XXX` using functions `as.XXX` in base R or `as_XXX` in the tidyverse.
 
@@ -306,10 +312,16 @@ It is sometimes possible to cast objects of one type into another type `XXX` usi
 as.numeric(TRUE)  # returns 1
 ```
 
+Casting can also happen explicitly. The expressions `TRUE` and `FALSE` are built-in variables for the Boolean values "true" and "false". But when we use them in mathematical expressions, we can do math with them, like so:
 
-R is essentially an array-based language. Arrays are arbitrary but finite-dimensional matrices. We will discuss what is usually referred to as vectors (= one-dimensional arrays), matrices (= two-dimensional arrays), and arrays (= more-than-two-dimensional) in the following section on numeric information. But it is important to keep in mind that arrays can contain objects of other types than numeric information (as long as all objects in the array are of the same type).
+```{r }
+TRUE + TRUE + FALSE + TRUE + TRUE
+```
 
 ### Numeric vectors & matrices
+
+R is essentially an array-based language. Arrays are arbitrary but finite-dimensional matrices. We will discuss what is usually referred to as vectors (= one-dimensional arrays), matrices (= two-dimensional arrays), and arrays (= more-than-two-dimensional) in this section with a focus on numeric information. But it is important to keep in mind that arrays can contain objects of other types than numeric information (as long as all objects in the array are of the same type).
+
 
 #### Numeric information
 
@@ -382,7 +394,7 @@ x + 1
 <div class = "exercises">
 **Exercise 2.5**
 
-Create a vector that contains all even numbers from 0 to 20 and assign it to a variable. Now transform the variable such that it contains only odd numbers up to 20 using mathematical operation. Notice that the numbers above 20 should not be included! HINT: you may use indexing to fulfill these criteria.
+Create a vector that contains all even numbers from 0 to 20 and assign it to a variable. Now transform the variable such that it contains only odd numbers up to 20 using mathematical operation. Notice that the numbers above 20 should not be included! [**Hint**: use indexing.]
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
@@ -417,7 +429,7 @@ In line with a column-major mode, vectors are treated as column vectors in matri
 
 ```{r}
 x = c(1, 0, 1)   # 3-place vector
-m %*% x        # dot product with previous matrix 'm'
+m %*% x          # dot product with previous matrix 'm'
 ```
 
 As usual, and independently of a column- or row-major mode, matrix indexing starts with the row index:
@@ -429,24 +441,35 @@ m[1,]   # produces first row of matrix 'm'
 <div class = "exercises">
 **Exercise 2.6**
 
-Create a matrix with three columns and three rows that contain random integers from 1 to 100 without replacement. HINT! You may first produce an array with random integers and then pass it to the `matrix()` function.
+Create a sequence of 9 numbers, equally spaced, staring from 0 and ending with 1. Assign this sequence to a vector called `x`. Now, create a matrix, stored in variable `X`, with three columns and three rows that contain the numbers of this vector in the usual column-major fashion.
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
 ```{r}
-a <- sample(1:100, 9, replace = F)
-b <- matrix(a, ncol = 3)
-b
+x <- seq(from = 0, to = 1, length.out = 9)
+X <- matrix(x, ncol = 3)
+X
 ```
+</div>
+</div>
 
+We have not yet covered this, but give it a try and guess what might be a convenient and very short statement to compute the sum of all numbers in matrix `X`.
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+```{r}
+sum(X)
+```
 </div>
 </div>
+
 </div>
 
 #### Arrays
 
-Arrays are simply higher-dimensional matrices. We will not make use of arrays in this book.
+Arrays are simply higher-dimensional matrices. We will not make (prominent) use of arrays in this book.
 
 #### Names for vectors, matrices and arrays
 
@@ -461,7 +484,7 @@ names(grades)                           # retrieve names again: names assigned
 grades                                  # output shows names
 ```
 
-We can also set the names of a vector directly during construction:^[Notice that we can create strings (actually called 'characters' in R) with double quotes]
+We can also set the names of a vector directly during construction. A first, more explicit way of doing this is:^[Notice that we can create strings (actually called 'characters' in R) with double quotes.]
 
 ```{r}
 # names of students (this is a character vector, see below)
@@ -470,6 +493,11 @@ students <- c("Jax", "Jamie", "Jason")
 grades <- c(1.3, 2.7, 2.0, names = students) 
 ```
 
+But we can also do this in one swoop, like so:
+
+```{r }
+c(Jax = 1.3, Jamie = 2.7, Jason = 2.0)
+```
 
 Names for matrices are retrieved or set with functions `rownames` and `colnames`.
 
@@ -504,6 +532,9 @@ boolean_vector <- c(T, F, T, F, T)
 # the corresponding element in the Boolean vector is true
 number_vector[boolean_vector] 
 ```
+
+
+
 
 ### Special values
 
