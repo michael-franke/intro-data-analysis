@@ -782,13 +782,13 @@ best_friends[best_friends$age <= 22, "name"]
 
 In RStudio, you can inspect data in data frames (and tibbles (see below)) with the function `View`.
 
-*Tibbles* are the tidyverse counterpart of data frames. We can cast a data frame into a tibble, using `as_tibble`.
+*Tibbles* are the tidyverse counterpart of data frames. We can cast a data frame into a tibble, using `as_tibble`. Notice that the information shown for a tibble is much richer than what is provided when printing the content of a data frame.
 
 ```{r}
 as_tibble(exp_data)
 ```
 
-But we can also create a tibble directly with the keyword `tibble`. Indeed, the creation of tibbles is conveniently more flexible than the creation of data frames: the former allows dynamic look-up of previously defined elements.
+We can also create a tibble directly with the keyword `tibble`. Indeed, the creation of tibbles is conveniently more flexible than the creation of data frames: the former allows dynamic look-up of previously defined elements.
 
 ```{r, eval = FALSE}
 my_tibble    <- tibble(x = 1:10, y = x^2)      # dynamic construction possible
@@ -796,22 +796,34 @@ my_dataframe <- data.frame(x = 1:10, y = x^2)  # ERROR :/
 ```
 Another important difference between data frames and tibbles concerns the default treatment of character (= string) vectors. When reading in data from a CSV file as a data frame (using function `read.csv`) each character vector is treated as a factor per default. But when using `read_csv` to read CSV data into a tibble character vector are not treated as factors. 
 
+There is also a very convenient function, called `tribble`, which allows you to create a tibble by explicitly writing out the information in the rows.
+
+```{r tribble-first-example}
+hw_points <- tribble(
+  ~hw_nr,       ~"Jax",   ~"Jamie",   ~"Jason",
+  "HW1",        "33",     "24",       "17",
+  "HW2",        "41",     "23",       "8"
+)
+hw_points
+
+```
 
 <div class = "exercises">
 **Exercise 2.9**
 
-Create a vector `a` which contains the names of three of your best friends and a vector `b` with their age. Create a tibble with two columns: name, age. Print it. Now, add a new column named "birth date" and the respective values. Add another column, which states `TRUE`, if the date of birth is even. HINT: you can create a new column dynamically! First, you have to declare a column on the left sight (tibble["name-of-the-column"]), and then assign a value to it. For the latter you might want to check out the modulo operator (%%).
+Assign to the variable `bff` a tibble with the following columns (with reasonable names): at least four names of your (imaginary) best friends, their current country of residence, their age, and a Boolean column storing whether they are not older than 23. Ideally, use dynamic construction and the `<=` operator as in previous exercises.
+
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
 ```{r}
-a <- c("M", "N", "H")
-b <- c(23, 41, 13)
-best_friends <- tibble(name = a, age = b)
-best_friends["birth date"] = c(3, 5, 6)
-best_friends["is even"] = best_friends["birth date"] %% 2 == 0
-best_friends
-
+bff <- tibble(
+  name = c("A", "B", "C", "D"),
+  residence = c("UK", "JP", "CH", "JA"),
+  age = c(24, 45, 72, 12),
+  young = age <= 22
+)
+bff
 ```
 </div>
 </div>
