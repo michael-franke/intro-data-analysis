@@ -959,7 +959,7 @@ Solution
 </div>
 </div>
 <p>In RStudio, you can inspect data in data frames (and tibbles (see below)) with the function <code>View</code>.</p>
-<p><em>Tibbles</em> are the tidyverse counterpart of data frames. We can cast a data frame into a tibble, using <code>as_tibble</code>.</p>
+<p><em>Tibbles</em> are the tidyverse counterpart of data frames. We can cast a data frame into a tibble, using <code>as_tibble</code>. Notice that the information shown for a tibble is much richer than what is provided when printing the content of a data frame.</p>
 <div class="sourceCode" id="cb147"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb147-1" data-line-number="1"><span class="kw">as_tibble</span>(exp_data)</a></code></pre></div>
 <pre><code>## # A tibble: 5 x 3
 ##   trial condition response
@@ -969,30 +969,44 @@ Solution
 ## 3     3 C1             119
 ## 4     4 C3             102
 ## 5     5 C2             156</code></pre>
-<p>But we can also create a tibble directly with the keyword <code>tibble</code>. Indeed, the creation of tibbles is conveniently more flexible than the creation of data frames: the former allows dynamic look-up of previously defined elements.</p>
+<p>We can also create a tibble directly with the keyword <code>tibble</code>. Indeed, the creation of tibbles is conveniently more flexible than the creation of data frames: the former allows dynamic look-up of previously defined elements.</p>
 <div class="sourceCode" id="cb149"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb149-1" data-line-number="1">my_tibble    &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dt">y =</span> x<span class="op">^</span><span class="dv">2</span>)      <span class="co"># dynamic construction possible</span></a>
 <a class="sourceLine" id="cb149-2" data-line-number="2">my_dataframe &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dt">y =</span> x<span class="op">^</span><span class="dv">2</span>)  <span class="co"># ERROR :/</span></a></code></pre></div>
 <p>Another important difference between data frames and tibbles concerns the default treatment of character (= string) vectors. When reading in data from a CSV file as a data frame (using function <code>read.csv</code>) each character vector is treated as a factor per default. But when using <code>read_csv</code> to read CSV data into a tibble character vector are not treated as factors.</p>
+<p>There is also a very convenient function, called <code>tribble</code>, which allows you to create a tibble by explicitly writing out the information in the rows.</p>
+<div class="sourceCode" id="cb150"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb150-1" data-line-number="1">hw_points &lt;-<span class="st"> </span><span class="kw">tribble</span>(</a>
+<a class="sourceLine" id="cb150-2" data-line-number="2">  <span class="op">~</span>hw_nr,       <span class="op">~</span><span class="st">&quot;Jax&quot;</span>,   <span class="op">~</span><span class="st">&quot;Jamie&quot;</span>,   <span class="op">~</span><span class="st">&quot;Jason&quot;</span>,</a>
+<a class="sourceLine" id="cb150-3" data-line-number="3">  <span class="st">&quot;HW1&quot;</span>,        <span class="st">&quot;33&quot;</span>,     <span class="st">&quot;24&quot;</span>,       <span class="st">&quot;17&quot;</span>,</a>
+<a class="sourceLine" id="cb150-4" data-line-number="4">  <span class="st">&quot;HW2&quot;</span>,        <span class="st">&quot;41&quot;</span>,     <span class="st">&quot;23&quot;</span>,       <span class="st">&quot;8&quot;</span></a>
+<a class="sourceLine" id="cb150-5" data-line-number="5">)</a>
+<a class="sourceLine" id="cb150-6" data-line-number="6">hw_points</a></code></pre></div>
+<pre><code>## # A tibble: 2 x 4
+##   hw_nr Jax   Jamie Jason
+##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 HW1   33    24    17   
+## 2 HW2   41    23    8</code></pre>
 <div class="exercises">
 <p><strong>Exercise 2.9</strong></p>
-Create a vector <code>a</code> which contains the names of three of your best friends and a vector <code>b</code> with their age. Create a tibble with two columns: name, age. Print it. Now, add a new column named “birth date” and the respective values. Add another column, which states <code>TRUE</code>, if the date of birth is even. HINT: you can create a new column dynamically! First, you have to declare a column on the left sight (tibble[“name-of-the-column”]), and then assign a value to it. For the latter you might want to check out the modulo operator (%%).
+<p>Assign to the variable <code>bff</code> a tibble with the following columns (with reasonable names): at least four names of your (imaginary) best friends, their current country of residence, their age, and a Boolean column storing whether they are not older than 23. Ideally, use dynamic construction and the <code>&lt;=</code> operator as in previous exercises.</p>
 <div class="collapsibleSolution">
 <button class="trigger">
 Solution
 </button>
 <div class="content">
-<div class="sourceCode" id="cb150"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb150-1" data-line-number="1">a &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;M&quot;</span>, <span class="st">&quot;N&quot;</span>, <span class="st">&quot;H&quot;</span>)</a>
-<a class="sourceLine" id="cb150-2" data-line-number="2">b &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">23</span>, <span class="dv">41</span>, <span class="dv">13</span>)</a>
-<a class="sourceLine" id="cb150-3" data-line-number="3">best_friends &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">name =</span> a, <span class="dt">age =</span> b)</a>
-<a class="sourceLine" id="cb150-4" data-line-number="4">best_friends[<span class="st">&quot;birth date&quot;</span>] =<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">6</span>)</a>
-<a class="sourceLine" id="cb150-5" data-line-number="5">best_friends[<span class="st">&quot;is even&quot;</span>] =<span class="st"> </span>best_friends[<span class="st">&quot;birth date&quot;</span>] <span class="op">%%</span><span class="st"> </span><span class="dv">2</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb150-6" data-line-number="6">best_friends</a></code></pre></div>
-<pre><code>## # A tibble: 3 x 4
-##   name    age `birth date` `is even`
-##   &lt;chr&gt; &lt;dbl&gt;        &lt;dbl&gt; &lt;lgl&gt;    
-## 1 M        23            3 FALSE    
-## 2 N        41            5 FALSE    
-## 3 H        13            6 TRUE</code></pre>
+<div class="sourceCode" id="cb152"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb152-1" data-line-number="1">bff &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb152-2" data-line-number="2">  <span class="dt">name =</span> <span class="kw">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>),</a>
+<a class="sourceLine" id="cb152-3" data-line-number="3">  <span class="dt">residence =</span> <span class="kw">c</span>(<span class="st">&quot;UK&quot;</span>, <span class="st">&quot;JP&quot;</span>, <span class="st">&quot;CH&quot;</span>, <span class="st">&quot;JA&quot;</span>),</a>
+<a class="sourceLine" id="cb152-4" data-line-number="4">  <span class="dt">age =</span> <span class="kw">c</span>(<span class="dv">24</span>, <span class="dv">45</span>, <span class="dv">72</span>, <span class="dv">12</span>),</a>
+<a class="sourceLine" id="cb152-5" data-line-number="5">  <span class="dt">young =</span> age <span class="op">&lt;=</span><span class="st"> </span><span class="dv">22</span></a>
+<a class="sourceLine" id="cb152-6" data-line-number="6">)</a>
+<a class="sourceLine" id="cb152-7" data-line-number="7">bff</a></code></pre></div>
+<pre><code>## # A tibble: 4 x 4
+##   name  residence   age young
+##   &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;
+## 1 A     UK           24 FALSE
+## 2 B     JP           45 FALSE
+## 3 C     CH           72 FALSE
+## 4 D     JA           12 TRUE</code></pre>
 </div>
 </div>
 </div>

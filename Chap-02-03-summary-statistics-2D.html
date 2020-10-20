@@ -542,29 +542,29 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>Let <span class="math inline">\(\vec{x}\)</span> and <span class="math inline">\(\vec{y}\)</span> be two vectors of numeric data of the same length, such that all pairs of <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span> are associated observations. For example: the vectors <code>avocado_data$total_volume_sold</code> and <code>avocado_data$average_price</code> would be such vectors. The covariance between <span class="math inline">\(\vec{x}\)</span> and <span class="math inline">\(\vec{y}\)</span> measures, intuitively put, the degree to which changes in one vector correspond with changes in the other. Formally, covariance is defined as follows (notice that we use <span class="math inline">\(n-1\)</span> in the denominator to obtain an unbiased estimator if the means are unknown):</p>
 <p><span class="math display">\[\text{Cov}(\vec{x},\vec{y}) = \frac{1}{n-1} \ \sum_{i=1}^n (x_i - \mu_{\vec{x}}) \ (y_i - \mu_{\vec{y}})\]</span></p>
 <p>There is a visually intuitive geometric interpretation of covariance. To see this, let’s look at a short contrived example.</p>
-<div class="sourceCode" id="cb296"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb296-1" data-line-number="1">contrived_example &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb296-2" data-line-number="2"><span class="st">  </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb296-3" data-line-number="3">    <span class="op">~</span>x,   <span class="op">~</span>y,</a>
-<a class="sourceLine" id="cb296-4" data-line-number="4">    <span class="dv">2</span>,    <span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb296-5" data-line-number="5">    <span class="fl">2.5</span>,  <span class="dv">4</span>,</a>
-<a class="sourceLine" id="cb296-6" data-line-number="6">    <span class="fl">3.5</span>,  <span class="fl">2.5</span>,</a>
-<a class="sourceLine" id="cb296-7" data-line-number="7">    <span class="dv">4</span>,    <span class="fl">3.5</span></a>
-<a class="sourceLine" id="cb296-8" data-line-number="8">  )</a></code></pre></div>
+<div class="sourceCode" id="cb298"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb298-1" data-line-number="1">contrived_example &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb298-2" data-line-number="2"><span class="st">  </span><span class="kw">tribble</span>(</a>
+<a class="sourceLine" id="cb298-3" data-line-number="3">    <span class="op">~</span>x,   <span class="op">~</span>y,</a>
+<a class="sourceLine" id="cb298-4" data-line-number="4">    <span class="dv">2</span>,    <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb298-5" data-line-number="5">    <span class="fl">2.5</span>,  <span class="dv">4</span>,</a>
+<a class="sourceLine" id="cb298-6" data-line-number="6">    <span class="fl">3.5</span>,  <span class="fl">2.5</span>,</a>
+<a class="sourceLine" id="cb298-7" data-line-number="7">    <span class="dv">4</span>,    <span class="fl">3.5</span></a>
+<a class="sourceLine" id="cb298-8" data-line-number="8">  )</a></code></pre></div>
 <p>First, notice that the mean of <code>x</code> and <code>y</code> is 3:</p>
-<div class="sourceCode" id="cb297"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb297-1" data-line-number="1">means_contr_example &lt;-<span class="st"> </span><span class="kw">map_df</span>(contrived_example, mean)</a>
-<a class="sourceLine" id="cb297-2" data-line-number="2">means_contr_example</a></code></pre></div>
+<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb299-1" data-line-number="1">means_contr_example &lt;-<span class="st"> </span><span class="kw">map_df</span>(contrived_example, mean)</a>
+<a class="sourceLine" id="cb299-2" data-line-number="2">means_contr_example</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 2
 ##       x     y
 ##   &lt;dbl&gt; &lt;dbl&gt;
 ## 1     3     3</code></pre>
 <p>We can then compute the covariance as follows:</p>
-<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb299-1" data-line-number="1">contrived_example &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb299-2" data-line-number="2"><span class="st">  </span>contrived_example <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb299-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb299-4" data-line-number="4">    <span class="dt">area_rectangle =</span>                    (x<span class="op">-</span><span class="kw">mean</span>(x)) <span class="op">*</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y)),</a>
-<a class="sourceLine" id="cb299-5" data-line-number="5">    <span class="dt">covariance     =</span>  <span class="dv">1</span><span class="op">/</span><span class="st"> </span>(<span class="kw">n</span>()<span class="op">-</span><span class="dv">1</span>) <span class="op">*</span><span class="st"> </span><span class="kw">sum</span>((x<span class="op">-</span><span class="kw">mean</span>(x)) <span class="op">*</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y)))</a>
-<a class="sourceLine" id="cb299-6" data-line-number="6">  )</a>
-<a class="sourceLine" id="cb299-7" data-line-number="7">contrived_example</a></code></pre></div>
+<div class="sourceCode" id="cb301"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb301-1" data-line-number="1">contrived_example &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb301-2" data-line-number="2"><span class="st">  </span>contrived_example <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb301-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb301-4" data-line-number="4">    <span class="dt">area_rectangle =</span>                    (x<span class="op">-</span><span class="kw">mean</span>(x)) <span class="op">*</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y)),</a>
+<a class="sourceLine" id="cb301-5" data-line-number="5">    <span class="dt">covariance     =</span>  <span class="dv">1</span><span class="op">/</span><span class="st"> </span>(<span class="kw">n</span>()<span class="op">-</span><span class="dv">1</span>) <span class="op">*</span><span class="st"> </span><span class="kw">sum</span>((x<span class="op">-</span><span class="kw">mean</span>(x)) <span class="op">*</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y)))</a>
+<a class="sourceLine" id="cb301-6" data-line-number="6">  )</a>
+<a class="sourceLine" id="cb301-7" data-line-number="7">contrived_example</a></code></pre></div>
 <pre><code>## # A tibble: 4 x 4
 ##       x     y area_rectangle covariance
 ##   &lt;dbl&gt; &lt;dbl&gt;          &lt;dbl&gt;      &lt;dbl&gt;
@@ -580,32 +580,32 @@ Figure 5.4: Geometrical interpretation of covariance. Four data points (orange d
 </p>
 </div>
 <p>We can, of course, also calculate the covariance just with the built-in base R function <code>cov</code>:</p>
-<div class="sourceCode" id="cb301"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb301-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cov</span>(x,y))</a></code></pre></div>
+<div class="sourceCode" id="cb303"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb303-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cov</span>(x,y))</a></code></pre></div>
 <pre><code>## [1] 0.25</code></pre>
 <p>And, using this function, we can calculate the covariance between <code>total_volume_sold</code> and <code>average_price</code> in the avocado data:</p>
-<div class="sourceCode" id="cb303"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb303-1" data-line-number="1"><span class="kw">with</span>(avocado_data, <span class="kw">cov</span>(<span class="kw">log</span>(total_volume_sold), average_price))</a></code></pre></div>
+<div class="sourceCode" id="cb305"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb305-1" data-line-number="1"><span class="kw">with</span>(avocado_data, <span class="kw">cov</span>(<span class="kw">log</span>(total_volume_sold), average_price))</a></code></pre></div>
 <pre><code>## [1] -0.5388084</code></pre>
 <p>Interestingly, the negative covariance in this example suggests that across all associated data pairs, the larger <code>total_volume_sold</code>, the lower <code>average_price</code>. It is important that this is a descriptive statistics, and that this is not to be interpreted as evidence or causal relation between the two measures of interest. Not in this example, not in any other. The covariance describes associated data points; it is not evidence for causal relationships.</p>
 </div>
 <div id="correlation" class="section level3">
 <h3><span class="header-section-number">5.3.2</span> Correlation</h3>
 <p>The problem with covariance is that it is not invariant under linear transformation. Consider the <code>contrived_example</code> from above once more. The original data had the following covariance:</p>
-<div class="sourceCode" id="cb305"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb305-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cov</span>(x,y))</a></code></pre></div>
+<div class="sourceCode" id="cb307"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb307-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cov</span>(x,y))</a></code></pre></div>
 <pre><code>## [1] 0.25</code></pre>
 <p>But if we just linearly transform, say, vector <code>y</code> to <code>1000 * y + 500</code> (e.g., because we switch to an equivalent, but numerically different measuring scale), we obtain:</p>
-<div class="sourceCode" id="cb307"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb307-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cov</span>(x,<span class="dv">1000</span> <span class="op">*</span><span class="st"> </span>y <span class="op">+</span><span class="st"> </span><span class="dv">500</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb309"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb309-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cov</span>(x,<span class="dv">1000</span> <span class="op">*</span><span class="st"> </span>y <span class="op">+</span><span class="st"> </span><span class="dv">500</span>))</a></code></pre></div>
 <pre><code>## [1] 250</code></pre>
 <p>To compensate for this problem, we can look at <strong>Bravais-Pearson correlation</strong>, which is covariance standardized by standard deviations:</p>
 <p><span class="math display">\[r_{\vec{x}\vec{y}} = \frac{\text{Cov}(\vec{x}, \vec{y})}{\text{SD}(\vec{x}) \ \text{SD}(\vec{y})}\]</span></p>
 <p>Let’s check invariance under linear transformation, using the built-in function <code>cor</code>. The correlation coefficient for the original data is:</p>
-<div class="sourceCode" id="cb309"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb309-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cor</span>(x,y))</a></code></pre></div>
+<div class="sourceCode" id="cb311"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb311-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cor</span>(x,y))</a></code></pre></div>
 <pre><code>## [1] 0.3</code></pre>
 <p>The correlation coefficient for the data with linearly transformed <code>y</code> is:</p>
-<div class="sourceCode" id="cb311"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb311-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cor</span>(x,<span class="dv">1000</span> <span class="op">*</span><span class="st"> </span>y <span class="op">+</span><span class="st"> </span><span class="dv">500</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb313"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb313-1" data-line-number="1"><span class="kw">with</span>(contrived_example, <span class="kw">cor</span>(x,<span class="dv">1000</span> <span class="op">*</span><span class="st"> </span>y <span class="op">+</span><span class="st"> </span><span class="dv">500</span>))</a></code></pre></div>
 <pre><code>## [1] 0.3</code></pre>
 <p>Indeed, the correlation coefficient is nicely bounded to lie between -1 and 1. A correlation coefficient of 0 is to be interpreted as the absence of any correlation. A correlation coefficient of 1 is a perfect positive correlation (the higher <span class="math inline">\(x_i\)</span>, the higher <span class="math inline">\(y_i\)</span>), and -1 indicates a perfect negative correlation (the higher <span class="math inline">\(x_i\)</span>, the lower <span class="math inline">\(y_i\)</span>). Again, pronounced positive or negative correlations are <em>not</em> to be confused with strong evidence for a causal relation. It is just a descriptive statistic on the properties of associated measurements.</p>
 <p>In the avocado data, the logarithm of <code>total_volume_sold</code> shows a noteworthy correlation with <code>average_price</code>. This is also visible in Figure <a href="Chap-02-03-summary-statistics-2D.html#fig:chap-02-03-avocado-scatter">5.5</a>.</p>
-<div class="sourceCode" id="cb313"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb313-1" data-line-number="1"><span class="kw">with</span>(avocado_data, <span class="kw">cor</span>(<span class="kw">log</span>(total_volume_sold), average_price))</a></code></pre></div>
+<div class="sourceCode" id="cb315"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb315-1" data-line-number="1"><span class="kw">with</span>(avocado_data, <span class="kw">cor</span>(<span class="kw">log</span>(total_volume_sold), average_price))</a></code></pre></div>
 <pre><code>## [1] -0.5834087</code></pre>
 <div class="figure" style="text-align: center"><span id="fig:chap-02-03-avocado-scatter"></span>
 <img src="I2DA_files/figure-html/chap-02-03-avocado-scatter-1.png" alt="Scatter plot of avocado prices, plotted against (logarithms of) the total amount sold. The black line is a linear regression line indicating the (negative) correlation between these measures (more on this later)." width="672" />

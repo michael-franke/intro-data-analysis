@@ -564,10 +564,10 @@ Figure 9.9: The Binomial Model (repeated from before).
 </div>
 <p>We use the data from the <a href="app-93-data-sets-king-of-france.html#app-93-data-sets-king-of-france">King of France example</a>, where we are interested in the number <span class="math inline">\(k = 109\)</span> of “true” responses to sentences with a false presupposition over all <span class="math inline">\(N = 311\)</span> relevant observations. The research question of interest is whether the idea that the parameter <span class="math inline">\(\theta\)</span> which models to an overall disposition to answer “true” for these sentences could plausibly be fixed to <span class="math inline">\(\theta = 0.5\)</span>.</p>
 <p>We collect this information in a named list, which we will pass to Stan.</p>
-<div class="sourceCode" id="cb422"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb422-1" data-line-number="1">KoF_data_<span class="dv">4</span>_Stan &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
-<a class="sourceLine" id="cb422-2" data-line-number="2">  <span class="dt">k =</span> <span class="dv">109</span>,</a>
-<a class="sourceLine" id="cb422-3" data-line-number="3">  <span class="dt">N =</span> <span class="dv">311</span></a>
-<a class="sourceLine" id="cb422-4" data-line-number="4">)</a></code></pre></div>
+<div class="sourceCode" id="cb424"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb424-1" data-line-number="1">KoF_data_<span class="dv">4</span>_Stan &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb424-2" data-line-number="2">  <span class="dt">k =</span> <span class="dv">109</span>,</a>
+<a class="sourceLine" id="cb424-3" data-line-number="3">  <span class="dt">N =</span> <span class="dv">311</span></a>
+<a class="sourceLine" id="cb424-4" data-line-number="4">)</a></code></pre></div>
 <p>Next, we need to write the actual model. Notice that Stan code is strictly regimented to be divided into different blocks, so that Stan knows what is data, what are parameters and what consistitutes the actual model (prior and likelihood). Stan also wants to know the type of its variables (and the ranges of values these can take on).</p>
 <pre class="mystan"><code>data {
 int&lt;lower=0&gt; N ;
@@ -583,18 +583,18 @@ theta ~ beta(1,1) ;
 k ~ binomial(N, theta) ;
 }</code></pre>
 <p>We save this Stan code in a file <code>binomial_model.stan</code> (which you can dowload <a href="https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/models_stan/binomial.stan">here</a>) in a folder <code>models_stan</code> and then use the function <code>rstan::stan</code> to run the Stan code from within R.</p>
-<div class="sourceCode" id="cb424"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb424-1" data-line-number="1">stan_fit_binomial &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
-<a class="sourceLine" id="cb424-2" data-line-number="2">  <span class="co"># where is the Stan code</span></a>
-<a class="sourceLine" id="cb424-3" data-line-number="3">  <span class="dt">file =</span> <span class="st">&#39;models_stan/binomial_model.stan&#39;</span>,</a>
-<a class="sourceLine" id="cb424-4" data-line-number="4">  <span class="co"># data to supply to the Stan program</span></a>
-<a class="sourceLine" id="cb424-5" data-line-number="5">  <span class="dt">data =</span> KoF_data_<span class="dv">4</span>_Stan,</a>
-<a class="sourceLine" id="cb424-6" data-line-number="6">  <span class="co"># how many iterations of MCMC</span></a>
-<a class="sourceLine" id="cb424-7" data-line-number="7">  <span class="dt">iter =</span> <span class="dv">3000</span>,</a>
-<a class="sourceLine" id="cb424-8" data-line-number="8">  <span class="co"># how many warmup steps</span></a>
-<a class="sourceLine" id="cb424-9" data-line-number="9">  <span class="dt">warmup =</span> <span class="dv">500</span></a>
-<a class="sourceLine" id="cb424-10" data-line-number="10">)</a></code></pre></div>
+<div class="sourceCode" id="cb426"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb426-1" data-line-number="1">stan_fit_binomial &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
+<a class="sourceLine" id="cb426-2" data-line-number="2">  <span class="co"># where is the Stan code</span></a>
+<a class="sourceLine" id="cb426-3" data-line-number="3">  <span class="dt">file =</span> <span class="st">&#39;models_stan/binomial_model.stan&#39;</span>,</a>
+<a class="sourceLine" id="cb426-4" data-line-number="4">  <span class="co"># data to supply to the Stan program</span></a>
+<a class="sourceLine" id="cb426-5" data-line-number="5">  <span class="dt">data =</span> KoF_data_<span class="dv">4</span>_Stan,</a>
+<a class="sourceLine" id="cb426-6" data-line-number="6">  <span class="co"># how many iterations of MCMC</span></a>
+<a class="sourceLine" id="cb426-7" data-line-number="7">  <span class="dt">iter =</span> <span class="dv">3000</span>,</a>
+<a class="sourceLine" id="cb426-8" data-line-number="8">  <span class="co"># how many warmup steps</span></a>
+<a class="sourceLine" id="cb426-9" data-line-number="9">  <span class="dt">warmup =</span> <span class="dv">500</span></a>
+<a class="sourceLine" id="cb426-10" data-line-number="10">)</a></code></pre></div>
 <p>The object returned from this call to Stan is a special model fit object. If we just print it, we get interesing information about the estimated parameters:</p>
-<div class="sourceCode" id="cb425"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb425-1" data-line-number="1"><span class="kw">print</span>(stan_fit_binomial)</a></code></pre></div>
+<div class="sourceCode" id="cb427"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb427-1" data-line-number="1"><span class="kw">print</span>(stan_fit_binomial)</a></code></pre></div>
 <pre><code>## Inference for Stan model: binomial_model.
 ## 4 chains, each with iter=3000; warmup=500; thin=1; 
 ## post-warmup draws per chain=2500, total post-warmup draws=10000.
@@ -609,7 +609,7 @@ k ~ binomial(N, theta) ;
 ## convergence, Rhat=1).</code></pre>
 <!-- TODO: explain this  -->
 <p>To get the posterior samples in a tidy format we use a function from the <code>tidybayes</code> package:</p>
-<div class="sourceCode" id="cb427"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb427-1" data-line-number="1">tidybayes<span class="op">::</span><span class="kw">tidy_draws</span>(stan_fit_binomial) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(theta)</a></code></pre></div>
+<div class="sourceCode" id="cb429"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb429-1" data-line-number="1">tidybayes<span class="op">::</span><span class="kw">tidy_draws</span>(stan_fit_binomial) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(theta)</a></code></pre></div>
 <pre><code>## # A tibble: 10,000 x 1
 ##    theta
 ##    &lt;dbl&gt;

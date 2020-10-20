@@ -547,38 +547,38 @@ code span.wa { color: #bf0303; } /* Warning */
 Here, <span class="math inline">\(\hat{\theta}_i = \arg \max_{\theta_i} P(D_\text{obs} \mid \theta_i, M_i)\)</span> is the best-fitting parameter vector, i.e., the maximum likelihood estimate (MLE), and <span class="math inline">\(k\)</span> is the number of free parameters in model <span class="math inline">\(M_i\)</span>.</p>
 <p>The lower an AIC score the better the model (in comparison to other models for the same data <span class="math inline">\(D_\text{obs}\)</span>). All else equal, the higher the number of free parameters <span class="math inline">\(k\)</span> the worse the model’s AIC score. The first summand in the definition above can, therefore, be conveived of as a measure of <strong>model complexity</strong>. As for the second summand, think of <span class="math inline">\(- \log P(D_\text{obs} \mid \hat{\theta}_i)\)</span> as a measure of (information-theoretic) surprisal: how surprising is the observed data <span class="math inline">\(D_\text{obs}\)</span> from the point of view of model <span class="math inline">\(M\)</span> under the most favorable circumstances (that is, the MLE of <span class="math inline">\(\theta_i\)</span>). The higher the probability <span class="math inline">\(P(D_\text{obs} \mid \hat{\theta}_i)\)</span>, the better the model’s AIC score, all else equal.</p>
 <p>To apply AIC-based model comparison to the recall models, we first need to compute the MLE of each model (see Chapter <a href="ch-03-03-estimation-bayes.html#ch-03-03-estimation-frequentist"><strong>??</strong></a>). Here are functions that return the negative log-likelihood of each model, for any (suitable) pair of parameter values:</p>
-<div class="sourceCode" id="cb490"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb490-1" data-line-number="1"><span class="co"># generic neg-log-LH function (covers both models)</span></a>
-<a class="sourceLine" id="cb490-2" data-line-number="2">nLL_generic &lt;-<span class="st"> </span><span class="cf">function</span>(par, model_name) {</a>
-<a class="sourceLine" id="cb490-3" data-line-number="3">  w1 &lt;-<span class="st"> </span>par[<span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb490-4" data-line-number="4">  w2 &lt;-<span class="st"> </span>par[<span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb490-5" data-line-number="5">  <span class="co"># make sure paramters are in acceptable range</span></a>
-<a class="sourceLine" id="cb490-6" data-line-number="6">  <span class="cf">if</span> (w1 <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">|</span><span class="st"> </span>w2 <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">|</span><span class="st"> </span>w1 <span class="op">&gt;</span><span class="st"> </span><span class="dv">20</span> <span class="op">|</span><span class="st"> </span>w2 <span class="op">&gt;</span><span class="st"> </span><span class="dv">20</span>) {</a>
-<a class="sourceLine" id="cb490-7" data-line-number="7">    <span class="kw">return</span>(<span class="ot">NA</span>)</a>
-<a class="sourceLine" id="cb490-8" data-line-number="8">  }</a>
-<a class="sourceLine" id="cb490-9" data-line-number="9">  <span class="co"># calculate predicted recall rates for given parameters</span></a>
-<a class="sourceLine" id="cb490-10" data-line-number="10">  <span class="cf">if</span> (model_name <span class="op">==</span><span class="st"> &quot;exponential&quot;</span>) {</a>
-<a class="sourceLine" id="cb490-11" data-line-number="11">    theta &lt;-<span class="st"> </span>w1<span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>w2<span class="op">*</span>t)  <span class="co"># exponential model</span></a>
-<a class="sourceLine" id="cb490-12" data-line-number="12">  } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb490-13" data-line-number="13">    theta &lt;-<span class="st"> </span>w1<span class="op">*</span>t<span class="op">^</span>(<span class="op">-</span>w2)     <span class="co"># power model</span></a>
-<a class="sourceLine" id="cb490-14" data-line-number="14">  }</a>
-<a class="sourceLine" id="cb490-15" data-line-number="15">  <span class="co"># avoid edge cases of infinite log-likelihood</span></a>
-<a class="sourceLine" id="cb490-16" data-line-number="16">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-4</span></a>
-<a class="sourceLine" id="cb490-17" data-line-number="17">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-4</span></a>
-<a class="sourceLine" id="cb490-18" data-line-number="18">  <span class="co"># return negative log-likelihood of data</span></a>
-<a class="sourceLine" id="cb490-19" data-line-number="19">  <span class="op">-</span><span class="st"> </span><span class="kw">sum</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>, <span class="dt">log =</span> T))</a>
-<a class="sourceLine" id="cb490-20" data-line-number="20">}</a>
-<a class="sourceLine" id="cb490-21" data-line-number="21"><span class="co"># negative log likelihood of exponential model</span></a>
-<a class="sourceLine" id="cb490-22" data-line-number="22">nLL_exp &lt;-<span class="st"> </span><span class="cf">function</span>(par) {<span class="kw">nLL_generic</span>(par, <span class="st">&quot;exponential&quot;</span>)}</a>
-<a class="sourceLine" id="cb490-23" data-line-number="23"><span class="co"># negative log likelihood of power model</span></a>
-<a class="sourceLine" id="cb490-24" data-line-number="24">nLL_pow &lt;-<span class="st"> </span><span class="cf">function</span>(par) {<span class="kw">nLL_generic</span>(par, <span class="st">&quot;power&quot;</span>)}</a></code></pre></div>
+<div class="sourceCode" id="cb492"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb492-1" data-line-number="1"><span class="co"># generic neg-log-LH function (covers both models)</span></a>
+<a class="sourceLine" id="cb492-2" data-line-number="2">nLL_generic &lt;-<span class="st"> </span><span class="cf">function</span>(par, model_name) {</a>
+<a class="sourceLine" id="cb492-3" data-line-number="3">  w1 &lt;-<span class="st"> </span>par[<span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb492-4" data-line-number="4">  w2 &lt;-<span class="st"> </span>par[<span class="dv">2</span>]</a>
+<a class="sourceLine" id="cb492-5" data-line-number="5">  <span class="co"># make sure paramters are in acceptable range</span></a>
+<a class="sourceLine" id="cb492-6" data-line-number="6">  <span class="cf">if</span> (w1 <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">|</span><span class="st"> </span>w2 <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">|</span><span class="st"> </span>w1 <span class="op">&gt;</span><span class="st"> </span><span class="dv">20</span> <span class="op">|</span><span class="st"> </span>w2 <span class="op">&gt;</span><span class="st"> </span><span class="dv">20</span>) {</a>
+<a class="sourceLine" id="cb492-7" data-line-number="7">    <span class="kw">return</span>(<span class="ot">NA</span>)</a>
+<a class="sourceLine" id="cb492-8" data-line-number="8">  }</a>
+<a class="sourceLine" id="cb492-9" data-line-number="9">  <span class="co"># calculate predicted recall rates for given parameters</span></a>
+<a class="sourceLine" id="cb492-10" data-line-number="10">  <span class="cf">if</span> (model_name <span class="op">==</span><span class="st"> &quot;exponential&quot;</span>) {</a>
+<a class="sourceLine" id="cb492-11" data-line-number="11">    theta &lt;-<span class="st"> </span>w1<span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>w2<span class="op">*</span>t)  <span class="co"># exponential model</span></a>
+<a class="sourceLine" id="cb492-12" data-line-number="12">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb492-13" data-line-number="13">    theta &lt;-<span class="st"> </span>w1<span class="op">*</span>t<span class="op">^</span>(<span class="op">-</span>w2)     <span class="co"># power model</span></a>
+<a class="sourceLine" id="cb492-14" data-line-number="14">  }</a>
+<a class="sourceLine" id="cb492-15" data-line-number="15">  <span class="co"># avoid edge cases of infinite log-likelihood</span></a>
+<a class="sourceLine" id="cb492-16" data-line-number="16">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-4</span></a>
+<a class="sourceLine" id="cb492-17" data-line-number="17">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-4</span></a>
+<a class="sourceLine" id="cb492-18" data-line-number="18">  <span class="co"># return negative log-likelihood of data</span></a>
+<a class="sourceLine" id="cb492-19" data-line-number="19">  <span class="op">-</span><span class="st"> </span><span class="kw">sum</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>, <span class="dt">log =</span> T))</a>
+<a class="sourceLine" id="cb492-20" data-line-number="20">}</a>
+<a class="sourceLine" id="cb492-21" data-line-number="21"><span class="co"># negative log likelihood of exponential model</span></a>
+<a class="sourceLine" id="cb492-22" data-line-number="22">nLL_exp &lt;-<span class="st"> </span><span class="cf">function</span>(par) {<span class="kw">nLL_generic</span>(par, <span class="st">&quot;exponential&quot;</span>)}</a>
+<a class="sourceLine" id="cb492-23" data-line-number="23"><span class="co"># negative log likelihood of power model</span></a>
+<a class="sourceLine" id="cb492-24" data-line-number="24">nLL_pow &lt;-<span class="st"> </span><span class="cf">function</span>(par) {<span class="kw">nLL_generic</span>(par, <span class="st">&quot;power&quot;</span>)}</a></code></pre></div>
 <p>These functions are then optimized with built-in function <code>optim</code>. The results are shown in the table below.</p>
-<div class="sourceCode" id="cb491"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb491-1" data-line-number="1"><span class="co"># getting the best fitting values</span></a>
-<a class="sourceLine" id="cb491-2" data-line-number="2">bestExpo &lt;-<span class="st"> </span><span class="kw">optim</span>(nLL_exp, <span class="dt">par =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="fl">0.5</span>))</a>
-<a class="sourceLine" id="cb491-3" data-line-number="3">bestPow  &lt;-<span class="st"> </span><span class="kw">optim</span>(nLL_pow, <span class="dt">par =</span> <span class="kw">c</span>(<span class="fl">0.5</span>,<span class="fl">0.2</span>))</a>
-<a class="sourceLine" id="cb491-4" data-line-number="4">MLEstimates =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">model =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;exponential&quot;</span>, <span class="st">&quot;power&quot;</span>), <span class="dt">each =</span> <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb491-5" data-line-number="5">                         <span class="dt">parameter =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;d&quot;</span>),</a>
-<a class="sourceLine" id="cb491-6" data-line-number="6">                         <span class="dt">value =</span> <span class="kw">c</span>(bestExpo<span class="op">$</span>par, bestPow<span class="op">$</span>par))</a>
-<a class="sourceLine" id="cb491-7" data-line-number="7">knitr<span class="op">::</span><span class="kw">kable</span>(MLEstimates)</a></code></pre></div>
+<div class="sourceCode" id="cb493"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb493-1" data-line-number="1"><span class="co"># getting the best fitting values</span></a>
+<a class="sourceLine" id="cb493-2" data-line-number="2">bestExpo &lt;-<span class="st"> </span><span class="kw">optim</span>(nLL_exp, <span class="dt">par =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="fl">0.5</span>))</a>
+<a class="sourceLine" id="cb493-3" data-line-number="3">bestPow  &lt;-<span class="st"> </span><span class="kw">optim</span>(nLL_pow, <span class="dt">par =</span> <span class="kw">c</span>(<span class="fl">0.5</span>,<span class="fl">0.2</span>))</a>
+<a class="sourceLine" id="cb493-4" data-line-number="4">MLEstimates =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">model =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;exponential&quot;</span>, <span class="st">&quot;power&quot;</span>), <span class="dt">each =</span> <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb493-5" data-line-number="5">                         <span class="dt">parameter =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;d&quot;</span>),</a>
+<a class="sourceLine" id="cb493-6" data-line-number="6">                         <span class="dt">value =</span> <span class="kw">c</span>(bestExpo<span class="op">$</span>par, bestPow<span class="op">$</span>par))</a>
+<a class="sourceLine" id="cb493-7" data-line-number="7">knitr<span class="op">::</span><span class="kw">kable</span>(MLEstimates)</a></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -618,16 +618,16 @@ Figure 11.2: Predictions of the exponential and the power model under best-fitti
 </p>
 </div>
 <p>It is impossible to say by visual inspection of Figure <a href="Chap-03-06-model-comparison-AIC.html#fig:Chap-03-06-model-comparison-MLE-fits">11.2</a> which model should be preferred. Numbers might help see more fine-grained differences:</p>
-<div class="sourceCode" id="cb492"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb492-1" data-line-number="1">predExp &lt;-<span class="st"> </span><span class="kw">expo</span>(t,a,b)</a>
-<a class="sourceLine" id="cb492-2" data-line-number="2">predPow &lt;-<span class="st"> </span><span class="kw">power</span>(t,c,d)</a>
-<a class="sourceLine" id="cb492-3" data-line-number="3">modelStats &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb492-4" data-line-number="4">  <span class="dt">model =</span> <span class="kw">c</span>(<span class="st">&quot;expo&quot;</span>, <span class="st">&quot;power&quot;</span>),</a>
-<a class="sourceLine" id="cb492-5" data-line-number="5">  <span class="st">`</span><span class="dt">log likelihood</span><span class="st">`</span> =<span class="st"> </span><span class="kw">round</span>(<span class="kw">c</span>(<span class="op">-</span>bestExpo<span class="op">$</span>value, <span class="op">-</span>bestPow<span class="op">$</span>value),<span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb492-6" data-line-number="6">  <span class="dt">probability =</span> <span class="kw">signif</span>(<span class="kw">exp</span>(<span class="kw">c</span>(<span class="op">-</span>bestExpo<span class="op">$</span>value, <span class="op">-</span>bestPow<span class="op">$</span>value)),<span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb492-7" data-line-number="7">  <span class="co"># sum of squared errors</span></a>
-<a class="sourceLine" id="cb492-8" data-line-number="8">  <span class="dt">SS =</span> <span class="kw">round</span>(<span class="kw">c</span>( <span class="kw">sum</span>((predExp<span class="op">-</span>y)<span class="op">^</span><span class="dv">2</span>), <span class="kw">sum</span>((predPow<span class="op">-</span>y)<span class="op">^</span><span class="dv">2</span>)),<span class="dv">3</span>)</a>
-<a class="sourceLine" id="cb492-9" data-line-number="9">)</a>
-<a class="sourceLine" id="cb492-10" data-line-number="10">modelStats</a></code></pre></div>
+<div class="sourceCode" id="cb494"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb494-1" data-line-number="1">predExp &lt;-<span class="st"> </span><span class="kw">expo</span>(t,a,b)</a>
+<a class="sourceLine" id="cb494-2" data-line-number="2">predPow &lt;-<span class="st"> </span><span class="kw">power</span>(t,c,d)</a>
+<a class="sourceLine" id="cb494-3" data-line-number="3">modelStats &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb494-4" data-line-number="4">  <span class="dt">model =</span> <span class="kw">c</span>(<span class="st">&quot;expo&quot;</span>, <span class="st">&quot;power&quot;</span>),</a>
+<a class="sourceLine" id="cb494-5" data-line-number="5">  <span class="st">`</span><span class="dt">log likelihood</span><span class="st">`</span> =<span class="st"> </span><span class="kw">round</span>(<span class="kw">c</span>(<span class="op">-</span>bestExpo<span class="op">$</span>value, <span class="op">-</span>bestPow<span class="op">$</span>value),<span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb494-6" data-line-number="6">  <span class="dt">probability =</span> <span class="kw">signif</span>(<span class="kw">exp</span>(<span class="kw">c</span>(<span class="op">-</span>bestExpo<span class="op">$</span>value, <span class="op">-</span>bestPow<span class="op">$</span>value)),<span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb494-7" data-line-number="7">  <span class="co"># sum of squared errors</span></a>
+<a class="sourceLine" id="cb494-8" data-line-number="8">  <span class="dt">SS =</span> <span class="kw">round</span>(<span class="kw">c</span>( <span class="kw">sum</span>((predExp<span class="op">-</span>y)<span class="op">^</span><span class="dv">2</span>), <span class="kw">sum</span>((predPow<span class="op">-</span>y)<span class="op">^</span><span class="dv">2</span>)),<span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb494-9" data-line-number="9">)</a>
+<a class="sourceLine" id="cb494-10" data-line-number="10">modelStats</a></code></pre></div>
 <pre><code>## # A tibble: 2 x 4
 ##   model `log likelihood` probability    SS
 ##   &lt;chr&gt;            &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;
@@ -635,14 +635,14 @@ Figure 11.2: Predictions of the exponential and the power model under best-fitti
 ## 2 power            -26.7    2.47e-12 0.057</code></pre>
 <p>The exponential model has a higher log-likelihood, a higher probability, and a lower sum of squares. This suggests that the exponential model is better.</p>
 <p>The AIC-score of these models is a direct function of the negative log-likelihood. Since both models have the same number of parameters, we also arrive at the same verdict: based on comparison of AIC-scores, the exponential model is the better model.</p>
-<div class="sourceCode" id="cb494"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb494-1" data-line-number="1">get_AIC &lt;-<span class="st"> </span><span class="cf">function</span>(optim_fit) {</a>
-<a class="sourceLine" id="cb494-2" data-line-number="2">  <span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw">length</span>(optim_fit<span class="op">$</span>par) <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>optim_fit<span class="op">$</span>value</a>
-<a class="sourceLine" id="cb494-3" data-line-number="3">}</a>
-<a class="sourceLine" id="cb494-4" data-line-number="4">AIC_scores &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb494-5" data-line-number="5">  <span class="dt">AIC_exponential =</span> <span class="kw">get_AIC</span>(bestExpo),</a>
-<a class="sourceLine" id="cb494-6" data-line-number="6">  <span class="dt">AIC_power =</span> <span class="kw">get_AIC</span>(bestPow)</a>
-<a class="sourceLine" id="cb494-7" data-line-number="7">)</a>
-<a class="sourceLine" id="cb494-8" data-line-number="8">AIC_scores</a></code></pre></div>
+<div class="sourceCode" id="cb496"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb496-1" data-line-number="1">get_AIC &lt;-<span class="st"> </span><span class="cf">function</span>(optim_fit) {</a>
+<a class="sourceLine" id="cb496-2" data-line-number="2">  <span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw">length</span>(optim_fit<span class="op">$</span>par) <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>optim_fit<span class="op">$</span>value</a>
+<a class="sourceLine" id="cb496-3" data-line-number="3">}</a>
+<a class="sourceLine" id="cb496-4" data-line-number="4">AIC_scores &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb496-5" data-line-number="5">  <span class="dt">AIC_exponential =</span> <span class="kw">get_AIC</span>(bestExpo),</a>
+<a class="sourceLine" id="cb496-6" data-line-number="6">  <span class="dt">AIC_power =</span> <span class="kw">get_AIC</span>(bestPow)</a>
+<a class="sourceLine" id="cb496-7" data-line-number="7">)</a>
+<a class="sourceLine" id="cb496-8" data-line-number="8">AIC_scores</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 2
 ##   AIC_exponential AIC_power
 ##             &lt;dbl&gt;     &lt;dbl&gt;
@@ -658,11 +658,11 @@ w_{\text{AIC}}(M_i, D) &amp; = \frac{\exp (- 0.5 * \Delta_{\text{AIC}}(M_i,D) )}
 <p>Akaike weights are relative and normalized measures, and may serve as an approximate measure of a model’s posterior probability given the data:</p>
 <p><span class="math display">\[ P(M_i \mid D) \approx w_{\text{AIC}}(M_i, D) \]</span></p>
 <p>For the running example at hand, this would mean that we could conclude that the posterior probability of the exponential model is approximately:</p>
-<div class="sourceCode" id="cb496"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb496-1" data-line-number="1">delta_AIC_power &lt;-<span class="st"> </span>AIC_scores<span class="op">$</span>AIC_power <span class="op">-</span><span class="st"> </span>AIC_scores<span class="op">$</span>AIC_exponential</a>
-<a class="sourceLine" id="cb496-2" data-line-number="2">delta_AIC_exponential &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb496-3" data-line-number="3">Akaike_weight_exponential &lt;-<span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>delta_AIC_exponential) <span class="op">/</span></a>
-<a class="sourceLine" id="cb496-4" data-line-number="4"><span class="st">  </span>(<span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>delta_AIC_exponential) <span class="op">+</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>delta_AIC_power))</a>
-<a class="sourceLine" id="cb496-5" data-line-number="5">Akaike_weight_exponential</a></code></pre></div>
+<div class="sourceCode" id="cb498"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb498-1" data-line-number="1">delta_AIC_power &lt;-<span class="st"> </span>AIC_scores<span class="op">$</span>AIC_power <span class="op">-</span><span class="st"> </span>AIC_scores<span class="op">$</span>AIC_exponential</a>
+<a class="sourceLine" id="cb498-2" data-line-number="2">delta_AIC_exponential &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb498-3" data-line-number="3">Akaike_weight_exponential &lt;-<span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>delta_AIC_exponential) <span class="op">/</span></a>
+<a class="sourceLine" id="cb498-4" data-line-number="4"><span class="st">  </span>(<span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>delta_AIC_exponential) <span class="op">+</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span>delta_AIC_power))</a>
+<a class="sourceLine" id="cb498-5" data-line-number="5">Akaike_weight_exponential</a></code></pre></div>
 <pre><code>## [1] 0.9996841</code></pre>
 <p>We would conclude from this approximate quantitative assessment that the evidence in favor of the exponential model is rather strong.</p>
 <p>Our approximation is better, the more data we have. We will see a method below, the Bayesian method, which computes <span class="math inline">\(P(M_i \mid D)\)</span> in a non-approximate way.</p>
