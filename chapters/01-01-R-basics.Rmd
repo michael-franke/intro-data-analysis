@@ -800,9 +800,9 @@ There is also a very convenient function, called `tribble`, which allows you to 
 
 ```{r tribble-first-example}
 hw_points <- tribble(
-  ~hw_nr,       ~"Jax",   ~"Jamie",   ~"Jason",
-  "HW1",        "33",     "24",       "17",
-  "HW2",        "41",     "23",       "8"
+  ~hw_nr,       ~Jax,   ~Jamie,   ~Jason,
+  "HW1",        33,     24,       17,
+  "HW2",        41,     23,       8
 )
 hw_points
 
@@ -872,8 +872,7 @@ Many helpful functions are defined in base R or supplied by packages. We recomme
 ### Defining your own functions
 
 If you find yourself in a situation in which you would like to copy-paste some code, possibly with minor amendments, this usually means that you should wrap some recurring operations into a custom-defined function.
- 
-There are two ways of defining your own functions: as a named function, or an anonymous function.
+There are two ways of defining your own functions: as a *named function*, or an *anonymous function*.
 
 #### Named functions
 
@@ -881,8 +880,8 @@ The special operator supplied by base R to create new functions is the keyword `
 
 ```{r, eval = F}
 # define a new function
-# takes two numbers x & y as argument
-# return x * y + 1
+# - takes two numbers x & y as argument
+# - returns x * y + 1
 cool_function <- function(x, y) {
   return(x * y + 1)   
 }
@@ -916,47 +915,60 @@ cool_function_2()         # returns 7 (= 2 * 3 + 1)
 <div class = "exercises">
 **Exercise 2.10**
 
-Create a function, which takes two numbers and outputs 0 if their product is less than 100, and 1 otherwise. 
+Create a function called `bigger_100` which takes two numbers as input and outputs 0 if their product is less than 100, and 1 otherwise. (**Hint:** remember that you can cast a Boolean value to an integer with `as.integer`.) 
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
 
 ```{r}
-
 bigger_100 <- function(x, y) {
- 
   return(as.integer(x * y > 100))
 }
+bigger_100(40,3)
 ```
-
 </div>
 </div>
 </div>
 
 #### Anonymous functions
 
-Notice that we can feed functions as parameters to other functions. This is an important ingredient of a functional-style of programming, and something that we will rely on heavily in this book (see Section \@ref(ch-01-01-loops-and-maps)). When supplying a function as an argument to another function, we might not want to name the function that is passed. Here's a (stupid, but hopefully illustrating) example:
+Notice that we can feed functions as parameters to other functions. This is an important ingredient of a functional-style of programming, and something that we will rely on heavily in this book (see Section \@ref(ch-01-01-loops-and-maps)). When supplying a function as an argument to another function, we might not want to name the function that is passed. Here's a (stupid, but hopefully illustrating) example.
+
+We first define the named function `new_applier_function` which takes two arguments as input: an input vector, which is locally called `input` in the scope of the function's body, and a function, which is locally called `function_to_apply`. Our new function `new_applier_function` first checks whether the input vector has more than one element, throws an error if not, and otherwise applies the argument function `function_to_apply` to the vector `input`. 
 
 ```{r, eval = F}
-# define a function that takes a function as an argument
+# define a function that takes a vector and a function as an argument
 new_applier_function <- function(input, function_to_apply) {
+  # check if input vector has at least 2 elements
+  if (length(input) <= 1) {
+    # terminate and show informative error message
+    stop("Error in 'new_applier_function': input vector has length <=1.")
+  } 
+  # otherwise apply the function to the input vector
   return(function_to_apply(input))
 }
+```
+We use this new function to show the difference between named and unnamed functions, in particular why the latter can be very handy and elegant. First, we consider a case where we use `new_applier_function` in connection with the named built-in function `sum`:
 
+```{r, eval = F}
 # sum vector with built-in & named function
 new_applier_function(
-  input = 1:2,              # input vector 
+  input = 1:3,              # input vector 
   function_to_apply = sum   # built-in & named function to apply
-)   # returns 3
+)   # returns 6
+```
 
-# sum vector with anonymous function
+If instead of an existing named function, we want to use a new function to supply to `new_applier_function`, we could define that function first and give it a name, but if we only need it "in situ" for calling `new_applier_function` once, we can also write this: 
+
+```{r, eval = F}
+# Sum vector with anonymous function
 new_applier_function(
-  input = 1:2,              # input vector 
+  input = 1:3,              # input vector 
   function_to_apply = function(input) {
     return(input[1] + input[2])
   } 
-)   # returns 3 as well
+)   # returns 3 (as it only sums the first two arguments)
 ```
 
 <div class = "exercises">
@@ -978,6 +990,24 @@ b. Three arguments.
 
 </div>
 </div>
+
+Call the function `new_applier_function` with `input = 1:3` and an anonymous function that returns just the first two elements of the input vector in reverse order (as a vector).
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+```{r solution-ex.2.11}
+new_applier_function(
+  input = 1:3,              # input vector 
+  function_to_apply = function(input) {
+    return(c(input[c(2,1)]))
+  } 
+)
+```
+</div>
+</div>
+
 </div>
 
 ## Loops and maps {#ch-01-01-loops-and-maps}
