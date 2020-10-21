@@ -965,8 +965,8 @@ If instead of an existing named function, we want to use a new function to suppl
 # Sum vector with anonymous function
 new_applier_function(
   input = 1:3,              # input vector 
-  function_to_apply = function(input) {
-    return(input[1] + input[2])
+  function_to_apply = function(in_vec) {
+    return(in_vec[1] + in_vec[2])
   } 
 )   # returns 3 (as it only sums the first two arguments)
 ```
@@ -1000,8 +1000,8 @@ Call the function `new_applier_function` with `input = 1:3` and an anonymous fun
 ```{r solution-ex.2.11}
 new_applier_function(
   input = 1:3,              # input vector 
-  function_to_apply = function(input) {
-    return(c(input[c(2,1)]))
+  function_to_apply = function(in_vec) {
+    return(c(in_vec[c(2,1)]))
   } 
 )
 ```
@@ -1011,6 +1011,8 @@ new_applier_function(
 </div>
 
 ## Loops and maps {#ch-01-01-loops-and-maps}
+
+### For-loops
 
 For iteratively performing computation steps, R has a special syntax for `for` loops. Here is an example of an (again, stupid, but illustrative) example of a `for` loop in R:
 
@@ -1027,6 +1029,7 @@ for (i in 1:length(input_vector)) {
   if (input_vector[i] %% 2 == 0) {
     output_vector[i] <- input_vector[i] * 10
   }
+  # otherwise leave unchanged
   else {
     output_vector[i] <- input_vector[i]
   }
@@ -1039,42 +1042,49 @@ output_vector
 **Exercise 2.12**
 
 Let's practice for-loops and if/else statements!
-Create a vector `A` with 10 random integers from range (1:50). Create a second vector `B` that has the same length as vector `A`. Then fill vector `B` with the mean of A[(i-1):(i+1)] using a for-loop. Note that missing values are equal to 0 (see example below). Print out the result as a tibble. 
+Create a vector `a` with 10 random integers from range (1:50). 
+Create a second vector `b` that has the same length as vector `a`. 
+Then fill vector `b` such that the $i$th entry in `b` is the mean of a[(i-1):(i+1)].
+Do that using a for-loop. 
+Note that missing values are equal to 0 (see example below). 
+Print out the result as a tibble whose columns are `a` and `b`. 
 <br />
 <br />
-Example: If `A` has the values [25, 39, 12, 33, 47, 3, 48, 14, 45, 8], then vector `B` should contain the values [21, 25, 28, 31, 28, 33, 22, 36, 22, 18] when rounded to whole integers. The value in the fourth position of `B` (value 31), is obtained with (A[3] + A[4] + A[5])/3. The value in the first position of `B` (value 21) is obtained with (0 + A[1] + A[2])/3 and similarly the last value with (A[9] + A[10] + 0)/3.
+Example: If `a` has the values [25, 39, 12, 33, 47, 3, 48, 14, 45, 8], then vector `b` should contain the values [21, 25, 28, 31, 28, 33, 22, 36, 22, 18] when rounded to whole integers. The value in the fourth position of `b` (value 31), is obtained with (a[3] + a[4] + a[5])/3. The value in the first position of `b` (value 21) is obtained with (0 + a[1] + a[2])/3 and similarly the last value with (a[9] + a[10] + 0)/3. (**Hint:** use conditional statements `if`, `if else` and `else` to deal specifically with the edge cases (first and last entry in the vectors).)
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
 ```{r}
 
-A <- c(sample((1:50), 10))
-B <- c(integer(length(A)))
+a <- c(sample((1:50), 10, replace = T))
+b <- c(integer(length(a)))
 
-for (i in 1:length(A)){
+for (i in 1:length(a)){
   if (i == 1) {
-    B[i] <- (sum(A[i:(i+1)])/3)
+    b[i] <- (sum(a[i:(i+1)])/3)
   } 
-  else if (i == length(A)) {
-    B[i] <- (sum((A[(i-1):i]))/3)
+  else if (i == length(a)) {
+    b[i] <- (sum((a[(i-1):i]))/3)
   }
   else {
-    B[i] <- (mean(A[(i-1):(i+1)]))
+    b[i] <- (mean(a[(i-1):(i+1)]))
   }
 }
 
-result <- tibble(A, B)
-
+tibble(a, b)
 ```
 
 </div>
 </div>
 </div>
 
-R also provides functional iterators (e.g., `apply`), but we will use the functional iterators from the `purrr` package. The main functional operator from `purrr` is `map` which takes a vector and a function, applies the function to each element in the vector and returns a list with the outcome. There are also versions of `map`, written as `map_dbl` (double), `map_lgl` (logical) or `map_df` (data frame), which return a vector of doubles, Booleans or a data frame. Here is a first example of how this code looks in a functional style using the functional iterator `map_dbl`:
+### Functional iterators
+
+Base R provides functional iterators (e.g., `apply`), but we will use the functional iterators from the `purrr` package. The main functional operator from `purrr` is `map` which takes a vector and a function, applies the function to each element in the vector and returns a list with the outcome. There are also versions of `map`, written as `map_dbl` (double), `map_lgl` (logical) or `map_df` (data frame), which return a vector of doubles, Booleans or a data frame. The following code repeats the previous example which used a for-loop but now within a functional style using the functional iterator `map_dbl`:
 
 ```{r}
+input_vector <- 1:6
 map_dbl(
   input_vector,
   function(i) {
@@ -1088,10 +1098,10 @@ map_dbl(
 )
 ```
 
-
-We can write this even shorter, using `purrr`'s short-hand notation for functions:
+We can write this even shorter, using `purrr`'s short-hand notation for functions:^[Just for the record, we can achieve the same result also by `ifelse(input_vector %% 2, input_vector * 10, input_vector)`.]
 
 ```{r}
+input_vector <- 1:6
 map_dbl(
   input_vector,
   ~ ifelse( .x %% 2 == 0, .x * 10, .x) 
@@ -1112,6 +1122,32 @@ pmap_dbl(
   ~ ..1 - ..2 + ..3
 )
 ```
+
+<div class = "exercises">
+**Exercise 2.13**
+
+
+Use `map_dbl` and an anonymous function to take the following input vector and return a vector whose $i$th element is the cumulative product of `input` up to the $i$th position divided by the cumulative sum of `input` up to that position. (**Hint:** the cumulative product up to position $i$ is produced by `prod(input[1:i])`; notice that you need to "loop over", so to speak, the index $i$, not the elements of the vector `input`.) 
+
+```{r ex-2.13-input-vector}
+input <- c(12,6,18)
+```
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+```{r ex-2.13-solution}
+map_dbl(
+  1:length(input),
+  function(i) {
+    prod(input[1:i]) / sum(input[1:i])
+  }
+)
+```
+
+</div>
+</div>
+</div>
 
 ## Piping {#Chap-01-01-piping}
 
