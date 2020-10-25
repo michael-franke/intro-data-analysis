@@ -13,7 +13,7 @@ There is room for divergence in how to think about a statistical model, the assu
 > All models are wrong, but some are useful.
 > --- @Box1979:Robustness-in-t
 
-To become familiar with model-based data analysis, Section \@ref(Chap-03-03-models-general) introduces the concept of a **probabilistic statistical model**. Section \@ref(Chap-03-03-models-parameters-priors) enlarges on the crucial aspects of parameters and priors. Section \@ref(Chap-03-03-models-three-pillars) introduces the three types of statistical goals that we can use models to help us with. Section \@ref(Chap-03-03-models-representation) expands on the notation, both formulaic and graphical, which we will use in this book to communicate about models. Finally, Section \@ref(Chap-03-03-models-examples) discusses examples of interesting models, some of which we will use frequently in the following chapters.
+To become familiar with model-based data analysis, Section \@ref(Chap-03-03-models-general) introduces the concept of a **probabilistic statistical model**. Section \@ref(Chap-03-03-models-parameters-priors) enlarges on the crucial aspects of parameters and priors. Section \@ref(Chap-03-03-models-three-pillars) introduces the three types of statistical goals that we can use models to help us with. Section \@ref(Chap-03-03-models-representation) expands on the notation, both formulaic and graphical, which we will use in this book to communicate about models. Finally, Section \@ref(Chap-03-03-models-examples) discusses examples of interesting models, some of which we will frequently use in the following chapters.
 
 ```{block, type='infobox'}
 The learning goals for this chapter are:
@@ -58,7 +58,7 @@ In its most common natural sense, a "model" is a model *of* something. It intend
 
 A statistical model is a model of (what we imagine to be) a random process $R$. In most common parlance, however, we often speak of "a model of the data" or of "modeling the data", but this is only sloppy slang for "a model of (what we assume is) a random process that could generate data of this kind".
 
-Let $D$ be (rectangular, tidy) data that represents the kind of data that random process $R$ is assumed to generate. A model $M$ for random process $R$ fixes which variables (columns) of $D$ are to be modelled as dependent and which are independent variables (and which do not matter at all). Let $D_{\text{DV}}$ by the subset of $D$ containing the dependent variables and $D_{\text{IV}}$ the subset of $D$ containing the independent variables.^[Naturally, $D_{\text{DV}}$ and $D_{\text{IV}}$ are disjoint: it makes no sense to predict or explain $x$ based on an observation of $x$.] We want $D_{\text{DV}}$ to contain at least one variable. A model with empty $D_{\text{IV}}$ is fine.
+Let $D$ be (rectangular, tidy) data that represents the kind of data that random process $R$ is assumed to generate. A model $M$ for random process $R$ fixes which variables (columns) of $D$ are to be modeled as dependent and which are independent variables (and which do not matter at all). Let $D_{\text{DV}}$ by the subset of $D$ containing the dependent variables and $D_{\text{IV}}$ the subset of $D$ containing the independent variables.^[Naturally, $D_{\text{DV}}$ and $D_{\text{IV}}$ are disjoint: it makes no sense to predict or explain $x$ based on an observation of $x$.] We want $D_{\text{DV}}$ to contain at least one variable. A model with empty $D_{\text{IV}}$ is fine.
 
 A model $M$ for data $D$ also fixes a **likelihood function** for $D_\text{DV}$. The likelihood function determines how likely any potential data observation $D_\text{DV}$ is, given the corresponding observations in $D_\text{IV}$. Most often, the likelihood function also has **free parameters**, represented by a parameter vector $\theta$. The basic (and yet rather uninformative) notation for a likelihood function of model $M$ for data $D$ with parameter vector $\theta$ is therefore:
 
@@ -89,7 +89,7 @@ minimal_data_from_an_urn <-
   tribble(~ draw, c("black"))
 ```
 
-So far, so boring. But what is a reasonable parameterized likelihood function for this case? -- Well, we do not know what the content of the urn is but, given our (modelling) assumptions, there are only eleven possible states of the world $k \in \{0, 1, \dots, 10\}$. If we assume (as part of the model structure) that the total number of balls $N$ in the urn is known $N = 10$, then the number $k$ of black balls in the urn straightforwardly entails the likelihood of the data:
+So far, so boring. But what is a reasonable parameterized likelihood function for this case? -- Well, we do not know what the content of the urn is but, given our (modeling) assumptions, there are only eleven possible states of the world $k \in \{0, 1, \dots, 10\}$. If we assume (as part of the model structure) that the total number of balls $N$ in the urn is known $N = 10$, then the number $k$ of black balls in the urn straightforwardly entails the likelihood of the data:
 
 $$ P_M(D = \text{"black"} \mid k) = \frac{k}{N}$$
 
@@ -194,7 +194,13 @@ $$ P_M(\vec{y} \mid \vec{x}, \theta) =
 <div class = "exercises">
 **Exercise 8.2**   
 
-What should be in empty spaces to write the likelihood function in R.
+Fill in the gaps in the code chunk below to fix the likelihood function.
+
+```{r, eval=FALSE}
+lh_ttest <- function(__, __, mu, sigma, __) {
+  prod(dnorm(__, mu, sigma, log = F)) * prod(dnorm(__, mu + __, sigma, log = F))
+}
+```
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
@@ -275,13 +281,15 @@ Several things are important to note, even though their significance might only 
 <div class = "exercises">  
 **Exercise 8.3**   
 
-You want to check if a coin is fair. You toss it 100 times and 22 times get heads. Now you can compute if likelihood (p==0.5) is accurate for it. Try it out in your R console!
+How likely is it to get 22 heads when tossing a fair coin 100 times? Try it out in your R console.
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
 
-ll_coin <- dbinom(22, size=100, prob=0.5, log=FALSE)
+```{r}
+dbinom(22, size = 100, prob = 0.5, log = FALSE)
+```
 
 </div>
 </div>
@@ -292,17 +300,17 @@ ll_coin <- dbinom(22, size=100, prob=0.5, log=FALSE)
 
 The prior distribution over parameter values $P_M(\theta)$ is an integral part of a model when we adopt a Bayesian approach to data analysis. This entails that two (Bayesian) models can share the same likelihood function, and yet ought to be considered as different models. 
 
-In Bayesian data analysis priors $P_M(\theta)$ are most saliently interpreted as encoding the modeller's prior beliefs about the parameters in question. As mentioned, this need not necessarily be beliefs derived from fundamental convictions about coin biases, means or standard deviations; these could be beliefs held because of the effects certain parameter values have on the likelihood of the data. Ideally, the beliefs that support the specification of a prior should be supported by an argument, results of previous research, or other justifiable motivations. However, informed subjective priors are just one of the ways to justify priors over parameters.
+In Bayesian data analysis priors $P_M(\theta)$ are most saliently interpreted as encoding the modeler's prior beliefs about the parameters in question. As mentioned, this need not necessarily be beliefs derived from fundamental convictions about coin biases, means or standard deviations; these could be beliefs held because of the effects certain parameter values have on the likelihood of the data. Ideally, the beliefs that support the specification of a prior should be supported by an argument, results of previous research, or other justifiable motivations. However, informed subjective priors are just one of the ways to justify priors over parameters.
 
 There are three main types of motivations for priors $P_M(\theta)$; though the choice of a particular prior for a particular application might have mixed motives. 
 
-1. **Subjective priors** capture the modeller's subjective beliefs in the sense described above.
+1. **Subjective priors** capture the modeler's subjective beliefs in the sense described above.
 2. **Objective priors** are priors that, as some argue, *should* be adopted for a given likelihood function to avoid conceptually paradoxical consequences.
 3. **Practical priors** are priors that are used pragmatically because of their specific usefulness, e.g., because they simplify a mathematical calculation or a computer simulation, or because they help in statistical reasoning, such as when *skeptical priors* are formulated that work against a particular conclusion.
 
-Orthogonal to the kind of motivation given for a prior, we can distinguish different priors based on how strongly they commit the modeller to a particular range of parameter values. The most extreme case is **uninformative priors** which assign the same level of credence to all parameter values. Uninformative priors are also called *flat priors* because they express themselves as flat lines for discrete probability distributions and continuous distributions defined over an interval with finite lower and upper bounds. It is possible to maneuver uninformative priors also for continuous distributions defined over an unbounded interval, in which case we speak of *improper priors* (to remind ourselves that, mathematically, we are doing something tricky). Informative priors, on the other hand, can be *weakly informative* or *strongly informative*, depending on how much commitment they express. The most extreme case of commitment would be expressed in a **point-valued prior**, which puts all probability on a single value of a parameter. Since this is no longer a respectable probability distribution, although it satisfies the definition, we speak of a *degenerate prior* here. 
+Orthogonal to the kind of motivation given for a prior, we can distinguish different priors based on how strongly they commit the modeler to a particular range of parameter values. The most extreme case is **uninformative priors** which assign the same level of credence to all parameter values. Uninformative priors are also called *flat priors* because they express themselves as flat lines for discrete probability distributions and continuous distributions defined over an interval with finite lower and upper bounds. It is possible to maneuver uninformative priors also for continuous distributions defined over an unbounded interval, in which case we speak of *improper priors* (to remind ourselves that, mathematically, we are doing something tricky). Informative priors, on the other hand, can be *weakly informative* or *strongly informative*, depending on how much commitment they express. The most extreme case of commitment would be expressed in a **point-valued prior**, which puts all probability on a single value of a parameter. Since this is no longer a respectable probability distribution, although it satisfies the definition, we speak of a *degenerate prior* here. 
 
-Figure \@ref(fig:ch-03-02-models-types-of-priors) shows examples of objective, uninformative, as well as weakly or strongly informative priors for the Binomial Model.^[We will not go into the topic of objective priors in this course. This is a topic we must reserve for a follow-up course. It is therefore also not important to "see" from Figure \@ref(fig:ch-03-02-models-types-of-priors) how or why the curve shown in an objective prior.] The priors shown here (resulting in four different Bayesian models all falling inside the family of Binomial Models) are as follows:
+Figure \@ref(fig:ch-03-02-models-types-of-priors) shows examples of objective, uninformative, as well as weakly or strongly informative priors for the Binomial Model.^[We will not go into the topic of objective priors in this course. This is a topic we must reserve for a follow-up course. It is therefore also not important to "see" from Figure \@ref(fig:ch-03-02-models-types-of-priors) how or why the curve is shown in an objective prior.] The priors shown here (resulting in four different Bayesian models all falling inside the family of Binomial Models) are as follows:
 
 - *objective* : $\theta \sim \text{Beta}(0.5,0.5)$
 - *uninformative* : $\theta \sim \text{Beta}(1,1)$
@@ -310,7 +318,7 @@ Figure \@ref(fig:ch-03-02-models-types-of-priors) shows examples of objective, u
 - *strongly informative* : $\theta \sim \text{Beta}(20,30)$
 
 
-```{r ch-03-02-models-types-of-priors, echo = F, fig.cap = "Examples of different kinds of Bayesian priors for coin bias $\theta$ in the Binomial Model."}
+```{r ch-03-02-models-types-of-priors, echo = F, fig.cap = "Examples of different kinds of Bayesian priors for coin bias $\\theta$ in the Binomial Model."}
 
 tibble(
   theta = seq(0, 1, length.out = 401),
@@ -339,11 +347,13 @@ tibble(
 <div class = "exercises">  
 **Exercise 8.4**   
 
-You want to run a Bayesian model to calculate how many pizzas to order for a party. Which prior would You use if:
+You want to run a Bayesian model to calculate how many pizzas to order for a party. Which prior would you use if...
 
-    a. only close friends are coming and you know their habits
-    b. not that close friends are coming and you have a rough idea of their habits
-    c. you invited new acquaintances
+a. ...only close friends are coming and you know their habits.
+
+b. ...not that close friends are coming and you have a rough idea of their habits.
+
+c. ...you invited new acquaintances.
     
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
@@ -366,11 +376,11 @@ c. uninformative prior
 
 To understand why frequentist models do not have priors, but Bayesian models do, we need to revisit the interpretation of the notion of probability, in particular frequentism and subjectivism. We should be reminded that although both notions imply different approaches to the problem of how to deal with probabilities, the mathematical properties are quite similar [@kruschke2015].
 
-A crude and overly simplified version of why frequentist models do not contain priors is this. Extreme frequentism denies that a probability distribution over a latent parameter like $\theta$ is meaningful. It cannot be justified or defended in a scientifically rigorous manner. The only statements about probabilities that are conceptually sound, according to a fundamentalist frequentist interpretation, are those that derive from intuitions about limiting frequencies when (hypothetically) performing a random process (like throwing a dice or drawing a ball from an urn). Bluntly put, there is no ``(thought) experiment'' which can be repeated so that its objective results, on average, align with whatever subjective prior beliefs the Bayesian analysis needs. As a result, the frequentist approach to statistical inference needs alternative methods for parameter estimation --- methods that do \emph{not} rely on (subjective) priors $P(\theta)$.
+A crude and overly simplified version of why frequentist models do not contain priors is this. Extreme frequentism denies that a probability distribution over a latent parameter like $\theta$ is meaningful. It cannot be justified or defended in a scientifically rigorous manner. The only statements about probabilities that are conceptually sound, according to a fundamentalist frequentist interpretation, are those that derive from intuitions about limiting frequencies when (hypothetically) performing a random process (like throwing a dice or drawing a ball from an urn). Bluntly put, there is no "(thought) experiment" which can be repeated so that its objective results, on average, align with whatever subjective prior beliefs the Bayesian analysis needs. As a result, the frequentist approach to statistical inference needs alternative methods for parameter estimation --- methods that do \emph{not} rely on (subjective) priors $P(\theta)$.
 
 Of course, the objections to the use of priors could be less fundamentalist. Researchers who have no metaphysical troubles with subjective priors in principle might reject the use of priors in data analysis because they feel that the necessity to specify priors is a burden or a spurious degree of freedom in empirical science. Thus, priors should be avoided to stay as objective, procedurally systematic, and streamlined as possible.
 
-In contrast, adopters of Bayesian practices see added value in using priors (expression of prior knowledge, practicality) that exceeds any conceptual or procedural difficulties they see in the process of specification of priors. When uncertain about a particular choice of prior, a good Bayesian practice is a *robustness analysis*: exploring how conclusions or decisions depend on the specification of the prior. As we will see, given enough data, the effect of prior specifications can be washed out. This is intuitive: no matter what you believe initially, given enough empirical evidence you will eventually be persuaded to leave your original beliefs behind.
+In contrast, adopters of Bayesian practices see added value in using priors (expression of prior knowledge, practicality) that exceeds any conceptual or procedural difficulties they see in the process of specification of priors. When uncertain about a particular choice of prior, a good Bayesian practice is a *robustness analysis*: exploring how conclusions or decisions depend on the specification of the prior. As we will see, given enough data, the effect of prior specifications can be washed out. This is intuitive: no matter what you believe initially, given enough empirical evidence, you will eventually be persuaded to leave your original beliefs behind.
 
 ### Prior predictions
 
@@ -389,7 +399,7 @@ The formula above is obtained by marginalization over parameter values (represen
 
 In the case of the Binomial Model when we use a Beta prior over $\theta$, the prior predictive distribution is so prominent that it has its own name and fame. It's called the [Beta-binomial distribution](#app-91-distributions-beta-binomial). Figure \@ref(fig:ch-03-02-models-prior-predictives-binomial) shows the prior predictions for the four kinds of priors we looked at before when $N = 24$.
 
-```{r ch-03-02-models-prior-predictives-binomial, echo = F, fig.cap = "Prior predicitive distributions for Binomial Models with different kind of Beta-priors."}
+```{r ch-03-02-models-prior-predictives-binomial, echo = F, fig.cap = "Prior predictive distributions for Binomial Models with different kinds of Beta-priors."}
 trials <- 24
 tibble(
   x = seq(from = 0, to = 24),
@@ -445,13 +455,13 @@ knitr::kable(
 
 The three pillars of data analysis mentioned above are tightly related, of course. For one, model comparison is often parasitic on prediction: whereas prediction asks which data is to be expected, given the model, model comparison looks at how well a given data set is or would have been predicted by different models. For another, parameter estimation and data predictions are something like each other's reverse operations. Let's elaborate on the latter briefly.
 
-If we flip a coin once, the likelihood of each outcome $x \in X = \{0;1\}$ (representing heads or tails, encoded as 1 and 0, respectively) can be modeled with the **Bernoulli distribution** as follows, where $\theta \in [0;1]$ is the coins bias towards landing heads:
+If we flip a coin once, the likelihood of each outcome $x \in X = \{0;1\}$ (representing heads or tails, encoded as 1 and 0, respectively) can be modeled with the **Bernoulli distribution** as follows, where $\theta \in [0;1]$ is the coin's bias towards landing heads:
 
 $$P_M( X = x \mid \theta)=\theta^{[x]}(1-\theta)^{(1-[x])}$$
 
 This likelihood function relates two variables of interest: the coin flip outcome (= data $D$) $x$ and the coin's bias (= model parameter $\theta$). Depending on what is given or assumed to be known, we can then use the same likelihood function, to either infer something about the unknown parameter $\theta$ or, when $\theta$ is given make predictions about the unknown outcome $x$. 
 
-To make this even clearer, we can temporarily use the following bracket notation: the bracket $[ \cdot ]$ indicates that the bracketed parameter is treated as known, given or assumed. The **predicitive distribution** for unknown data $x$ is then:
+To make this even clearer, we can temporarily use the following bracket notation: the bracket $[ \cdot ]$ indicates that the bracketed parameter is treated as known, given or assumed. The **predictive distribution** for unknown data $x$ is then:
 
 $$\text{Predictive Distribution: }\ \ \ \ F(\theta) = P_M(X=x \mid [\theta])=[\theta]^x(1-[\theta])^{(1-x)}$$
 
@@ -572,25 +582,33 @@ knitr::include_graphics("visuals/linear-regression-model.png")
 
 TRUE or FALSE?
 
-a. For the Binomial model observed variables are the number of trials and the probability of success.
-b. In the graphical representation for the T-test model $g_i$ stands for $"group_i"$
-c. Binomial Model can have only discrete observed variables. 
-d. In a Linear Regression Model $y_i$ id determined by it's underlying distribution.
+a. For the Binomial model, observed variables are the number of trials and the probability of success.
+
+b. In the graphical representation for the T-test model, $g_i$ stands for "$group_i$".
+
+c. A Binomial model can have only discrete observed variables. 
+
+d. In a Linear Regression model, $y_i$ is determined by its underlying distribution.
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
+
 a. False
+
 b. True
+
 c. True
+
 d. False
 
 </div >
 </div >
 </div >
+
 ## Strolling the zoo of models {#Chap-03-03-models-examples}
 
-Let's have a look at some more models. Some of the characters we will encounter here, will play leading roles in the plot to come. Some are for familiarization and exercise. All are pleasant.
+Let's have a look at some more models. Some of the characters we will encounter here will play leading roles in the plot to come. Some are for familiarization and exercise. All are pleasant.
 
 ### The Binomial Model {#Chap-03-03-models-examples-binomial}
 
@@ -614,7 +632,7 @@ knitr::include_graphics("visuals/flip-and-draw-model.png")
 
 ### Flip-and-Draw-Hypergeometric Model
 
-The Flip-and-Draw-Hypergeometric Model is exactly like the previous Flip-and-Draw Model, except that we allow ourselves to sample repeatedly *without replacement* from an urn the coin flip selected for us. The probability of observing $k$ black balls when drawing $n$ balls from an the which contains $N$ balls in total out of which $K$ balls are black when we do not put each drawn ball back into the urn is described the so-called [hypergeometric distribution](https://en.wikipedia.org/wiki/Hypergeometric_distribution). The hypergeometric distribution assign to each $k \in \{\max(0, n+K-N), \dots, \min(n,K)\}$ the probability mass:
+The Flip-and-Draw-Hypergeometric Model is exactly like the previous Flip-and-Draw Model, except that we allow ourselves to sample repeatedly *without replacement* from an urn the coin flip selected for us. The probability of observing $k$ black balls when drawing $n$ balls from an urn that contains $N$ balls in total, out of which $K$ balls are black, and we do not put each drawn ball back into the urn is described as the so-called [hypergeometric distribution](https://en.wikipedia.org/wiki/Hypergeometric_distribution). The hypergeometric distribution assigns to each $k \in \{\max(0, n+K-N), \dots, \min(n,K)\}$ the probability mass:
 
 $$ \text{Hypergeometric}(k \mid n, K, N) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}  $$
 
@@ -624,7 +642,7 @@ Suppose we keep the total number of urns fixed to $N = 100$ and always draw $n =
 knitr::include_graphics("visuals/flip-and-draw-hypergeometric.png")
 ```
 
-Below is WebPPL code that allows you to test the models' predictions about data, You can manipulate the parameter values for $\theta$ and $K_1$ and $K_2$. The latter are represented in the array / vector `K = [K1, K2]` below.^[To learn about WebPPL the fast way, try [this tutorial](http://www.problang.org/chapters/app-06-intro-to-webppl.html).]
+Below is WebPPL code that allows you to test the models' predictions about data. You can manipulate the parameter values for $\theta$ and $K_1$ and $K_2$. The latter are represented in the array/vector `K = [K1, K2]` below.^[To learn about WebPPL the fast way, try [this tutorial](http://www.problang.org/chapters/app-06-intro-to-webppl.html).]
 
 <pre class="webppl">
 var theta = 0.2; var K = [20,80];
@@ -693,7 +711,7 @@ preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}
 
 ### T-Test Model: comparing two groups
 
-Consider the example introduced in Section \@ref(Chap-03-03-models-general) again, where we set out to compare the means of average prices of different types of avocados. We assume that there is an indicator variable $g_i$ (corresponding to `type`), such that, for example, $g_i = 0$ is for observations from organic avocados and $g_i = 1$ is for observations from conventionally grown avocados. A first instance from the T-Test Model family for the comparison of two groups assumes that the first group has a mean $\mu_0$ and the second has $\mu_1$, while both share the same standard deviation $\sigma$. Using the notation developed in Section \@ref(Chap-03-03-models-representation) we can write the likelihood function succinctly like so:
+Consider the example introduced in Section \@ref(Chap-03-03-models-general) again, where we set out to compare the means of average prices of different types of avocados. We assume that there is an indicator variable $g_i$ (corresponding to `type`), such that, for example, $g_i = 0$ is for observations from organic avocados and $g_i = 1$ is for observations from conventionally grown avocados. A first instance from the T-Test Model family for the comparison of two groups assumes that the first group has a mean $\mu_0$ and the second has $\mu_1$, while both share the same standard deviation $\sigma$. Using the notation developed in Section \@ref(Chap-03-03-models-representation), we can write the likelihood function succinctly like so:
 
 $$ y_i \sim \text{Normal}(\mu_{g_i}, \sigma) $$ 
 
@@ -714,7 +732,7 @@ The variant of the T-Test Model, formulated in terms of differences between grou
 
 ### Simple Linear Regression Model
 
-In Section \@ref(Chap-02-04-ggplot) we plotted avocado prices in a scatter plot. In particular we plotted (the log of) `average_price` as a function of `total_amount_sold`, and we also added a regression line, like so:
+In Section \@ref(Chap-02-04-ggplot), we plotted avocado prices in a scatter plot. In particular, we plotted (the log of) `average_price` as a function of `total_amount_sold`, and we also added a regression line, like so:
 
 ```{r, echo = F}
 avocado_data %>% 
@@ -731,7 +749,7 @@ avocado_data %>%
   geom_smooth(method = "lm")
 ```
 
-A simple linear regression tries to relate pairs of associated observations, frequently denoted as $x_i$ and $y_i$. Here, $i$ is an index over observations, $x_i$ is the (continuous) independent variable and $y_i$ is the (continuous) dependent variable. In our example, the vector $x$ is the logarithm of `total_amoount_sold` and $y$ is the vector `average_price`. The simple linear regression model assumes that there is a simple linear relationship between $x$ and $y$. A perfect linear relationship would exist if for all $i$:
+A simple linear regression tries to relate pairs of associated observations, frequently denoted as $x_i$ and $y_i$. Here, $i$ is an index over observations, $x_i$ is the (continuous) independent variable and $y_i$ is the (continuous) dependent variable. In our example, the vector $x$ is the logarithm of `total_amount_sold` and $y$ is the vector `average_price`. The simple linear regression model assumes that there is a simple linear relationship between $x$ and $y$. A perfect linear relationship would exist if for all $i$:
 
 $$ y_i = \beta_0 + \beta_1 \ x_i $$
 
@@ -811,27 +829,32 @@ knitr::include_graphics("visuals/linear-regression-with-groups.png")
 
 **Exercise 8.6**   
 
-Which model would you rather use do investigate the following:
+Which model would you rather use to investigate...
 
-a. If there is a difference between chocolate consumption per person in Germany and Belgium?
+a. ...if there is a difference between chocolate consumption per person in Germany and Belgium?
 
-b. You want to find out how many people visited your webpage for the first time.  You know that overall  50 people were there. And you see 7 comments, five of which are left by your old followers.  
+b. ...how many people visited your webpage for the first time? You know that overall 50 people were there. And you see 7 comments, five of which are left by your old followers.  
 
-c. If running speed increases with every 100m among sprinters, but not within marathoners.
+c. ...if running speed increases with every 100m among sprinters, but not within marathoners?
 
-d. Relationship between time spent on studying and the amount of coffee consumption.
+d. ...the relationship between the time spent on studying and the amount of coffee consumption?
 
-e. If a football referee is biased and gives yellow cards more often to one of the teems. Consider that the fold probability is known for each team.
+e. ...if a football referee is biased and gives yellow cards more often to one of the teems? Consider that the fold probability is known for each team.
  
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
 
 a. T-Test Model
+
 b. Flip-and-Draw-Hypergeometric Model
+
 c. Linear Regression with Two Groups
+
 d. Simple Linear Regression Model
+
 e. Binomial
+
 </div>
 </div>
 </div>
@@ -1179,11 +1202,11 @@ mc_data_cleaned %>%
   geom_density(alpha = 0.3)
 ```
 
-The **research hypothesis** in this case would be that there is a difference between the two conditions. But what we consider is its logical negation: the **null hypothesis** is that there is no difference between the two conditions. Using a model-based approach we can cast the null hypothesis as a statement about a single value of a single parameter.
+The **research hypothesis** in this case would be that there is a difference between the two conditions. But what we consider is its logical negation: the **null hypothesis** is that there is no difference between the two conditions. Using a model-based approach, we can cast the null hypothesis as a statement about a single value of a single parameter.
 
-It is possible to formulate hypotheses also about values of parameter tuples. It is also possible to formulate hypothesis as expressions about regions, such as intervals, e.g., asking whether $\delta > 0$. But the majority of applications focuses on point-valued null hypothesis about a single parameter value.
+It is possible to formulate hypotheses also about values of parameter tuples. It is also possible to formulate hypotheses as expressions about regions, such as intervals, e.g., asking whether $\delta > 0$. But the majority of applications focuses on a point-valued null hypothesis about a single parameter value.
 
-Suppose $\theta$ is a single parameter of model $M$. Our single-parameter, point-valued null hypothesis is that $\theta = x$. There are several approaches to addressing this null hypothesis when we take a model-based approached. These correspond with [the three goals of data analysis](Chap-03-03-models-three-pillars) formulated previously. 
+Suppose $\theta$ is a single parameter of model $M$. Our single-parameter, point-valued null hypothesis is that $\theta = x$. There are several approaches to addressing this null hypothesis when we take a model-based approach. These correspond with [the three goals of data analysis](Chap-03-03-models-three-pillars) formulated previously. 
 
 Firstly, we can use parameter estimation. We check whether $\theta = x$ squares with the parameter values we infer, given the model $M$ and the data $D$. This is what we will do in the following Chapter \@ref(ch-03-04-parameter-estimation). 
 
@@ -1197,16 +1220,16 @@ Finally, we can also use model comparison to test hypotheses. In that case, we m
 
 TRUE or FALSE? 
 
-a. MLE (maximum likelihood estimate) is a method to check which model is more plausible
+a. MLE (maximum likelihood estimate) is a method to check which model is more plausible.
 
 
-b. MLE (maximum likelihood estimate) can help in predicting data when the model is given
+b. MLE (maximum likelihood estimate) can help in predicting data when the model is given.
 
 
-c. AIC (Akaike information criterion) can be used for model comparison
+c. AIC (Akaike information criterion) can be used for model comparison.
 
 
-d. With Bayesian approach one cannot perform a parameter estimation
+d. With a Bayesian approach, one cannot perform parameter estimation.
 
 
 <div class="collapsibleSolution">
