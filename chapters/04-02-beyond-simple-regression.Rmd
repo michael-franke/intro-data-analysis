@@ -29,7 +29,7 @@ x_B <- c(
 )
 ```
 
-Remember that we are interested in the question of whether there is a difference in means of group A and group B. Previously we used a $t$-test for this two-group comparison (frequentist or Bayesian). But we can also cast this as a regression problem. Here is how.
+Remember that we are interested in the question of whether there is a difference in means of group A and group B. Previously, we used a $t$-test for this two-group comparison (frequentist or Bayesian). But we can also cast this as a regression problem. Here is how.
 
 Let's first squeeze the data into a tibble:
 
@@ -93,7 +93,7 @@ $$
 \end{aligned}
 $$
 
-The only important point is that the vector $x$, which corresponds to the group information in the column `group` (which contains entries of strings `"A"` and `"B"`), is implicitly treated as a vector of zeros and ones. Implicitly, `brm` has chosen the string `"A"` as the **reference category** which is encoded as zero. The string `"B"` is the other category, encoded as number 1. As a consequence, the linear model's intercept parameter $\beta_0$ can be interpreted as the predicted mean of the reference category: if for some $i$ we have $x_i = 0$, then the predictor $\hat{y}_i$ will just be $\hat{y}_i = \beta_0$; whence that the intercept $\beta_0$ will be fitted to the mean of the reference category. If for some $i$ we have $x_i = 1$ instead, the predicted value will be computed as $\hat{y}_i = \beta_0 + \beta_1$, so that the slope term $\beta_1$ will effectively play the role of the difference $\delta$ between the mean of the groups. Modulo choice of priors and variable naming, the `brm` model encodes a Bayesian $t$-test model exactly like we previously did using `greta`. The upshot is, that we can conceive of a **$t$-test as a special case of a linear regression model!**
+The only important point is that the vector $x$, which corresponds to the group information in the column `group` (which contains entries of strings `"A"` and `"B"`), is implicitly treated as a vector of zeros and ones. Implicitly, `brm` has chosen the string `"A"` as the **reference category** which is encoded as zero. The string `"B"` is the other category, encoded as number 1. As a consequence, the linear model's intercept parameter $\beta_0$ can be interpreted as the predicted mean of the reference category: if for some $i$ we have $x_i = 0$, then the predictor $\hat{y}_i$ will just be $\hat{y}_i = \beta_0$; whence that the intercept $\beta_0$ will be fitted to the mean of the reference category. If for some $i$ we have $x_i = 1$ instead, the predicted value will be computed as $\hat{y}_i = \beta_0 + \beta_1$, so that the slope term $\beta_1$ will effectively play the role of the difference $\delta$ between the mean of the groups. Modulo choice of priors and variable naming, the `brm` model encodes a Bayesian $t$-test model exactly like we previously did using `greta`. The upshot is that we can conceive of a **$t$-test as a special case of a linear regression model!**
 
 Of course, nothing in this correspondence depends on a Bayesian analysis in particular. Let's look at the frequentist version:
 
@@ -123,7 +123,7 @@ groupA: (1,0,2) and groupB: (10,13,7)
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
-For $\hat{y}_i  = \beta_0 + \beta_1 x_i$, let $x_i =0$ if the data point if from groupA and $x_i=1$ if it's from groupB. Then the mean of groupA is computed by the intercept $\mu_A  = \beta_0$ and the mean of groupB is computed as sum of the intercept and the slope $\mu_B  = \beta_0 + \beta_1$. Since $\mu_A = 1$ and $\mu_B = 10$, we can guess that $\beta_0 = 1$ and $\beta_1 = 10 - 1 = 9$.
+For $\hat{y}_i  = \beta_0 + \beta_1 x_i$, let $x_i =0$ if the data point if from groupA and $x_i=1$ if it's from groupB. Then the mean of groupA is computed by the intercept $\mu_A  = \beta_0$ and the mean of groupB is computed as the sum of the intercept and the slope $\mu_B  = \beta_0 + \beta_1$. Since $\mu_A = 1$ and $\mu_B = 10$, we can guess that $\beta_0 = 1$ and $\beta_1 = 10 - 1 = 9$.
 </div>
 </div>
 </div>
@@ -150,7 +150,7 @@ So we are interested in the $\delta$s, so to speak, between 'reaction' and 'goNo
 mc_url <- url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_cleaned.csv')
 mc_data_cleaned <- read_csv(mc_url) %>% 
   # renaming to make 'goNoGo' the reference level 
-  #  (dirty hack, but simpler than to messing with contrast coding)
+  #  (dirty hack, but simpler than messing with contrast coding)
   mutate(
     block = case_when(
       block == "reaction"         ~ "B_reaction",
@@ -204,7 +204,7 @@ Suppose that $\beta_2$ encodes the difference in reaction time between group B a
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
-As group A is a reference category, $\beta_0$ express the mean reaction time of group A. The mean reaction time of group B is $\beta_0 + \beta_1$, so we need $(x_{i1} =1 , x_{i2} = 0)$. In the text above, the mean reaction time of group C is given by $\beta_0 + \beta_2$. However, now the value is given by $\beta_0 + \beta_1 + \beta_2$, so $(x_{i1} =1 , x_{i2} = 1)$ will give us the value we need.
+As group A is a reference category, $\beta_0$ expresses the mean reaction time of group A. The mean reaction time of group B is $\beta_0 + \beta_1$, so we need $(x_{i1} =1 , x_{i2} = 0)$. In the text above, the mean reaction time of group C is given by $\beta_0 + \beta_2$. However, now the value is given by $\beta_0 + \beta_1 + \beta_2$, so $(x_{i1} =1 , x_{i2} = 1)$ will give us the value we need.
 </div>
 </div>
 </div>
@@ -328,7 +328,7 @@ Based on the estimate given above, what is the mean estimate for male speakers s
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
-The mean estimate for male speakers speaking in informal contexts is given by $\beta_0 +\beta_{\text{male}} = 261.02993 -116.53009 \approx 144 $.
+The mean estimate for male speakers speaking in informal contexts is given by $\beta_0 +\beta_{\text{male}} = 261.02993 -116.53009 \approx 144$.
 </div>
 </div>
 </div>

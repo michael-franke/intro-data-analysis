@@ -7,11 +7,11 @@
 <img src="visuals/badge-mental-chronometry.png" alt="badge-mental-chronometry">  
 </div>  
 
-[Francis Donders](https://en.wikipedia.org/wiki/Franciscus_Donders) is remembered as one of, if not the first experimental cognitive psychologists. He famously introduced the **subtraction logic** which looks at difference in reaction times across different tasks to infer difference in the complexity of the mental processes involved in these tasks. The Mental Chronometry data set presents the results of an online replication of one such subtraction-experiment.
+[Francis Donders](https://en.wikipedia.org/wiki/Franciscus_Donders) is remembered as one of, if not the first experimental cognitive psychologists. He famously introduced the **subtraction logic** which looks at differences in reaction times across different tasks to infer the difference in the complexity of the mental processes involved in these tasks. The Mental Chronometry data set presents the results of an online replication of one such subtraction-experiment.
 
 #### The experiment
 
-50 participants were recruited using the crowd-sourcing platform [Prolific](https://www.prolific.co) and paid for their participation.
+Fifty participants were recruited using the crowd-sourcing platform [Prolific](https://www.prolific.co) and paid for their participation.
 
 In each experiment trial, participants see either a blue square or a blue circle appear on the screen and are asked to respond as quickly as possible. The experiment consists of three parts, presented to all participants in the same order (see below). The parts differ in the adequate response to the visual stimuli.
 
@@ -29,7 +29,7 @@ In each experiment trial, participants see either a blue square or a blue circle
 
 3. **Discrimination task**
 
-	The participant presses the **F** key on the keybord when there is one of the stimuli and the **J** key when there is the other one of the stimuli on the screen.
+	The participant presses the **F** key on the keyboard when there is one of the stimuli and the **J** key when there is the other one of the stimuli on the screen.
 
 	*Recorded*: the reaction time and the response
 
@@ -110,11 +110,11 @@ mc_data_preprocessed <- mc_data_raw %>%
 
 ### Cleaning the data
 
-Remeber that the criteria for data exclusion should ideally be defined before data collection (or at least inspection). They should definitely never be chosen in such a way as to maximize the "desirability" of an analysis. Data cleaning is not a way of making sure that your favorite research hypothesis "wins".
+Remember that the criteria for data exclusion should ideally be defined before data collection (or at least inspection). They should definitely never be chosen in such a way as to maximize the "desirability" of an analysis. Data cleaning is not a way of making sure that your favorite research hypothesis "wins".
 
 Although we have not preregistered any data cleaning regime or analyses for this data set, we demonstrate a frequently used cleaning scheme for reaction time data, which does depend on the data in some sense, but does not require precise knowledge of the data. In particular, we are going to do this:
 
-1. We remove remove the data from an individual participant $X$ if there is an experimental condition $C$ such that the mean RT of $X$ for condition $C$ is more than 2 standard deviations away from the overal mean RT for condition $C$.
+1. We remove the data from an individual participant $X$ if there is an experimental condition $C$ such that the mean RT of $X$ for condition $C$ is more than 2 standard deviations away from the overall mean RT for condition $C$.
 2. From the remaining data, we then remove any individual trial $Y$ if the RT of $Y$ is more than 2 standard deviations away from the mean of experimental condition $C$ (where $C$ is the condition of $Y$, of course).
 
 Notice that in the case at hand, the experimental conditions are the three types of tasks.
@@ -123,7 +123,7 @@ Notice that in the case at hand, the experimental conditions are the three types
 
 Our rule for removing data from outlier participants is this:
 
-> We remove remove the data from an individual participant $X$ if there is an experimental condition $C$ such that the mean RT of $X$ for condition $C$ is more than 2 standard deviations away from the overal mean RT for condition $C$. We also remove all trials with reaction times below 100ms.
+> We remove the data from an individual participant $X$ if there is an experimental condition $C$ such that the mean RT of $X$ for condition $C$ is more than 2 standard deviations away from the overall mean RT for condition $C$. We also remove all trials with reaction times below 100ms.
 
 This procedure is implemented in this code:
 
@@ -180,7 +180,7 @@ mc_data_cleaned <- mc_data_preprocessed %>%
 
 #### Cleaning by-trial
 
-Our rule for exclusing data from individual trials is:
+Our rule for excluding data from individual trials is:
 
 > From the remaining data, we then remove any individual trial $Y$ if the RT of $Y$ is more than 2 standard deviations away from the mean of experimental condition $C$ (where $C$ is the condition of $Y$, of course). We also remove all trials with reaction times below 100ms.
 
@@ -277,7 +277,7 @@ mc_data_cleaned %>%
 
 ### Data analysis 
 
-We are interested in seeing whether the mean RTs are smallest for the 'reaction' task, higher for the 'go/no-go' task, and highest for the 'discrimination' task. We test this with a hierarchical Bayesian regression model, taking participant-level variation of intercets and slopes for factor `block` into account. We make 'go/no-go' the default level of the `block` factor, so that we can directly test our directed hypothesis, using posterior parameter inference.
+We are interested in seeing whether the mean RTs are smallest for the 'reaction' task, higher for the 'go/no-go' task, and highest for the 'discrimination' task. We test this with a hierarchical Bayesian regression model, taking the participant-level variation of intercepts and slopes for factor `block` into account. We make 'go/no-go' the default level of the `block` factor, so that we can directly test our directed hypothesis using posterior parameter inference.
 
 <!-- TODO: write convenience function for this kind of releveling -->
 
@@ -301,4 +301,4 @@ regression_model_ME <- brm(
 regression_model_ME
 ```
 
-We see that the value zero lies clearly outsie of the 95% credible interval for block 'reaction' and for block 'discrimination'. The deviation from the intercept (zero point) is in the expected direction. We may conclude that, as hypothesized, reaction times in the 'reaction' condition are lowest, higher in the 'go/no-go' condition, and highest in the 'discrimination' condition.
+We see that the value zero lies clearly outside of the 95% credible interval for block 'reaction' and for block 'discrimination'. The deviation from the intercept (zero point) is in the expected direction. We may conclude that, as hypothesized, reaction times in the 'reaction' condition are lowest, higher in the 'go/no-go' condition, and highest in the 'discrimination' condition.
