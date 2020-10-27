@@ -12,7 +12,7 @@ The information relevant for our analysis goals is not always directly accessibl
 The learning goals for this chapter are:
 
 - be able to read from and write data to files
-- understand notion of *tidy data*
+- understand the notion of *tidy data*
 - be able to solve common problems of data preprocessing
 ```
 
@@ -38,7 +38,7 @@ write_csv(processed_data, "PATH/FILENAME_PROCESSED_DATA.csv")
 If you want to use a different delimiter (between cells) than a comma, you can use `read_delim` and `write_delim` for example, which take an additional argument `delim` to be set to the delimiter in question. 
 
 ```{r, eval = F}
-# reading data from a file where cells are (unconventionally) delimitted by string "|"
+# reading data from a file where cells are (unconventionally) delimited by string "|"
 data_from_weird_file <- read_delim("WEIRD_DATA_FILE.TXT", delim = "|")
 ```
 
@@ -94,7 +94,7 @@ Following @Wickham2014:Tidy-Data, a tidy representation of (rectangular) data is
 2. each observation forms a row, and
 3. each type of observational unit forms a table.
 
-Any data set that is not tidy is **messy data**. Messy data that satisfies the first two contraints, but not the third will be called **almost tidy data** in this course. We will work, wherever possible, with data that is at least almost tidy. Figure \@ref(fig:02-02-tidy-data-picture) shows a graphical representation of the concept of tidy data.
+Any data set that is not tidy is **messy data**. Messy data that satisfies the first two constraints, but not the third will be called **almost tidy data** in this course. We will work, wherever possible, with data that is at least almost tidy. Figure \@ref(fig:02-02-tidy-data-picture) shows a graphical representation of the concept of tidy data.
 
 ```{r 02-02-tidy-data-picture, echo = F, fig.cap="Organization of tidy data (taken from @wickham2016)."}
 knitr::include_graphics("visuals/tidy-data-R4DS.png")
@@ -146,7 +146,7 @@ full_join(exam_results_tidy, student_numbers, by = "student")
 ```
 
 <div class = "exercises">
-**Exercise E.1: Tidy or Untidy?**
+**Exercise 4.1: Tidy or Untidy?**
 
 Lets take a look at this made up data set:
 
@@ -156,7 +156,7 @@ data <- tribble(
 1,            "A,B,B",   "312 433 365",
 2,            "B,A,B",   "393 491 327",
 3,            "B,A,A",   "356 313 475", 
- 4,            "A,B,B",   "292 352 378")
+4,            "A,B,B",   "292 352 378")
 ```
 
 Is this data tidy or untidy? Explain your reasoning.
@@ -227,7 +227,7 @@ Consider the following example of data which is untidy because it is too long:
 ```{r}
 mixed_results_too_long <- 
   tibble(student = rep(c('Rozz', 'Andrew', 'Siouxsie'), times = 2),
-         what =    rep(c('grade', 'participation'), each = 3),
+         what    = rep(c('grade', 'participation'), each = 3),
          howmuch = c(2.7, 2.0, 1.0, 75, 93, 33))
 mixed_results_too_long
 ```
@@ -276,7 +276,7 @@ exam_results_tidy %>%
 
 ### Tidy selection of column names {#Chap-02-02-tidy-selection}
 
-To select the colums in several functions within the tidyverse, such as `pivot_longer` or `select`, there are useful helper functions from the `tidyselect` package. Here are some examples:^[The helpers from the `tidyselect` package also accept regular expressions.]
+To select the columns in several functions within the tidyverse, such as `pivot_longer` or `select`, there are useful helper functions from the `tidyselect` package. Here are some examples:^[The helpers from the `tidyselect` package also accept regular expressions.]
 
 ```{r, eval = F}
 # bogus code for illustration of possibilities!
@@ -318,7 +318,7 @@ If you want to rename a column, function `rename` is what you want:
 
 ```{r}
 exam_results_tidy %>% 
-  # rename existing colum "student" to new name "participant"
+  # rename existing column "student" to new name "participant"
   # [NB: rename takes the new name first]
   rename(participant = student)
 ```
@@ -370,7 +370,7 @@ exam_results_tidy %>%
 
 ### Combining tibbles
 
-There are frequently occasions on which data from two separate variables needs to be combined. The simplest case is where two entirely disjoint data sets merely need to be glued together, either horizontally (binding columns together with function `cbind`) or vertically (binding rows together with function `rbind`).
+There are frequent occasions on which data from two separate variables need to be combined. The simplest case is where two entirely disjoint data sets merely need to be glued together, either horizontally (binding columns together with function `cbind`) or vertically (binding rows together with function `rbind`).
 
 ```{r}
 new_exam_results_tidy <- tribble(
@@ -409,7 +409,7 @@ full_join(exam_results_tidy, student_numbers, by = "student")
 ```
 
 <div class = "exercises">
-**Exercise E.2: Data Wrangling in R**
+**Exercise 4.2: Data Wrangling in R**
 
 We are working with the same example as in the earlier exercise: 
 ```{r}
@@ -417,8 +417,8 @@ data <- tribble(
 ~subject_id,  ~choices,  ~reaction_times, 
 1,            "A,B,B",   "312 433 365", 
 2,            "B,A,B",   "393 491 327",
- 3,            "B,A,A",   "356 313 475", 
- 4,            "A,B,B",   "292 352 378" 
+3,            "B,A,A",   "356 313 475", 
+4,            "A,B,B",   "292 352 378" 
 )
 ```
 
@@ -428,16 +428,16 @@ Take a look at the following code snippet. Explain what the individual parts (in
 choice_data <- data %>%  
 #1 
 select(subject_id,choices) %>%  
-#2 
-  separate( 
-   col = choices,  
-  into = str_c("C_",1:3),  
-    sep = ",") %>%  
+#2
+separate(
+  col = choices,
+  into = str_c("C_", 1:3),  
+  sep = ",") %>%  
 #3 
-  pivot_longer( 
+pivot_longer( 
   cols = -1, 
-    names_to ="condition",  
-   values_to = "response")
+  names_to = "condition",
+  values_to = "response")
 ```
 
 
@@ -447,6 +447,7 @@ select(subject_id,choices) %>%
 1. Selecting two columns (subject_id and choices) out of the data set.
 
 2. In the data set, each cell in the choices column contains more than one value. To separate them, we take this column and divide the strings by the ",". The names are then given for each line from one to three. 
+
 3. Now we are making the data set longer, so that each condition is its own row. We are pivoting each column apart from the first. The names of the columns are combined in a column called condition and the values are put into a column called response.
 
 The result: 
@@ -581,7 +582,7 @@ The variables in this data set are:
 
 
 
-Let's have brief look at the comments (sometimes helpful, usually entertaining) and the self-reported native languages:
+Let's have a brief look at the comments (sometimes helpful, usually entertaining) and the self-reported native languages:
 
 ```{r}
 data_KoF_raw %>% pull(comments) %>% unique
