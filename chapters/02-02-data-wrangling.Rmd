@@ -44,7 +44,11 @@ data_from_weird_file <- read_delim("WEIRD_DATA_FILE.TXT", delim = "|")
 
 ## Tidy data {#Chap-02-02-data-tidy-data}
 
-The same data can be represented in multiple ways. There is even room for variance in the class of rectangular representations of data. Some manners of representations are more useful for certain purposes than for others. For data analysis (plotting, statistical analyses) we prefer to represent our data as (rectangular) **tidy data**.
+The same data can be represented in multiple ways. There is even room for variance in the class of rectangular representations of data. Some manners of representations are more useful for certain purposes than for others. For data analysis (plotting, statistical analyses) we prefer to represent our data as (rectangular) **tidy data**. A concise rationale for using tidy data is given in Figure \@ref(fig:tidy-data-allison-horst).
+
+```{r tidy-data-allison-horst, echo = FALSE, fig.cap = 'Artwork by allison_horst', out.width=600}
+knitr::include_graphics("visuals/allison_horst/tidydata_3.jpg") 
+```
 
 ### Running example
 
@@ -199,6 +203,7 @@ This data is "too wide". We can make it longer with the function `pivot_longer` 
 exam_results_visual %>% 
   pivot_longer(
     # pivot every column except the first 
+    # (a negative number here means "exclude colum with that index number")
     cols = - 1,
     # name of new column which contains the
     # names of the columns to be "gathered"
@@ -263,7 +268,7 @@ To select rows by an index or a vector of indeces, use the `slice` function:
 ```{r}
 exam_results_tidy %>% 
   # keep only entries from rows with an even index
-  dplyr::slice(c(2,4,6)) # explicit call to avoid name clash (package 'greta')
+  slice(c(2,4,6)) 
 ```
 
 The function `select` allows to pick out a subset of columns. Interestingly, it can also be used to reorder columns, because the order in which column names are specified matches the order in the returned tibble.
@@ -287,13 +292,13 @@ SOME_DATA %>%
         # all columns except the one called "COLNAME"
         - COLNAME
         # all columns with names starting with "STRING"
-       ... starts_with("STRING")
+       starts_with("STRING")
        # all columns with names ending with "STRING"
-       ... ends_with("STRING")
+       ends_with("STRING")
        # all columns with names containing "STRING"
-       ... contains("STRING")
+       contains("STRING")
        # all columns with names of the form "Col_i" with i = 1, ..., 10
-       ... num_range("Col_", 1:10)
+       num_range("Col_", 1:10)
   )
 ```
 
