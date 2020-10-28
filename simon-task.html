@@ -565,8 +565,8 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="loading-and-inspecting-the-data-1" class="section level4">
 <h4><span class="header-section-number">D.2.2.1</span> Loading and inspecting the data</h4>
 <p>We load the data into R and show a summary of the variables stored in the tibble:</p>
-<div class="sourceCode" id="cb642"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb642-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data_sets/simon-task.csv&quot;</span>)</a>
-<a class="sourceLine" id="cb642-2" data-line-number="2"><span class="kw">glimpse</span>(d)</a></code></pre></div>
+<div class="sourceCode" id="cb643"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb643-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data_sets/simon-task.csv&quot;</span>)</a>
+<a class="sourceLine" id="cb643-2" data-line-number="2"><span class="kw">glimpse</span>(d)</a></code></pre></div>
 <pre><code>## Rows: 25,560
 ## Columns: 15
 ## $ submission_id   &lt;dbl&gt; 7432, 7432, 7432, 7432, 7432, 7432, 7432, 7432, 7432,…
@@ -585,10 +585,10 @@ code span.wa { color: #bf0303; } /* Warning */
 ## $ trial_number    &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16…
 ## $ trial_type      &lt;chr&gt; &quot;practice&quot;, &quot;practice&quot;, &quot;practice&quot;, &quot;practice&quot;, &quot;prac…</code></pre>
 <p>It is often useful to check general properties, such as the mean time participants spent on the experiment:</p>
-<div class="sourceCode" id="cb644"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb644-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(timeSpent) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb645"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb645-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(timeSpent) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>()</a></code></pre></div>
 <pre><code>## [1] 21.61656</code></pre>
 <p>About 21.62 minutes is quite long, but we know that the mean is very susceptible to outliers, so we may want to look at a more informative set of <strong>summary statistics</strong>:</p>
-<div class="sourceCode" id="cb646"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb646-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(timeSpent) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summary</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb647"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb647-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(timeSpent) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summary</span>()</a></code></pre></div>
 <pre><code>##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
 ##    5.648    6.905    7.692   21.617    9.113 1158.110</code></pre>
 </div>
@@ -599,12 +599,12 @@ code span.wa { color: #bf0303; } /* Warning */
 <h5><span class="header-section-number">D.2.2.2.1</span> Individual-level error rates &amp; reaction times</h5>
 <p>It is conceivable that some participants did not take the task seriously. They may have just fooled around. We will therefore inspect each individual’s response patterns and reaction times. If participants appear to have “misbehaved”, we discard all of their data. (<strong>CAVEAT:</strong> Notice the researcher degrees of freedom in the decision of what counts as “misbehavior”! It is therefore that choices like these are best committed to in advance, e.g., via pre-registration!)</p>
 <p>We can calculate the mean reaction times and the error rates for each participant.</p>
-<div class="sourceCode" id="cb648"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb648-1" data-line-number="1">d_individual_summary &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb648-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span>) <span class="op">%&gt;%</span><span class="st">    </span><span class="co"># look at only data from main trials</span></a>
-<a class="sourceLine" id="cb648-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(submission_id) <span class="op">%&gt;%</span><span class="st">         </span><span class="co"># calculate the following for each individual</span></a>
-<a class="sourceLine" id="cb648-4" data-line-number="4"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT),</a>
-<a class="sourceLine" id="cb648-5" data-line-number="5">            <span class="dt">error_rate =</span> <span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(<span class="kw">ifelse</span>(correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)))</a>
-<a class="sourceLine" id="cb648-6" data-line-number="6"><span class="kw">head</span>(d_individual_summary)</a></code></pre></div>
+<div class="sourceCode" id="cb649"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb649-1" data-line-number="1">d_individual_summary &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb649-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span>) <span class="op">%&gt;%</span><span class="st">    </span><span class="co"># look at only data from main trials</span></a>
+<a class="sourceLine" id="cb649-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(submission_id) <span class="op">%&gt;%</span><span class="st">         </span><span class="co"># calculate the following for each individual</span></a>
+<a class="sourceLine" id="cb649-4" data-line-number="4"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT),</a>
+<a class="sourceLine" id="cb649-5" data-line-number="5">            <span class="dt">error_rate =</span> <span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(<span class="kw">ifelse</span>(correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)))</a>
+<a class="sourceLine" id="cb649-6" data-line-number="6"><span class="kw">head</span>(d_individual_summary)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 3
 ##   submission_id mean_RT error_rate
 ##           &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;
@@ -615,40 +615,40 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 5          7436    748.       0.06
 ## 6          7437    522.       0.12</code></pre>
 <p>Let’s plot this summary information:</p>
-<div class="sourceCode" id="cb650"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb650-1" data-line-number="1">d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb650-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_RT, <span class="dt">y =</span> error_rate)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb650-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb651"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb651-1" data-line-number="1">d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb651-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_RT, <span class="dt">y =</span> error_rate)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb651-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>()</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-456-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Here’s a crude way of branding outlier-participants:</p>
-<div class="sourceCode" id="cb651"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb651-1" data-line-number="1">d_individual_summary &lt;-<span class="st"> </span>d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb651-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">outlier =</span> <span class="kw">case_when</span>(mean_RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">350</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb651-3" data-line-number="3">                             mean_RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">750</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb651-4" data-line-number="4">                             error_rate <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb651-5" data-line-number="5">                             <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> </span><span class="ot">FALSE</span>))</a>
-<a class="sourceLine" id="cb651-6" data-line-number="6">d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb651-7" data-line-number="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_RT, <span class="dt">y =</span> error_rate)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb651-8" data-line-number="8"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb651-9" data-line-number="9"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> <span class="kw">filter</span>(d_individual_summary, outlier <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>),</a>
-<a class="sourceLine" id="cb651-10" data-line-number="10">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="dt">shape =</span> <span class="st">&quot;square&quot;</span>, <span class="dt">size =</span> <span class="dv">5</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb652"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb652-1" data-line-number="1">d_individual_summary &lt;-<span class="st"> </span>d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb652-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">outlier =</span> <span class="kw">case_when</span>(mean_RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">350</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb652-3" data-line-number="3">                             mean_RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">750</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb652-4" data-line-number="4">                             error_rate <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb652-5" data-line-number="5">                             <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> </span><span class="ot">FALSE</span>))</a>
+<a class="sourceLine" id="cb652-6" data-line-number="6">d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb652-7" data-line-number="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_RT, <span class="dt">y =</span> error_rate)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb652-8" data-line-number="8"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb652-9" data-line-number="9"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> <span class="kw">filter</span>(d_individual_summary, outlier <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>),</a>
+<a class="sourceLine" id="cb652-10" data-line-number="10">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="dt">shape =</span> <span class="st">&quot;square&quot;</span>, <span class="dt">size =</span> <span class="dv">5</span>)</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-457-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We then clean the data set in a first step by removing all participants identified as outlier-y:</p>
-<div class="sourceCode" id="cb652"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb652-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">full_join</span>(d, d_individual_summary, <span class="dt">by =</span> <span class="st">&quot;submission_id&quot;</span>) <span class="co"># merge the tibbles</span></a>
-<a class="sourceLine" id="cb652-2" data-line-number="2">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, outlier <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb652-3" data-line-number="3"><span class="kw">message</span>(<span class="st">&quot;We excluded &quot;</span>, <span class="kw">sum</span>(d_individual_summary<span class="op">$</span>outlier) , <span class="st">&quot; participants for suspicious mean RTs and higher error rates.&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb653"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb653-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">full_join</span>(d, d_individual_summary, <span class="dt">by =</span> <span class="st">&quot;submission_id&quot;</span>) <span class="co"># merge the tibbles</span></a>
+<a class="sourceLine" id="cb653-2" data-line-number="2">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, outlier <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb653-3" data-line-number="3"><span class="kw">message</span>(<span class="st">&quot;We excluded &quot;</span>, <span class="kw">sum</span>(d_individual_summary<span class="op">$</span>outlier) , <span class="st">&quot; participants for suspicious mean RTs and higher error rates.&quot;</span>)</a></code></pre></div>
 <pre><code>## We excluded 5 participants for suspicious mean RTs and higher error rates.</code></pre>
 </div>
 <div id="trial-level-reaction-times" class="section level5">
 <h5><span class="header-section-number">D.2.2.2.2</span> Trial-level reaction times</h5>
 <p>It is also conceivable that inidividual trials resulted in early accidental key presses or were interrupted in some way or another. We therefore look at the overall distribution of RTs and determine (similarly arbitrarily, but once again this should be planned in advance) what to exclude.</p>
-<div class="sourceCode" id="cb654"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb654-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(RT))) <span class="op">+</span></a>
-<a class="sourceLine" id="cb654-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb654-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(RT), <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb655"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb655-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(RT))) <span class="op">+</span></a>
+<a class="sourceLine" id="cb655-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb655-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log</span>(RT), <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-459-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Let’s decide to exclude all trials that lasted longer than 1 second and also all trials with reaction times under 100 ms.</p>
-<div class="sourceCode" id="cb655"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb655-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">100</span> <span class="op">&amp;</span><span class="st"> </span>RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">1000</span>)</a>
-<a class="sourceLine" id="cb655-2" data-line-number="2">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb655-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb655-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb656"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb656-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">100</span> <span class="op">&amp;</span><span class="st"> </span>RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">1000</span>)</a>
+<a class="sourceLine" id="cb656-2" data-line-number="2">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb656-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb656-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-460-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
@@ -656,11 +656,11 @@ code span.wa { color: #bf0303; } /* Warning */
 <h4><span class="header-section-number">D.2.2.3</span> Exploring the (main) data</h4>
 <p>We are mostly interested in the influence of congruency on the reaction times in the trials where participants gave a correct answer. But here we also look at, for comparison, the reaction times for the incongruent trials.</p>
 <p>Here is a summary of the means and standard deviations for each condition:</p>
-<div class="sourceCode" id="cb656"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb656-1" data-line-number="1">d_sum &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb656-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(correctness, condition) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb656-3" data-line-number="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT),</a>
-<a class="sourceLine" id="cb656-4" data-line-number="4">            <span class="dt">sd_RT =</span> <span class="kw">sd</span>(RT))</a>
-<a class="sourceLine" id="cb656-5" data-line-number="5">d_sum</a></code></pre></div>
+<div class="sourceCode" id="cb657"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb657-1" data-line-number="1">d_sum &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb657-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(correctness, condition) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb657-3" data-line-number="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT),</a>
+<a class="sourceLine" id="cb657-4" data-line-number="4">            <span class="dt">sd_RT =</span> <span class="kw">sd</span>(RT))</a>
+<a class="sourceLine" id="cb657-5" data-line-number="5">d_sum</a></code></pre></div>
 <pre><code>## # A tibble: 4 x 4
 ## # Groups:   correctness [2]
 ##   correctness condition   mean_RT sd_RT
@@ -670,41 +670,41 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 3 incorrect   congruent      460. 111. 
 ## 4 incorrect   incongruent    404.  95.4</code></pre>
 <p>Here’s a plot of the reaction times split up by whether the answer was correct and whether the trial was congruent or incongruent.</p>
-<div class="sourceCode" id="cb658"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb658-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb658-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="fl">0.0005</span>), <span class="dt">alpha =</span> <span class="fl">0.1</span>, <span class="dt">height =</span> <span class="fl">0.0005</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb658-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">fill =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb658-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">data =</span> d_sum, </a>
-<a class="sourceLine" id="cb658-5" data-line-number="5">             <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">xintercept =</span> mean_RT), </a>
-<a class="sourceLine" id="cb658-6" data-line-number="6">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb658-7" data-line-number="7"><span class="st">  </span><span class="kw">facet_grid</span>(condition <span class="op">~</span><span class="st"> </span>correctness)</a></code></pre></div>
+<div class="sourceCode" id="cb659"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb659-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb659-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="fl">0.0005</span>), <span class="dt">alpha =</span> <span class="fl">0.1</span>, <span class="dt">height =</span> <span class="fl">0.0005</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb659-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">fill =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb659-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">data =</span> d_sum, </a>
+<a class="sourceLine" id="cb659-5" data-line-number="5">             <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">xintercept =</span> mean_RT), </a>
+<a class="sourceLine" id="cb659-6" data-line-number="6">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb659-7" data-line-number="7"><span class="st">  </span><span class="kw">facet_grid</span>(condition <span class="op">~</span><span class="st"> </span>correctness)</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-462-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="analysis" class="section level3">
 <h3><span class="header-section-number">D.2.3</span> Analysis</h3>
 <p>We are interested in comparing the RTs of correct answers in the congruent and incongruent conditions. We saw a difference in mean reaction times, but we’d like to know if this difference is meaningful. One way of testing this is by running a regression model, which tries to predict RTs as a function of congruency. In the simplest case, we would therefore do this:</p>
-<div class="sourceCode" id="cb659"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb659-1" data-line-number="1">model_ST_simple =<span class="st"> </span><span class="kw">brm</span>(RT <span class="op">~</span><span class="st"> </span>condition, <span class="kw">filter</span>(d, correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>))</a>
-<a class="sourceLine" id="cb659-2" data-line-number="2"><span class="kw">summary</span>(model_ST_simple)</a></code></pre></div>
+<div class="sourceCode" id="cb660"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb660-1" data-line-number="1">model_ST_simple =<span class="st"> </span><span class="kw">brm</span>(RT <span class="op">~</span><span class="st"> </span>condition, <span class="kw">filter</span>(d, correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>))</a>
+<a class="sourceLine" id="cb660-2" data-line-number="2"><span class="kw">summary</span>(model_ST_simple)</a></code></pre></div>
 <p>According to this analysis, there is reason to believe in a difference in RTs between congruent and incongruent groups. The coefficient estimated for the incongruent group is on average ca. 25 ms higher than that of the congruent group.</p>
 <p>However, we can also look at the interaction between correctness and condition.
 As shown in the above graph, there are four different cells in a 2x2 grid.</p>
 <p>In the below model, this is coded with ‘dummy coding’ such that the top-left cell (congruent-correct) is the intercept, and each other cell is calculated by the addition of offsets.</p>
-<div class="sourceCode" id="cb660"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb660-1" data-line-number="1">model_ST_complex &lt;-<span class="st"> </span><span class="kw">brm</span>(RT <span class="op">~</span><span class="st"> </span>condition <span class="op">*</span><span class="st"> </span>correctness, d)</a></code></pre></div>
+<div class="sourceCode" id="cb661"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb661-1" data-line-number="1">model_ST_complex &lt;-<span class="st"> </span><span class="kw">brm</span>(RT <span class="op">~</span><span class="st"> </span>condition <span class="op">*</span><span class="st"> </span>correctness, d)</a></code></pre></div>
 <p>We may want to ask the question: are reaction times to correct-congruent responses shorter than reaction times to incorrect-incongruent responses?</p>
 <p>To do this, we first need to extract the posterior samples from our model.</p>
-<div class="sourceCode" id="cb661"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb661-1" data-line-number="1">post_samples &lt;-<span class="st"> </span><span class="kw">posterior_samples</span>(model_ST_complex) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb661-2" data-line-number="2"><span class="st">  </span><span class="kw">as_tibble</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb662"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb662-1" data-line-number="1">post_samples &lt;-<span class="st"> </span><span class="kw">posterior_samples</span>(model_ST_complex) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb662-2" data-line-number="2"><span class="st">  </span><span class="kw">as_tibble</span>()</a></code></pre></div>
 <p>Then we need to determine the correct offsets to match the correct-congruent and incorrect-incongruent cells in the design matrix.</p>
-<div class="sourceCode" id="cb662"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb662-1" data-line-number="1"><span class="co"># correct-congruent is the reference cell</span></a>
-<a class="sourceLine" id="cb662-2" data-line-number="2">correct_congruent &lt;-<span class="st"> </span>post_samples<span class="op">$</span>b_Intercept</a>
-<a class="sourceLine" id="cb662-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb662-4" data-line-number="4"><span class="co"># incorrect_incongruent is the bottom-right cell</span></a>
-<a class="sourceLine" id="cb662-5" data-line-number="5">incorrect_incongruent &lt;-<span class="st"> </span>post_samples<span class="op">$</span>b_Intercept <span class="op">+</span></a>
-<a class="sourceLine" id="cb662-6" data-line-number="6"><span class="st">  </span>post_samples<span class="op">$</span>b_conditionincongruent <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb662-7" data-line-number="7"><span class="st">  </span>post_samples<span class="op">$</span>b_correctnessincorrect <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb662-8" data-line-number="8"><span class="st">  </span>post_samples<span class="op">$</span><span class="st">`</span><span class="dt">b_conditionincongruent:correctnessincorrect</span><span class="st">`</span></a></code></pre></div>
+<div class="sourceCode" id="cb663"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb663-1" data-line-number="1"><span class="co"># correct-congruent is the reference cell</span></a>
+<a class="sourceLine" id="cb663-2" data-line-number="2">correct_congruent &lt;-<span class="st"> </span>post_samples<span class="op">$</span>b_Intercept</a>
+<a class="sourceLine" id="cb663-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb663-4" data-line-number="4"><span class="co"># incorrect_incongruent is the bottom-right cell</span></a>
+<a class="sourceLine" id="cb663-5" data-line-number="5">incorrect_incongruent &lt;-<span class="st"> </span>post_samples<span class="op">$</span>b_Intercept <span class="op">+</span></a>
+<a class="sourceLine" id="cb663-6" data-line-number="6"><span class="st">  </span>post_samples<span class="op">$</span>b_conditionincongruent <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb663-7" data-line-number="7"><span class="st">  </span>post_samples<span class="op">$</span>b_correctnessincorrect <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb663-8" data-line-number="8"><span class="st">  </span>post_samples<span class="op">$</span><span class="st">`</span><span class="dt">b_conditionincongruent:correctnessincorrect</span><span class="st">`</span></a></code></pre></div>
 <p>Once we know these, we can calculate the probability that the comparison is in the correct direction.</p>
-<div class="sourceCode" id="cb663"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb663-1" data-line-number="1"><span class="kw">mean</span>(correct_congruent <span class="op">&lt;</span><span class="st"> </span>incorrect_incongruent)</a></code></pre></div>
+<div class="sourceCode" id="cb664"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb664-1" data-line-number="1"><span class="kw">mean</span>(correct_congruent <span class="op">&lt;</span><span class="st"> </span>incorrect_incongruent)</a></code></pre></div>
 
 </div>
 </div>

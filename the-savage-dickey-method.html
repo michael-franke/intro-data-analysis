@@ -590,15 +590,15 @@ P(D \mid M_0) &amp; = \int P(D \mid \psi, M_0) P(\psi \mid M_0) \ \text{d}\psi
 <div id="example-247-1" class="section level3">
 <h3><span class="header-section-number">12.3.3</span> Example: 24/7</h3>
 <p>Here is an example based on the 24/7 data. For a nesting model with a flat prior (<span class="math inline">\(\theta \sim^{M_1} \text{Beta}(1,1)\)</span>), and a point hypothesis <span class="math inline">\(\theta^* = 0.5\)</span>, we calculate:</p>
-<div class="sourceCode" id="cb531"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb531-1" data-line-number="1"><span class="co"># point-value of interest</span></a>
-<a class="sourceLine" id="cb531-2" data-line-number="2">theta_star &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb531-3" data-line-number="3"><span class="co"># posterior probability in nesting model</span></a>
-<a class="sourceLine" id="cb531-4" data-line-number="4">posterior_theta_star &lt;-<span class="st"> </span><span class="kw">dbeta</span>(theta_star, <span class="dv">8</span>, <span class="dv">18</span>)</a>
-<a class="sourceLine" id="cb531-5" data-line-number="5"><span class="co"># prior probability in nesting model</span></a>
-<a class="sourceLine" id="cb531-6" data-line-number="6">prior_theta_star &lt;-<span class="st"> </span><span class="kw">dbeta</span>(theta_star, <span class="dv">1</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb531-7" data-line-number="7"><span class="co"># Bayes factor (using Savage-Dickey)</span></a>
-<a class="sourceLine" id="cb531-8" data-line-number="8">BF_<span class="dv">01</span> &lt;-<span class="st"> </span>posterior_theta_star <span class="op">/</span><span class="st"> </span>prior_theta_star</a>
-<a class="sourceLine" id="cb531-9" data-line-number="9">BF_<span class="dv">01</span></a></code></pre></div>
+<div class="sourceCode" id="cb532"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb532-1" data-line-number="1"><span class="co"># point-value of interest</span></a>
+<a class="sourceLine" id="cb532-2" data-line-number="2">theta_star &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb532-3" data-line-number="3"><span class="co"># posterior probability in nesting model</span></a>
+<a class="sourceLine" id="cb532-4" data-line-number="4">posterior_theta_star &lt;-<span class="st"> </span><span class="kw">dbeta</span>(theta_star, <span class="dv">8</span>, <span class="dv">18</span>)</a>
+<a class="sourceLine" id="cb532-5" data-line-number="5"><span class="co"># prior probability in nesting model</span></a>
+<a class="sourceLine" id="cb532-6" data-line-number="6">prior_theta_star &lt;-<span class="st"> </span><span class="kw">dbeta</span>(theta_star, <span class="dv">1</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb532-7" data-line-number="7"><span class="co"># Bayes factor (using Savage-Dickey)</span></a>
+<a class="sourceLine" id="cb532-8" data-line-number="8">BF_<span class="dv">01</span> &lt;-<span class="st"> </span>posterior_theta_star <span class="op">/</span><span class="st"> </span>prior_theta_star</a>
+<a class="sourceLine" id="cb532-9" data-line-number="9">BF_<span class="dv">01</span></a></code></pre></div>
 <pre><code>## [1] 0.5157351</code></pre>
 <p>This is very minor evidence in favor of the alternative model (Bayes factor <span class="math inline">\(\text{BF}_{10} \approx 1.94\)</span>). We would not like to draw any (strong) categorical conclusions from this result regarding the question of whether the coin might be fair. Figure <a href="the-savage-dickey-method.html#fig:ch-03-07-hypothesis-testing-Bayes-SD-24-7">12.3</a> also shows the relation between prior and posterior at the point-value of interest.</p>
 <div class="figure" style="text-align: center"><span id="fig:ch-03-07-hypothesis-testing-Bayes-SD-24-7"></span>
@@ -611,16 +611,16 @@ Figure 12.3: Illustration of the Savage-Dickey method of Bayes factor computatio
 <div id="example-eco-sensitivity-1" class="section level3">
 <h3><span class="header-section-number">12.3.4</span> Example: Eco-sensitivity</h3>
 <p>To apply the Savage-Dickey method to the eco-sensitivity model, we have to obtain an estimate for the posterior density at the critical value <span class="math inline">\(\delta = 0\)</span> from the posterior samples. An approximate method for obtaining this value is implemented in the <code>polspline</code> package (using polynomial splines to approximate the posterior curve). [TODO replace with Stan]</p>
-<div class="sourceCode" id="cb533"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb533-1" data-line-number="1"><span class="co"># extract the samples for the delta parameter</span></a>
-<a class="sourceLine" id="cb533-2" data-line-number="2">delta_samples &lt;-<span class="st"> </span>tidy_draws_tt2 <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb533-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(Parameter <span class="op">==</span><span class="st"> &quot;delta&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb533-4" data-line-number="4"><span class="st">  </span><span class="kw">pull</span>(value)</a>
-<a class="sourceLine" id="cb533-5" data-line-number="5"><span class="co"># estimating the posterior density at delta = 0 with Savage-Dickey</span></a>
-<a class="sourceLine" id="cb533-6" data-line-number="6">fit.posterior &lt;-<span class="st"> </span>polspline<span class="op">::</span><span class="kw">logspline</span>(delta_samples)</a>
-<a class="sourceLine" id="cb533-7" data-line-number="7">posterior_delta_null &lt;-<span class="st"> </span>polspline<span class="op">::</span><span class="kw">dlogspline</span>(<span class="dv">0</span>, fit.posterior)</a>
-<a class="sourceLine" id="cb533-8" data-line-number="8">prior_delta_null &lt;-<span class="st"> </span><span class="kw">dnorm</span>(<span class="dv">0</span>, <span class="dv">0</span>, sd_delta) </a>
-<a class="sourceLine" id="cb533-9" data-line-number="9">BF_delta_null =<span class="st"> </span>posterior_delta_null <span class="op">/</span><span class="st"> </span>prior_delta_null</a>
-<a class="sourceLine" id="cb533-10" data-line-number="10">BF_delta_null</a></code></pre></div>
+<div class="sourceCode" id="cb534"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb534-1" data-line-number="1"><span class="co"># extract the samples for the delta parameter</span></a>
+<a class="sourceLine" id="cb534-2" data-line-number="2">delta_samples &lt;-<span class="st"> </span>tidy_draws_tt2 <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb534-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(Parameter <span class="op">==</span><span class="st"> &quot;delta&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb534-4" data-line-number="4"><span class="st">  </span><span class="kw">pull</span>(value)</a>
+<a class="sourceLine" id="cb534-5" data-line-number="5"><span class="co"># estimating the posterior density at delta = 0 with Savage-Dickey</span></a>
+<a class="sourceLine" id="cb534-6" data-line-number="6">fit.posterior &lt;-<span class="st"> </span>polspline<span class="op">::</span><span class="kw">logspline</span>(delta_samples)</a>
+<a class="sourceLine" id="cb534-7" data-line-number="7">posterior_delta_null &lt;-<span class="st"> </span>polspline<span class="op">::</span><span class="kw">dlogspline</span>(<span class="dv">0</span>, fit.posterior)</a>
+<a class="sourceLine" id="cb534-8" data-line-number="8">prior_delta_null &lt;-<span class="st"> </span><span class="kw">dnorm</span>(<span class="dv">0</span>, <span class="dv">0</span>, sd_delta) </a>
+<a class="sourceLine" id="cb534-9" data-line-number="9">BF_delta_null =<span class="st"> </span>posterior_delta_null <span class="op">/</span><span class="st"> </span>prior_delta_null</a>
+<a class="sourceLine" id="cb534-10" data-line-number="10">BF_delta_null</a></code></pre></div>
 <p>We conclude from this result that there is only very mild (unnoteworthy) evidence in favor of the alternative hypothesis.</p>
 <!-- exercise 2 -->
 <!-- Taken from the prep exam (IDA-prep-exam-02.pages.pdf) -->

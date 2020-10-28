@@ -557,51 +557,51 @@ Figure 13.1: Bayesian Simple Linear Regression Model (repeated from before).
 <div id="implementation-in-greta" class="section level3">
 <h3><span class="header-section-number">13.4.1</span> Implementation in <code>greta</code></h3>
 <p>Here is an implementation of a Bayesian regression model for the running example murder data using <code>greta</code>:</p>
-<div class="sourceCode" id="cb560"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb560-1" data-line-number="1"><span class="co"># data to be explained / predicted</span></a>
-<a class="sourceLine" id="cb560-2" data-line-number="2">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
-<a class="sourceLine" id="cb560-3" data-line-number="3"><span class="co"># data to use for prediction / explanation</span></a>
-<a class="sourceLine" id="cb560-4" data-line-number="4">x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</a>
-<a class="sourceLine" id="cb560-5" data-line-number="5">y_greta     &lt;-<span class="st"> </span><span class="kw">as_data</span>(y)</a>
-<a class="sourceLine" id="cb560-6" data-line-number="6">x_greta     &lt;-<span class="st"> </span><span class="kw">as_data</span>(x)</a>
-<a class="sourceLine" id="cb560-7" data-line-number="7"><span class="co"># latent variables and priors</span></a>
-<a class="sourceLine" id="cb560-8" data-line-number="8">intercept &lt;-<span class="st"> </span><span class="kw">student</span>(<span class="dt">df=</span> <span class="dv">1</span>, <span class="dt">mu =</span> <span class="dv">0</span>, <span class="dt">sigma =</span> <span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb560-9" data-line-number="9">slope     &lt;-<span class="st"> </span><span class="kw">student</span>(<span class="dt">df=</span> <span class="dv">1</span>, <span class="dt">mu =</span> <span class="dv">0</span>, <span class="dt">sigma =</span> <span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb560-10" data-line-number="10">sigma     &lt;-<span class="st"> </span><span class="kw">normal</span>(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dt">truncation =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="ot">Inf</span>))</a>
-<a class="sourceLine" id="cb560-11" data-line-number="11"><span class="co"># derived latent variable (linear model)</span></a>
-<a class="sourceLine" id="cb560-12" data-line-number="12">y_pred &lt;-<span class="st"> </span>intercept <span class="op">+</span><span class="st"> </span>slope <span class="op">*</span><span class="st"> </span>x_greta</a>
-<a class="sourceLine" id="cb560-13" data-line-number="13"><span class="co"># likelihood </span></a>
-<a class="sourceLine" id="cb560-14" data-line-number="14"><span class="kw">distribution</span>(y) &lt;-<span class="st"> </span><span class="kw">normal</span>(y_pred, sigma)</a>
-<a class="sourceLine" id="cb560-15" data-line-number="15"><span class="co"># finalize model, register which parameters to monitor</span></a>
-<a class="sourceLine" id="cb560-16" data-line-number="16">murder_model &lt;-<span class="st"> </span><span class="kw">model</span>(intercept, slope, sigma)</a></code></pre></div>
+<div class="sourceCode" id="cb561"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb561-1" data-line-number="1"><span class="co"># data to be explained / predicted</span></a>
+<a class="sourceLine" id="cb561-2" data-line-number="2">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
+<a class="sourceLine" id="cb561-3" data-line-number="3"><span class="co"># data to use for prediction / explanation</span></a>
+<a class="sourceLine" id="cb561-4" data-line-number="4">x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</a>
+<a class="sourceLine" id="cb561-5" data-line-number="5">y_greta     &lt;-<span class="st"> </span><span class="kw">as_data</span>(y)</a>
+<a class="sourceLine" id="cb561-6" data-line-number="6">x_greta     &lt;-<span class="st"> </span><span class="kw">as_data</span>(x)</a>
+<a class="sourceLine" id="cb561-7" data-line-number="7"><span class="co"># latent variables and priors</span></a>
+<a class="sourceLine" id="cb561-8" data-line-number="8">intercept &lt;-<span class="st"> </span><span class="kw">student</span>(<span class="dt">df=</span> <span class="dv">1</span>, <span class="dt">mu =</span> <span class="dv">0</span>, <span class="dt">sigma =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb561-9" data-line-number="9">slope     &lt;-<span class="st"> </span><span class="kw">student</span>(<span class="dt">df=</span> <span class="dv">1</span>, <span class="dt">mu =</span> <span class="dv">0</span>, <span class="dt">sigma =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb561-10" data-line-number="10">sigma     &lt;-<span class="st"> </span><span class="kw">normal</span>(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dt">truncation =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="ot">Inf</span>))</a>
+<a class="sourceLine" id="cb561-11" data-line-number="11"><span class="co"># derived latent variable (linear model)</span></a>
+<a class="sourceLine" id="cb561-12" data-line-number="12">y_pred &lt;-<span class="st"> </span>intercept <span class="op">+</span><span class="st"> </span>slope <span class="op">*</span><span class="st"> </span>x_greta</a>
+<a class="sourceLine" id="cb561-13" data-line-number="13"><span class="co"># likelihood </span></a>
+<a class="sourceLine" id="cb561-14" data-line-number="14"><span class="kw">distribution</span>(y) &lt;-<span class="st"> </span><span class="kw">normal</span>(y_pred, sigma)</a>
+<a class="sourceLine" id="cb561-15" data-line-number="15"><span class="co"># finalize model, register which parameters to monitor</span></a>
+<a class="sourceLine" id="cb561-16" data-line-number="16">murder_model &lt;-<span class="st"> </span><span class="kw">model</span>(intercept, slope, sigma)</a></code></pre></div>
 <p>We can draw samples from the posterior distribution as usual:</p>
-<div class="sourceCode" id="cb561"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb561-1" data-line-number="1"><span class="co"># draw samples</span></a>
-<a class="sourceLine" id="cb561-2" data-line-number="2">draws_murder_data &lt;-<span class="st"> </span>greta<span class="op">::</span><span class="kw">mcmc</span>(</a>
-<a class="sourceLine" id="cb561-3" data-line-number="3">  murder_model, </a>
-<a class="sourceLine" id="cb561-4" data-line-number="4">  <span class="dt">n_samples =</span> <span class="dv">2000</span>, </a>
-<a class="sourceLine" id="cb561-5" data-line-number="5">  <span class="dt">chains =</span> <span class="dv">4</span>, </a>
-<a class="sourceLine" id="cb561-6" data-line-number="6">  <span class="dt">warmup =</span> <span class="dv">1000</span></a>
-<a class="sourceLine" id="cb561-7" data-line-number="7">)</a>
-<a class="sourceLine" id="cb561-8" data-line-number="8"><span class="co"># cast results (type &#39;mcmc.list&#39;) into tidy tibble</span></a>
-<a class="sourceLine" id="cb561-9" data-line-number="9">tidy_draws_murder_data &lt;-<span class="st"> </span>ggmcmc<span class="op">::</span><span class="kw">ggs</span>(draws_murder_data)</a></code></pre></div>
+<div class="sourceCode" id="cb562"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb562-1" data-line-number="1"><span class="co"># draw samples</span></a>
+<a class="sourceLine" id="cb562-2" data-line-number="2">draws_murder_data &lt;-<span class="st"> </span>greta<span class="op">::</span><span class="kw">mcmc</span>(</a>
+<a class="sourceLine" id="cb562-3" data-line-number="3">  murder_model, </a>
+<a class="sourceLine" id="cb562-4" data-line-number="4">  <span class="dt">n_samples =</span> <span class="dv">2000</span>, </a>
+<a class="sourceLine" id="cb562-5" data-line-number="5">  <span class="dt">chains =</span> <span class="dv">4</span>, </a>
+<a class="sourceLine" id="cb562-6" data-line-number="6">  <span class="dt">warmup =</span> <span class="dv">1000</span></a>
+<a class="sourceLine" id="cb562-7" data-line-number="7">)</a>
+<a class="sourceLine" id="cb562-8" data-line-number="8"><span class="co"># cast results (type &#39;mcmc.list&#39;) into tidy tibble</span></a>
+<a class="sourceLine" id="cb562-9" data-line-number="9">tidy_draws_murder_data &lt;-<span class="st"> </span>ggmcmc<span class="op">::</span><span class="kw">ggs</span>(draws_murder_data)</a></code></pre></div>
 <p>Here is a plot of the posterior: [TODO: redo with Stan]</p>
-<div class="sourceCode" id="cb562"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb562-1" data-line-number="1"><span class="co"># plot posterior</span></a>
-<a class="sourceLine" id="cb562-2" data-line-number="2">tidy_draws_murder_data <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb562-3" data-line-number="3"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb562-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">fill =</span> <span class="st">&quot;lightgray&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb562-5" data-line-number="5"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>Parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb563-1" data-line-number="1"><span class="co"># plot posterior</span></a>
+<a class="sourceLine" id="cb563-2" data-line-number="2">tidy_draws_murder_data <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb563-3" data-line-number="3"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb563-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">fill =</span> <span class="st">&quot;lightgray&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb563-5" data-line-number="5"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>Parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
 </div>
 <div id="using-the-brms-package" class="section level3">
 <h3><span class="header-section-number">13.4.2</span> Using the <code>brms</code> package</h3>
 <p>Instead of hand-coding each Bayesian regression model, we can also use the <code>brms</code> package <span class="citation">(Bürkner <a href="#ref-brms2017">2017</a>)</span>. The main function of this package is <code>brm</code> (short for <strong>B</strong>ayesian <strong>R</strong>egression <strong>M</strong>odel). It behaves very similarly to the <code>glm</code> function we saw above.<a href="#fn74" class="footnote-ref" id="fnref74"><sup>74</sup></a> Here is an example of the current case study:</p>
-<div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb563-1" data-line-number="1">fit_brms_murder &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb563-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
-<a class="sourceLine" id="cb563-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
-<a class="sourceLine" id="cb563-4" data-line-number="4">  <span class="dt">formula =</span> murder_rate <span class="op">~</span><span class="st"> </span>unemployment,</a>
-<a class="sourceLine" id="cb563-5" data-line-number="5">  <span class="co"># which data to use</span></a>
-<a class="sourceLine" id="cb563-6" data-line-number="6">  <span class="dt">data =</span> murder_data</a>
-<a class="sourceLine" id="cb563-7" data-line-number="7">)</a></code></pre></div>
+<div class="sourceCode" id="cb564"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb564-1" data-line-number="1">fit_brms_murder &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb564-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
+<a class="sourceLine" id="cb564-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
+<a class="sourceLine" id="cb564-4" data-line-number="4">  <span class="dt">formula =</span> murder_rate <span class="op">~</span><span class="st"> </span>unemployment,</a>
+<a class="sourceLine" id="cb564-5" data-line-number="5">  <span class="co"># which data to use</span></a>
+<a class="sourceLine" id="cb564-6" data-line-number="6">  <span class="dt">data =</span> murder_data</a>
+<a class="sourceLine" id="cb564-7" data-line-number="7">)</a></code></pre></div>
 <p>The function <code>brm</code> returns a model-fit object, similar to <code>glm</code>. We can inspect it to get more information, using the <code>summary</code> function:</p>
-<div class="sourceCode" id="cb564"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb564-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_murder)</a></code></pre></div>
+<div class="sourceCode" id="cb565"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb565-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_murder)</a></code></pre></div>
 <pre><code>##  Family: gaussian 
 ##   Links: mu = identity; sigma = identity 
 ## Formula: murder_rate ~ unemployment 
