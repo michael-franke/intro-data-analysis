@@ -413,6 +413,9 @@ student_numbers <- tribble(
 full_join(exam_results_tidy, student_numbers, by = "student")
 ```
 
+If two data sets are to be joined by a column that is not exactly shared by both sets (one contains entries in this columns that the other doesn't) then a `full_join` will retain all information from both. If that is not what you want, check out alternative functions like `right_join`, `semi_join` etc. using the [data wrangling cheat sheet](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf).
+
+
 <div class = "exercises">
 **Exercise 4.2: Data Wrangling in R**
 
@@ -449,9 +452,9 @@ pivot_longer(
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
-1. Selecting two columns (subject_id and choices) out of the data set.
+1. Selecting two columns (`subject_id` and `choices`) out of the data set.
 
-2. In the data set, each cell in the choices column contains more than one value. To separate them, we take this column and divide the strings by the ",". The names are then given for each line from one to three. 
+2. In the data set, each cell in the `choices` column contains more than one value. To separate them, we take this column and divide the strings by the ",". The names are then given for each line from one to three. 
 
 3. Now we are making the data set longer, so that each condition is its own row. We are pivoting each column apart from the first. The names of the columns are combined in a column called condition and the values are put into a column called response.
 
@@ -466,9 +469,6 @@ choice_data
 </div>
 
 
-
-If two data sets are to be joined by a column that is not exactly shared by both sets (one contains entries in this columns that the other doesn't) then a `full_join` will retain all information from both. If that is not what you want, check out alternative functions like `right_join`, `semi_join` etc. using the [data wrangling cheat sheet](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf).
-
 ## Grouped operations {#Chap-02-02-data-grouping-nesting}
 
 A frequently occurring problem in data analysis is to obtain a summary statistic (see Section \@ref(Chap-02-03-summary-statistics)) for different subsets of data. For example, we might want to calculate the average score for each student in our class. We could do that by filtering like so (notice that `pull` gives you the column vector specified):
@@ -480,7 +480,7 @@ mean_grade_Rozz <- exam_results_tidy %>%
 mean_grade_Rozz
 ```
 
-But then we need to do that two more times, as we shouldn't copy-paste code, we write a function and use `mutate` to add a mean for each student:
+But then we need to do that two more times. So, as we shouldn't copy-paste code, we write a function and use `mutate` to add a mean for each student:
 
 ```{r}
 get_mean_for_student = function(student_name) {
@@ -504,7 +504,7 @@ exam_results_tidy %>%
   )
 ```
 
-The funciton `summarise` returns a single row for each combination of levels of grouping variables. If we use the function `mutate` instead, the summary statistic is added (repeatedly) in each of the original rows:
+The function `summarise` returns a single row for each combination of levels of grouping variables. If we use the function `mutate` instead, the summary statistic is added (repeatedly) in each of the original rows:
 
 ```{r}
 exam_results_tidy %>% 
@@ -643,8 +643,6 @@ data_KoF_processed <-  data_KoF_raw %>%
   )
 # write_csv(data_KoF_processed, "data_sets/king-of-france_data_processed.csv")
 ```
-
-
 <!-- TODO: mention reproducible workflow -->
 
 ### Cleaning the data
@@ -700,8 +698,10 @@ d_cleaned <-
   right_join(d_cleaned, by = c("submission_id", "vignette")) %>% 
   # remove all special trials, as well as main trials with incorrect background check
   filter(trial_type == "main" & background_correct == TRUE)
-
-# write_csv(d_cleaned, "data_sets/king-of-france_data_cleaned.csv")
 ```
 
+After cleaning, we might then save the resulting cleaned data set for later reuse. 
 
+```{r writing-csv-cleaned-KoF-data, eval = F}
+write_csv(d_cleaned, "data_sets/king-of-france_data_cleaned.csv")
+```
