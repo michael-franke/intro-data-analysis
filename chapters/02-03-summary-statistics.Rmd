@@ -385,9 +385,11 @@ Both statements are correct.
 
 ### Measures of dispersion
 
+Measures of dispersion indicate how much the observed data is spread out around a measure of central tendency. Intuitivly put, they provode a measure for how diverse, variable, clustered, concentrated or smeared out the data observations are. In the following, we will cover three common notions: variance, standard deviation and quantiles.
+
 #### Variance
 
-The variance is a widely used and very useful measure of dispersion for metric data. The variance $\text{Var}(\vec{x})$ of a vector of metric observations $\vec{x}$ of length $n$ is defined as the average of the squared distances from the mean:
+The variance is a common and very useful measure of dispersion for metric data. The variance $\text{Var}(\vec{x})$ of a vector of metric observations $\vec{x}$ of length $n$ is defined as the average of the squared distances from the mean:
 
 $$\text{Var}(\vec{x}) = \frac{1}{n} \sum_{i=1}^n (x_i - \mu_{\vec{x}})^2$$
 
@@ -399,10 +401,10 @@ $$ \frac{1}{4} \ (16 + 1 + 4 + 9) = \frac{30}{4} = 7.5$$
 
 </div>
 
+Figure \@ref(fig:ch-02-03-variance-rectangles) shows a geometric interpretation of the variance for the running example of vector $\vec{x} = \langle 0, 3, 6, 7 \rangle $. 
 
-Figure \@ref(fig:ch-02-03-variance-rectangles) shows a geometric interpretation of the variance for the running example of vector $\vec{x} = \langle 0, 3, 6, 7 \rangle$. 
+```{r ch-02-03-variance-rectangles, echo = F, fig.cap="Geometrical interpretation of variance. Four data points (orange dots) and their mean (red cross) are shown, together with the squares whose sides are the differences between the observed data points and the mean. The numbers in white give the area of each square, which is also indicated by the coloring of each rectangle."}
 
-```{r ch-02-03-variance-rectangles, echo = F, fig.cap="Geometrical interpretation of variance. Four data points (black dots) and their mean (red cross) are shown, together with the squares whose sides are the differences between the observed data points and the mean. The numbers in white give the area of each square, which is also indicated by the coloring of each rectangle."}
 tibble(
   x = c(0,3,6,7), 
   y =0,
@@ -424,14 +426,15 @@ tibble(
       fill = - rect_area
     )
   ) +
-  geom_point(aes(x = x, y = 0), size = 5) +
-  geom_point(aes(x = mean(x), y = 0), shape = "X", color = "firebrick", size = 5) +
+  geom_point(aes(x = x, y = 0), size = 5, color = "darkorange") +
+  geom_point(aes(x = mean(x), y = 0), shape = "X", color = "firebrick", size = 8) +
   ylab('') +
   geom_text(aes(x = x_label_pos, y = y_label_pos, label = rect_area), color = "white") +
   ggtitle("Geometric visualization of variance") +
   theme(
     legend.pos = "none"
   )
+
 ```
 
 We can calculate the variance in R explicitly:
@@ -472,7 +475,7 @@ avocado_data %>%
 ```
 
 
-#### Quantile
+#### Quantiles
 
 For a vector $\vec{x}$ of at least ordinal measures, we can generalize the concept of a median to an arbitrary quantile. A $k$% quantile is the element $x_i$ in $\vec{x}$, such that $k$% of the data in $\vec{x}$ lies below $x_i$. If this definition does not yield a unique element for some $k$% threshold, similar methods to what we saw for the median are applied. 
 
@@ -513,35 +516,7 @@ $$
 </div>
 </div>
 
-2. Below, you see several normal distributions with differing means $\mu$ and standard deviations $\sigma$. The red, unnumbered distribution is the so-called standard normal distribution; it has a mean of 0 and a standard deviation of 1. Compare each distribution below (1-4) to the standard normal distribution and think about how the parameters of the standard normal were changed. Also, think about which distribution (1-4) has the smallest/largest mean and the smallest/largest standard deviation.
-
-```{r echo=FALSE, fig.align = "center", out.width = '80%'}
-ggplot(data.frame(x = c(-10, 11)), aes(x = x)) +
-  stat_function(fun = dnorm, color = "firebrick", size = 2) +
-  stat_function(fun = dnorm, args = list(mean = 5, sd = 1), color = "blue", size = 2) +
-  stat_function(fun = dnorm, args = list(mean = 0, sd = 3), color = "darkgreen", size = 2) +
-  stat_function(fun = dnorm, args = list(mean = 6, sd = 2), color = "orange", size = 2) +
-  stat_function(fun = dnorm, args = list(mean = -6, sd = 0.5), color = "#993399", size = 2) +
-  annotate(geom = "text", x = c(5, -3, 7.5, -7), y = c(0.45, 0.13, 0.2, 0.75), label = c(1, 2, 3, 4),
-           hjust = c("center", "center", "left", "right")) +
-  ylab("density") +
-  theme_classic()
-
-```
-
-<div class="collapsibleSolution">
-<button class="trigger">Solution</button>
-<div class="content">
-
-Distribution 1 ($\mu$ = 5, $\sigma$ = 1): larger mean, same standard deviation <br />
-Distribution 2 ($\mu$ = 0, $\sigma$ = 3): same mean, larger standard deviation <br />
-Distribution 3 ($\mu$ = 6, $\sigma$ = 2): larger mean, larger standard deviation <br />
-Distribution 4 ($\mu$ = -6, $\sigma$ = 0.5): smaller mean, smaller standard deviation
-
-</div>
-</div>
-
-3. Decide for the following statements whether they are true or false:
+2. Decide for the following statements whether they are true or false:
    a. The median is the 50% quantile.
    b. A 10% quantile of 0.2 indicates that 10% of the data observations are above 0.2.
    c. The 85% quantile of a vector with unequal numbers always has a larger value than the 25% quantile.
@@ -558,7 +533,7 @@ Statements a. and c. are correct.
 </div>
 
 
-### Quantifying confidence with bootstrapping
+### Excursion: Quantifying confidence with bootstrapping
 
 
 [Bootstrapping](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) is an elegant way to obtain measures of confidence for summary statistics. These measures of confidence can be used for parameter inference, too. We will discuss parameter inference at length in Section \@ref(ch-03-04-parameter-estimation). In this course, we will not use bootstrapping as an alternative approach to parameter inference. We will, however, follow a common practice (at least in some areas of Cognitive Psychology) to use **bootstrapped 95% confidence intervals of the mean** as part of descriptive statistics, i.e., in summaries and plots of the data.
@@ -574,7 +549,7 @@ An algorithm for constructing a 95% confidence interval of the mean of vector $D
 
 The higher $r$, i.e., the more samples we take, the better the estimate. The higher $k$, i.e., the more observations we have to begin with, the less variable the means $\mu(D^{\textrm{rep}})$ of the resampled data will usually be. Hence, usually, the higher $k$, the smaller the bootstrapped 95% confidence interval of the mean.
 
-Here is a convenience function that we will use throughout the book to produce bootstrapped 95% confidence intervals of the mean:
+Here is a convenience function that we will use throughout the book to produce bootstrapped 95% confidence intervals of the mean (the functions is also supplied directly as part of the `aida` package):
 
 ```{r}
 ## takes a vector of numbers and returns bootstrapped 95% ConfInt
@@ -643,7 +618,7 @@ Statements b. and c. are correct.
 </div>
 
 
-#### Excursion: Summary functions with multiple outputs, using nested tibbles
+#### Summary functions with multiple outputs, using nested tibbles
 
 To obtain summary statistics for different groups of a variable, we can use the function `bootstrapped_CI` conveniently in concert with **nested tibbles**, as demonstrated here:
 
@@ -717,9 +692,6 @@ avocado_data %>%
 ```
 
 
-<!-- HW compare bootstrapped CI with variance -->
-
-
 ## Covariance and correlation {#Chap-02-03-summary-statistics-2D}
 
 ### Covariance
@@ -728,7 +700,7 @@ Let $\vec{x}$ and $\vec{y}$ be two vectors of numeric data of the same length, s
 
 $$\text{Cov}(\vec{x},\vec{y}) = \frac{1}{n-1} \ \sum_{i=1}^n (x_i - \mu_{\vec{x}}) \ (y_i - \mu_{\vec{y}})$$
 
-There is a visually intuitive geometric interpretation of covariance. To see this, let's look at a short contrived example. 
+There is a visually intuitive geometric interpretation of covariance. To see this, let's look at a small contrived example. 
 
 ```{r}
 contrived_example <- 
@@ -744,6 +716,8 @@ contrived_example <-
 First, notice that the mean of `x` and `y` is 3:
 
 ```{r}
+# NB: `map_df` here iterates over the columns of the tibble in its
+#     first argument slot
 means_contr_example <- map_df(contrived_example, mean)
 means_contr_example
 ```
@@ -754,7 +728,7 @@ We can then compute the covariance as follows:
 contrived_example <- 
   contrived_example %>% 
   mutate(
-    area_rectangle =                    (x-mean(x)) * (y - mean(y)),
+    area_rectangle =                   (x-mean(x)) * (y - mean(y)),
     covariance     =  1/ (n()-1) * sum((x-mean(x)) * (y - mean(y)))
   )
 contrived_example
@@ -799,27 +773,29 @@ with(contrived_example, cov(x,y))
 ```
 
 
-And, using this function, we can calculate the covariance between `total_volume_sold` and `average_price` in the avocado data:
+And, using this function, we can calculate the covariance between the logarithm `total_volume_sold` and `average_price` in the avocado data:^[We use the logarithm of `total_volume_sold` because we also used the logarithm for plotting before. Using the logarithm also gives a better linear fit, but what that means we will only see much later when we talk about linear regression.]
 
 ```{r}
 with(avocado_data, cov(log(total_volume_sold), average_price))
 ```
 
-Interestingly, the negative covariance in this example suggests that across all associated data pairs, the larger `total_volume_sold`, the lower `average_price`. It is important that this is a descriptive statistics, and that this is not to be interpreted as evidence or causal relation between the two measures of interest. Not in this example, not in any other. The covariance describes associated data points; it is not evidence for causal relationships.
+Interestingly, the negative covariance in this example suggests that across all associated data pairs, the larger `total_volume_sold`, the lower `average_price`. It is important that this is a descriptive statistics, and that this is not to be interpreted as evidence of a causal relation between the two measures of interest. Not in this example, not in any other. The covariance describes associated data points; it alone does not provide any evidence for causal relationships.
 
 ### Correlation
 
-The problem with covariance is that it is not invariant under linear transformation. Consider the `contrived_example` from above once more. The original data had the following covariance:
+Covariance is a very useful notion to show how two variable, well, co-vary. But the problem with this notion of covariance is that it is not invariant under linear transformation. Consider the `contrived_example` from above once more. The original data had the following covariance:
 
 ```{r}
 with(contrived_example, cov(x,y))
 ```
 
-But if we just linearly transform, say, vector `y` to `1000 * y + 500` (e.g., because we switch to an equivalent, but numerically different measuring scale), we obtain:
+But if we just linearly transform, say, vector `y` to `1000 * y + 500` (e.g., because we switch to an equivalent, but numerically different measuring scale, such as going from Celcius to Fahrenheit), we obtain:
 
 ```{r}
 with(contrived_example, cov(x,1000 * y + 500))
 ```
+
+This is a problem in so far as that we would like to have a measure of how much two variables co-vary that is robust against linear changes, say in measurement scale, like the difference between Celcius and Fahrenheit.
 
 To compensate for this problem, we can look at **Bravais-Pearson correlation**, which is covariance standardized by standard deviations:
 
@@ -837,7 +813,7 @@ The correlation coefficient for the data with linearly transformed `y` is:
 with(contrived_example, cor(x,1000 * y + 500))
 ```
 
-Indeed, the correlation coefficient is nicely bounded to lie between -1 and 1. A correlation coefficient of 0 is to be interpreted as the absence of any correlation. A correlation coefficient of 1 is a perfect positive correlation (the higher $x_i$, the higher $y_i$), and -1 indicates a perfect negative correlation (the higher $x_i$, the lower $y_i$). Again, pronounced positive or negative correlations are *not* to be confused with strong evidence for a causal relation. It is just a descriptive statistic on the properties of associated measurements.
+Indeed, the correlation coefficient is nicely bounded to lie between -1 and 1. A correlation coefficient of 0 is to be interpreted as the absence of any correlation. A correlation coefficient of 1 is a perfect positive correlation (the higher $x_i$, the higher $y_i$), and -1 indicates a perfect negative correlation (the higher $x_i$, the lower $y_i$). Again, pronounced positive or negative correlations are *not* to be confused with strong evidence for a causal relation. It is just a descriptive statistic capturing a property of associated measurements.
 
 In the avocado data, the logarithm of `total_volume_sold` shows a noteworthy correlation with `average_price`. This is also visible in Figure \@ref(fig:chap-02-03-avocado-scatter).
 
