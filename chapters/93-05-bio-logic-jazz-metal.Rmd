@@ -14,7 +14,7 @@ This is a very short and non-serious experiment that asks for just three binary 
 
 ##### Participants
 
-We obtained data from 102 participants of this very course. 
+We obtained data from 102 participants, all of which were students of a course based on this web-book held in the winter term of 2019/2020 at the University of Osnabrück. 
 
 ##### Material 
 
@@ -38,7 +38,7 @@ The experiment was realized using [_magpie](https://magpie-ea.github.io/magpie-s
 
 #### Theoretical motivation & hypotheses
 
-This is a bogus experiment, and no sane person would advance a serious hypothesis about this. Except that, actually, the lecturer is careless enough to conjecture that appreciators of Metal music like logic more than Jazz-enthusiasts would (because Metal is cleaner and more mechanic, while Jazz is fuzzy and organic, obviously).^[Notice how easy it is to motivate any-old psychological theory. Some other scientific disciplines are much better at smothering nonsensical ideas from the start.]
+This is a bogus experiment, and no sane person would advance a serious hypothesis about this. Except the main author of this book, who conjectures that appreciators of Metal music like logic more than Jazz-enthusiasts would (because Metal is cleaner and more mechanic, while Jazz is fuzzy and organic, obviously).^[Notice how easy it is to motivate any-old psychological theory. Some other scientific disciplines are much better at smothering nonsensical ideas from the start.]
 
 ### Loading and preprocessing the data
 
@@ -67,13 +67,11 @@ data_BLJM_raw <- read_csv('data_sets/bio-logic-jazz-metal-data-raw.csv',
                             trial_name = col_character(),
                             trial_number = col_double()
                           ))
-glimpse(data_BLJM_raw)
 ```
 
 ```{r, eval = F}
 data_BLJM_raw <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/bio-logic-jazz-metal-data-raw.csv'))
 ```
-
 
 Take a peak:
 
@@ -88,7 +86,7 @@ The most important variables in this data set are:
 - `option1` and `option2`: what the choice options where
 - `response`: which of the two options was chosen
 
-Notice that there is no convenient column indicating which of the three critical conditions we are dealing with, so we create that information from the information in columns `option1` and `option2`, while also discarding everything we will not need:
+Notice that there is no convenient column indicating which of the three critical conditions we are dealing with, so we extract that information from the data given in columns `option1` and `option2`, while also discarding everything we will not need:^[The processed data set is also available for download, using `read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/bio-logic-jazz-metal-data-processed.csv'))`]
 
 ```{r}
 data_BLJM_processed <- 
@@ -97,23 +95,22 @@ data_BLJM_processed <-
     condition = str_c(str_sub(option2,1, 1), str_sub(option1,1, 1))
   ) %>% 
   select(submission_id, condition, response)
-# write_csv(data_BLJM_processed, "../data_sets/bio-logic-jazz-metal-data-processed.csv")
 data_BLJM_processed
 ```
 
 ### Exploration: counts & plots
 
-We are interest in some counts. First, let's look at the overal choice rates in each condition:
+We are interested in relevant counts of the original data, namely the number of times certain choices were made. First, let's look at the overal choice rates in each condition:
 
 ```{r}
 data_BLJM_processed %>% 
-  # function`count` is masked by another package, must call explicitly
+  # we use function`count` from the `dplyr` package
   dplyr::count(condition, response)
 ```
 
 Overall it seems that mountains are preferred over beaches, Jazz is preferred over Metal and Biology is preferred over Logic.
 
-The overall counts, however, do not tell us anything about any potentially interesting relationship between preferences. So, let's have a closer look at the lecturer's conjecture that a preference for logic tends to go with a stronger preference for metal than a preference for biology does. To check this, we need to look at different counts, namely the number of people who selected which music-subject pair. We collect these counts in variable `BLJM_associated_counts`:
+The overall counts, however, do not tell us anything about any potentially interesting relationship between preferences. So, let's have a closer look at the lecturer's conjecture that a preference for logic tends to go with a stronger preference for metal than a preference for biology does. To check this, we need to look at different counts, namely the number of people who selected which music-subject pair. We collect these counts in a variable called `BLJM_associated_counts`:
 
 ```{r}
 BLJM_associated_counts <- data_BLJM_processed %>% 
@@ -124,7 +121,7 @@ BLJM_associated_counts <- data_BLJM_processed %>%
 BLJM_associated_counts
 ```
 
-Notice that this representation is tidy, but not as ideal for visual inspection. A more commonly seen format can be obtained by pivoting to a wider representation:
+Notice that this representation is tidy, but not ideal for visual inspection. A more commonly seen format can be obtained by pivoting to a wider representation:
 
 ```{r}
 # visually attractive table representation
