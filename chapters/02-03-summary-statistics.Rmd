@@ -4,15 +4,15 @@
 <hr>
 
 <div style = "float:right; width:45%;">
-<img src="visuals/badge-summary-statistics.png" alt="badge summary statistics">  
-</div>  
+<img src="visuals/badge-summary-statistics.png" alt="badge summary statistics">
+</div>
 
 A **summary statistics** is a single number that represents one aspect of a possibly much more complex chunk of data. This single number might, for example, indicate the maximum or minimum value of a vector of one billion observations. The large data set (one billion observations) is reduced to a single number which represents one aspect of that data. Summary statistics are, as a general (but violable) rule, many-to-one surjections. They compress complex information into a simpler, compressed representation.
 
 Summary statistics are useful for understanding the data at hand, for communication about a data set, but also for subsequent statistical analyses. As we will see later on, many statistical tests look at a summary statistic $x$, which is a single value derived from data set $D$, and compare $x$ to an expectation of what $x$ should be like if the process that generated $D$ really had a particular property. For the moment, however, we use summary statistics only to get comfortable with data: understanding it better and gaining competence to manipulate it.
 
 Chapter \@ref(Chap-02-03-summary-statistics-counts) first uses the [Bio-Logic Jazz-Metal data set](#app-93-data-sets-BLJM) to look at a very intuitive class of summary statistics for categorical data, namely counts and proportions.
-Chapter \@ref(Chap-02-03-summary-statistics-1D) introduces summary statistics for simple, one-dimensional vectors with numeric information. In doing so, we will also learn about *nested tibbles*.
+Chapter \@ref(Chap-02-03-summary-statistics-1D) introduces summary statistics for simple, one-dimensional vectors with numeric information.
 Chapter \@ref(Chap-02-03-summary-statistics-2D) looks at measures of the relation between two numerical vectors, namely *covariance* and *correlation*. These last two chapters use the [avocado data set](#app-93-data-sets-avocado).
 
 
@@ -32,9 +32,6 @@ The learning goals for this chapter are:
   - Bravais-Pearson correlation
 ```
 
-
-
-
 ## Counts and proportions {#Chap-02-03-summary-statistics-counts}
 
 <div style = "float:right; width:24%;">
@@ -46,8 +43,6 @@ Very familiar instances of summary statistics are counts and frequencies. While 
 ### Loading and inspecting the data
 
 We load the preprocessed data immediately (see Appendix Chapter \@ref(app-93-data-sets-BLJM) for details on how this preprocessing was performed).
-
-<!-- TODO uniform convention 'data' first? or source identifier first? -->
 
 ```{r echo = F}
 data_BLJM_processed <- read_csv("data_sets/bio-logic-jazz-metal-data-processed.csv",
@@ -112,7 +107,7 @@ data_BLJM_processed %>%
 
 ```{r}
 data_BLJM_processed %>% 
-  # function `count` is masked by another package, must call explicitly
+  # use function `count` from `dplyr` package
   dplyr::count(condition, response)
 ```
 
@@ -195,52 +190,15 @@ samples %>%
 <img src="visuals/badge-avocado.png" alt="badge-avocado">
 </div>
 
-In the remainder of this chapter, we will use the [avocado data set](#app-93-data-sets-avocado), a very simple and theory-free example in which we can explore two metric variables: the average price at which avocados were sold during specific intervals of time and the total amount of avocados sold. Please check Appendix Chapter \@ref(app-93-data-sets-avocado) for more information on this data set.
+In the remainder of this chapter, we will use the [avocado data set](#app-93-data-sets-avocado), a very simple and theory-free example in which we can explore two metric variables: the average price at which avocados were sold during specific intervals of time and the total amount of avocados sold. 
+We load the (pre-processed) data into a variable named `avocado_data` (see Appendix Chapter \@ref(app-93-data-sets-avocado) for more information on this data set):
 
-We load the data into a variable named `avocado_data` but also immediately rename some of the columns to have more convenient handles (see also Appendix Chapter \@ref(app-93-data-sets-avocado)):
-
-```{r, echo = F}
-avocado_data <- read_csv('data_sets/avocado.csv', 
-                         col_types = cols(
-                           X1 = col_double(),
-                           Date = col_date(format = ""),
-                           AveragePrice = col_double(),
-                           `Total Volume` = col_double(),
-                           `4046` = col_double(),
-                           `4225` = col_double(),
-                           `4770` = col_double(),
-                           `Total Bags` = col_double(),
-                           `Small Bags` = col_double(),
-                           `Large Bags` = col_double(),
-                           `XLarge Bags` = col_double(),
-                           type = col_character(),
-                           year = col_double(),
-                           region = col_character()
-                         )) %>% 
-  # remove currently irrelevant columns
-  select( -X1 , - contains("Bags"), - year, - region) %>% 
-  # rename variables of interest for convenience
-  rename(
-    total_volume_sold = `Total Volume`,
-    average_price = `AveragePrice`,
-    small  = '4046',
-    medium = '4225',
-    large  = '4770',
-  )
+```{r echo = F}
+avocado_data <- read_csv("data_sets/avocado-processed.csv")
 ```
 
 ```{r, eval = F}
-avocado_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado.csv')) %>% 
-  # remove currently irrelevant columns
-  select( -X1 , - contains("Bags"), - year, - region) %>% 
-  # rename variables of interest for convenience
-  rename(
-    total_volume_sold = `Total Volume`,
-    average_price = `AveragePrice`,
-    small  = '4046',
-    medium = '4225',
-    large  = '4770',
-  )
+avocado_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado-processed.csv'))
 ```
 
 We can then take a glimpse:
@@ -372,7 +330,7 @@ avocado_data %>%
 
 #### The mode
 
-The **mode** is the value that occurred most frequently in the data. While the mean is only applicable to metric variables, and the median only to variables that are at least ordinal, the mode is only reasonable for variables that have a finite set of different possible observations (nominal or ordinal). 
+The **mode** is the unique value that occurred most frequently in the data. If there is no unique values with that property, there is no mode. While the mean is only applicable to metric variables, and the median only to variables that are at least ordinal, the mode is only reasonable for variables that have a finite set of different possible observations (nominal or ordinal). 
 
 There is no built-in function in R to return the mode of a (suitable) vector, but it is easily retrieved by obtaining counts.
 
@@ -391,7 +349,7 @@ There is no built-in function in R to return the mode of a (suitable) vector, bu
 
 Mean: $\frac{1+2+4+10}{4}=\frac{17}{4}=4.25$ <br />
 Median: $\frac{2+4}{2}=3$ <br />
-Mode: all values are equally frequent, so all are a mode.
+Mode: all values are equally frequent, so there is no (unique) mode.
 
 </div>
 </div>
@@ -404,7 +362,7 @@ Mode: all values are equally frequent, so all are a mode.
 
 Numbers to add: $1, 10 \to \vec{x} = \langle1,1,2,4,10,10\rangle$ <br />
 New mean: $\frac{1+1+2+4+10+10}{6}=\frac{28}{6}\approx4.67$ <br />
-New mode: $1$ and $10$
+New mode: Both $1$ and $10$ are equally frequent and more frequent than all other numbers. Consequently, there is no (unique) mode.
 
 </div>
 </div>
