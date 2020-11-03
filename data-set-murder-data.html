@@ -250,7 +250,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="6.1" data-path="Chap-02-04-Anscombe-example.html"><a href="Chap-02-04-Anscombe-example.html"><i class="fa fa-check"></i><b>6.1</b> Motivating example: Anscombe’s quartet</a></li>
 <li class="chapter" data-level="6.2" data-path="Chap-02-04-good-visualization.html"><a href="Chap-02-04-good-visualization.html"><i class="fa fa-check"></i><b>6.2</b> Visualization: the good, the bad and the infographic</a></li>
 <li class="chapter" data-level="6.3" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html"><i class="fa fa-check"></i><b>6.3</b> Basics of <code>ggplot</code></a><ul>
-<li class="chapter" data-level="6.3.1" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#incrementally-composition-of-a-plot"><i class="fa fa-check"></i><b>6.3.1</b> Incrementally composition of a plot</a></li>
+<li class="chapter" data-level="6.3.1" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#incremental-composition-of-a-plot"><i class="fa fa-check"></i><b>6.3.1</b> Incremental composition of a plot</a></li>
 <li class="chapter" data-level="6.3.2" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#elements-in-the-layered-grammar-of-graphs"><i class="fa fa-check"></i><b>6.3.2</b> Elements in the layered grammar of graphs</a></li>
 <li class="chapter" data-level="6.3.3" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#layers-and-groups"><i class="fa fa-check"></i><b>6.3.3</b> Layers and groups</a></li>
 <li class="chapter" data-level="6.3.4" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#grouping"><i class="fa fa-check"></i><b>6.3.4</b> Grouping</a></li>
@@ -542,13 +542,13 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="data-set-murder-data" class="section level2">
 <h2><span class="header-section-number">13.1</span> Data set: murder data</h2>
 <p>As a running example, we use data on murder rates in cities of different population sizes, also containing further socio-economic information.</p>
-<div class="sourceCode" id="cb538"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb538-1" data-line-number="1">murder_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/murder_rates.csv&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb538-2" data-line-number="2"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">murder_rate =</span> annual_murder_rate_per_million_inhabitants,</a>
-<a class="sourceLine" id="cb538-3" data-line-number="3">         <span class="dt">low_income =</span> percentage_low_income, </a>
-<a class="sourceLine" id="cb538-4" data-line-number="4">         <span class="dt">unemployment =</span> percentage_unemployment) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb538-5" data-line-number="5"><span class="st">  </span><span class="kw">select</span>(murder_rate, low_income, unemployment, population)</a></code></pre></div>
+<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb539-1" data-line-number="1">murder_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/murder_rates.csv&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb539-2" data-line-number="2"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">murder_rate =</span> annual_murder_rate_per_million_inhabitants,</a>
+<a class="sourceLine" id="cb539-3" data-line-number="3">         <span class="dt">low_income =</span> percentage_low_income, </a>
+<a class="sourceLine" id="cb539-4" data-line-number="4">         <span class="dt">unemployment =</span> percentage_unemployment) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb539-5" data-line-number="5"><span class="st">  </span><span class="kw">select</span>(murder_rate, low_income, unemployment, population)</a></code></pre></div>
 <p>We take a look at the data:</p>
-<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb539-1" data-line-number="1">murder_data</a></code></pre></div>
+<div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb540-1" data-line-number="1">murder_data</a></code></pre></div>
 <pre><code>## # A tibble: 20 x 4
 ##    murder_rate low_income unemployment population
 ##          &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;      &lt;dbl&gt;
@@ -580,8 +580,8 @@ code span.wa { color: #bf0303; } /* Warning */
 <li><code>population</code>: number of inhabitants of a city</li>
 </ul>
 <p>Here’s a nice way of plotting each variable against each other:</p>
-<div class="sourceCode" id="cb541"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb541-1" data-line-number="1">GGally<span class="op">::</span><span class="kw">ggpairs</span>(murder_data, <span class="dt">title =</span> <span class="st">&quot;Murder rate data&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-384-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb542-1" data-line-number="1">GGally<span class="op">::</span><span class="kw">ggpairs</span>(murder_data, <span class="dt">title =</span> <span class="st">&quot;Murder rate data&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-386-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The diagonal of this graph shows the density curve of the data in each column. Scatter plots below the diagonal show pairs of values from two columns plotted against each other. The information above the diagonal gives the correlation score of each pair of variables.</p>
 </div>
             </section>

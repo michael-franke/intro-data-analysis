@@ -250,7 +250,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="6.1" data-path="Chap-02-04-Anscombe-example.html"><a href="Chap-02-04-Anscombe-example.html"><i class="fa fa-check"></i><b>6.1</b> Motivating example: Anscombe’s quartet</a></li>
 <li class="chapter" data-level="6.2" data-path="Chap-02-04-good-visualization.html"><a href="Chap-02-04-good-visualization.html"><i class="fa fa-check"></i><b>6.2</b> Visualization: the good, the bad and the infographic</a></li>
 <li class="chapter" data-level="6.3" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html"><i class="fa fa-check"></i><b>6.3</b> Basics of <code>ggplot</code></a><ul>
-<li class="chapter" data-level="6.3.1" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#incrementally-composition-of-a-plot"><i class="fa fa-check"></i><b>6.3.1</b> Incrementally composition of a plot</a></li>
+<li class="chapter" data-level="6.3.1" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#incremental-composition-of-a-plot"><i class="fa fa-check"></i><b>6.3.1</b> Incremental composition of a plot</a></li>
 <li class="chapter" data-level="6.3.2" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#elements-in-the-layered-grammar-of-graphs"><i class="fa fa-check"></i><b>6.3.2</b> Elements in the layered grammar of graphs</a></li>
 <li class="chapter" data-level="6.3.3" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#layers-and-groups"><i class="fa fa-check"></i><b>6.3.3</b> Layers and groups</a></li>
 <li class="chapter" data-level="6.3.4" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#grouping"><i class="fa fa-check"></i><b>6.3.4</b> Grouping</a></li>
@@ -556,24 +556,24 @@ P(D = \langle k, N \rangle \mid b) &amp; = \text{Binom}(k,N, 1.1 \ \exp (-bt)), 
 \end{aligned}
 \]</span></p>
 <p>Here’s an ML-estimation for the nested model:</p>
-<div class="sourceCode" id="cb513"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb513-1" data-line-number="1">nLL_expo_nested &lt;-<span class="st"> </span><span class="cf">function</span>(b) {</a>
-<a class="sourceLine" id="cb513-2" data-line-number="2">  <span class="co"># calculate predicted recall rates for given parameters</span></a>
-<a class="sourceLine" id="cb513-3" data-line-number="3">  theta &lt;-<span class="st"> </span><span class="fl">1.1</span><span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>b<span class="op">*</span>t)  <span class="co"># one-param exponential model </span></a>
-<a class="sourceLine" id="cb513-4" data-line-number="4">  <span class="co"># avoid edge cases of infinite log-likelihood</span></a>
-<a class="sourceLine" id="cb513-5" data-line-number="5">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-4</span></a>
-<a class="sourceLine" id="cb513-6" data-line-number="6">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-4</span></a>
-<a class="sourceLine" id="cb513-7" data-line-number="7">  <span class="co"># return negative log-likelihood of data</span></a>
-<a class="sourceLine" id="cb513-8" data-line-number="8">  <span class="op">-</span><span class="st"> </span><span class="kw">sum</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>, <span class="dt">log =</span> T))</a>
-<a class="sourceLine" id="cb513-9" data-line-number="9">}</a>
-<a class="sourceLine" id="cb513-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb513-11" data-line-number="11">bestExpo_nested &lt;-<span class="st"> </span><span class="kw">optim</span>(</a>
-<a class="sourceLine" id="cb513-12" data-line-number="12">  nLL_expo_nested, </a>
-<a class="sourceLine" id="cb513-13" data-line-number="13">  <span class="dt">par =</span> <span class="fl">0.5</span>, </a>
-<a class="sourceLine" id="cb513-14" data-line-number="14">  <span class="dt">method =</span> <span class="st">&quot;Brent&quot;</span>, </a>
-<a class="sourceLine" id="cb513-15" data-line-number="15">  <span class="dt">lower =</span> <span class="dv">0</span>, </a>
-<a class="sourceLine" id="cb513-16" data-line-number="16">  <span class="dt">upper =</span> <span class="dv">20</span></a>
-<a class="sourceLine" id="cb513-17" data-line-number="17">)</a>
-<a class="sourceLine" id="cb513-18" data-line-number="18">bestExpo_nested</a></code></pre></div>
+<div class="sourceCode" id="cb514"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb514-1" data-line-number="1">nLL_expo_nested &lt;-<span class="st"> </span><span class="cf">function</span>(b) {</a>
+<a class="sourceLine" id="cb514-2" data-line-number="2">  <span class="co"># calculate predicted recall rates for given parameters</span></a>
+<a class="sourceLine" id="cb514-3" data-line-number="3">  theta &lt;-<span class="st"> </span><span class="fl">1.1</span><span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>b<span class="op">*</span>t)  <span class="co"># one-param exponential model </span></a>
+<a class="sourceLine" id="cb514-4" data-line-number="4">  <span class="co"># avoid edge cases of infinite log-likelihood</span></a>
+<a class="sourceLine" id="cb514-5" data-line-number="5">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-4</span></a>
+<a class="sourceLine" id="cb514-6" data-line-number="6">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-4</span></a>
+<a class="sourceLine" id="cb514-7" data-line-number="7">  <span class="co"># return negative log-likelihood of data</span></a>
+<a class="sourceLine" id="cb514-8" data-line-number="8">  <span class="op">-</span><span class="st"> </span><span class="kw">sum</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>, <span class="dt">log =</span> T))</a>
+<a class="sourceLine" id="cb514-9" data-line-number="9">}</a>
+<a class="sourceLine" id="cb514-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb514-11" data-line-number="11">bestExpo_nested &lt;-<span class="st"> </span><span class="kw">optim</span>(</a>
+<a class="sourceLine" id="cb514-12" data-line-number="12">  nLL_expo_nested, </a>
+<a class="sourceLine" id="cb514-13" data-line-number="13">  <span class="dt">par =</span> <span class="fl">0.5</span>, </a>
+<a class="sourceLine" id="cb514-14" data-line-number="14">  <span class="dt">method =</span> <span class="st">&quot;Brent&quot;</span>, </a>
+<a class="sourceLine" id="cb514-15" data-line-number="15">  <span class="dt">lower =</span> <span class="dv">0</span>, </a>
+<a class="sourceLine" id="cb514-16" data-line-number="16">  <span class="dt">upper =</span> <span class="dv">20</span></a>
+<a class="sourceLine" id="cb514-17" data-line-number="17">)</a>
+<a class="sourceLine" id="cb514-18" data-line-number="18">bestExpo_nested</a></code></pre></div>
 <pre><code>## $par
 ## [1] 0.1372445
 ## 
@@ -592,13 +592,13 @@ P(D = \langle k, N \rangle \mid b) &amp; = \text{Binom}(k,N, 1.1 \ \exp (-bt)), 
 <p>The LR-test looks at the likelihood ratio of the nested model <span class="math inline">\(M_0\)</span> over the encompassing model <span class="math inline">\(M_1\)</span> using the following test statistic:</p>
 <p><span class="math display">\[\text{LR}(M_1, M_0) = -2\log \left(\frac{P_{M_0}(D_\text{obs} \mid \hat{\theta}_0)}{P_{M_1}(D_\text{obs} \mid \hat{\theta}_1)}\right)\]</span></p>
 <p>We can calculate the value of this test statistic for the current example as follows:</p>
-<div class="sourceCode" id="cb515"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb515-1" data-line-number="1">LR_observed &lt;-<span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>bestExpo_nested<span class="op">$</span>value <span class="op">-</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>bestExpo<span class="op">$</span>value</a>
-<a class="sourceLine" id="cb515-2" data-line-number="2">LR_observed</a></code></pre></div>
+<div class="sourceCode" id="cb516"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb516-1" data-line-number="1">LR_observed &lt;-<span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>bestExpo_nested<span class="op">$</span>value <span class="op">-</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>bestExpo<span class="op">$</span>value</a>
+<a class="sourceLine" id="cb516-2" data-line-number="2">LR_observed</a></code></pre></div>
 <pre><code>## [1] 1.098429</code></pre>
 <p>If the simpler (nested) model is true, the sampling distribution of this test statistic approximates a <span class="math inline">\(\chi^2\)</span>-distribution with <span class="math inline">\(d\)</span> if we have more and more data. The degrees of freedom <span class="math inline">\(d\)</span> is given by the difference in free parameters, i.e., the number of parameters the nested model fixes to specific values, but which are free in the nesting model.</p>
 <p>We can therefore calculate the <span class="math inline">\(p\)</span>-value for the LR-test for our current example like so:</p>
-<div class="sourceCode" id="cb517"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb517-1" data-line-number="1">p_value_LR_test &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">pchisq</span>(LR_observed, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb517-2" data-line-number="2">p_value_LR_test</a></code></pre></div>
+<div class="sourceCode" id="cb518"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb518-1" data-line-number="1">p_value_LR_test &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">pchisq</span>(LR_observed, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb518-2" data-line-number="2">p_value_LR_test</a></code></pre></div>
 <pre><code>## [1] 0.2946111</code></pre>
 <p>The <span class="math inline">\(p\)</span>-value of this test quantifies the evidence against the assumption that the data was generated by the simpler model. A significant test result would therefore indicate that it would be surprising if the data was generated by the simpler model. This is standardly taken as evidence in favor of the more complex, nesting model. For the current <span class="math inline">\(p\)</span>-value <span class="math inline">\(p \approx 0.2946\)</span>, there is no strong evidence against the simpler model and we would therefore rather favor the nested model due to its simplicity; the data at hand does not seem to warrant the added complexity of the nesting model; the nested model seems to suffice.</p>
 <div class="exercises">

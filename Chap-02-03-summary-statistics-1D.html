@@ -250,7 +250,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="6.1" data-path="Chap-02-04-Anscombe-example.html"><a href="Chap-02-04-Anscombe-example.html"><i class="fa fa-check"></i><b>6.1</b> Motivating example: Anscombe’s quartet</a></li>
 <li class="chapter" data-level="6.2" data-path="Chap-02-04-good-visualization.html"><a href="Chap-02-04-good-visualization.html"><i class="fa fa-check"></i><b>6.2</b> Visualization: the good, the bad and the infographic</a></li>
 <li class="chapter" data-level="6.3" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html"><i class="fa fa-check"></i><b>6.3</b> Basics of <code>ggplot</code></a><ul>
-<li class="chapter" data-level="6.3.1" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#incrementally-composition-of-a-plot"><i class="fa fa-check"></i><b>6.3.1</b> Incrementally composition of a plot</a></li>
+<li class="chapter" data-level="6.3.1" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#incremental-composition-of-a-plot"><i class="fa fa-check"></i><b>6.3.1</b> Incremental composition of a plot</a></li>
 <li class="chapter" data-level="6.3.2" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#elements-in-the-layered-grammar-of-graphs"><i class="fa fa-check"></i><b>6.3.2</b> Elements in the layered grammar of graphs</a></li>
 <li class="chapter" data-level="6.3.3" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#layers-and-groups"><i class="fa fa-check"></i><b>6.3.3</b> Layers and groups</a></li>
 <li class="chapter" data-level="6.3.4" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#grouping"><i class="fa fa-check"></i><b>6.3.4</b> Grouping</a></li>
@@ -556,19 +556,9 @@ Figure 5.2: Fictitious data points with higher/lower central tendencies and high
 <div style="float:right; width:24%;">
 <p><img src="visuals/badge-avocado.png" alt="badge-avocado"></p>
 </div>
-<p>In the remainder of this chapter, we will use the <a href="app-93-data-sets-avocado.html#app-93-data-sets-avocado">avocado data set</a>, a very simple and theory-free example in which we can explore two metric variables: the average price at which avocados were sold during specific intervals of time and the total amount of avocados sold. Please check Appendix Chapter <a href="app-93-data-sets-avocado.html#app-93-data-sets-avocado">D.6</a> for more information on this data set.</p>
-<p>We load the data into a variable named <code>avocado_data</code> but also immediately rename some of the columns to have more convenient handles (see also Appendix Chapter <a href="app-93-data-sets-avocado.html#app-93-data-sets-avocado">D.6</a>):</p>
-<div class="sourceCode" id="cb279"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb279-1" data-line-number="1">avocado_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado.csv&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb279-2" data-line-number="2"><span class="st">  </span><span class="co"># remove currently irrelevant columns</span></a>
-<a class="sourceLine" id="cb279-3" data-line-number="3"><span class="st">  </span><span class="kw">select</span>( <span class="op">-</span>X1 , <span class="op">-</span><span class="st"> </span><span class="kw">contains</span>(<span class="st">&quot;Bags&quot;</span>), <span class="op">-</span><span class="st"> </span>year, <span class="op">-</span><span class="st"> </span>region) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb279-4" data-line-number="4"><span class="st">  </span><span class="co"># rename variables of interest for convenience</span></a>
-<a class="sourceLine" id="cb279-5" data-line-number="5"><span class="st">  </span><span class="kw">rename</span>(</a>
-<a class="sourceLine" id="cb279-6" data-line-number="6">    <span class="dt">total_volume_sold =</span> <span class="st">`</span><span class="dt">Total Volume</span><span class="st">`</span>,</a>
-<a class="sourceLine" id="cb279-7" data-line-number="7">    <span class="dt">average_price =</span> <span class="st">`</span><span class="dt">AveragePrice</span><span class="st">`</span>,</a>
-<a class="sourceLine" id="cb279-8" data-line-number="8">    <span class="dt">small  =</span> <span class="st">&#39;4046&#39;</span>,</a>
-<a class="sourceLine" id="cb279-9" data-line-number="9">    <span class="dt">medium =</span> <span class="st">&#39;4225&#39;</span>,</a>
-<a class="sourceLine" id="cb279-10" data-line-number="10">    <span class="dt">large  =</span> <span class="st">&#39;4770&#39;</span>,</a>
-<a class="sourceLine" id="cb279-11" data-line-number="11">  )</a></code></pre></div>
+<p>In the remainder of this chapter, we will use the <a href="app-93-data-sets-avocado.html#app-93-data-sets-avocado">avocado data set</a>, a very simple and theory-free example in which we can explore two metric variables: the average price at which avocados were sold during specific intervals of time and the total amount of avocados sold.
+We load the (pre-processed) data into a variable named <code>avocado_data</code> (see Appendix Chapter <a href="app-93-data-sets-avocado.html#app-93-data-sets-avocado">D.6</a> for more information on this data set):</p>
+<div class="sourceCode" id="cb279"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb279-1" data-line-number="1">avocado_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/avocado-processed.csv&#39;</span>))</a></code></pre></div>
 <p>We can then take a glimpse:</p>
 <div class="sourceCode" id="cb280"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb280-1" data-line-number="1">avocado_data</a></code></pre></div>
 <pre><code>## # A tibble: 18,249 x 7
@@ -654,7 +644,7 @@ How many silver coins would you maximally pay to play one round? Well, of course
 </div>
 <div id="the-mode" class="section level4">
 <h4><span class="header-section-number">5.2.2.3</span> The mode</h4>
-<p>The <strong>mode</strong> is the value that occurred most frequently in the data. While the mean is only applicable to metric variables, and the median only to variables that are at least ordinal, the mode is only reasonable for variables that have a finite set of different possible observations (nominal or ordinal).</p>
+<p>The <strong>mode</strong> is the unique value that occurred most frequently in the data. If there is no unique values with that property, there is no mode. While the mean is only applicable to metric variables, and the median only to variables that are at least ordinal, the mode is only reasonable for variables that have a finite set of different possible observations (nominal or ordinal).</p>
 <p>There is no built-in function in R to return the mode of a (suitable) vector, but it is easily retrieved by obtaining counts.</p>
 <!-- HW: write a function that returns the mode -->
 <!-- exercise 1 -->
@@ -671,7 +661,7 @@ Solution
 <div class="content">
 <p>Mean: <span class="math inline">\(\frac{1+2+4+10}{4}=\frac{17}{4}=4.25\)</span> <br />
 Median: <span class="math inline">\(\frac{2+4}{2}=3\)</span> <br />
-Mode: all values are equally frequent, so all are a mode.</p>
+Mode: all values are equally frequent, so there is no (unique) mode.</p>
 </div>
 </div>
 <ol start="2" style="list-style-type: decimal">
@@ -684,7 +674,7 @@ Solution
 <div class="content">
 <p>Numbers to add: <span class="math inline">\(1, 10 \to \vec{x} = \langle1,1,2,4,10,10\rangle\)</span> <br />
 New mean: <span class="math inline">\(\frac{1+1+2+4+10+10}{6}=\frac{28}{6}\approx4.67\)</span> <br />
-New mode: <span class="math inline">\(1\)</span> and <span class="math inline">\(10\)</span></p>
+New mode: Both <span class="math inline">\(1\)</span> and <span class="math inline">\(10\)</span> are equally frequent and more frequent than all other numbers. Consequently, there is no (unique) mode.</p>
 </div>
 </div>
 <ol start="3" style="list-style-type: decimal">
