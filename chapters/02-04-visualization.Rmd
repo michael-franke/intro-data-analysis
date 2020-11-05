@@ -10,7 +10,8 @@ Numerical summaries of complex data always incur information loss. Still lossy, 
 
 Section \@ref(Chap-02-04-Anscombe-example) demonstrates how summary statistics can be misleading and how a simple visualization can be much more revealing.
 Section \@ref(Chap-02-04-good-visualization) offers some reflection on what makes a data visualization successful.
-Section \@ref(Chap-02-04-ggplot) introduces the basics of data visualization with the `ggplot` package, an integral part of the tidyverse, based on a scatter plot for the [avocado price data](app-93-data-sets-avocado).
+Section \@ref(Chap-02-04-ggplot) introduces the basics of data visualization with the `ggplot` package, an integral part of the tidyverse.^[It is possible to create ggplot-like graphs with similar syntax in Python, as described [here](https://towardsdatascience.com/how-to-use-ggplot2-in-python-74ab8adec129). The [Gadly package](http://gadflyjl.org/stable/index.html) for Julia uses very similar ideas (of incremental composition) but a different syntax.]
+This first exposition is based on a scatter plot for the [avocado price data](app-93-data-sets-avocado).
 Going beyond scatter plots, section \@ref(Chap-02-04-geoms) looks at some common types of plots and how to realize them using the `geom_` family of functions in `ggplot`.
 
 
@@ -32,7 +33,7 @@ The learning goals for this chapter are:
 To see how summary statistics can be highly misleading, and how a simple plot can reveal a lot more, consider a famous dataset available in R [@anscombe1973]: 
 
 ```{r}
-glimpse(anscombe %>% as_tibble)
+anscombe %>% as_tibble
 ```
 
 There are four pairs of $x$ and $y$ coordinates. Unfortunately, these are stored in long format with two pieces of information buried inside of the column name: for instance, the name `x3` contains the information that this column contains the $x$ coordinates for the 3rd pair. This is rather untidy. But, using tools from the `dplyr` package, we can tidy up quickly:
@@ -810,6 +811,16 @@ It makes sense to use the available space for a more informative report about th
 
 But barplots may also be good enough if there is not more of immediate relevance, such as when we look at counts or proportions. Still, it might help to include a measure of certainty. For instance, using the King of France data set, we can display proportions of 'true' answers with 95% bootstrapped confidence intervals like in the plot below. Notice the use of the `geom_errorbar` function to display the intervals in the following example.
 
+We first load the data set.
+
+```{r echo = F}
+data_KoF_processed <- read_csv(data_KoF_processed, "data_sets/king-of-france_data_processed.csv")
+```
+
+
+```{r, eval = F}
+data_KoF_processed <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/king-of-france_data_processed.csv'))
+```
 
 ```{r}
 data_KoF_processed %>%  
@@ -827,9 +838,15 @@ data_KoF_processed %>%
   geom_col() +
   geom_errorbar(aes(ymin = lower, ymax = upper, width = 0.2)) +
   ylim(0,1) +
-  ylab("") + xlab("") + ggtitle("Proportion of 'TRUE' responses per condition") +
+  labs(
+    x = "",
+    y = "",
+    title = "Proportion of 'TRUE' responses per condition",
+    subtitle = "Error bars are bootstrapped 95% CIs" 
+  ) +
   theme(legend.position = "none") +
-  scale_fill_manual(values = project_colors)
+  scale_fill_manual(values = project_colors) +
+  theme(axis.text.x=element_text(angle=30, hjust=1))
 ```
 
 <!-- exercise 2 -->
@@ -842,7 +859,6 @@ First, we need to load the data set, like so:
 url_prefix <- "https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/"
 WHO_data_url  <- str_c(url_prefix, "WHO.csv")
 dataWHO <- read_csv(WHO_data_url)
-
 ```
 Take a look at the data set first, in order to get familiar with it. 
 
@@ -851,20 +867,54 @@ Create a bar plot, in which `Region` is on the x-axis and `LifeExpectancy_mean` 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
-A possible solution would be this:
+A minimally functional solution would be this:
 
 ```{r, out.width='90%'}
 dataWHO %>%
-  select(Region, LifeExpectancy) %>% 
+  # get the mean for each region
   group_by(Region) %>% 
   summarise(
     LifeExpectancy_mean = mean(LifeExpectancy)
   ) %>%
- ggplot(aes(
-   x = Region, 
-   y = LifeExpectancy_mean, 
-   fill = Region)) +
+  # plot
+  ggplot(
+    aes(
+      x = Region, 
+      y = LifeExpectancy_mean, 
+      fill = Region
+    )
+  ) +
   geom_col() 
+```
+
+A prettier version suppresses the legend, changes the axis labels, and sligtly tilts the tick labels:
+
+```{r, out.width='90%'}
+dataWHO %>%
+  # get the mean for each region
+  group_by(Region) %>% 
+  summarise(
+    LifeExpectancy_mean = mean(LifeExpectancy)
+  ) %>%
+  # plot
+  ggplot(
+    aes(
+      x = Region, 
+      y = LifeExpectancy_mean, 
+      fill = Region
+    )
+  ) +
+  geom_col() +
+  # nicer axis labels and a title
+  labs(
+    y = "Mean life expectancy",
+    title = "Mean life expectancy in different world regions"
+  ) +
+  # hide legend (b/c redundant)
+  theme(legend.position = "none") +
+  # tilt tick labels by 30 degrees
+  theme(axis.text.x=element_text(angle=30, hjust=1))
+
 ```
 
 </div>
