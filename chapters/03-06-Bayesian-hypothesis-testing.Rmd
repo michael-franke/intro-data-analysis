@@ -67,15 +67,17 @@ c(
 )
 ```
 
-Notice that we have different numbers of measures in each group and that we do not have strong reasons to assume that these groups have the same variance. A Bayesian model for inferences about the likely difference in means of eco-sensitivity between groups is shown in Figure \@ref(fig:ch-03-06-comparison-t-test-eco). Notice that this model uses priors that are data-aware. This is **not** generally a good choice, especially not if you have prior knowledge to bring to bear on the situation. We do this here to obtain priors that make fitting (with `greta`) maximally painless, but stress that ideally, if prior knowledge exists, the priors of the model should encode it.
+Notice that we have different numbers of measures in each group and assume that these groups have the same variance. A Bayesian model for inferences about the likely difference in means of eco-sensitivity between groups is shown in Figure \@ref(fig:ch-03-06-comparison-t-test-eco). 
 
-```{r ch-03-06-comparison-t-test-eco, echo = F, fig.cap="Bayesian $t$-test model for inferences about the difference in means in the eco-sensitivity data."}
-knitr::include_graphics("visuals/t-test-model-eco-data.png")
+<!-- Notice that this model uses priors that are data-aware. This is **not** generally a good choice, especially not if you have prior knowledge to bring to bear on the situation. We do this here to obtain priors that make fitting (with `greta`) maximally painless, but stress that ideally, if prior knowledge exists, the priors of the model should encode it. -->
+
+```{r ch-03-06-comparison-t-test-eco, echo = F, out.width = '80%', fig.cap="Bayesian $t$-test model following Gönen et al. [-@GoenenJohnson2005] for inferences about the difference in means in the eco-sensitivity data."}
+knitr::include_graphics("visuals/t-test-model-eco-data-GoenenJohnson2005.png")
 ```
 
-Here is the model from Figure \@ref(fig:ch-03-06-comparison-t-test-eco) implemented in `greta`:
+Here is the model from Figure \@ref(fig:ch-03-06-comparison-t-test-eco) implemented in `Stan`:
 
-```{r, eval = F}
+```{r, echo = F, eval = F}
 # data as greta array
 y0 <- as_data(x_A)
 y1 <- as_data(x_B)
@@ -93,15 +95,49 @@ distribution(y1) <- normal(mean_1, sigma_1)
 m <- model(delta)
 ```
 
-```{r, echo = F}
+```{r, echo = F, eval = F}
 sd_delta <- sd(c(x_A, x_B))
 ```
 
+```{r}
+eco_data_4_Stan <- list(
+  y1 = x_A,
+  N1 = length(x_A),
+  y2 = x_B,
+  N2 = length(x_B)
+)
+```
+
+```{mystan, eval = F}
+data {
+int<lower=1> N1 ;
+int<lower=1> N2 ;
+vector[N1] y1 ;
+vector[N2] y2 ;
+}
+parameters {
+real mu ;
+real<lower=0> sigma ;
+real delta ;
+} 
+model {
+# priors
+target += log(1/sigma) ;
+delta ~ normal(0, 5) ;
+
+# likelihood
+y1 ~ normal(mu + sigma*delta/2, sigma^2) ;
+y2 ~ normal(mu - sigma*delta/2, sigma^2) ;
+}
+```
+
+<link rel="stylesheet" href="hljs.css">
+<script src="stan.js"></script>
+<script>$('pre.mystan code').each(function(i, block) {hljs.highlightBlock(block);});</script>
 
 Our research question is whether there is a difference in means between groups. We therefore focus on the point-value $\delta = 0$. We consider a ROPE around this value with $\epsilon = 2$ (completely arbitrary choice, since the data is made-up anyway).
 
 ## Testing as posterior estimation
-
 
 
 ### Example: 24/7
@@ -133,38 +169,54 @@ Using the ROPE-approach of Kruschke, we notice that our ROPE of $\theta = 0.5 \p
 
 ### Example: Eco-sensitivity
 
-We use `greta` to draw samples from the posterior distribution.
+We use `Stan` to draw samples from the posterior distribution.
 
-```{r, eval = F}
+```{r, echo = F, eval = F}
 # sampling
 draws_t_test_2 <- greta::mcmc(m, n_samples = 4000)
 # cast results (type 'mcmc.list') into tidy tibble
 tidy_draws_tt2 = ggmcmc::ggs(draws_t_test_2)
 ```
 
-
-```{r echo = T, eval = F}
+```{r echo = F, eval = F}
 draws_t_test_2 <- readRDS('models_greta/ttest_2_draws.rds')
 tidy_draws_tt2 = ggmcmc::ggs(draws_t_test_2)
 ```
 
+```{r}
+# sampling
+stan_fit_ttest <- rstan::stan(
+  # where is the Stan code
+  file = 'models_stan/ttest_model.stan',
+  # data to supply to the Stan program
+  data = eco_data_4_Stan,
+  # how many iterations of MCMC
+  iter = 3000,
+  # how many warmup steps
+  warmup = 500
+)
+
+# cast results (type 'mcmc.list') into tidy tibble
+tidy_draws_tt2 = ggmcmc::ggs(stan_fit_ttest)
+```
+
 We then check the 95% HDI of the posterior.
 
-```{r, eval = F}
+```{r}
 # get the mean difference and 95% HDI
 Bayes_estimates_eco <- tidy_draws_tt2 %>% 
   group_by(Parameter) %>%
   summarise(
-    mean = mean(value),
     '|95%' = HDInterval::hdi(value)[1],
+    mean = mean(value),
     '95|%' = HDInterval::hdi(value)[2]
   )
 Bayes_estimates_eco
 ```
 
-Figure \@ref(fig:ch-03-07-hypothesis-testing-Bayes-tt2-posterior) shows the posterior distribution and the 95% HDI (in red). [TODO: redo figure with Stan]
+Figure \@ref(fig:ch-03-07-hypothesis-testing-Bayes-tt2-posterior) shows the posterior distribution and the 95% HDI (in red).
 
-```{r ch-03-07-hypothesis-testing-Bayes-tt2-posterior, echo = F, fig.cap = "Posterior density of the $\\delta$ parameter in Bayesian $t$-test model for (fictitious) eco-sensitivity data with the 95% HDI (in red).", eval = F}
+```{r ch-03-07-hypothesis-testing-Bayes-tt2-posterior, echo = F, fig.cap = "Posterior density of the $\\delta$ parameter in Bayesian $t$-test model for (fictitious) eco-sensitivity data with the 95% HDI (in red)."}
 dens <- filter(tidy_draws_tt2, Parameter == "delta") %>% pull(value) %>% 
   density()
 
@@ -361,9 +413,9 @@ ggplot(plotData, aes(x = theta, y = value, color = distribution)) + xlim(0,1) + 
 
 ### Example: Eco-sensitivity
 
-To apply the Savage-Dickey method to the eco-sensitivity model, we have to obtain an estimate for the posterior density at the critical value $\delta = 0$ from the posterior samples. An approximate method for obtaining this value is implemented in the `polspline` package (using polynomial splines to approximate the posterior curve). [TODO replace with Stan]
+To apply the Savage-Dickey method to the eco-sensitivity model, we have to obtain an estimate for the posterior density at the critical value $\delta = 0$ from the posterior samples. An approximate method for obtaining this value is implemented in the `polspline` package (using polynomial splines to approximate the posterior curve).
 
-```{r, eval = F}
+```{r}
 # extract the samples for the delta parameter
 delta_samples <- tidy_draws_tt2 %>% 
   filter(Parameter == "delta") %>% 
@@ -371,12 +423,12 @@ delta_samples <- tidy_draws_tt2 %>%
 # estimating the posterior density at delta = 0 with Savage-Dickey
 fit.posterior <- polspline::logspline(delta_samples)
 posterior_delta_null <- polspline::dlogspline(0, fit.posterior)
-prior_delta_null <- dnorm(0, 0, sd_delta) 
+prior_delta_null <- dnorm(0, 0, 5) 
 BF_delta_null = posterior_delta_null / prior_delta_null
 BF_delta_null
 ```
 
-We conclude from this result that there is only very mild (unnoteworthy) evidence in favor of the alternative hypothesis.
+We conclude from this result that there is only very mild (unnoteworthy) evidence in favor of the alternative hypothesis (Bayes factor $\text{BF}_{10} \approx `r signif(1/BF_delta_null,3)`$).
 
 <!-- exercise 2 -->
 <!-- Taken from the prep exam (IDA-prep-exam-02.pages.pdf) -->
@@ -569,16 +621,15 @@ This is mild evidence in favor of the alternative hypothesis (Bayes factor $\tex
 
 ### Example: Eco-sensitivity
 
-[TODO replace with Stan]
 
-```{r, eval = F}
+```{r}
 # estimating the BF for ROPE-d hypothesis with encompassing priors
 delta_null <- 0
 epsilon <- 0.25                 # epsilon margin for ROPE
 upper <- delta_null + epsilon   # upper bound of ROPE
 lower <- delta_null - epsilon   # lower bound of ROPE
 # calculate prior odds of the ROPE-d hypothesis
-prior_of_hypothesis <- pnorm(upper, 0, sd_delta) - pnorm(lower, 0, sd_delta)
+prior_of_hypothesis <- pnorm(upper, 0, 5) - pnorm(lower, 0, 5)
 prior_odds <- prior_of_hypothesis / (1 - prior_of_hypothesis)
 # calculate posterior odds of the ROPE-d hypothesis
 posterior_of_hypothesis <- mean( lower <= delta_samples & delta_samples <= upper )
@@ -610,3 +661,4 @@ Statements a. and d. are correct.
 </div>
 </div>
 </div>
+

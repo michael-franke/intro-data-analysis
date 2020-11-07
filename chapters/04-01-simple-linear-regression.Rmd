@@ -750,11 +750,11 @@ A Bayesian model for (simple) linear regression looks very much like the previou
 knitr::include_graphics("visuals/linear-regression-model.png")
 ```
 
-### Implementation in `greta`
+### Implementation in `Stan`
 
-Here is an implementation of a Bayesian regression model for the running example murder data using `greta`:
+Here is an implementation of a Bayesian regression model for the running example murder data using `Stan`:
 
-```{r, eval = F}
+```{r, echo = F, eval = F}
 # data to be explained / predicted
 y <- murder_data %>% pull(murder_rate)
 # data to use for prediction / explanation
@@ -773,9 +773,43 @@ distribution(y) <- normal(y_pred, sigma)
 murder_model <- model(intercept, slope, sigma)
 ```
 
+```{r}
+murder_data_4_Stan <- list(
+  N = murder_data %>% nrow(),
+  x = murder_data %>% pull(unemployment),
+  y = murder_data %>% pull(murder_rate)
+)
+```
+
+```{mystan, eval = F}
+data {
+int<lower=1> N ;
+vector[N] x ;
+vector[N] y ;
+}
+parameters {
+real intercept ;
+real slope ;
+real<lower=0> sigma ;
+} 
+model {
+# priors
+intercept ~ student_t(1, 0, 10) ;
+slope ~ student_t(1, 0, 10) ;
+sigma ~ normal(0, 5) ;
+
+# likelihood
+y ~ normal(intercept + slope * x, sigma) ;
+}
+```
+
+<link rel="stylesheet" href="hljs.css">
+<script src="stan.js"></script>
+<script>$('pre.mystan code').each(function(i, block) {hljs.highlightBlock(block);});</script>
+
 We can draw samples from the posterior distribution as usual:
 
-```{r, eval = F}
+```{r, echo = F, eval = F}
 # draw samples
 draws_murder_data <- greta::mcmc(
   murder_model, 
@@ -787,15 +821,31 @@ draws_murder_data <- greta::mcmc(
 tidy_draws_murder_data <- ggmcmc::ggs(draws_murder_data)
 ```
 
-
 ```{r echo = F, eval = F}
 draws_murder_data <- readRDS('models_greta/linear_regression_simple_murder_draws.rds')
 tidy_draws_murder_data <- ggmcmc::ggs(draws_murder_data)
 ```
 
-Here is a plot of the posterior: [TODO: redo with Stan]
+```{r}
+stan_fit_linear_regression <- rstan::stan(
+  # where is the Stan code
+  file = 'models_stan/simple_linear_regression_model.stan',
+  # data to supply to the Stan program
+  data = murder_data_4_Stan,
+  # how many iterations of MCMC
+  iter = 3000,
+  # how many warmup steps
+  warmup = 500
+)
 
-```{r, eval = F}
+# cast results (type 'mcmc.list') into tidy tibble
+tidy_draws_murder_data = ggmcmc::ggs(stan_fit_linear_regression)
+```
+
+
+Here is a plot of the posterior:
+
+```{r}
 # plot posterior
 tidy_draws_murder_data %>% 
   ggplot(aes(x = value)) +
@@ -853,9 +903,7 @@ The estimate will have a value that is bigger than the current one, especially i
 
 ### Bayesian approach
 
-[TODO: redo with Stan version]
-
-```{r, eval = F}
+```{r}
 # get means and 95% HDI
 Bayes_estimates <- tidy_draws_murder_data %>% 
   group_by(Parameter) %>%

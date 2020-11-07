@@ -46,7 +46,7 @@ Notice that this tibble contains the data in a tidy format, i.e., each row conta
 ```{r, eval = F}
 fit_brms_eco_sensitivity <- brm(
   # specify what to explain in terms of what
-  #  using the formula syntax
+  # using the formula syntax
   formula = measurement ~ group,
   # which data to use
   data = eco_sensitivity_data
@@ -64,11 +64,16 @@ Let's inspect the summary information for the posterior samples:
 summary(fit_brms_eco_sensitivity)$fixed[,c("Estimate","l-95% CI", "u-95% CI")]
 ```
 
-Compare this with the summary of the posterior estimates we obtained from the Bayesian $t$-test model for this data which we implemented in `greta` and ran in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes). [TODO: redo with Stan]
+Compare this with the summary of the posterior estimates we obtained from the Bayesian $t$-test model for this data which we implemented in `Stan` and ran in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
 
-```{r echo = T, eval = F}
+```{r echo = F, eval = F}
 draws_t_test_2 <- readRDS('models_greta/ttest_2_draws.rds')
-tidy_draws_tt2 = ggmcmc::ggs(draws_t_test_2)
+```
+
+```{r}
+# cast results (type 'mcmc.list') into tidy tibble
+tidy_draws_tt2 = ggmcmc::ggs(stan_fit_ttest)
+
 # get means and 95% HDI
 Bayes_estimates_eco <- tidy_draws_tt2 %>% 
   group_by(Parameter) %>%
@@ -77,13 +82,28 @@ Bayes_estimates_eco <- tidy_draws_tt2 %>%
     mean = mean(value),
     '95|%' = HDInterval::hdi(value)[2]
   )
-```
 
-```{r, eval = F}
 Bayes_estimates_eco
 ```
 
-The mean of the $\delta$ parameter looks suspiciously similar to the ominous `groupB` parameter shown in the output of the `brms` model fit. The 95% HDIs of the estimated posterior for the $\delta$ parameter also look suspiciously like the values of the 95% inter-quantile range for the `groupB` parameter. This is no coincidence! In fact, the regression model that `brms` calculates here is essentially the same as the $t$-test model we implemented in `greta` by hand except for slight differences in the choice of the priors and inessential differences in the mathematical formulation of the group mean comparison. 
+```{r echo = F}
+delta <- Bayes_estimates_eco$mean[1] %>% signif(digits = 3)
+mu <- Bayes_estimates_eco$mean[2] %>% signif(digits = 3)
+sigma <- Bayes_estimates_eco$mean[3] %>% signif(digits = 3)
+
+groupA <- mu+sigma*delta/2
+groupB <- mu-sigma*delta/2 
+```
+
+At first glance, both outputs do not seem to be related in any way, but appearances are deceptive! Recall that the mean of group $A$ in the $t$-test model from Chapter \@ref(ch-03-07-hypothesis-testing-Bayes) is the sum of the grand mean $\mu$ and $\frac{\sigma \cdot \delta}{2}$. If we plug in the mean values from the summary of the posterior samples above, we get $\mu_A = `r groupA`$. Similarly, the mean of group $B$ can be calculated like so:
+
+$$\mu_B = \mu - \frac{\sigma \cdot \delta}{2} = `r mu` - \frac{`r sigma*delta`}{2} = `r groupB`$$
+
+We get an equivalent result for $\mu_B$ if we subtract $\sigma \cdot \delta$ not from the grand mean, but from the mean of group $A$ instead:
+
+$$\mu_B = \mu_A - \sigma \cdot \delta = `r groupA` - `r sigma*delta` = `r groupA - sigma*delta`$$
+
+Well, that looks familiar. The result for $\mu_A$ looks similar to the mean estimate for the `Intercept` parameter from the `brms` model fit. Multiplying the mean of the $\sigma$ parameter with the mean of the $\delta$ parameter yields a suspiciously similar result as the ominous `groupB` parameter shown in the output of the `brms` model fit. The 95% HDI of the estimated posterior for $\sigma \cdot \delta$ also looks suspiciously like the values of the 95% inter-quantile range for the `groupB` parameter. This is no coincidence! In fact, the regression model that `brms` calculates here is essentially the same as the $t$-test model we implemented in `Stan` by hand except for slight differences in the choice of the priors and inessential differences in the mathematical formulation of the group mean comparison. 
 
 The call to `brm` above implicitly computed a linear regression model of the following form:
 
@@ -93,7 +113,7 @@ $$
 \end{aligned}
 $$
 
-The only important point is that the vector $x$, which corresponds to the group information in the column `group` (which contains entries of strings `"A"` and `"B"`), is implicitly treated as a vector of zeros and ones. Implicitly, `brm` has chosen the string `"A"` as the **reference category** which is encoded as zero. The string `"B"` is the other category, encoded as number 1. As a consequence, the linear model's intercept parameter $\beta_0$ can be interpreted as the predicted mean of the reference category: if for some $i$ we have $x_i = 0$, then the predictor $\hat{y}_i$ will just be $\hat{y}_i = \beta_0$; whence that the intercept $\beta_0$ will be fitted to the mean of the reference category. If for some $i$ we have $x_i = 1$ instead, the predicted value will be computed as $\hat{y}_i = \beta_0 + \beta_1$, so that the slope term $\beta_1$ will effectively play the role of the difference $\delta$ between the mean of the groups. Modulo choice of priors and variable naming, the `brm` model encodes a Bayesian $t$-test model exactly like we previously did using `greta`. The upshot is that we can conceive of a **$t$-test as a special case of a linear regression model!**
+The only important point is that the vector $x$, which corresponds to the group information in the column `group` (which contains entries of strings `"A"` and `"B"`), is implicitly treated as a vector of zeros and ones. Implicitly, `brm` has chosen the string `"A"` as the **reference category** which is encoded as zero. The string `"B"` is the other category, encoded as number 1. As a consequence, the linear model's intercept parameter $\beta_0$ can be interpreted as the predicted mean of the reference category: if for some $i$ we have $x_i = 0$, then the predictor $\hat{y}_i$ will just be $\hat{y}_i = \beta_0$; whence that the intercept $\beta_0$ will be fitted to the mean of the reference category. If for some $i$ we have $x_i = 1$ instead, the predicted value will be computed as $\hat{y}_i = \beta_0 + \beta_1$, so that the slope term $\beta_1$ will effectively play the role of the difference $\delta$ between the mean of the groups. Modulo choice of priors and variable naming, the `brm` model encodes a Bayesian $t$-test model similarly like we previously did using `Stan`. The upshot is that we can conceive of a **$t$-test as a special case of a linear regression model!**
 
 Of course, nothing in this correspondence depends on a Bayesian analysis in particular. Let's look at the frequentist version:
 
