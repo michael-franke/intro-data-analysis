@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>12.1 Data and models for this chapter | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21.3 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.4 and GitBook 2.6.7" />
 
   <meta property="og:title" content="12.1 Data and models for this chapter | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -421,7 +421,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="13.3.4" data-path="a-maximum-likelihood-approach.html"><a href="a-maximum-likelihood-approach.html#finding-the-mle-solution-with-glm"><i class="fa fa-check"></i><b>13.3.4</b> Finding the MLE-solution with <code>glm</code></a></li>
 </ul></li>
 <li class="chapter" data-level="13.4" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html"><i class="fa fa-check"></i><b>13.4</b> A Bayesian approach</a><ul>
-<li class="chapter" data-level="13.4.1" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#implementation-in-greta"><i class="fa fa-check"></i><b>13.4.1</b> Implementation in <code>greta</code></a></li>
+<li class="chapter" data-level="13.4.1" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#implementation-in-stan"><i class="fa fa-check"></i><b>13.4.1</b> Implementation in <code>Stan</code></a></li>
 <li class="chapter" data-level="13.4.2" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#using-the-brms-package"><i class="fa fa-check"></i><b>13.4.2</b> Using the <code>brms</code> package</a></li>
 <li class="chapter" data-level="13.4.3" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#bayesian-regression-with-non-informative-standard-priors"><i class="fa fa-check"></i><b>13.4.3</b> Bayesian regression with non-informative standard priors</a></li>
 </ul></li>
@@ -570,30 +570,51 @@ Figure 12.1: The Binomial Model (repeated from before).
 <a class="sourceLine" id="cb527-4" data-line-number="4">)</a></code></pre></div>
 <pre><code>##   mean_A   mean_B 
 ## 118.9333 107.4444</code></pre>
-<p>Notice that we have different numbers of measures in each group and that we do not have strong reasons to assume that these groups have the same variance. A Bayesian model for inferences about the likely difference in means of eco-sensitivity between groups is shown in Figure <a href="data-and-models-for-this-chapter.html#fig:ch-03-06-comparison-t-test-eco">12.2</a>. Notice that this model uses priors that are data-aware. This is <strong>not</strong> generally a good choice, especially not if you have prior knowledge to bring to bear on the situation. We do this here to obtain priors that make fitting (with <code>greta</code>) maximally painless, but stress that ideally, if prior knowledge exists, the priors of the model should encode it.</p>
+<p>Notice that we have different numbers of measures in each group and assume that these groups have the same variance. A Bayesian model for inferences about the likely difference in means of eco-sensitivity between groups is shown in Figure <a href="data-and-models-for-this-chapter.html#fig:ch-03-06-comparison-t-test-eco">12.2</a>.</p>
+<!-- Notice that this model uses priors that are data-aware. This is **not** generally a good choice, especially not if you have prior knowledge to bring to bear on the situation. We do this here to obtain priors that make fitting (with `greta`) maximally painless, but stress that ideally, if prior knowledge exists, the priors of the model should encode it. -->
 <div class="figure" style="text-align: center"><span id="fig:ch-03-06-comparison-t-test-eco"></span>
-<img src="visuals/t-test-model-eco-data.png" alt="Bayesian $t$-test model for inferences about the difference in means in the eco-sensitivity data."  />
+<img src="visuals/t-test-model-eco-data-GoenenJohnson2005.png" alt="Bayesian $t$-test model following Gönen et al. [-@GoenenJohnson2005] for inferences about the difference in means in the eco-sensitivity data." width="80%" />
 <p class="caption">
-Figure 12.2: Bayesian <span class="math inline">\(t\)</span>-test model for inferences about the difference in means in the eco-sensitivity data.
+Figure 12.2: Bayesian <span class="math inline">\(t\)</span>-test model following Gönen et al. <span class="citation">(<a href="#ref-GoenenJohnson2005">2005</a>)</span> for inferences about the difference in means in the eco-sensitivity data.
 </p>
 </div>
-<p>Here is the model from Figure <a href="data-and-models-for-this-chapter.html#fig:ch-03-06-comparison-t-test-eco">12.2</a> implemented in <code>greta</code>:</p>
-<div class="sourceCode" id="cb529"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb529-1" data-line-number="1"><span class="co"># data as greta array</span></a>
-<a class="sourceLine" id="cb529-2" data-line-number="2">y0 &lt;-<span class="st"> </span><span class="kw">as_data</span>(x_A)</a>
-<a class="sourceLine" id="cb529-3" data-line-number="3">y1 &lt;-<span class="st"> </span><span class="kw">as_data</span>(x_B)</a>
-<a class="sourceLine" id="cb529-4" data-line-number="4"><span class="co"># priors (regularizing (data-informed) for smooth fitting)</span></a>
-<a class="sourceLine" id="cb529-5" data-line-number="5">sd_delta &lt;-<span class="st"> </span><span class="kw">sd</span>(<span class="kw">c</span>(x_A, x_B))</a>
-<a class="sourceLine" id="cb529-6" data-line-number="6">mean_<span class="dv">0</span>   &lt;-<span class="st"> </span><span class="kw">normal</span>(<span class="kw">mean</span>(x_A), <span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb529-7" data-line-number="7">delta    &lt;-<span class="st"> </span><span class="kw">normal</span>(<span class="dv">0</span>, sd_delta)</a>
-<a class="sourceLine" id="cb529-8" data-line-number="8">sigma_<span class="dv">0</span>  &lt;-<span class="st"> </span><span class="kw">normal</span>(<span class="kw">sd</span>(x_A), <span class="dv">10</span>, <span class="dt">truncation =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="ot">Inf</span>))</a>
-<a class="sourceLine" id="cb529-9" data-line-number="9">sigma_<span class="dv">1</span>  &lt;-<span class="st"> </span><span class="kw">normal</span>(<span class="kw">sd</span>(x_B), <span class="dv">10</span>, <span class="dt">truncation =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="ot">Inf</span>))</a>
-<a class="sourceLine" id="cb529-10" data-line-number="10">mean_<span class="dv">1</span>   &lt;-<span class="st"> </span>mean_<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>delta</a>
-<a class="sourceLine" id="cb529-11" data-line-number="11"><span class="co"># likelihood </span></a>
-<a class="sourceLine" id="cb529-12" data-line-number="12"><span class="kw">distribution</span>(y0) &lt;-<span class="st"> </span><span class="kw">normal</span>(mean_<span class="dv">0</span>, sigma_<span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb529-13" data-line-number="13"><span class="kw">distribution</span>(y1) &lt;-<span class="st"> </span><span class="kw">normal</span>(mean_<span class="dv">1</span>, sigma_<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb529-14" data-line-number="14"><span class="co"># model</span></a>
-<a class="sourceLine" id="cb529-15" data-line-number="15">m &lt;-<span class="st"> </span><span class="kw">model</span>(delta)</a></code></pre></div>
+<p>Here is the model from Figure <a href="data-and-models-for-this-chapter.html#fig:ch-03-06-comparison-t-test-eco">12.2</a> implemented in <code>Stan</code>:</p>
+<div class="sourceCode" id="cb529"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb529-1" data-line-number="1">eco_data_<span class="dv">4</span>_Stan &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb529-2" data-line-number="2">  <span class="dt">y1 =</span> x_A,</a>
+<a class="sourceLine" id="cb529-3" data-line-number="3">  <span class="dt">N1 =</span> <span class="kw">length</span>(x_A),</a>
+<a class="sourceLine" id="cb529-4" data-line-number="4">  <span class="dt">y2 =</span> x_B,</a>
+<a class="sourceLine" id="cb529-5" data-line-number="5">  <span class="dt">N2 =</span> <span class="kw">length</span>(x_B)</a>
+<a class="sourceLine" id="cb529-6" data-line-number="6">)</a></code></pre></div>
+<pre class="mystan"><code>data {
+int&lt;lower=1&gt; N1 ;
+int&lt;lower=1&gt; N2 ;
+vector[N1] y1 ;
+vector[N2] y2 ;
+}
+parameters {
+real mu ;
+real&lt;lower=0&gt; sigma ;
+real delta ;
+} 
+model {
+# priors
+target += log(1/sigma) ;
+delta ~ normal(0, 5) ;
+
+# likelihood
+y1 ~ normal(mu + sigma*delta/2, sigma^2) ;
+y2 ~ normal(mu - sigma*delta/2, sigma^2) ;
+}</code></pre>
+<link rel="stylesheet" href="hljs.css">
+<script src="stan.js"></script>
+<script>$('pre.mystan code').each(function(i, block) {hljs.highlightBlock(block);});</script>
 <p>Our research question is whether there is a difference in means between groups. We therefore focus on the point-value <span class="math inline">\(\delta = 0\)</span>. We consider a ROPE around this value with <span class="math inline">\(\epsilon = 2\)</span> (completely arbitrary choice, since the data is made-up anyway).</p>
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references">
+<div id="ref-GoenenJohnson2005">
+<p>Mithat Gönen, Yonggang Lu &amp; Peter H. Westfall, Wesley O. Johnson. 2005. “The Bayesian Two-Sample <em>T</em>-Test.” <em>The American Statistician</em> 59 (3): 252–57. <a href="https://doi.org/10.1198/000313005X55233" class="uri">https://doi.org/10.1198/000313005X55233</a>.</p>
 </div>
 </div>
             </section>

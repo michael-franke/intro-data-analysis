@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>12.4 Bayes factors for ROPE-d hypotheses through encompassing models | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21.3 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.4 and GitBook 2.6.7" />
 
   <meta property="og:title" content="12.4 Bayes factors for ROPE-d hypotheses through encompassing models | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -421,7 +421,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="13.3.4" data-path="a-maximum-likelihood-approach.html"><a href="a-maximum-likelihood-approach.html#finding-the-mle-solution-with-glm"><i class="fa fa-check"></i><b>13.3.4</b> Finding the MLE-solution with <code>glm</code></a></li>
 </ul></li>
 <li class="chapter" data-level="13.4" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html"><i class="fa fa-check"></i><b>13.4</b> A Bayesian approach</a><ul>
-<li class="chapter" data-level="13.4.1" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#implementation-in-greta"><i class="fa fa-check"></i><b>13.4.1</b> Implementation in <code>greta</code></a></li>
+<li class="chapter" data-level="13.4.1" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#implementation-in-stan"><i class="fa fa-check"></i><b>13.4.1</b> Implementation in <code>Stan</code></a></li>
 <li class="chapter" data-level="13.4.2" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#using-the-brms-package"><i class="fa fa-check"></i><b>13.4.2</b> Using the <code>brms</code> package</a></li>
 <li class="chapter" data-level="13.4.3" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#bayesian-regression-with-non-informative-standard-priors"><i class="fa fa-check"></i><b>13.4.3</b> Bayesian regression with non-informative standard priors</a></li>
 </ul></li>
@@ -556,11 +556,11 @@ code span.wa { color: #bf0303; } /* Warning */
 <li><span class="math inline">\(M_a\)</span> has prior <span class="math inline">\(P_{M_a}(\theta, \omega) = P_{M_e}(\theta, \omega \mid \theta \not \in [a;b])\)</span></li>
 </ul>
 <p>Both <span class="math inline">\(M_0\)</span> and <span class="math inline">\(M_a\)</span> have the same likelihood function as <span class="math inline">\(M_e\)</span>, which is why we drop the model index for better readability in the following.</p>
-<p>Figure <a href="bayes-factors-for-rope-d-hypotheses-through-encompassing-models.html#fig:ch-03-07-hypothesis-testing-Bayes-encompassing-prior">12.4</a> shows an example of the priors of an encompassing model for two nested models based on a ROPE-d hypothesis testing approach.</p>
+<p>Figure <a href="bayes-factors-for-rope-d-hypotheses-through-encompassing-models.html#fig:ch-03-07-hypothesis-testing-Bayes-encompassing-prior">12.5</a> shows an example of the priors of an encompassing model for two nested models based on a ROPE-d hypothesis testing approach.</p>
 <div class="figure" style="text-align: center"><span id="fig:ch-03-07-hypothesis-testing-Bayes-encompassing-prior"></span>
 <img src="I2DA_files/figure-html/ch-03-07-hypothesis-testing-Bayes-encompassing-prior-1.png" alt="Example of the prior of an encompassing model and the priors of two models nested under it." width="672" />
 <p class="caption">
-Figure 12.4: Example of the prior of an encompassing model and the priors of two models nested under it.
+Figure 12.5: Example of the prior of an encompassing model and the priors of two models nested under it.
 </p>
 </div>
 
@@ -582,41 +582,41 @@ Figure 12.4: Example of the prior of an encompassing model and the priors of two
 <div id="example-247-2" class="section level3">
 <h3><span class="header-section-number">12.4.1</span> Example: 24/7</h3>
 <p>The Bayes factor using the ROPE-d method to compute the interval-valued hypothesis <span class="math inline">\(\theta = 0.5 \pm \epsilon\)</span> is:</p>
-<div class="sourceCode" id="cb538"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb538-1" data-line-number="1"><span class="co"># set the scene</span></a>
-<a class="sourceLine" id="cb538-2" data-line-number="2">theta_null &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb538-3" data-line-number="3">epsilon &lt;-<span class="st"> </span><span class="fl">0.01</span>                 <span class="co"># epsilon margin for ROPE</span></a>
-<a class="sourceLine" id="cb538-4" data-line-number="4">upper &lt;-<span class="st"> </span>theta_null <span class="op">+</span><span class="st"> </span>epsilon   <span class="co"># upper bound of ROPE</span></a>
-<a class="sourceLine" id="cb538-5" data-line-number="5">lower &lt;-<span class="st"> </span>theta_null <span class="op">-</span><span class="st"> </span>epsilon   <span class="co"># lower bound of ROPE</span></a>
-<a class="sourceLine" id="cb538-6" data-line-number="6"><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></a>
-<a class="sourceLine" id="cb538-7" data-line-number="7">prior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pbeta</span>(upper, <span class="dv">1</span>, <span class="dv">1</span>) <span class="op">-</span><span class="st"> </span><span class="kw">pbeta</span>(lower, <span class="dv">1</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb538-8" data-line-number="8">prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</a>
-<a class="sourceLine" id="cb538-9" data-line-number="9"><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></a>
-<a class="sourceLine" id="cb538-10" data-line-number="10">posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">qbeta</span>(upper, <span class="dv">8</span>, <span class="dv">18</span>) <span class="op">-</span><span class="st"> </span><span class="kw">qbeta</span>(lower, <span class="dv">8</span>, <span class="dv">18</span>)</a>
-<a class="sourceLine" id="cb538-11" data-line-number="11">posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</a>
-<a class="sourceLine" id="cb538-12" data-line-number="12"><span class="co"># calculate Bayes factor</span></a>
-<a class="sourceLine" id="cb538-13" data-line-number="13">bf_ROPEd_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</a>
-<a class="sourceLine" id="cb538-14" data-line-number="14">bf_ROPEd_hypothesis</a></code></pre></div>
+<div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb540-1" data-line-number="1"><span class="co"># set the scene</span></a>
+<a class="sourceLine" id="cb540-2" data-line-number="2">theta_null &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb540-3" data-line-number="3">epsilon &lt;-<span class="st"> </span><span class="fl">0.01</span>                 <span class="co"># epsilon margin for ROPE</span></a>
+<a class="sourceLine" id="cb540-4" data-line-number="4">upper &lt;-<span class="st"> </span>theta_null <span class="op">+</span><span class="st"> </span>epsilon   <span class="co"># upper bound of ROPE</span></a>
+<a class="sourceLine" id="cb540-5" data-line-number="5">lower &lt;-<span class="st"> </span>theta_null <span class="op">-</span><span class="st"> </span>epsilon   <span class="co"># lower bound of ROPE</span></a>
+<a class="sourceLine" id="cb540-6" data-line-number="6"><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb540-7" data-line-number="7">prior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pbeta</span>(upper, <span class="dv">1</span>, <span class="dv">1</span>) <span class="op">-</span><span class="st"> </span><span class="kw">pbeta</span>(lower, <span class="dv">1</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb540-8" data-line-number="8">prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</a>
+<a class="sourceLine" id="cb540-9" data-line-number="9"><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb540-10" data-line-number="10">posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">qbeta</span>(upper, <span class="dv">8</span>, <span class="dv">18</span>) <span class="op">-</span><span class="st"> </span><span class="kw">qbeta</span>(lower, <span class="dv">8</span>, <span class="dv">18</span>)</a>
+<a class="sourceLine" id="cb540-11" data-line-number="11">posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</a>
+<a class="sourceLine" id="cb540-12" data-line-number="12"><span class="co"># calculate Bayes factor</span></a>
+<a class="sourceLine" id="cb540-13" data-line-number="13">bf_ROPEd_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</a>
+<a class="sourceLine" id="cb540-14" data-line-number="14">bf_ROPEd_hypothesis</a></code></pre></div>
 <pre><code>## [1] 0.2243274</code></pre>
 <p>This is mild evidence in favor of the alternative hypothesis (Bayes factor <span class="math inline">\(\text{BF}_{10} \approx 4.46\)</span>).</p>
 </div>
 <div id="example-eco-sensitivity-2" class="section level3">
 <h3><span class="header-section-number">12.4.2</span> Example: Eco-sensitivity</h3>
-<p>[TODO replace with Stan]</p>
-<div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb540-1" data-line-number="1"><span class="co"># estimating the BF for ROPE-d hypothesis with encompassing priors</span></a>
-<a class="sourceLine" id="cb540-2" data-line-number="2">delta_null &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb540-3" data-line-number="3">epsilon &lt;-<span class="st"> </span><span class="fl">0.25</span>                 <span class="co"># epsilon margin for ROPE</span></a>
-<a class="sourceLine" id="cb540-4" data-line-number="4">upper &lt;-<span class="st"> </span>delta_null <span class="op">+</span><span class="st"> </span>epsilon   <span class="co"># upper bound of ROPE</span></a>
-<a class="sourceLine" id="cb540-5" data-line-number="5">lower &lt;-<span class="st"> </span>delta_null <span class="op">-</span><span class="st"> </span>epsilon   <span class="co"># lower bound of ROPE</span></a>
-<a class="sourceLine" id="cb540-6" data-line-number="6"><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></a>
-<a class="sourceLine" id="cb540-7" data-line-number="7">prior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pnorm</span>(upper, <span class="dv">0</span>, sd_delta) <span class="op">-</span><span class="st"> </span><span class="kw">pnorm</span>(lower, <span class="dv">0</span>, sd_delta)</a>
-<a class="sourceLine" id="cb540-8" data-line-number="8">prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</a>
-<a class="sourceLine" id="cb540-9" data-line-number="9"><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></a>
-<a class="sourceLine" id="cb540-10" data-line-number="10">posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">mean</span>( lower <span class="op">&lt;=</span><span class="st"> </span>delta_samples <span class="op">&amp;</span><span class="st"> </span>delta_samples <span class="op">&lt;=</span><span class="st"> </span>upper )</a>
-<a class="sourceLine" id="cb540-11" data-line-number="11">posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</a>
-<a class="sourceLine" id="cb540-12" data-line-number="12"><span class="co"># calculate Bayes factor</span></a>
-<a class="sourceLine" id="cb540-13" data-line-number="13">bf_ROPEd_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</a>
-<a class="sourceLine" id="cb540-14" data-line-number="14">bf_ROPEd_hypothesis</a></code></pre></div>
-<p>This is only minor evidence in favor of the alternative hypothesis (Bayes factor <span class="math inline">\(\text{BF}_{10} \approx 4.46\)</span>).</p>
+<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb542-1" data-line-number="1"><span class="co"># estimating the BF for ROPE-d hypothesis with encompassing priors</span></a>
+<a class="sourceLine" id="cb542-2" data-line-number="2">delta_null &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb542-3" data-line-number="3">epsilon &lt;-<span class="st"> </span><span class="fl">0.25</span>                 <span class="co"># epsilon margin for ROPE</span></a>
+<a class="sourceLine" id="cb542-4" data-line-number="4">upper &lt;-<span class="st"> </span>delta_null <span class="op">+</span><span class="st"> </span>epsilon   <span class="co"># upper bound of ROPE</span></a>
+<a class="sourceLine" id="cb542-5" data-line-number="5">lower &lt;-<span class="st"> </span>delta_null <span class="op">-</span><span class="st"> </span>epsilon   <span class="co"># lower bound of ROPE</span></a>
+<a class="sourceLine" id="cb542-6" data-line-number="6"><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb542-7" data-line-number="7">prior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pnorm</span>(upper, <span class="dv">0</span>, <span class="dv">5</span>) <span class="op">-</span><span class="st"> </span><span class="kw">pnorm</span>(lower, <span class="dv">0</span>, <span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb542-8" data-line-number="8">prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</a>
+<a class="sourceLine" id="cb542-9" data-line-number="9"><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb542-10" data-line-number="10">posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">mean</span>( lower <span class="op">&lt;=</span><span class="st"> </span>delta_samples <span class="op">&amp;</span><span class="st"> </span>delta_samples <span class="op">&lt;=</span><span class="st"> </span>upper )</a>
+<a class="sourceLine" id="cb542-11" data-line-number="11">posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</a>
+<a class="sourceLine" id="cb542-12" data-line-number="12"><span class="co"># calculate Bayes factor</span></a>
+<a class="sourceLine" id="cb542-13" data-line-number="13">bf_ROPEd_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</a>
+<a class="sourceLine" id="cb542-14" data-line-number="14">bf_ROPEd_hypothesis</a></code></pre></div>
+<pre><code>## [1] 0.4988849</code></pre>
+<p>This is only minor evidence in favor of the alternative hypothesis (Bayes factor <span class="math inline">\(\text{BF}_{10} \approx 2\)</span>).</p>
 <!-- exercise 3 -->
 <div class="exercises">
 <p><strong>Exercise 12.3: True or False?</strong></p>
