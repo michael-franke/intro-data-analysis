@@ -541,12 +541,15 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="Chap-03-01-probability-marginal" class="section level2">
 <h2><span class="header-section-number">7.2</span> Structured events &amp; marginal distributions</h2>
+<p>The single urn scenario of the last section is a very basic first example.
+TO pave the way for learning about conditional probability and Bayes rule in the next sections, let us consider a slightly more complex example.
+We call it the <em>flip-and-draw scenario</em>.</p>
 <div id="probability-table-for-a-flip-and-draw-scenario" class="section level3">
 <h3><span class="header-section-number">7.2.1</span> Probability table for a flip-and-draw scenario</h3>
 <p>Suppose we have two urns. Both have <span class="math inline">\(N=10\)</span> balls. Urn 1 has <span class="math inline">\(k_1=2\)</span> black and <span class="math inline">\(N-k_1 = 8\)</span> white balls. Urn 2 has <span class="math inline">\(k_2=4\)</span> black and <span class="math inline">\(N-k_2=6\)</span> white balls. We sometimes draw from urn 1, sometimes from urn 2. To decide from which urn a ball should be drawn, we flip a fair coin. If it comes up heads, we draw from urn 1; if it comes up tails, we draw from urn 2. The process is visualized in Figure <a href="Chap-03-01-probability-marginal.html#fig:03-01-flip-and-draw">7.2</a> below.</p>
 <p>An elementary outcome of this two-step process of flip-and-draw is a pair <span class="math inline">\(\langle \text{outcome-flip}, \text{outcome-draw} \rangle\)</span>. The set of all possible such outcomes is:</p>
 <p><span class="math display">\[\Omega_{\text{flip-and-draw}} = \left \{ \langle \text{heads}, \text{black} \rangle, \langle \text{heads}, \text{white} \rangle, \langle \text{tails}, \text{black} \rangle, \langle \text{tails}, \text{white} \rangle \right \}\,.\]</span></p>
-<p>The probability of event <span class="math inline">\(\langle \text{heads}, \text{black} \rangle\)</span> is given by multiplying the probability of seeing “heads” on the first flip, which happens with probability <span class="math inline">\(0.5\)</span>, and then drawing a black ball, which happens with probability <span class="math inline">\(0.2\)</span>, so that <span class="math inline">\(P(\langle \text{heads}, \text{black} \rangle) = 0.5 \times 0.2 = 0.1\)</span>. The probability distribution over <span class="math inline">\(\Omega_{\text{flip-draw}}\)</span> is consequently as in Table <a href="Chap-03-01-probability-marginal.html#tab:flipdrawprobabilities">7.1</a>. (If in doubt, start flipping &amp; drawing and count your outcomes.)</p>
+<p>The probability of event <span class="math inline">\(\langle \text{heads}, \text{black} \rangle\)</span> is given by multiplying the probability of seeing “heads” on the first flip, which happens with probability <span class="math inline">\(0.5\)</span>, and then drawing a black ball, which happens with probability <span class="math inline">\(0.2\)</span>, so that <span class="math inline">\(P(\langle \text{heads}, \text{black} \rangle) = 0.5 \times 0.2 = 0.1\)</span>. The probability distribution over <span class="math inline">\(\Omega_{\text{flip-draw}}\)</span> is consequently as in Table <a href="Chap-03-01-probability-marginal.html#tab:flipdrawprobabilities">7.1</a>. (If in doubt, start flipping &amp; drawing and count your outcomes or use the WebPPL code box in the exercise below to simulate flips-and-draws.)</p>
 <table>
 <caption><span id="tab:flipdrawprobabilities">Table 7.1: </span>Joint probability table for the flip-and-draw scenario</caption>
 <thead>
@@ -579,19 +582,21 @@ Figure 7.2: The flip-and-draw scenario, with transition and full path probabilit
 <div id="structured-events-and-joint-probability-distributions" class="section level3">
 <h3><span class="header-section-number">7.2.2</span> Structured events and joint-probability distributions</h3>
 <p>Table <a href="Chap-03-01-probability-marginal.html#tab:flipdrawprobabilities">7.1</a> is an example of a <strong>joint probability distribution</strong> over a structured event space, which here has two dimensions. Since our space of outcomes is the Cartesian product of two simpler outcome spaces, namely
-<span class="math inline">\(\Omega_{flip-\&amp;-draw} = \Omega_{flip} \times \Omega_{draw}\)</span>,<a href="#fn36" class="footnote-ref" id="fnref36"><sup>36</sup></a> we can use notation
+<span class="math inline">\(\Omega_{flip\text{-}\&amp;\text{-}draw} = \Omega_{flip} \times \Omega_{draw}\)</span>,<a href="#fn36" class="footnote-ref" id="fnref36"><sup>36</sup></a> we can use notation
 <span class="math inline">\(P(\text{heads}, \text{black})\)</span> as shorthand for <span class="math inline">\(P(\langle \text{heads}, \text{black} \rangle)\)</span>. More
 generally, if <span class="math inline">\(\Omega = \Omega_1 \times \dots \Omega_n\)</span>, we can think of <span class="math inline">\(P \in \Delta(\Omega)\)</span>
 as a joint probability distribution over <span class="math inline">\(n\)</span> subspaces.</p>
 </div>
 <div id="marginalization" class="section level3">
 <h3><span class="header-section-number">7.2.3</span> Marginalization</h3>
-<p>If <span class="math inline">\(P\)</span> is a joint-probability distribution over event space <span class="math inline">\(\Omega = \Omega_1 \times \dots \Omega_n\)</span>, the <strong>marginal distribution</strong> over subspace <span class="math inline">\(\Omega_i\)</span>, <span class="math inline">\(1 \le i \le n\)</span> is the probability distribution that assigns to all <span class="math inline">\(A_i \subseteq \Omega_i\)</span> the probability:<a href="#fn37" class="footnote-ref" id="fnref37"><sup>37</sup></a></p>
+<p>If <span class="math inline">\(P\)</span> is a joint probability distribution over event space <span class="math inline">\(\Omega = \Omega_1 \times \dots \Omega_n\)</span>, the <strong>marginal distribution</strong> over subspace <span class="math inline">\(\Omega_i\)</span>, <span class="math inline">\(1 \le i \le n\)</span> is the probability distribution that assigns to all <span class="math inline">\(A_i \subseteq \Omega_i\)</span> the probability:<a href="#fn37" class="footnote-ref" id="fnref37"><sup>37</sup></a></p>
 <p><span class="math display">\[  P(A_i) = \sum_{A_1 \subseteq \Omega_{1}, \dots , A_{i-1} \subseteq \Omega_{i-1}, A_{i+1} \subseteq \Omega_{i+1}, \dots, A_n \subseteq \Omega_n} P(A_1, \dots, A_{i-1}, A_{i}, A_{i+1}, \dots A_n) \]</span></p>
 <p>For example, the marginal distribution of draws derivable from Table <a href="Chap-03-01-probability-marginal.html#tab:flipdrawprobabilities">7.1</a> has <span class="math inline">\(P(\text{black}) = P(\text{heads, black}) + P(\text{heads, white}) = 0.3\)</span> and <span class="math inline">\(P(\text{white}) = 0.7\)</span>.<a href="#fn38" class="footnote-ref" id="fnref38"><sup>38</sup></a> The marginal distribution of coin flips derivable from the joint probability distribution in Table <a href="Chap-03-01-probability-marginal.html#tab:flipdrawprobabilities">7.1</a> gives <span class="math inline">\(P(\text{heads}) = P(\text{tails}) = 0.5\)</span>, since the sum of each column is exactly <span class="math inline">\(0.5\)</span>.</p>
 <div class="exercises">
 <p><strong>Exercise 7.3</strong></p>
-<p>Given the following joint probability table, compute the probability that a student does not attend the lecture, i.e., <span class="math inline">\(P(\text{miss})\)</span>.</p>
+<ol style="list-style-type: lower-alpha">
+<li>Given the following joint probability table, compute the probability that a student does not attend the lecture, i.e., <span class="math inline">\(P(\text{miss})\)</span>.</li>
+</ol>
 <table>
 <thead>
 <tr class="header">
@@ -619,6 +624,67 @@ Solution
 </button>
 <div class="content">
 <p><span class="math inline">\(P(\text{miss}) = P(\text{miss, rainy}) + P(\text{miss, dry}) = 0.6 + 0.1 = 0.7\)</span></p>
+</div>
+</div>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>Play around with the following WebPPL implementation of the flip-and-draw scenario. Change the ‘input values’ of the coin’s bias and the probabilities of sampling a black ball from either urn. Inspect the resulting joint probability tables and the marginal distribution of observing “black”. Try to find at least three different parameter settings that result in the marginal probability of black being 0.7.</li>
+</ol>
+<pre class="webppl">
+// you can play around with the values of these variables
+var coin_bias = 0.5          // coin bias
+var prob_black_urn_1 = 0.2   // probability of drawing "black" from urn 1 
+var prob_black_urn_2 = 0.4   // probability of drawing "black" from urn 2
+
+///fold:
+// convenience function for showing nicer tables
+var condProb2Table = function(condProbFct, row_names, col_names, precision){
+  var matrix = map(function(row) {
+    map(function(col) {
+      _.round(Math.exp(condProbFct.score({"coin": row, "ball": col})),precision)}, 
+        col_names)}, 
+                   row_names)
+  var max_length_col = _.max(map(function(c) {c.length}, col_names))
+  var max_length_row = _.max(map(function(r) {r.length}, row_names))
+  var header = _.repeat(" ", max_length_row + 2)+ col_names.join("  ") + "\n"
+  var row = mapIndexed(function(i,r) { _.padEnd(r, max_length_row, " ") + "  " + 
+                       mapIndexed(function(j,c) {
+                          _.padEnd(matrix[i][j], c.length+2," ")}, 
+                                  col_names).join("") + "\n" }, 
+                           row_names).join("")
+  return header + row
+}
+// flip-and-draw scenario model
+var model = function() {
+  var coin_flip = flip(coin_bias)  == 1 ? "heads" : "tails"
+  var prob_black_selected_urn = coin_flip == "heads" ?
+    prob_black_urn_1 : prob_black_urn_2
+  var ball_color = flip(prob_black_selected_urn) == 1 ? "black" : "white"
+  return({coin: coin_flip, ball: ball_color})
+}
+// infer model and display as (custom-made) table
+var inferred_model = Infer({method: 'enumerate'}, model)
+display("Joint probability table")
+display(condProb2Table(inferred_model, ["tails", "heads"], ["white", "black"], 3))
+display("\nMarginal probability of ball color")
+viz(marginalize(inferred_model, function(x) {return x.ball}))
+///
+</pre>
+<script>
+// find all <pre> elements and set up the editor on them
+var preEls = Array.prototype.slice.call(document.getElementsByClassName("webppl"));
+preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}); });
+</script>
+<div class="collapsibleSolution">
+<button class="trigger">
+Solution
+</button>
+<div class="content">
+<p>Three possibilities for obtaining a value of 0.7 for the marginal probability of “black”:</p>
+<ol style="list-style-type: decimal">
+<li><code>prob_black_urn_1 = prob_black_urn_2 = 0.7</code></li>
+<li><code>coin_bias = 1</code> and <code>prob_black_urn_1 = 0.7</code></li>
+<li><code>coin_bias = 0.5</code>, <code>prob_black_urn_1 = 0.8</code> and <code>prob_black_urn_2 = 0.6</code></li>
+</ol>
 </div>
 </div>
 </div>
