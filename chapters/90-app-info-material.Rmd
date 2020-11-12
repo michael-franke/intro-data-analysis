@@ -61,36 +61,36 @@ preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}
 
 We might also want to create our own distribution objects (= probability distributions). For this purpose, the built-in function `Infer()` comes in pretty handy. It takes as input a function with no arguments and returns a distribution object. The function passed to `Infer()` is the sampling function that should be turned into a distribution object. Additionally, `Infer()` can take on another optional argument, namely the *method* for performing inference. If this argument is not specified, WebPPL will automatically choose a reasonable method for inference. More on this function and different methods [here](https://webppl.readthedocs.io/en/master/inference/index.html).
 
-Here's an example of how to perform inference using the MCMC method. Click on the yellowish box to check what the code does and how `Infer()` is used. Please re-visit Chapter \@ref(ch-03-03-MCMC) for more information on MCMC algorithms.
+Here's an example of how to perform inference using the MCMC method. The example is one of a logistic regression (based on very little data) and the model returns samples from the posterior predictive distribution for a previously unseen data point. Click on the yellowish box to check what the code does and how `Infer()` is used. Please re-visit Chapter \@ref(ch-03-03-MCMC) for more information on MCMC algorithms.
 
 <pre class="webppl">
-// data to explain
-var xs = [-10, -5, 2, 6, 10];
-var labels = [false, false, true, true, true];
+// training data 
+var xs = [-10, -5, 2, 6, 10]
+var labels = [false, false, true, true, true]
+// new data point to predict a label for
+var x_new = 1
+
 ///fold:
 var model = function() {
-  var m = gaussian(0, 1);
-  var b = gaussian(0, 1);
-  var sigma = gamma(1, 1);
+  // priors of regression parameters
+  var beta_1 = gaussian(0, 1)
+  var beta_0 = gaussian(0, 1)
 
-  var y = function(x) {
-    return gaussian(m * x + b, sigma);
-  };
   var sigmoid = function(x) {
-    return 1 / (1 + Math.exp(-1 * y(x)));
-  };
+    return 1 / (1 + Math.exp(-1 * (beta_1 * x + beta_0)))
+  }
 
   map2(
     function(x, label) {
-      factor(Bernoulli({p: sigmoid(x)}).score(label));
+      factor(Bernoulli({p: sigmoid(x)}).score(label))
     },
     xs,
-    labels);
+    labels)
 
-  return sigmoid(8);
-};
+  return bernoulli(sigmoid(x_new))
+}
 
-viz.auto(Infer({method: 'MCMC', samples: 10000, burn: 2000}, model));
+viz.auto(Infer({method: 'MCMC', samples: 10000, burn: 2000}, model))
 ///
 </pre>
 
