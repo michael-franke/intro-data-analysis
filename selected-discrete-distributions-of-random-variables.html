@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="selected-continuous-distributions-of-random-variables.html"/>
-<link rel="next" href="understanding-distributions-as-random-variables.html"/>
+<link rel="next" href="app-92-exponential-family.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -331,7 +331,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="9.1" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html"><i class="fa fa-check"></i><b>9.1</b> Bayes rule of parameter estimation</a><ul>
 <li class="chapter" data-level="9.1.1" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#the-effects-of-prior-and-likelihood-on-the-posterior"><i class="fa fa-check"></i><b>9.1.1</b> The effects of prior and likelihood on the posterior</a></li>
 <li class="chapter" data-level="9.1.2" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#posterior-means-and-credible-intervals"><i class="fa fa-check"></i><b>9.1.2</b> Posterior means and credible intervals</a></li>
-<li class="chapter" data-level="9.1.3" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#computing-bayesian-posteriors-with-conjugate-priors"><i class="fa fa-check"></i><b>9.1.3</b> Computing Bayesian posteriors with conjugate priors</a></li>
+<li class="chapter" data-level="9.1.3" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#ch-03-04-parameter-estimation-conjugacy"><i class="fa fa-check"></i><b>9.1.3</b> Computing Bayesian posteriors with conjugate priors</a></li>
 <li class="chapter" data-level="9.1.4" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#sequential-updating"><i class="fa fa-check"></i><b>9.1.4</b> Sequential updating</a></li>
 </ul></li>
 <li class="chapter" data-level="9.2" data-path="ch-03-03-estimation-frequentist.html"><a href="ch-03-03-estimation-frequentist.html"><i class="fa fa-check"></i><b>9.2</b> A frequentist approach to parameter estimation</a><ul>
@@ -470,7 +470,6 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="B.2.5" data-path="selected-discrete-distributions-of-random-variables.html"><a href="selected-discrete-distributions-of-random-variables.html#app-91-distributions-beta-binomial"><i class="fa fa-check"></i><b>B.2.5</b> Beta-Binomial distribution</a></li>
 <li class="chapter" data-level="B.2.6" data-path="selected-discrete-distributions-of-random-variables.html"><a href="selected-discrete-distributions-of-random-variables.html#poisson-distribution"><i class="fa fa-check"></i><b>B.2.6</b> Poisson distribution</a></li>
 </ul></li>
-<li class="chapter" data-level="B.3" data-path="understanding-distributions-as-random-variables.html"><a href="understanding-distributions-as-random-variables.html"><i class="fa fa-check"></i><b>B.3</b> Understanding distributions as random variables</a></li>
 </ul></li>
 <li class="chapter" data-level="C" data-path="app-92-exponential-family.html"><a href="app-92-exponential-family.html"><i class="fa fa-check"></i><b>C</b> Exponential Family and Maximum Entropy</a><ul>
 <li class="chapter" data-level="C.1" data-path="an-important-family-the-exponential-family.html"><a href="an-important-family-the-exponential-family.html"><i class="fa fa-check"></i><b>C.1</b> An important family: The Exponential Family</a></li>
@@ -547,44 +546,13 @@ code span.wa { color: #bf0303; } /* Warning */
 Consider a coin-flip experiment with the outcomes “heads” or “tails”. If we flip a coin repeatedly, e.g., 30 times, the successive trials are independent of each other and the probability <span class="math inline">\(p\)</span> is constant, then the resulting binomial distribution is a discrete random variable with outcomes <span class="math inline">\(\{0,1,2,...,30\}\)</span>.<br />
 The binomial distribution has two parameters “size” and “prob”, often denoted as <span class="math inline">\(n\)</span> and <span class="math inline">\(p\)</span>, respectively. The “size” parameter refers to the number of trials and “prob” to the probability of success:
 <span class="math display">\[X \sim Binomial(n,p).\]</span></p>
-<p>Figure <a href="selected-discrete-distributions-of-random-variables.html#fig:ch-app-01-binomial-distribution-mass">B.15</a> shows the probability mass function of three binomially distributed random variables with different parameter values. As stated above, <span class="math inline">\(p\)</span> refers to the probability of success. The higher this probability, the more often we will observe the outcome coded with “1”. Therefore, the distribution tends toward the right side and vice-versa. The distribution gets more symmetrical if the parameter <span class="math inline">\(p\)</span> approximates 0.5. Figure <a href="selected-discrete-distributions-of-random-variables.html#fig:ch-app-01-binomial-distribution-cumulative">B.16</a> shows the corresponding cumulative functions.</p>
-<div class="sourceCode" id="cb622"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb622-1" data-line-number="1"><span class="co"># how many trials</span></a>
-<a class="sourceLine" id="cb622-2" data-line-number="2">trials =<span class="st"> </span><span class="dv">30</span></a>
-<a class="sourceLine" id="cb622-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb622-4" data-line-number="4">rv_binom &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb622-5" data-line-number="5">  <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dv">0</span>, trials),</a>
-<a class="sourceLine" id="cb622-6" data-line-number="6">  <span class="dt">y1 =</span> <span class="kw">dbinom</span>(x, <span class="dt">size =</span> trials, <span class="dt">p =</span> <span class="fl">0.2</span>),</a>
-<a class="sourceLine" id="cb622-7" data-line-number="7">  <span class="dt">y2 =</span> <span class="kw">dbinom</span>(x, <span class="dt">size =</span> trials, <span class="dt">p =</span> <span class="fl">0.5</span>),</a>
-<a class="sourceLine" id="cb622-8" data-line-number="8">  <span class="dt">y3 =</span> <span class="kw">dbinom</span>(x, <span class="dt">size =</span> trials, <span class="dt">p =</span> <span class="fl">0.8</span>)</a>
-<a class="sourceLine" id="cb622-9" data-line-number="9">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb622-10" data-line-number="10"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;y&quot;</span>),</a>
-<a class="sourceLine" id="cb622-11" data-line-number="11">               <span class="dt">names_to  =</span> <span class="st">&quot;parameter&quot;</span>,</a>
-<a class="sourceLine" id="cb622-12" data-line-number="12">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb622-13" data-line-number="13"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb622-14" data-line-number="14">    <span class="dt">parameter =</span> <span class="kw">case_when</span>(parameter <span class="op">==</span><span class="st"> &quot;y1&quot;</span> <span class="op">~</span><span class="st"> &quot;(n,0.2)&quot;</span>,</a>
-<a class="sourceLine" id="cb622-15" data-line-number="15">                          parameter <span class="op">==</span><span class="st"> &quot;y2&quot;</span> <span class="op">~</span><span class="st"> &quot;(n,0.5)&quot;</span>,</a>
-<a class="sourceLine" id="cb622-16" data-line-number="16">                          parameter <span class="op">==</span><span class="st"> &quot;y3&quot;</span> <span class="op">~</span><span class="st"> &quot;(n,0.8)&quot;</span>)</a>
-<a class="sourceLine" id="cb622-17" data-line-number="17">  )</a>
-<a class="sourceLine" id="cb622-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb622-19" data-line-number="19"><span class="co"># dist plot</span></a>
-<a class="sourceLine" id="cb622-20" data-line-number="20"><span class="kw">ggplot</span>(rv_binom, <span class="kw">aes</span>(x, y, <span class="dt">fill =</span> parameter)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb622-21" data-line-number="21"><span class="st">  </span><span class="kw">geom_col</span>(<span class="dt">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.8</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb622-22" data-line-number="22"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;X ~ Binomial&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Probability&quot;</span>)</a></code></pre></div>
+<p>Figure <a href="selected-discrete-distributions-of-random-variables.html#fig:ch-app-01-binomial-distribution-mass">B.15</a> shows the probability mass function of three binomially distributed random variables with different parameter values. As stated above, <span class="math inline">\(p\)</span> refers to the probability of success. The higher this probability, the more often we will observe the outcome coded with “1”. Therefore, the distribution tends toward the right side and vice-versa. The distribution gets more symmetric if the parameter <span class="math inline">\(p\)</span> approximates 0.5. Figure <a href="selected-discrete-distributions-of-random-variables.html#fig:ch-app-01-binomial-distribution-cumulative">B.16</a> shows the corresponding cumulative functions.</p>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-binomial-distribution-mass"></span>
-<img src="I2DA_files/figure-html/ch-app-01-binomial-distribution-mass-1.png" alt="Examples of a probability mass function of the binomial distribution." width="672" />
+<img src="I2DA_files/figure-html/ch-app-01-binomial-distribution-mass-1.png" alt="Examples of a probability mass function of the binomial distribution. Numbers in the legend are pairs of parameters $(n, p)$." width="672" />
 <p class="caption">
-Figure B.15: Examples of a probability mass function of the binomial distribution.
+Figure B.15: Examples of a probability mass function of the binomial distribution. Numbers in the legend are pairs of parameters <span class="math inline">\((n, p)\)</span>.
 </p>
 </div>
-<div class="sourceCode" id="cb623"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb623-1" data-line-number="1">rv_binom <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb623-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(parameter) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb623-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb623-4" data-line-number="4">    <span class="dt">cum_y =</span> <span class="kw">cumsum</span>(y)<span class="op">/</span><span class="kw">sum</span>(y)</a>
-<a class="sourceLine" id="cb623-5" data-line-number="5">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb623-6" data-line-number="6"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb623-7" data-line-number="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, cum_y, <span class="dt">color =</span> parameter)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb623-8" data-line-number="8"><span class="st">    </span><span class="kw">geom_step</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb623-9" data-line-number="9"><span class="st">    </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">&quot;X ~ Binomial&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;y&quot;</span>)</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-binomial-distribution-cumulative"></span>
 <img src="I2DA_files/figure-html/ch-app-01-binomial-distribution-cumulative-1.png" alt="The cumulative distribution functions of the binomial distributions corresponding to the previous probability mass functions." width="672" />
 <p class="caption">
@@ -604,7 +572,7 @@ where <span class="math inline">\(\binom{n}{x}\)</span> is the binomial coeffici
 <pre class="webppl">
 var p = 0.5;           // probability of success
 var n = 4;             // number of trials (>= 1)
-var n_samples = 10000; // number of samples used for approximation
+var n_samples = 30000; // number of samples used for approximation
 ///fold:
 viz(repeat(n_samples, function(x) {binomial({p: p, n: n})}));
 ///
@@ -635,7 +603,7 @@ It is a generalization of the binomial coefficient <span class="math inline">\(\
 <pre class="webppl">
 var ps = [0.25, 0.25, 0.25, 0.25];  // probabilities
 var n = 4;                          // number of trials (>= 1)
-var n_samples = 10000;              // number of samples used for approximation
+var n_samples = 30000;              // number of samples used for approximation
 ///fold:
 viz.hist(repeat(n_samples, function(x) {multinomial({ps: ps, n: n})}));
 ///
@@ -655,49 +623,12 @@ preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}
 As the “size” parameter is now negligible, the Bernoulli distribution has only one parameter, the probability of success <span class="math inline">\(p\)</span>:
 <span class="math display">\[X \sim Bern(p).\]</span>
 Figure <a href="selected-discrete-distributions-of-random-variables.html#fig:ch-app-01-bernoulli-distribution-mass">B.17</a> shows the probability mass function of three Bernoulli distributed random variables with different parameters. Figure <a href="selected-discrete-distributions-of-random-variables.html#fig:ch-app-01-bernoulli-distribution-cumulative">B.18</a> shows the corresponding cumulative distributions.</p>
-<div class="sourceCode" id="cb624"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb624-1" data-line-number="1">rv_bern &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb624-2" data-line-number="2">  <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb624-3" data-line-number="3">  <span class="dt">y1 =</span> <span class="kw">dbern</span>(x, <span class="dt">prob =</span> <span class="fl">0.2</span>),</a>
-<a class="sourceLine" id="cb624-4" data-line-number="4">  <span class="dt">y2 =</span> <span class="kw">dbern</span>(x, <span class="dt">prob =</span> <span class="fl">0.5</span>),</a>
-<a class="sourceLine" id="cb624-5" data-line-number="5">  <span class="dt">y3 =</span> <span class="kw">dbern</span>(x, <span class="dt">prob =</span> <span class="fl">0.8</span>)</a>
-<a class="sourceLine" id="cb624-6" data-line-number="6">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb624-7" data-line-number="7"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;y&quot;</span>),</a>
-<a class="sourceLine" id="cb624-8" data-line-number="8">               <span class="dt">names_to  =</span> <span class="st">&quot;parameter&quot;</span>,</a>
-<a class="sourceLine" id="cb624-9" data-line-number="9">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb624-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb624-11" data-line-number="11">    <span class="dt">parameter =</span> <span class="kw">case_when</span>(parameter <span class="op">==</span><span class="st"> &quot;y1&quot;</span> <span class="op">~</span><span class="st"> &quot;(0.2)&quot;</span>,</a>
-<a class="sourceLine" id="cb624-12" data-line-number="12">                          parameter <span class="op">==</span><span class="st"> &quot;y2&quot;</span> <span class="op">~</span><span class="st"> &quot;(0.5)&quot;</span>,</a>
-<a class="sourceLine" id="cb624-13" data-line-number="13">                          parameter <span class="op">==</span><span class="st"> &quot;y3&quot;</span> <span class="op">~</span><span class="st"> &quot;(0.8)&quot;</span>)</a>
-<a class="sourceLine" id="cb624-14" data-line-number="14">  )</a>
-<a class="sourceLine" id="cb624-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb624-16" data-line-number="16"><span class="co"># dist plot</span></a>
-<a class="sourceLine" id="cb624-17" data-line-number="17"><span class="kw">ggplot</span>(rv_bern, <span class="kw">aes</span>(x, y, <span class="dt">fill =</span> parameter)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb624-18" data-line-number="18"><span class="st">  </span><span class="kw">geom_col</span>(<span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>, <span class="dt">color =</span> <span class="st">&quot;white&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb624-19" data-line-number="19"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;X ~ Bernoulli&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Probability&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb624-20" data-line-number="20"><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">c</span>(<span class="fl">0.0</span>,<span class="fl">1.0</span>), <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;0&quot;</span>,<span class="st">&quot;1&quot;</span>), <span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">0.5</span>,<span class="fl">1.5</span>))</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-bernoulli-distribution-mass"></span>
 <img src="I2DA_files/figure-html/ch-app-01-bernoulli-distribution-mass-1.png" alt="Examples of a probability mass function of the Bernoulli distribution." width="672" />
 <p class="caption">
 Figure B.17: Examples of a probability mass function of the Bernoulli distribution.
 </p>
 </div>
-<div class="sourceCode" id="cb625"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb625-1" data-line-number="1">rv_bern <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb625-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(parameter) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb625-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb625-4" data-line-number="4">    <span class="dt">cum_y =</span> <span class="kw">cumsum</span>(y)<span class="op">/</span><span class="kw">sum</span>(y),</a>
-<a class="sourceLine" id="cb625-5" data-line-number="5">    <span class="dt">cum_y2 =</span> <span class="kw">cumsum</span>(y)<span class="op">/</span><span class="kw">sum</span>(y)</a>
-<a class="sourceLine" id="cb625-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb625-7" data-line-number="7"><span class="st">  </span><span class="kw">add_column</span>(</a>
-<a class="sourceLine" id="cb625-8" data-line-number="8">    <span class="dt">x2 =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="fl">1.5</span>,<span class="fl">1.5</span>,<span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb625-9" data-line-number="9">  ) <span class="op">%&gt;%</span><span class="st">  </span></a>
-<a class="sourceLine" id="cb625-10" data-line-number="10"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb625-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb625-12" data-line-number="12"><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, cum_y, <span class="dt">color =</span> parameter)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb625-13" data-line-number="13"><span class="st">  </span><span class="kw">geom_segment</span>(<span class="kw">aes</span>(<span class="dt">xend =</span> x2, <span class="dt">yend =</span> cum_y2), <span class="dt">size =</span> <span class="fl">1.5</span>, <span class="dt">linetype =</span> <span class="st">&quot;dashed&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb625-14" data-line-number="14"><span class="st">  </span><span class="kw">geom_segment</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="fl">-0.5</span>, <span class="dt">y =</span> <span class="dv">0</span>,<span class="dt">xend =</span> <span class="fl">0.0</span>, <span class="dt">yend =</span> <span class="dv">0</span>), <span class="dt">size =</span> <span class="fl">1.5</span>, <span class="dt">linetype =</span> <span class="st">&quot;dashed&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb625-15" data-line-number="15"><span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(x, cum_y), <span class="dt">size =</span> <span class="dv">4</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb625-16" data-line-number="16"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">&quot;X ~ Bernoulli&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;y&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb625-17" data-line-number="17"><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">c</span>(<span class="fl">0.0</span>,<span class="fl">1.0</span>), <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;0&quot;</span>,<span class="st">&quot;1&quot;</span>), <span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">0.5</span>,<span class="fl">1.5</span>))</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-bernoulli-distribution-cumulative"></span>
 <img src="I2DA_files/figure-html/ch-app-01-bernoulli-distribution-cumulative-1.png" alt="The cumulative distribution functions of the Bernoulli distributions corresponding to the previous probability mass functions." width="672" />
 <p class="caption">
@@ -715,7 +646,7 @@ Figure B.18: The cumulative distribution functions of the Bernoulli distribution
 <p>Here’s WebPPL code to explore the effect of different parameter values on a Bernoulli distribution:</p>
 <pre class="webppl">
 var p = 0.5;           // probability of success
-var n_samples = 10000; // number of samples used for approximation
+var n_samples = 30000; // number of samples used for approximation
 ///fold:
 viz(repeat(n_samples, function(x) {bernoulli({p: p})}));
 ///
@@ -731,46 +662,15 @@ preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}
 </div>
 <div id="app-91-distributions-categorical" class="section level3">
 <h3><span class="header-section-number">B.2.4</span> Categorical distribution</h3>
-<p>The categorical distribution, sometimes also referred to as <em>multinoulli</em> distribution, is a generalization of the Bernoulli distribution for categorical random variables: While a Bernoulli distribution is a distribution over two alternatives, the categorical is a distribution over multiple alternatives. For a single trial (e.g., a single die roll), the categorical distribution is equal to the multinomial distribution.</p>
+<p>The categorical distribution is a generalization of the Bernoulli distribution for categorical random variables: While a Bernoulli distribution is a distribution over two alternatives, the categorical is a distribution over multiple alternatives. For a single trial (e.g., a single die roll), the categorical distribution is equal to the multinomial distribution.</p>
 <p>The categorical distribution is parametrized by the probabilities assigned to each event. Let <span class="math inline">\(p_i\)</span> be the probability assigned to outcome <span class="math inline">\(i\)</span>. The set of <span class="math inline">\(p_i\)</span>’s are the parameters, constrained by <span class="math inline">\(\sum_{i=1}^kp_i=1\)</span>.</p>
-<p><span class="math display">\[X \sim Cat(\mathbf{p})\]</span></p>
-<div class="sourceCode" id="cb626"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb626-1" data-line-number="1">rv_cat &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb626-2" data-line-number="2">  <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">20</span>),</a>
-<a class="sourceLine" id="cb626-3" data-line-number="3">  <span class="dt">y1 =</span> <span class="kw">dcat</span>(x, <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.2</span>,<span class="fl">0.3</span>,<span class="fl">0.4</span>,<span class="fl">0.1</span>)),</a>
-<a class="sourceLine" id="cb626-4" data-line-number="4">  <span class="dt">y2 =</span> <span class="kw">dcat</span>(x, <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.1</span>,<span class="fl">0.1</span>,<span class="fl">0.5</span>,<span class="fl">0.3</span>)),</a>
-<a class="sourceLine" id="cb626-5" data-line-number="5">  <span class="dt">y3 =</span> <span class="kw">dcat</span>(x, <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.4</span>,<span class="fl">0.3</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>))</a>
-<a class="sourceLine" id="cb626-6" data-line-number="6">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb626-7" data-line-number="7"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;y&quot;</span>),</a>
-<a class="sourceLine" id="cb626-8" data-line-number="8">               <span class="dt">names_to  =</span> <span class="st">&quot;parameter&quot;</span>,</a>
-<a class="sourceLine" id="cb626-9" data-line-number="9">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb626-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb626-11" data-line-number="11">    <span class="dt">parameter =</span> <span class="kw">case_when</span>(parameter <span class="op">==</span><span class="st"> &quot;y1&quot;</span> <span class="op">~</span><span class="st"> &quot;(0.2,0.3,0.4,0.1)&quot;</span>,</a>
-<a class="sourceLine" id="cb626-12" data-line-number="12">                          parameter <span class="op">==</span><span class="st"> &quot;y2&quot;</span> <span class="op">~</span><span class="st"> &quot;(0.1,0.1,0.5,0.3)&quot;</span>,</a>
-<a class="sourceLine" id="cb626-13" data-line-number="13">                          parameter <span class="op">==</span><span class="st"> &quot;y3&quot;</span> <span class="op">~</span><span class="st"> &quot;(0.4,0.3,0.1,0.2)&quot;</span>)</a>
-<a class="sourceLine" id="cb626-14" data-line-number="14">  )</a>
-<a class="sourceLine" id="cb626-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb626-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb626-17" data-line-number="17"><span class="co"># dist plot</span></a>
-<a class="sourceLine" id="cb626-18" data-line-number="18"><span class="kw">ggplot</span>(rv_cat, <span class="kw">aes</span>(x, y, <span class="dt">fill =</span> parameter)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb626-19" data-line-number="19"><span class="st">  </span><span class="kw">geom_col</span>(<span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>, <span class="dt">color =</span> <span class="st">&quot;white&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb626-20" data-line-number="20"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;X ~ Categorical&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Probability&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb626-21" data-line-number="21"><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>))</a></code></pre></div>
+<p><span class="math display">\[X \sim Categorical(\mathbf{p})\]</span></p>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-categorical-distribution-mass"></span>
 <img src="I2DA_files/figure-html/ch-app-01-categorical-distribution-mass-1.png" alt="Examples of a probability mass function of the categorical distribution." width="672" />
 <p class="caption">
 Figure B.19: Examples of a probability mass function of the categorical distribution.
 </p>
 </div>
-<div class="sourceCode" id="cb627"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb627-1" data-line-number="1">rv_cat <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb627-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(parameter) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb627-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb627-4" data-line-number="4">    <span class="dt">cum_y =</span> <span class="kw">cumsum</span>(y)<span class="op">/</span><span class="kw">sum</span>(y)</a>
-<a class="sourceLine" id="cb627-5" data-line-number="5">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb627-6" data-line-number="6"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb627-7" data-line-number="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, cum_y, <span class="dt">color =</span> parameter)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb627-8" data-line-number="8"><span class="st">    </span><span class="kw">geom_step</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb627-9" data-line-number="9"><span class="st">    </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">&quot;X ~ Categorical&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;y&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb627-10" data-line-number="10"><span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>))</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-categorical-distribution-cumulative"></span>
 <img src="I2DA_files/figure-html/ch-app-01-categorical-distribution-cumulative-1.png" alt="The cumulative distribution functions of the categorical distributions corresponding to the previous probability mass functions." width="672" />
 <p class="caption">
@@ -788,7 +688,7 @@ Figure B.20: The cumulative distribution functions of the categorical distributi
 <pre class="webppl">
 var ps = [0.5, 0.25, 0.25];  // probabilities
 var vs = [1, 2, 3];          // categories
-var n_samples = 10000;       // number of samples used for approximation
+var n_samples = 30000;       // number of samples used for approximation
 ///fold:
 viz(repeat(n_samples, function(x) {categorical({ps: ps, vs: vs})}));
 ///
@@ -809,43 +709,12 @@ Therefore, the beta-binomial distribution has three parameters <span class="math
 <span class="math display">\[X \sim BetaBinom(n,a,b).\]</span>
 For large values of a and b, the distribution approaches a binomial distribution. When <span class="math inline">\(a=1\)</span> and <span class="math inline">\(b=1\)</span>, the distribution equals a discrete uniform distribution from 0 to <span class="math inline">\(n\)</span>. When <span class="math inline">\(n = 1\)</span>, the distribution equals a Bernoulli distribution.</p>
 <p>Figure <a href="selected-discrete-distributions-of-random-variables.html#fig:ch-app-01-betabinom-distribution-mass">B.21</a> shows the probability mass function of three beta-binomial distributed random variables with different parameter values. Figure <a href="selected-discrete-distributions-of-random-variables.html#fig:ch-app-01-betabinom-distribution-cumulative">B.22</a> shows the corresponding cumulative distributions.</p>
-<div class="sourceCode" id="cb628"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb628-1" data-line-number="1"><span class="co"># how many trials</span></a>
-<a class="sourceLine" id="cb628-2" data-line-number="2">trials =<span class="st"> </span><span class="dv">30</span></a>
-<a class="sourceLine" id="cb628-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb628-4" data-line-number="4">rv_betabinom &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb628-5" data-line-number="5">  <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> trials),</a>
-<a class="sourceLine" id="cb628-6" data-line-number="6">  <span class="dt">y1 =</span> <span class="kw">dbbinom</span>(x, <span class="dt">size =</span> trials, <span class="dt">alpha =</span> <span class="dv">4</span>, <span class="dt">beta =</span> <span class="dv">4</span>),</a>
-<a class="sourceLine" id="cb628-7" data-line-number="7">  <span class="dt">y2 =</span> <span class="kw">dbbinom</span>(x, <span class="dt">size =</span> trials, <span class="dt">alpha =</span> <span class="dv">2</span>, <span class="dt">beta =</span> <span class="dv">4</span>),</a>
-<a class="sourceLine" id="cb628-8" data-line-number="8">  <span class="dt">y3 =</span> <span class="kw">dbbinom</span>(x, <span class="dt">size =</span> trials, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">beta =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb628-9" data-line-number="9">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb628-10" data-line-number="10"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;y&quot;</span>),</a>
-<a class="sourceLine" id="cb628-11" data-line-number="11">               <span class="dt">names_to  =</span> <span class="st">&quot;parameter&quot;</span>,</a>
-<a class="sourceLine" id="cb628-12" data-line-number="12">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb628-13" data-line-number="13"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb628-14" data-line-number="14">    <span class="dt">parameter =</span> <span class="kw">case_when</span>(parameter <span class="op">==</span><span class="st"> &quot;y1&quot;</span> <span class="op">~</span><span class="st"> &quot;(n,4,4)&quot;</span>,</a>
-<a class="sourceLine" id="cb628-15" data-line-number="15">                          parameter <span class="op">==</span><span class="st"> &quot;y2&quot;</span> <span class="op">~</span><span class="st"> &quot;(n,2,4)&quot;</span>,</a>
-<a class="sourceLine" id="cb628-16" data-line-number="16">                          parameter <span class="op">==</span><span class="st"> &quot;y3&quot;</span> <span class="op">~</span><span class="st"> &quot;(n,1,1)&quot;</span>)</a>
-<a class="sourceLine" id="cb628-17" data-line-number="17">  )</a>
-<a class="sourceLine" id="cb628-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb628-19" data-line-number="19"><span class="co"># dist plot</span></a>
-<a class="sourceLine" id="cb628-20" data-line-number="20"><span class="kw">ggplot</span>(rv_betabinom, <span class="kw">aes</span>(x, y, <span class="dt">fill =</span> parameter)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb628-21" data-line-number="21"><span class="st">  </span><span class="kw">geom_col</span>(<span class="dt">position =</span> <span class="st">&quot;identity&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.7</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb628-22" data-line-number="22"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;X ~ Beta-Binomial&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Probability&quot;</span>)</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-betabinom-distribution-mass"></span>
-<img src="I2DA_files/figure-html/ch-app-01-betabinom-distribution-mass-1.png" alt="Examples of a probability mass function of the beta-binomial distribution." width="672" />
+<img src="I2DA_files/figure-html/ch-app-01-betabinom-distribution-mass-1.png" alt="Examples of a probability mass function of the beta-binomial distribution. Triples of numbers in the legend represent parameter values $(n,a,b)$." width="672" />
 <p class="caption">
-Figure B.21: Examples of a probability mass function of the beta-binomial distribution.
+Figure B.21: Examples of a probability mass function of the beta-binomial distribution. Triples of numbers in the legend represent parameter values <span class="math inline">\((n,a,b)\)</span>.
 </p>
 </div>
-<div class="sourceCode" id="cb629"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb629-1" data-line-number="1">rv_betabinom <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb629-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(parameter) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb629-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb629-4" data-line-number="4">    <span class="dt">cum_y =</span> <span class="kw">cumsum</span>(y)<span class="op">/</span><span class="kw">sum</span>(y)</a>
-<a class="sourceLine" id="cb629-5" data-line-number="5">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb629-6" data-line-number="6"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb629-7" data-line-number="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, cum_y, <span class="dt">color =</span> parameter)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb629-8" data-line-number="8"><span class="st">    </span><span class="kw">geom_step</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb629-9" data-line-number="9"><span class="st">    </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">&quot;X ~ Beta-Binomial&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;y&quot;</span>) </a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-betabinom-distribution-cumulative"></span>
 <img src="I2DA_files/figure-html/ch-app-01-betabinom-distribution-cumulative-1.png" alt="The cumulative distribution functions of the beta-binomial distributions corresponding to the previous probability mass functions." width="672" />
 <p class="caption">
@@ -867,7 +736,7 @@ where <span class="math inline">\({}_3F_2(n,a,b)\)</span> is the generalized hyp
 var a = 1;              // shape parameter alpha
 var b = 1;              // shape parameter beta
 var n = 10;             // number of trials (>= 1)
-var n_samples = 10000;  // number of samples used for approximation
+var n_samples = 30000;  // number of samples used for approximation
 ///fold:
 viz(repeat(n_samples, function(x) {binomial({n: n, p: beta(a, b)})}));
 ///
@@ -883,46 +752,17 @@ preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}
 </div>
 <div id="poisson-distribution" class="section level3">
 <h3><span class="header-section-number">B.2.6</span> Poisson distribution</h3>
-<p>A Poisson distributed random variable represents the number of successes occurring in a given <em>time interval</em>. It gives the probability of a given number of events happening in a fixed interval of time. The Poisson distribution is a limiting case of the binomial distribution when the number of trials becomes very large and the probability of success is small (e.g., the number of car accidents in Osnabrueck in the next month, the number of typing errors on a page, the number of interruptions generated by a CPU during T seconds, etc.).
+<p>A Poisson distributed random variable represents the number of events occurring in a given <em>time interval</em>. The Poisson distribution is a limiting case of the binomial distribution when the number of trials becomes very large and the probability of success is small (e.g., the number of car accidents in Osnabrueck in the next month, the number of typing errors on a page, the number of interruptions generated by a CPU during T seconds, etc.).
 Events described by a Poisson distribution must fulfill the following conditions: they occur in non-overlapping intervals, they do not occur simultaneously, and each event occurs at a constant rate.</p>
-<p>The Poisson distribution has one parameter, the rate <span class="math inline">\(\lambda\)</span>, sometimes also referred to as <em>intensity</em>:
-<span class="math display">\[X \sim Po(\lambda).\]</span></p>
+<p>The Poisson distribution has one parameter, the rate <span class="math inline">\(\lambda\)</span>, sometimes also referred to as <em>intensity</em>:</p>
+<p><span class="math display">\[X \sim Poisson(\lambda).\]</span></p>
 <p>The parameter <span class="math inline">\(\lambda\)</span> can be thought of as the expected number of events in the time interval. Consequently, changing the rate parameter changes the probability of seeing different numbers of events in one interval. Figure <a href="selected-discrete-distributions-of-random-variables.html#fig:ch-app-01-poisson-distribution-mass">B.23</a> shows the probability mass function of three Poisson distributed random variables with different parameter values. Notice that the higher <span class="math inline">\(\lambda\)</span>, the more symmetrical the distribution gets. In fact, the Poisson distribution can be approximated by a normal distribution for a rate parameter of <span class="math inline">\(\geq\)</span> 10. Figure <a href="selected-discrete-distributions-of-random-variables.html#fig:ch-app-01-poisson-distribution-cumulative">B.24</a> shows the corresponding cumulative distributions.</p>
-<div class="sourceCode" id="cb630"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb630-1" data-line-number="1">rv_pois &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb630-2" data-line-number="2">  <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">0</span>, <span class="dt">to =</span> <span class="dv">30</span>, <span class="dt">by =</span> <span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb630-3" data-line-number="3">  <span class="dt">y1 =</span> <span class="kw">dpois</span>(x, <span class="dt">lambda =</span> <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb630-4" data-line-number="4">  <span class="dt">y2 =</span> <span class="kw">dpois</span>(x, <span class="dt">lambda =</span> <span class="dv">8</span>),</a>
-<a class="sourceLine" id="cb630-5" data-line-number="5">  <span class="dt">y3 =</span> <span class="kw">dpois</span>(x, <span class="dt">lambda =</span> <span class="dv">15</span>)</a>
-<a class="sourceLine" id="cb630-6" data-line-number="6">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb630-7" data-line-number="7"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">starts_with</span>(<span class="st">&quot;y&quot;</span>),</a>
-<a class="sourceLine" id="cb630-8" data-line-number="8">               <span class="dt">names_to  =</span> <span class="st">&quot;parameter&quot;</span>,</a>
-<a class="sourceLine" id="cb630-9" data-line-number="9">               <span class="dt">values_to =</span> <span class="st">&quot;y&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb630-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb630-11" data-line-number="11">    <span class="dt">parameter =</span> <span class="kw">case_when</span>(parameter <span class="op">==</span><span class="st"> &quot;y1&quot;</span> <span class="op">~</span><span class="st"> &quot;(2)&quot;</span>,</a>
-<a class="sourceLine" id="cb630-12" data-line-number="12">                          parameter <span class="op">==</span><span class="st"> &quot;y2&quot;</span> <span class="op">~</span><span class="st"> &quot;(8)&quot;</span>,</a>
-<a class="sourceLine" id="cb630-13" data-line-number="13">                          parameter <span class="op">==</span><span class="st"> &quot;y3&quot;</span> <span class="op">~</span><span class="st"> &quot;(15)&quot;</span>)</a>
-<a class="sourceLine" id="cb630-14" data-line-number="14">  )</a>
-<a class="sourceLine" id="cb630-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb630-16" data-line-number="16"><span class="co"># dist plot</span></a>
-<a class="sourceLine" id="cb630-17" data-line-number="17"><span class="kw">ggplot</span>(rv_pois, <span class="kw">aes</span>(x, y, <span class="dt">fill =</span> parameter)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb630-18" data-line-number="18"><span class="st">  </span><span class="kw">geom_col</span>(<span class="dt">alpha =</span> <span class="fl">0.7</span>, <span class="dt">position =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb630-19" data-line-number="19"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">fill =</span> <span class="st">&quot;X ~ Poisson&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Density&quot;</span>) </a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-poisson-distribution-mass"></span>
 <img src="I2DA_files/figure-html/ch-app-01-poisson-distribution-mass-1.png" alt="Examples of a probability mass function of the Poisson distribution." width="672" />
 <p class="caption">
 Figure B.23: Examples of a probability mass function of the Poisson distribution.
 </p>
 </div>
-<div class="sourceCode" id="cb631"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb631-1" data-line-number="1"><span class="co"># cumdist plot</span></a>
-<a class="sourceLine" id="cb631-2" data-line-number="2">rv_pois <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb631-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(parameter) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb631-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb631-5" data-line-number="5">    <span class="dt">cum_y =</span> <span class="kw">cumsum</span>(y)<span class="op">/</span><span class="kw">sum</span>(y)</a>
-<a class="sourceLine" id="cb631-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb631-7" data-line-number="7"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb631-8" data-line-number="8"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, cum_y, <span class="dt">color =</span> parameter)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb631-9" data-line-number="9"><span class="st">    </span><span class="kw">geom_step</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb631-10" data-line-number="10"><span class="st">    </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">&quot;X ~ Poisson&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;y&quot;</span>)</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:ch-app-01-poisson-distribution-cumulative"></span>
 <img src="I2DA_files/figure-html/ch-app-01-poisson-distribution-cumulative-1.png" alt="The cumulative distribution functions of the Poisson distributions corresponding to the previous probability mass functions." width="672" />
 <p class="caption">
@@ -940,7 +780,7 @@ Figure B.24: The cumulative distribution functions of the Poisson distributions 
 <p>Here’s WebPPL code to explore the effect of different parameter values on a Poisson distribution:</p>
 <pre class="webppl">
 var lambda = 5;        // rate parameter
-var n_samples = 10000; // number of samples used for approximation
+var n_samples = 30000; // number of samples used for approximation
 ///fold:
 viz(repeat(n_samples, function(x) {poisson({mu: lambda})}));
 ///
@@ -952,16 +792,159 @@ viz(repeat(n_samples, function(x) {poisson({mu: lambda})}));
 var preEls = Array.prototype.slice.call(document.getElementsByClassName("webppl"));
 preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}); });
 </script>
+<!-- ## Understanding distributions as random variables -->
+<!-- ```{r, ch-app-01-random-variables-normal-distribution, fig.cap = "Transformation of a normally distributed random variable by addition and linear transformation.", echo=F} -->
+<!-- rv_normal_transform = tibble( -->
+<!--   x_axis = seq(from = -5, to = 5, by = .01), -->
+<!--   rv_norm_x = dnorm(x = x_axis, mean = 1, sd = 2), -->
+<!--   rv_norm_y = dnorm(x = x_axis, mean = 1.75, sd = 2.75), -->
+<!--   rv_linear_transform = 3*rv_norm_x+0.25, -->
+<!--   rv_summ_transform = rv_norm_x + rv_norm_y -->
+<!-- ) %>%  -->
+<!--   pivot_longer(cols = starts_with("rv"), -->
+<!--                names_to  = "random_variables", -->
+<!--                values_to = "y") %>%  -->
+<!--   mutate( -->
+<!--     random_variables = case_when(random_variables == "rv_norm_x" ~ "X ~ N(1,2)", -->
+<!--                           random_variables == "rv_norm_y" ~ "Y ~ N(1.75,2.75)", -->
+<!--                           random_variables == "rv_linear_transform" ~ "3*X+0.25~ N(3*1+0.25,3^2*2^2)", -->
+<!--                           random_variables == "rv_summ_transform" ~ "X+Y ~ N(1+1.75,2^2+2.75^2)" -->
+<!--                           ) -->
+<!--   ) -->
+<!-- # dist plot -->
+<!-- ggplot(rv_normal_transform, aes(x_axis, y, color = random_variables)) + -->
+<!--   geom_line(size = 2) + -->
+<!--   guides(color = guide_legend(nrow = 2)) + -->
+<!--   theme(legend.text = element_text(size = 9)) + -->
+<!--   labs(color = "X,Y ~ Normal", y = "Density", x = "x") -->
+<!-- ``` -->
+<!-- ```{r, ch-app-01-random-variables-chi-distribution, fig.cap = "Create chi-squared distributed random variable by summation of standard normal random variables.", echo=F} -->
+<!-- rv_norm_transform = tibble( -->
+<!--   rv_norm_X = rnorm(n = 1e6), -->
+<!--   rv_norm_Y = rnorm(n = 1e6), -->
+<!--   rv_norm_Z = rnorm(n = 1e6), -->
+<!--   rv_summ_transform_1 = rv_norm_X^2+rv_norm_Y^2, -->
+<!--   rv_summ_transform_2 = rv_norm_X^2+rv_norm_Y^2+rv_norm_Z^2 -->
+<!-- ) %>%  -->
+<!--   pivot_longer(cols = starts_with("rv_summ"), -->
+<!--                names_to  = "random_variables", -->
+<!--                values_to = "y") %>%  -->
+<!--   mutate( -->
+<!--     RVs = case_when(random_variables == "rv_summ_transform_1" ~ "X^2+Y^2", -->
+<!--                     random_variables == "rv_summ_transform_2" ~ "X^2+Y^2+Z^2" -->
+<!--     ) -->
+<!--   ) -->
+<!-- rv_chi_transform = tibble( -->
+<!--   x_axis = seq(from = 0, to = 10, by = .01), -->
+<!--   rv_chi_1 = dchisq(x = x_axis, df = 2), -->
+<!--   rv_chi_2 = dchisq(x = x_axis, df = 3) -->
+<!-- ) %>%  -->
+<!--   pivot_longer(cols = starts_with("rv"), -->
+<!--                names_to  = "random_variables", -->
+<!--                values_to = "y") %>%  -->
+<!--   mutate( -->
+<!--     RVs = case_when(random_variables == "rv_chi_1" ~ "Chi(2)", -->
+<!--                           random_variables == "rv_chi_2" ~ "Chi(3)" -->
+<!--                           ) -->
+<!--   ) -->
+<!-- # dist plots -->
+<!-- p1 <- ggplot() + -->
+<!--   geom_line(rv_chi_transform, mapping = aes(x_axis, y, color = RVs), size = 2) + -->
+<!--   labs(y = "Density", x = "x")  -->
+<!-- p2 <- ggplot() + -->
+<!--   geom_line(rv_norm_transform, mapping = aes(y, color = RVs), size = 2, stat = "density") + -->
+<!--   xlim(0,10) + -->
+<!--   ylim(0,0.5) + -->
+<!--   labs(y = "Density", x = "x")  -->
+<!-- grid.arrange(p1,p2, ncol = 2) -->
+<!-- ``` -->
+<!-- ```{r, ch-app-01-random-variables-t-distribution, fig.cap = "Create a t-distributed random variable by dividing a standard normal RV by a chi-squared RV.", echo=F} -->
+<!-- rv_norm_chi_transform = tibble( -->
+<!--   rv_norm_X = rnorm(n = 1e6), -->
+<!--   rv_norm_Y = rnorm(n = 1e6), -->
+<!--   rv_norm_Z = rnorm(n = 1e6), -->
+<!--   rv_chi = rv_norm_Y^2+rv_norm_Z^2, -->
+<!--   rv_transform_t = rv_norm_X/sqrt(rv_chi/2) -->
+<!-- ) %>%  -->
+<!--   pivot_longer(cols = starts_with("rv_transform"), -->
+<!--                names_to  = "random_variables", -->
+<!--                values_to = "y") %>%  -->
+<!--   mutate( -->
+<!--     RVs = case_when(random_variables == "rv_transform_t" ~ "X/sqrt(chi/df)") -->
+<!--   ) -->
+<!-- rv_student = tibble( -->
+<!--   x_axis = seq(from = -5, to = 5, by = .01), -->
+<!--   rv_t_1 = dt(x = x_axis, df = 2) -->
+<!-- ) %>%  -->
+<!--   pivot_longer(cols = starts_with("rv"), -->
+<!--                names_to  = "random_variables", -->
+<!--                values_to = "y") %>%  -->
+<!--   mutate( -->
+<!--     RVs = case_when(random_variables == "rv_t" ~ "t(2)") -->
+<!--   ) -->
+<!-- # dist plots -->
+<!-- p1 <- ggplot() + -->
+<!--   geom_line(rv_student, mapping = aes(x_axis, y), size = 2) + -->
+<!--   ylim(0,0.4) + -->
+<!--   labs(y = "Density", x = "x")  -->
+<!-- p2 <- ggplot() + -->
+<!--   geom_line(rv_norm_chi_transform, mapping = aes(y), size = 2, stat = "density") + -->
+<!--   xlim(-5,5) + -->
+<!--   ylim(0,0.4) + -->
+<!--   labs(y = "Density", x = "x")  -->
+<!-- grid.arrange(arrangeGrob(p1, top = "RV ~ t(2)"), arrangeGrob(p2, top = "RV ~ std.norm/sqrt(chi/2)"), ncol=2) -->
+<!-- ``` -->
+<!-- ```{r, ch-app-01-random-variables-F-distribution, fig.cap = "Create an F-distributed random variable by dividing a chi-squared RV by another (independent) chi-squared RV.", echo=F} -->
+<!-- rv_norm_chi_transform = tibble( -->
+<!--   rv_norm_V = rnorm(n = 1e6), -->
+<!--   rv_norm_W = rnorm(n = 1e6), -->
+<!--   rv_norm_X = rnorm(n = 1e6), -->
+<!--   rv_norm_Y = rnorm(n = 1e6), -->
+<!--   rv_norm_Z = rnorm(n = 1e6), -->
+<!--   rv_chi_1 = rv_norm_V^2+rv_norm_W^2, -->
+<!--   rv_chi_2 = rv_norm_X^2+rv_norm_Y^2+rv_norm_Z^2, -->
+<!--   rv_transform_F = (rv_chi_1/2)/(rv_chi_2/3) -->
+<!-- ) %>%  -->
+<!--   pivot_longer(cols = starts_with("rv_transform"), -->
+<!--                names_to  = "random_variables", -->
+<!--                values_to = "y") %>%  -->
+<!--   mutate( -->
+<!--     RVs = case_when(random_variables == "rv_transform_F" ~ "(rv_chi_1/2)/(rv_chi_2/3)") -->
+<!--   ) -->
+<!-- rv_fisher = tibble( -->
+<!--   x_axis = seq(from = 0, to = 20, by = .01), -->
+<!--   rv_F = df(x = x_axis, df1 = 2, df2 = 3) -->
+<!-- ) %>%  -->
+<!--   pivot_longer(cols = starts_with("rv"), -->
+<!--                names_to  = "random_variables", -->
+<!--                values_to = "y") %>%  -->
+<!--   mutate( -->
+<!--     RVs = case_when(random_variables == "rv_F" ~ "F(2,3)") -->
+<!--   ) -->
+<!-- # dist plots -->
+<!-- p1 <- ggplot() + -->
+<!--   geom_line(rv_fisher, mapping = aes(x_axis, y), size = 2) + -->
+<!--   ylim(0,1) + -->
+<!--   labs(y = "Density", x = "x")  -->
+<!-- p2 <- ggplot() + -->
+<!--   geom_line(rv_norm_chi_transform, mapping = aes(y), size = 2, stat = "density") + -->
+<!--   xlim(0,20) + -->
+<!--   ylim(0,1) + -->
+<!--   labs(y = "Density", x = "x")  -->
+<!-- grid.arrange(arrangeGrob(p1, top = "RV ~ F(2,3)"), arrangeGrob(p2, top = "RV ~ (rv_chi_1/2)/(rv_chi_2/3)"), ncol = 2) -->
+<!-- ``` -->
+
 </div>
 </div>
 </div>
+<!-- </div> -->
             </section>
 
           </div>
         </div>
       </div>
 <a href="selected-continuous-distributions-of-random-variables.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="understanding-distributions-as-random-variables.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="app-92-exponential-family.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
