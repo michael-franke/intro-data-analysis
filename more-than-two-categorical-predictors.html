@@ -551,25 +551,25 @@ code span.wa { color: #bf0303; } /* Warning */
 \text{RT in &#39;discrimination&#39;}
 \]</span></p>
 <p>So we are interested in the <span class="math inline">\(\delta\)</span>s, so to speak, between ‘reaction’ and ‘goNoGo’ and between ‘discrimination’ and ‘goNoGo’.</p>
-<div class="sourceCode" id="cb595"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb595-1" data-line-number="1">mc_url &lt;-<span class="st"> </span><span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_cleaned.csv&#39;</span>)</a>
-<a class="sourceLine" id="cb595-2" data-line-number="2">mc_data_cleaned &lt;-<span class="st"> </span><span class="kw">read_csv</span>(mc_url) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb595-3" data-line-number="3"><span class="st">  </span><span class="co"># renaming to make &#39;goNoGo&#39; the reference level </span></a>
-<a class="sourceLine" id="cb595-4" data-line-number="4"><span class="st">  </span><span class="co">#  (dirty hack, but simpler than messing with contrast coding)</span></a>
-<a class="sourceLine" id="cb595-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb595-6" data-line-number="6">    <span class="dt">block =</span> <span class="kw">case_when</span>(</a>
-<a class="sourceLine" id="cb595-7" data-line-number="7">      block <span class="op">==</span><span class="st"> &quot;reaction&quot;</span>         <span class="op">~</span><span class="st"> &quot;B_reaction&quot;</span>,</a>
-<a class="sourceLine" id="cb595-8" data-line-number="8">      block <span class="op">==</span><span class="st"> &quot;goNoGo&quot;</span>           <span class="op">~</span><span class="st"> &quot;A_goNoGo&quot;</span>,</a>
-<a class="sourceLine" id="cb595-9" data-line-number="9">      block <span class="op">==</span><span class="st"> &quot;discrimination&quot;</span>   <span class="op">~</span><span class="st"> &quot;C_discrimination&quot;</span></a>
-<a class="sourceLine" id="cb595-10" data-line-number="10">    )</a>
-<a class="sourceLine" id="cb595-11" data-line-number="11">  )</a></code></pre></div>
+<div class="sourceCode" id="cb597"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb597-1" data-line-number="1">mc_url &lt;-<span class="st"> </span><span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_cleaned.csv&#39;</span>)</a>
+<a class="sourceLine" id="cb597-2" data-line-number="2">mc_data_cleaned &lt;-<span class="st"> </span><span class="kw">read_csv</span>(mc_url) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb597-3" data-line-number="3"><span class="st">  </span><span class="co"># renaming to make &#39;goNoGo&#39; the reference level </span></a>
+<a class="sourceLine" id="cb597-4" data-line-number="4"><span class="st">  </span><span class="co">#  (dirty hack, but simpler than messing with contrast coding)</span></a>
+<a class="sourceLine" id="cb597-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb597-6" data-line-number="6">    <span class="dt">block =</span> <span class="kw">case_when</span>(</a>
+<a class="sourceLine" id="cb597-7" data-line-number="7">      block <span class="op">==</span><span class="st"> &quot;reaction&quot;</span>         <span class="op">~</span><span class="st"> &quot;B_reaction&quot;</span>,</a>
+<a class="sourceLine" id="cb597-8" data-line-number="8">      block <span class="op">==</span><span class="st"> &quot;goNoGo&quot;</span>           <span class="op">~</span><span class="st"> &quot;A_goNoGo&quot;</span>,</a>
+<a class="sourceLine" id="cb597-9" data-line-number="9">      block <span class="op">==</span><span class="st"> &quot;discrimination&quot;</span>   <span class="op">~</span><span class="st"> &quot;C_discrimination&quot;</span></a>
+<a class="sourceLine" id="cb597-10" data-line-number="10">    )</a>
+<a class="sourceLine" id="cb597-11" data-line-number="11">  )</a></code></pre></div>
 <p>To fit this model with <code>brm</code> we then just need a simple function call with the formula <code>RT ~ block</code> that precisely describes what we are interested in: to explain reaction times as a function of the experimental condition:</p>
-<div class="sourceCode" id="cb596"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb596-1" data-line-number="1">fit_brms_mc &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb596-2" data-line-number="2">  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></a>
-<a class="sourceLine" id="cb596-3" data-line-number="3">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</a>
-<a class="sourceLine" id="cb596-4" data-line-number="4">  <span class="dt">data =</span> mc_data_cleaned</a>
-<a class="sourceLine" id="cb596-5" data-line-number="5">)</a></code></pre></div>
+<div class="sourceCode" id="cb598"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb598-1" data-line-number="1">fit_brms_mc &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb598-2" data-line-number="2">  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></a>
+<a class="sourceLine" id="cb598-3" data-line-number="3">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</a>
+<a class="sourceLine" id="cb598-4" data-line-number="4">  <span class="dt">data =</span> mc_data_cleaned</a>
+<a class="sourceLine" id="cb598-5" data-line-number="5">)</a></code></pre></div>
 <p>To inspect the posterior fits of this model, we can extract the relevant summary statistics as before:</p>
-<div class="sourceCode" id="cb597"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb597-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_mc)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb599"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb599-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_mc)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                         Estimate  l-95% CI   u-95% CI
 ## Intercept              427.26357  419.6334  434.92959
 ## blockB_reaction       -127.38043 -136.8158 -117.98286
@@ -589,13 +589,13 @@ Solution
 </div>
 </div>
 <p>The function call for a frequentist analysis with <code>glm</code> is almost identical:</p>
-<div class="sourceCode" id="cb599"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb599-1" data-line-number="1">fit_glm_mc &lt;-<span class="st"> </span><span class="kw">glm</span>(</a>
-<a class="sourceLine" id="cb599-2" data-line-number="2">  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></a>
-<a class="sourceLine" id="cb599-3" data-line-number="3">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</a>
-<a class="sourceLine" id="cb599-4" data-line-number="4">  <span class="dt">data =</span> mc_data_cleaned</a>
-<a class="sourceLine" id="cb599-5" data-line-number="5">)</a></code></pre></div>
+<div class="sourceCode" id="cb601"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb601-1" data-line-number="1">fit_glm_mc &lt;-<span class="st"> </span><span class="kw">glm</span>(</a>
+<a class="sourceLine" id="cb601-2" data-line-number="2">  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></a>
+<a class="sourceLine" id="cb601-3" data-line-number="3">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</a>
+<a class="sourceLine" id="cb601-4" data-line-number="4">  <span class="dt">data =</span> mc_data_cleaned</a>
+<a class="sourceLine" id="cb601-5" data-line-number="5">)</a></code></pre></div>
 <p>The summary of the model fit reveals <span class="math inline">\(p\)</span>-values for both slope coefficients, which indicate (unsurprisingly) that there is very strong evidence against the null hypothesis of no difference between the means of the two pairs of conditions we compare with this model:</p>
-<div class="sourceCode" id="cb600"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb600-1" data-line-number="1"><span class="kw">summary</span>(fit_glm_mc)</a></code></pre></div>
+<div class="sourceCode" id="cb602"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb602-1" data-line-number="1"><span class="kw">summary</span>(fit_glm_mc)</a></code></pre></div>
 <pre><code>## 
 ## Call:
 ## glm(formula = RT ~ block, data = mc_data_cleaned)
