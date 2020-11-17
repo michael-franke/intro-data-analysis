@@ -664,11 +664,11 @@ $$
 $$
 
 <div class="infobox">
-**Example.** Suppose we flip a coin with a bias of $\theta$ towards heads $n$ times. What is the probability that we  will see heads $k$ times? If we map the outcome of heads to 1 and tails to 0, this  probability is given by the Binomial distribution, as follows:
+**Example.** Suppose we flip a coin with a bias of $\theta$ towards heads $n$ times. What is the probability that we  will see heads $k$ times? If we map the outcome of heads to 1 and tails to 0, this  probability is given by the [Binomial distribution](#app-91-distributions-binomial), as follows:
 $$
     \text{Binom}(K = k ; n, \theta) = \binom{n}{k} \,  \theta^{k} \, (1-\theta)^{n-k}
 $$
-Here $\binom{n}{k} = \frac{n!}{k!(n-k)!}$ is the binomial coefficient. It gives the number of possibilities of drawing an unordered subset with $k$ elements from a set with a total of $n$ elements. Figure \@ref(fig:ch-03-BinomialDistribution-Mass) gives an example of the Binomial distribution, concretely its probability mass function, for two values of the coin's bias, $\theta = 0.25$ or $\theta = 0.5$, when flipping the coin $n=24$  times. Figure \@ref(fig:ch-03-BinomialDistribution-Cumulative) gives the corresponding cumulative  distributions.
+Here $\binom{n}{k} = \frac{n!}{k!(n-k)!}$ is the binomial coefficient, which gives the number of possibilities of drawing an unordered subset with $k$ elements from a set with a total of $n$ elements. Figure \@ref(fig:ch-03-BinomialDistribution-Mass) gives examples of the Binomial distribution, concretely its probability mass functions, for two values of the coin's bias, $\theta = 0.25$ or $\theta = 0.5$, when flipping the coin $n=24$  times. Figure \@ref(fig:ch-03-BinomialDistribution-Cumulative) gives the corresponding cumulative  distributions.
 <!-- add some more explanation -->
 
 ```{r ch-03-BinomialDistribution-Mass, echo = FALSE, fig.cap = "Examples of the Binomial distribution. The $y$-axis give the probability of seeing $k$ heads when flipping a coin $n=24$ times with a bias of either $\\theta = 0.25$ or $\\theta = 0.5$."}
@@ -683,7 +683,7 @@ ggplot(binom.plot.data, aes(x = k, y = probability, fill = theta)) +
   ylab(bquote("Binom(K = k; n = 24," ~ theta * ")"))
 ```
 
-```{r ch-03-BinomialDistribution-Cumulative, echo = FALSE, fig.cap = "Examples of the cumulative distribution of the Binomial. The $y$-axis gives the probability of seeing $k$ or fewer outcomes of heads when flipping a coin $n=24$ times with a bias of either $\\theta = 0.25$ or $\\theta = 0.5$."}
+```{r ch-03-BinomialDistribution-Cumulative, echo = FALSE, fig.cap = "Examples of the cumulative distribution of the Binomial distribution. The $y$-axis gives the probability of seeing $k$ or fewer outcomes of heads when flipping a coin $n=24$ times with a bias of either $\\theta = 0.25$ or $\\theta = 0.5$."}
 binom.plot.data = expand.grid(n = 24, theta = c(0.25, 0.5), k = 0:24) %>%
   mutate(
     probability = pbinom(k,n,theta),
@@ -699,7 +699,7 @@ ggplot(binom.plot.data, aes(x = k, y = probability, fill = theta)) +
 
 
 
-For a continuous random variable $X$, the probability $P(X = x)$ will usually be zero: it is virtually impossible that we will see precisely the value $x$ realized in a random event that can realize uncountably many numerical values of $X$. However, $P(X \le x)$ does take workable values and so we define the cumulative distribution function $F_X$ associated with $X$ as:
+For a continuous random variable $X$, the probability $P(X = x)$ will usually be zero: it is virtually impossible that we will see precisely the value $x$ realized in a random event that can realize uncountably many numerical values of $X$. However, $P(X \le x)$ does usually take non-zero values and so we define the cumulative distribution function $F_X$ associated with $X$ as:
 $$
   F_X(x) = P(X \le x)
 $$
@@ -718,7 +718,7 @@ $$
 $$
 where parameter $\mu$ is the *mean*, the central tendency, and parameter $\sigma$ is the *standard deviation*. Figure \@ref(fig:ch-03-NormalDistribution-Density) gives examples of the probability density function of two normal distributions. Figure \@ref(fig:ch-03-NormalDistribution-Cumulative) gives the corresponding cumulative distribution functions.
 
-```{r ch-03-NormalDistribution-Density, echo = F, fig.cap = "Examples of the Normal distribution. In both cases $\\mu = 0$, once with $\\sigma = 1$ and once with $\\sigma = 4$"}
+```{r ch-03-NormalDistribution-Density, echo = F, fig.cap = "Examples of the Normal distribution. In both cases $\\mu = 0$, once with $\\sigma = 1$ and once with $\\sigma = 4$."}
 ggplot(data.frame(x = c(-8, 8)), aes(x = x)) +
   stat_function(fun = function(x) dnorm(x, sd = 4), aes(color = "4"), size = 3) +
   stat_function(fun = function(x) dnorm(x, sd = 1), aes(color = "1"), size = 3) +
@@ -856,13 +856,14 @@ tibble(outcome = samples_z) %>%
 
 ## Probability distributions in R {#Chap-03-01-probability-R}
 
-Appendix \@ref(app-91-distributions) covers a number of common probability distributions that are relevant for the purposes of this course. Appendix \@ref(app-92-exponential-family) furthermore provides additional theoretical background on the *exponential family*, an important class of probability distributions widely used in statistics.
+Appendix \@ref(app-91-distributions) covers a number of common probability distributions that are relevant for the purposes of this course.
+Appendix \@ref(app-92-exponential-family) furthermore provides additional theoretical background on the *exponential family*, an important class of probability distributions widely used in statistics.
 
 R has built-in functions for most common probability distributions. Further distributions are covered in additional packages. If `mydist` is the name of a probability distribution, then R routinely offers four functions for `mydist`, distinguished by the first letter:
 
 1. `dmydist(x, ...)` the *density function* gives the probability (mass/density) $f(x)$ for `x`
 2. `pmydist(x, ...)` the *cumulative probability function* gives the cumulative distribution function $F(x)$ for `x`
-3. `qmydist(p, ...)` the *quantile function* gives the value $x$ for which `p = pmydist(x, ...)`
+3. `qmydist(p, ...)` the *quantile function* gives the value `x` for which `p = pmydist(x, ...)`
 4. `rmydist(n, ...)` the *random sample function* returns `n` samples from the distribution
 
 For example, the family of functions for the normal distribution has the following functions:
@@ -875,7 +876,7 @@ dnorm(x = 1, mean = 0, sd = 1)
 # cumulative density of standard normal at q = 0
 pnorm(q = 0, mean = 0, sd = 1)
 
-# point where the cumulative density of standard normal is p = 0
+# point where the cumulative density of standard normal is p = 0.5
 qnorm(p = 0.5, mean = 0, sd = 1)
 
 # n = 3 random samples from a standard normal
@@ -886,7 +887,7 @@ rnorm(n = 3, mean = 0, sd = 1)
 <div class = "exercises">
 **Exercise 7.6**
 
-What is the median of the exponential distribution with rate $\lambda = 1$?
+a. Use R compute the median of the exponential distribution with rate $\lambda = 1$. Remember that the median is the 50% quantile. The quantile function of the exponential distribution can be accessed with `qexp` in R. 
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
@@ -896,6 +897,22 @@ qexp(0.5, rate = 1)
 ```
 </div>
 </div>
+
+b. Use R's function for the cumulative normal distribution (see above) to compute this integral, i.e., the area under the density function of a standard normal distribution ranging from -1 to 2:
+
+$$
+\int_{-1}^{2} \mathcal{N}(x, \mu = 0, \sigma = 1) \text{d}x
+$$
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+```{r}
+pnorm(2, mean = 0, sd = 1) - pnorm(-1, mean = 0, sd = 1)
+```
+</div>
+</div>
+
 </div>
 
 
