@@ -544,84 +544,84 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>Practical issues aside, there are also conceptual arguments that can be pinned against each other. Suppose you do not know the bias of a coin, you flip it once and it lands heads. The case in mathematical notation: <span class="math inline">\(k=1\)</span>, <span class="math inline">\(N=1\)</span>. As a frequentist, your “best” estimate of the coin’s bias is that it is 100% rigged: it will <em>never</em> land tails. As a Bayesian, with uninformed priors, your “best” estimate is, following Laplace rule, <span class="math inline">\(\frac{k+1}{N+2} = \frac{2}{3}\)</span>. Notice that there might be different notions of what counts as “best” in place. Still, the frequentist “best” estimate seems rather extreme.</p>
 <p>What about interval-ranged estimates? Which is the better tool, confidence intervals or credible intervals? – This is harder to answer. Numerical simulations can help answer these questions.<a href="#fn54" class="footnote-ref" id="fnref54"><sup>54</sup></a> The idea is simple but immensely powerful. We simulate, repeatedly, a ground-truth and synthetic results for fictitious experiments, and then we apply the statistical tests/procedures to these fictitious data sets. Since we know the ground-truth, we can check which tests/procedures got it right.</p>
 <p>Let’s look at a simulation, comparing credible intervals to confidence intervals, the latter of which are calculated by asymptotic approximation or the so-called exact method. To do so, we repeatedly sample a ground-truth (e.g., a known coin bias <span class="math inline">\(\theta_{\text{true}}\)</span>) from a flat distribution over <span class="math inline">\([0;1]\)</span>.<a href="#fn55" class="footnote-ref" id="fnref55"><sup>55</sup></a>. We then simulate an experiment in a synthetic world with <span class="math inline">\(\theta_{\text{true}}\)</span>, using a fixed value of <span class="math inline">\(n\)</span>, here taken from the set <span class="math inline">\(n \in \left \{ 10, 25, 100, 1000 \right \}\)</span>. We then construct a confidence interval (either approximately or precisely) and a 95% credible interval; for each of the three interval estimates. We check whether the ground-truth <span class="math inline">\(\theta_{\text{true}}\)</span> is <em>not</em> included in any given interval estimate. We calculate the mean number of times such as non-inclusion (errors!) happen for each kind of interval estimate. The code below implements this and the figure below shows the results based on 10,000 samples of <span class="math inline">\(\theta_{\text{true}}\)</span>.</p>
-<div class="sourceCode" id="cb435"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb435-1" data-line-number="1"><span class="co"># how many &quot;true&quot; thetas to sample</span></a>
-<a class="sourceLine" id="cb435-2" data-line-number="2">n_samples &lt;-<span class="st"> </span><span class="dv">10000</span> </a>
-<a class="sourceLine" id="cb435-3" data-line-number="3"><span class="co"># sample a &quot;true&quot; theta</span></a>
-<a class="sourceLine" id="cb435-4" data-line-number="4">theta_true &lt;-<span class="st"> </span><span class="kw">runif</span>(<span class="dt">n=</span>n_samples)</a>
-<a class="sourceLine" id="cb435-5" data-line-number="5"><span class="co"># create data frame to store results in</span></a>
-<a class="sourceLine" id="cb435-6" data-line-number="6">results &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(</a>
-<a class="sourceLine" id="cb435-7" data-line-number="7">  <span class="dt">theta_true =</span> theta_true,</a>
-<a class="sourceLine" id="cb435-8" data-line-number="8">  <span class="dt">n_flips =</span> <span class="kw">c</span>(<span class="dv">10</span>,<span class="dv">25</span>,<span class="dv">100</span>, <span class="dv">1000</span>)</a>
-<a class="sourceLine" id="cb435-9" data-line-number="9">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-10" data-line-number="10"><span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb435-12" data-line-number="12">    <span class="dt">outcome =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb435-13" data-line-number="13">    <span class="dt">norm_approx =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb435-14" data-line-number="14">    <span class="dt">exact =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb435-15" data-line-number="15">    <span class="dt">Bayes_HDI =</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb435-16" data-line-number="16">  )</a>
-<a class="sourceLine" id="cb435-17" data-line-number="17">  </a>
-<a class="sourceLine" id="cb435-18" data-line-number="18"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(results)) {</a>
-<a class="sourceLine" id="cb435-19" data-line-number="19">  </a>
-<a class="sourceLine" id="cb435-20" data-line-number="20">  <span class="co"># sample fictitious experimental outcome for current true theta</span></a>
-<a class="sourceLine" id="cb435-21" data-line-number="21">  results<span class="op">$</span>outcome[i] &lt;-<span class="st"> </span><span class="kw">rbinom</span>(</a>
-<a class="sourceLine" id="cb435-22" data-line-number="22">    <span class="dt">n =</span> <span class="dv">1</span>, </a>
-<a class="sourceLine" id="cb435-23" data-line-number="23">    <span class="dt">size =</span> results<span class="op">$</span>n_flips[i], </a>
-<a class="sourceLine" id="cb435-24" data-line-number="24">    <span class="dt">prob =</span> results<span class="op">$</span>theta_true[i]</a>
-<a class="sourceLine" id="cb435-25" data-line-number="25">  )</a>
-<a class="sourceLine" id="cb435-26" data-line-number="26">  </a>
-<a class="sourceLine" id="cb435-27" data-line-number="27">  <span class="co"># get CI based on asymptotic Gaussian</span></a>
-<a class="sourceLine" id="cb435-28" data-line-number="28">  norm_approx_CI &lt;-<span class="st"> </span>binom<span class="op">::</span><span class="kw">binom.confint</span>(</a>
-<a class="sourceLine" id="cb435-29" data-line-number="29">    results<span class="op">$</span>outcome[i], </a>
-<a class="sourceLine" id="cb435-30" data-line-number="30">    results<span class="op">$</span>n_flips[i], </a>
-<a class="sourceLine" id="cb435-31" data-line-number="31">    <span class="dt">method =</span> <span class="st">&quot;asymptotic&quot;</span></a>
-<a class="sourceLine" id="cb435-32" data-line-number="32">  )</a>
-<a class="sourceLine" id="cb435-33" data-line-number="33">  results<span class="op">$</span>norm_approx[i] &lt;-<span class="st"> </span><span class="op">!</span>(</a>
-<a class="sourceLine" id="cb435-34" data-line-number="34">    norm_approx_CI<span class="op">$</span>lower <span class="op">&lt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i] <span class="op">&amp;&amp;</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-35" data-line-number="35"><span class="st">      </span>norm_approx_CI<span class="op">$</span>upper <span class="op">&gt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i]</a>
-<a class="sourceLine" id="cb435-36" data-line-number="36">    )</a>
-<a class="sourceLine" id="cb435-37" data-line-number="37">  </a>
-<a class="sourceLine" id="cb435-38" data-line-number="38">  <span class="co"># get CI based on exact method</span></a>
-<a class="sourceLine" id="cb435-39" data-line-number="39">  exact_CI &lt;-<span class="st"> </span>binom<span class="op">::</span><span class="kw">binom.confint</span>(</a>
-<a class="sourceLine" id="cb435-40" data-line-number="40">    results<span class="op">$</span>outcome[i], </a>
-<a class="sourceLine" id="cb435-41" data-line-number="41">    results<span class="op">$</span>n_flips[i], </a>
-<a class="sourceLine" id="cb435-42" data-line-number="42">    <span class="dt">method =</span> <span class="st">&quot;exact&quot;</span></a>
-<a class="sourceLine" id="cb435-43" data-line-number="43">  )</a>
-<a class="sourceLine" id="cb435-44" data-line-number="44">  results<span class="op">$</span>exact[i] &lt;-<span class="st"> </span><span class="op">!</span>(</a>
-<a class="sourceLine" id="cb435-45" data-line-number="45">    exact_CI<span class="op">$</span>lower <span class="op">&lt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i] <span class="op">&amp;&amp;</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-46" data-line-number="46"><span class="st">      </span>exact_CI<span class="op">$</span>upper <span class="op">&gt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i]</a>
-<a class="sourceLine" id="cb435-47" data-line-number="47">  )</a>
-<a class="sourceLine" id="cb435-48" data-line-number="48">  </a>
-<a class="sourceLine" id="cb435-49" data-line-number="49">  <span class="co"># get 95% HDI (flat priors)</span></a>
-<a class="sourceLine" id="cb435-50" data-line-number="50">  Bayes_HDI &lt;-<span class="st"> </span>binom<span class="op">::</span><span class="kw">binom.bayes</span>(</a>
-<a class="sourceLine" id="cb435-51" data-line-number="51">    results<span class="op">$</span>outcome[i], </a>
-<a class="sourceLine" id="cb435-52" data-line-number="52">    results<span class="op">$</span>n_flips[i], </a>
-<a class="sourceLine" id="cb435-53" data-line-number="53">    <span class="dt">type =</span> <span class="st">&quot;highest&quot;</span>, </a>
-<a class="sourceLine" id="cb435-54" data-line-number="54">    <span class="dt">prior.shape1 =</span> <span class="dv">1</span>, </a>
-<a class="sourceLine" id="cb435-55" data-line-number="55">    <span class="dt">prior.shape2 =</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb435-56" data-line-number="56">  )</a>
-<a class="sourceLine" id="cb435-57" data-line-number="57">  results<span class="op">$</span>Bayes_HDI[i] &lt;-<span class="st"> </span><span class="op">!</span>(</a>
-<a class="sourceLine" id="cb435-58" data-line-number="58">    Bayes_HDI<span class="op">$</span>lower <span class="op">&lt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i] <span class="op">&amp;&amp;</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-59" data-line-number="59"><span class="st">      </span>Bayes_HDI<span class="op">$</span>upper <span class="op">&gt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i]</a>
-<a class="sourceLine" id="cb435-60" data-line-number="60">  )</a>
-<a class="sourceLine" id="cb435-61" data-line-number="61">}</a>
-<a class="sourceLine" id="cb435-62" data-line-number="62"></a>
-<a class="sourceLine" id="cb435-63" data-line-number="63">results <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-64" data-line-number="64"><span class="st">  </span><span class="kw">gather</span>(<span class="dt">key =</span> <span class="st">&quot;method&quot;</span>, <span class="st">&quot;Type_1&quot;</span>, norm_approx, exact, Bayes_HDI) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-65" data-line-number="65"><span class="st">  </span><span class="kw">group_by</span>(method, n_flips) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-66" data-line-number="66"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">summarize</span>(<span class="dt">avg_type_1 =</span> <span class="kw">mean</span>(Type_<span class="dv">1</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-67" data-line-number="67"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-68" data-line-number="68"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb435-69" data-line-number="69">    <span class="dt">method =</span> <span class="kw">factor</span>(</a>
-<a class="sourceLine" id="cb435-70" data-line-number="70">      method, </a>
-<a class="sourceLine" id="cb435-71" data-line-number="71">      <span class="dt">ordered =</span> T, </a>
-<a class="sourceLine" id="cb435-72" data-line-number="72">      <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;norm_approx&quot;</span>, <span class="st">&quot;Bayes_HDI&quot;</span>, <span class="st">&quot;exact&quot;</span>)</a>
-<a class="sourceLine" id="cb435-73" data-line-number="73">    )</a>
-<a class="sourceLine" id="cb435-74" data-line-number="74">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-75" data-line-number="75"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">as.factor</span>(n_flips), <span class="dt">y =</span> avg_type_<span class="dv">1</span>, <span class="dt">color =</span> method)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb435-76" data-line-number="76"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">group =</span> method)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb435-77" data-line-number="77"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;number of flips per experiment&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb435-78" data-line-number="78"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;proportion of exclusions of true theta&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb434-1" data-line-number="1"><span class="co"># how many &quot;true&quot; thetas to sample</span></a>
+<a class="sourceLine" id="cb434-2" data-line-number="2">n_samples &lt;-<span class="st"> </span><span class="dv">10000</span> </a>
+<a class="sourceLine" id="cb434-3" data-line-number="3"><span class="co"># sample a &quot;true&quot; theta</span></a>
+<a class="sourceLine" id="cb434-4" data-line-number="4">theta_true &lt;-<span class="st"> </span><span class="kw">runif</span>(<span class="dt">n=</span>n_samples)</a>
+<a class="sourceLine" id="cb434-5" data-line-number="5"><span class="co"># create data frame to store results in</span></a>
+<a class="sourceLine" id="cb434-6" data-line-number="6">results &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(</a>
+<a class="sourceLine" id="cb434-7" data-line-number="7">  <span class="dt">theta_true =</span> theta_true,</a>
+<a class="sourceLine" id="cb434-8" data-line-number="8">  <span class="dt">n_flips =</span> <span class="kw">c</span>(<span class="dv">10</span>,<span class="dv">25</span>,<span class="dv">100</span>, <span class="dv">1000</span>)</a>
+<a class="sourceLine" id="cb434-9" data-line-number="9">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-10" data-line-number="10"><span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb434-12" data-line-number="12">    <span class="dt">outcome =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb434-13" data-line-number="13">    <span class="dt">norm_approx =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb434-14" data-line-number="14">    <span class="dt">exact =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb434-15" data-line-number="15">    <span class="dt">Bayes_HDI =</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb434-16" data-line-number="16">  )</a>
+<a class="sourceLine" id="cb434-17" data-line-number="17">  </a>
+<a class="sourceLine" id="cb434-18" data-line-number="18"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(results)) {</a>
+<a class="sourceLine" id="cb434-19" data-line-number="19">  </a>
+<a class="sourceLine" id="cb434-20" data-line-number="20">  <span class="co"># sample fictitious experimental outcome for current true theta</span></a>
+<a class="sourceLine" id="cb434-21" data-line-number="21">  results<span class="op">$</span>outcome[i] &lt;-<span class="st"> </span><span class="kw">rbinom</span>(</a>
+<a class="sourceLine" id="cb434-22" data-line-number="22">    <span class="dt">n =</span> <span class="dv">1</span>, </a>
+<a class="sourceLine" id="cb434-23" data-line-number="23">    <span class="dt">size =</span> results<span class="op">$</span>n_flips[i], </a>
+<a class="sourceLine" id="cb434-24" data-line-number="24">    <span class="dt">prob =</span> results<span class="op">$</span>theta_true[i]</a>
+<a class="sourceLine" id="cb434-25" data-line-number="25">  )</a>
+<a class="sourceLine" id="cb434-26" data-line-number="26">  </a>
+<a class="sourceLine" id="cb434-27" data-line-number="27">  <span class="co"># get CI based on asymptotic Gaussian</span></a>
+<a class="sourceLine" id="cb434-28" data-line-number="28">  norm_approx_CI &lt;-<span class="st"> </span>binom<span class="op">::</span><span class="kw">binom.confint</span>(</a>
+<a class="sourceLine" id="cb434-29" data-line-number="29">    results<span class="op">$</span>outcome[i], </a>
+<a class="sourceLine" id="cb434-30" data-line-number="30">    results<span class="op">$</span>n_flips[i], </a>
+<a class="sourceLine" id="cb434-31" data-line-number="31">    <span class="dt">method =</span> <span class="st">&quot;asymptotic&quot;</span></a>
+<a class="sourceLine" id="cb434-32" data-line-number="32">  )</a>
+<a class="sourceLine" id="cb434-33" data-line-number="33">  results<span class="op">$</span>norm_approx[i] &lt;-<span class="st"> </span><span class="op">!</span>(</a>
+<a class="sourceLine" id="cb434-34" data-line-number="34">    norm_approx_CI<span class="op">$</span>lower <span class="op">&lt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i] <span class="op">&amp;&amp;</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-35" data-line-number="35"><span class="st">      </span>norm_approx_CI<span class="op">$</span>upper <span class="op">&gt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i]</a>
+<a class="sourceLine" id="cb434-36" data-line-number="36">    )</a>
+<a class="sourceLine" id="cb434-37" data-line-number="37">  </a>
+<a class="sourceLine" id="cb434-38" data-line-number="38">  <span class="co"># get CI based on exact method</span></a>
+<a class="sourceLine" id="cb434-39" data-line-number="39">  exact_CI &lt;-<span class="st"> </span>binom<span class="op">::</span><span class="kw">binom.confint</span>(</a>
+<a class="sourceLine" id="cb434-40" data-line-number="40">    results<span class="op">$</span>outcome[i], </a>
+<a class="sourceLine" id="cb434-41" data-line-number="41">    results<span class="op">$</span>n_flips[i], </a>
+<a class="sourceLine" id="cb434-42" data-line-number="42">    <span class="dt">method =</span> <span class="st">&quot;exact&quot;</span></a>
+<a class="sourceLine" id="cb434-43" data-line-number="43">  )</a>
+<a class="sourceLine" id="cb434-44" data-line-number="44">  results<span class="op">$</span>exact[i] &lt;-<span class="st"> </span><span class="op">!</span>(</a>
+<a class="sourceLine" id="cb434-45" data-line-number="45">    exact_CI<span class="op">$</span>lower <span class="op">&lt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i] <span class="op">&amp;&amp;</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-46" data-line-number="46"><span class="st">      </span>exact_CI<span class="op">$</span>upper <span class="op">&gt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i]</a>
+<a class="sourceLine" id="cb434-47" data-line-number="47">  )</a>
+<a class="sourceLine" id="cb434-48" data-line-number="48">  </a>
+<a class="sourceLine" id="cb434-49" data-line-number="49">  <span class="co"># get 95% HDI (flat priors)</span></a>
+<a class="sourceLine" id="cb434-50" data-line-number="50">  Bayes_HDI &lt;-<span class="st"> </span>binom<span class="op">::</span><span class="kw">binom.bayes</span>(</a>
+<a class="sourceLine" id="cb434-51" data-line-number="51">    results<span class="op">$</span>outcome[i], </a>
+<a class="sourceLine" id="cb434-52" data-line-number="52">    results<span class="op">$</span>n_flips[i], </a>
+<a class="sourceLine" id="cb434-53" data-line-number="53">    <span class="dt">type =</span> <span class="st">&quot;highest&quot;</span>, </a>
+<a class="sourceLine" id="cb434-54" data-line-number="54">    <span class="dt">prior.shape1 =</span> <span class="dv">1</span>, </a>
+<a class="sourceLine" id="cb434-55" data-line-number="55">    <span class="dt">prior.shape2 =</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb434-56" data-line-number="56">  )</a>
+<a class="sourceLine" id="cb434-57" data-line-number="57">  results<span class="op">$</span>Bayes_HDI[i] &lt;-<span class="st"> </span><span class="op">!</span>(</a>
+<a class="sourceLine" id="cb434-58" data-line-number="58">    Bayes_HDI<span class="op">$</span>lower <span class="op">&lt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i] <span class="op">&amp;&amp;</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-59" data-line-number="59"><span class="st">      </span>Bayes_HDI<span class="op">$</span>upper <span class="op">&gt;=</span><span class="st"> </span>results<span class="op">$</span>theta_true[i]</a>
+<a class="sourceLine" id="cb434-60" data-line-number="60">  )</a>
+<a class="sourceLine" id="cb434-61" data-line-number="61">}</a>
+<a class="sourceLine" id="cb434-62" data-line-number="62"></a>
+<a class="sourceLine" id="cb434-63" data-line-number="63">results <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-64" data-line-number="64"><span class="st">  </span><span class="kw">gather</span>(<span class="dt">key =</span> <span class="st">&quot;method&quot;</span>, <span class="st">&quot;Type_1&quot;</span>, norm_approx, exact, Bayes_HDI) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-65" data-line-number="65"><span class="st">  </span><span class="kw">group_by</span>(method, n_flips) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-66" data-line-number="66"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">summarize</span>(<span class="dt">avg_type_1 =</span> <span class="kw">mean</span>(Type_<span class="dv">1</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-67" data-line-number="67"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-68" data-line-number="68"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb434-69" data-line-number="69">    <span class="dt">method =</span> <span class="kw">factor</span>(</a>
+<a class="sourceLine" id="cb434-70" data-line-number="70">      method, </a>
+<a class="sourceLine" id="cb434-71" data-line-number="71">      <span class="dt">ordered =</span> T, </a>
+<a class="sourceLine" id="cb434-72" data-line-number="72">      <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;norm_approx&quot;</span>, <span class="st">&quot;Bayes_HDI&quot;</span>, <span class="st">&quot;exact&quot;</span>)</a>
+<a class="sourceLine" id="cb434-73" data-line-number="73">    )</a>
+<a class="sourceLine" id="cb434-74" data-line-number="74">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-75" data-line-number="75"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">as.factor</span>(n_flips), <span class="dt">y =</span> avg_type_<span class="dv">1</span>, <span class="dt">color =</span> method)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb434-76" data-line-number="76"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">group =</span> method)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb434-77" data-line-number="77"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;number of flips per experiment&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb434-78" data-line-number="78"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;proportion of exclusions of true theta&quot;</span>)</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-299-1.png" width="672" style="display: block; margin: auto;" /></p>
 <div class="exercises">
 <p><strong>Exercise 9.5</strong></p>
