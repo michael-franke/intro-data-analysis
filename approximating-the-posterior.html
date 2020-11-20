@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>9.4 Approximating the posterior | Introduction to Data Analysis</title>
+  <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
+  <meta name="generator" content="bookdown 0.21.4 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="9.4 Approximating the posterior | Introduction to Data Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Introductory text for statistics and data analysis (using R)" />
+  <meta name="github-repo" content="michael-franke/intro-data-analysis" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="9.4 Approximating the posterior | Introduction to Data Analysis" />
+  
+  <meta name="twitter:description" content="Introductory text for statistics and data analysis (using R)" />
+  
+
+<meta name="author" content="Michael Franke" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="Ch-03-03-estimation-algorithms.html"/>
+<link rel="next" href="ch-03-05-hypothesis-testing.html"/>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
+<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
+
+<script src="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.js"></script>
+<script src="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.js"></script>
+<script src="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-v0.9.13.js" defer async></script>
+
+<link href="libs/tufte-css-2015.12.29/tufte.css" rel="stylesheet" />
+<link href="libs/tufte-css-2015.12.29/envisioned.css" rel="stylesheet" />
+
+<script type="application/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.collapsibleSolution').forEach(function(collapsible) {
+    const content = collapsible.querySelector('.content')
+    content.style.display = 'none';
+    collapsible.querySelector('.trigger').addEventListener('click', function() {
+      if (content.style.display === 'none') {
+        content.style.display = 'block';
+      } else {
+        content.style.display = 'none';
+      }
+    })
+  })
+})
+</script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #a0a0a0;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-left: 4px; }
+div.sourceCode
+  { color: #1f1c1b; background-color: #ffffff; }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span. { color: #1f1c1b; } /* Normal */
+code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
+code span.an { color: #ca60ca; } /* Annotation */
+code span.at { color: #0057ae; } /* Attribute */
+code span.bn { color: #b08000; } /* BaseN */
+code span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
+code span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #924c9d; } /* Char */
+code span.cn { color: #aa5500; } /* Constant */
+code span.co { color: #898887; } /* Comment */
+code span.cv { color: #0095ff; } /* CommentVar */
+code span.do { color: #607880; } /* Documentation */
+code span.dt { color: #0057ae; } /* DataType */
+code span.dv { color: #b08000; } /* DecVal */
+code span.er { color: #bf0303; text-decoration: underline; } /* Error */
+code span.ex { color: #0095ff; font-weight: bold; } /* Extension */
+code span.fl { color: #b08000; } /* Float */
+code span.fu { color: #644a9b; } /* Function */
+code span.im { color: #ff5500; } /* Import */
+code span.in { color: #b08000; } /* Information */
+code span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
+code span.op { color: #1f1c1b; } /* Operator */
+code span.ot { color: #006e28; } /* Other */
+code span.pp { color: #006e28; } /* Preprocessor */
+code span.re { color: #0057ae; background-color: #e0e9f8; } /* RegionMarker */
+code span.sc { color: #3daee9; } /* SpecialChar */
+code span.ss { color: #ff5500; } /* SpecialString */
+code span.st { color: #bf0303; } /* String */
+code span.va { color: #0057ae; } /* Variable */
+code span.vs { color: #bf0303; } /* VerbatimString */
+code span.wa { color: #bf0303; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="styles.css" type="text/css" />
+<link rel="stylesheet" href="webppl-editor.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="part"><span><b>I Preliminaries</b></span></li>
+<li class="chapter" data-level="1" data-path="general-introduction.html"><a href="general-introduction.html"><i class="fa fa-check"></i><b>1</b> General Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="Chap-01-00-intro-learning-goals.html"><a href="Chap-01-00-intro-learning-goals.html"><i class="fa fa-check"></i><b>1.1</b> Learning goals</a></li>
+<li class="chapter" data-level="1.2" data-path="Chap-01-00-intro-course-structure.html"><a href="Chap-01-00-intro-course-structure.html"><i class="fa fa-check"></i><b>1.2</b> Course structure</a></li>
+<li class="chapter" data-level="1.3" data-path="Chap-01-00-intro-tools.html"><a href="Chap-01-00-intro-tools.html"><i class="fa fa-check"></i><b>1.3</b> Tools used in this course</a></li>
+<li class="chapter" data-level="1.4" data-path="Chap-01-00-intro-topics.html"><a href="Chap-01-00-intro-topics.html"><i class="fa fa-check"></i><b>1.4</b> Topics covered (and not covered) in the course</a></li>
+<li class="chapter" data-level="1.5" data-path="Chap-01-00-intro-data-sets.html"><a href="Chap-01-00-intro-data-sets.html"><i class="fa fa-check"></i><b>1.5</b> Data sets covered</a></li>
+<li class="chapter" data-level="1.6" data-path="Chap-01-00-intro-installation.html"><a href="Chap-01-00-intro-installation.html"><i class="fa fa-check"></i><b>1.6</b> Installation</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="Chap-01-01-R.html"><a href="Chap-01-01-R.html"><i class="fa fa-check"></i><b>2</b> Basics of R</a><ul>
+<li class="chapter" data-level="2.1" data-path="ch1-first-steps.html"><a href="ch1-first-steps.html"><i class="fa fa-check"></i><b>2.1</b> First steps</a><ul>
+<li class="chapter" data-level="2.1.1" data-path="ch1-first-steps.html"><a href="ch1-first-steps.html#functions"><i class="fa fa-check"></i><b>2.1.1</b> Functions</a></li>
+<li class="chapter" data-level="2.1.2" data-path="ch1-first-steps.html"><a href="ch1-first-steps.html#variables"><i class="fa fa-check"></i><b>2.1.2</b> Variables</a></li>
+<li class="chapter" data-level="2.1.3" data-path="ch1-first-steps.html"><a href="ch1-first-steps.html#literate-coding"><i class="fa fa-check"></i><b>2.1.3</b> Literate coding</a></li>
+<li class="chapter" data-level="2.1.4" data-path="ch1-first-steps.html"><a href="ch1-first-steps.html#objects"><i class="fa fa-check"></i><b>2.1.4</b> Objects</a></li>
+<li class="chapter" data-level="2.1.5" data-path="ch1-first-steps.html"><a href="ch1-first-steps.html#packages"><i class="fa fa-check"></i><b>2.1.5</b> Packages</a></li>
+<li class="chapter" data-level="2.1.6" data-path="ch1-first-steps.html"><a href="ch1-first-steps.html#Chap-01-01-R-help"><i class="fa fa-check"></i><b>2.1.6</b> Getting help</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="ch1-data-types.html"><a href="ch1-data-types.html"><i class="fa fa-check"></i><b>2.2</b> Data types</a><ul>
+<li class="chapter" data-level="2.2.1" data-path="ch1-data-types.html"><a href="ch1-data-types.html#numeric-vectors-matrices"><i class="fa fa-check"></i><b>2.2.1</b> Numeric vectors &amp; matrices</a></li>
+<li class="chapter" data-level="2.2.2" data-path="ch1-data-types.html"><a href="ch1-data-types.html#booleans"><i class="fa fa-check"></i><b>2.2.2</b> Booleans</a></li>
+<li class="chapter" data-level="2.2.3" data-path="ch1-data-types.html"><a href="ch1-data-types.html#special-values"><i class="fa fa-check"></i><b>2.2.3</b> Special values</a></li>
+<li class="chapter" data-level="2.2.4" data-path="ch1-data-types.html"><a href="ch1-data-types.html#characters-strings"><i class="fa fa-check"></i><b>2.2.4</b> Characters (= strings)</a></li>
+<li class="chapter" data-level="2.2.5" data-path="ch1-data-types.html"><a href="ch1-data-types.html#factors"><i class="fa fa-check"></i><b>2.2.5</b> Factors</a></li>
+<li class="chapter" data-level="2.2.6" data-path="ch1-data-types.html"><a href="ch1-data-types.html#lists-data-frames-tibbles"><i class="fa fa-check"></i><b>2.2.6</b> Lists, data frames &amp; tibbles</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="Chap-01-01-functions.html"><a href="Chap-01-01-functions.html"><i class="fa fa-check"></i><b>2.3</b> Functions</a><ul>
+<li class="chapter" data-level="2.3.1" data-path="Chap-01-01-functions.html"><a href="Chap-01-01-functions.html#some-important-built-in-functions"><i class="fa fa-check"></i><b>2.3.1</b> Some important built-in functions</a></li>
+<li class="chapter" data-level="2.3.2" data-path="Chap-01-01-functions.html"><a href="Chap-01-01-functions.html#defining-your-own-functions"><i class="fa fa-check"></i><b>2.3.2</b> Defining your own functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="ch-01-01-loops-and-maps.html"><a href="ch-01-01-loops-and-maps.html"><i class="fa fa-check"></i><b>2.4</b> Loops and maps</a><ul>
+<li class="chapter" data-level="2.4.1" data-path="ch-01-01-loops-and-maps.html"><a href="ch-01-01-loops-and-maps.html#for-loops"><i class="fa fa-check"></i><b>2.4.1</b> For-loops</a></li>
+<li class="chapter" data-level="2.4.2" data-path="ch-01-01-loops-and-maps.html"><a href="ch-01-01-loops-and-maps.html#functional-iterators"><i class="fa fa-check"></i><b>2.4.2</b> Functional iterators</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="Chap-01-01-piping.html"><a href="Chap-01-01-piping.html"><i class="fa fa-check"></i><b>2.5</b> Piping</a></li>
+<li class="chapter" data-level="2.6" data-path="ch-01-01-Rmarkdown.html"><a href="ch-01-01-Rmarkdown.html"><i class="fa fa-check"></i><b>2.6</b> Rmarkdown</a></li>
+</ul></li>
+<li class="part"><span><b>II Data</b></span></li>
+<li class="chapter" data-level="3" data-path="Chap-02-01-data.html"><a href="Chap-02-01-data.html"><i class="fa fa-check"></i><b>3</b> Data, variables &amp; experimental designs</a><ul>
+<li class="chapter" data-level="3.1" data-path="Chap-02-01-data-what-is-data.html"><a href="Chap-02-01-data-what-is-data.html"><i class="fa fa-check"></i><b>3.1</b> What is data?</a></li>
+<li class="chapter" data-level="3.2" data-path="Chap-02-01-data-kinds-of-data.html"><a href="Chap-02-01-data-kinds-of-data.html"><i class="fa fa-check"></i><b>3.2</b> Different kinds of data</a></li>
+<li class="chapter" data-level="3.3" data-path="Chap-02-01-data-variables.html"><a href="Chap-02-01-data-variables.html"><i class="fa fa-check"></i><b>3.3</b> On the notion of “variables”</a></li>
+<li class="chapter" data-level="3.4" data-path="Chap-02-01-data-exp-design.html"><a href="Chap-02-01-data-exp-design.html"><i class="fa fa-check"></i><b>3.4</b> Basics of experimental design</a><ul>
+<li class="chapter" data-level="3.4.1" data-path="Chap-02-01-data-exp-design.html"><a href="Chap-02-01-data-exp-design.html#what-to-analyze-dependent-variables"><i class="fa fa-check"></i><b>3.4.1</b> What to analyze? – Dependent variables</a></li>
+<li class="chapter" data-level="3.4.2" data-path="Chap-02-01-data-exp-design.html"><a href="Chap-02-01-data-exp-design.html#conditions-trials-items"><i class="fa fa-check"></i><b>3.4.2</b> Conditions, trials, items</a></li>
+<li class="chapter" data-level="3.4.3" data-path="Chap-02-01-data-exp-design.html"><a href="Chap-02-01-data-exp-design.html#sample-size"><i class="fa fa-check"></i><b>3.4.3</b> Sample size</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="data-wrangling.html"><a href="data-wrangling.html"><i class="fa fa-check"></i><b>4</b> Data Wrangling</a><ul>
+<li class="chapter" data-level="4.1" data-path="Chap-02-02-data-IO.html"><a href="Chap-02-02-data-IO.html"><i class="fa fa-check"></i><b>4.1</b> Data in, data out</a></li>
+<li class="chapter" data-level="4.2" data-path="Chap-02-02-data-tidy-data.html"><a href="Chap-02-02-data-tidy-data.html"><i class="fa fa-check"></i><b>4.2</b> Tidy data</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="Chap-02-02-data-tidy-data.html"><a href="Chap-02-02-data-tidy-data.html#running-example"><i class="fa fa-check"></i><b>4.2.1</b> Running example</a></li>
+<li class="chapter" data-level="4.2.2" data-path="Chap-02-02-data-tidy-data.html"><a href="Chap-02-02-data-tidy-data.html#definition-of-tidy-data"><i class="fa fa-check"></i><b>4.2.2</b> Definition of <em>tidy data</em></a></li>
+<li class="chapter" data-level="4.2.3" data-path="Chap-02-02-data-tidy-data.html"><a href="Chap-02-02-data-tidy-data.html#excursion-non-redundant-data"><i class="fa fa-check"></i><b>4.2.3</b> Excursion: non-redundant data</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html"><i class="fa fa-check"></i><b>4.3</b> Data manipulation: the basics</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#pivoting"><i class="fa fa-check"></i><b>4.3.1</b> Pivoting</a></li>
+<li class="chapter" data-level="4.3.2" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#subsetting-row-columns"><i class="fa fa-check"></i><b>4.3.2</b> Subsetting row &amp; columns</a></li>
+<li class="chapter" data-level="4.3.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#Chap-02-02-tidy-selection"><i class="fa fa-check"></i><b>4.3.3</b> Tidy selection of column names</a></li>
+<li class="chapter" data-level="4.3.4" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#adding-changing-and-renaming-columns"><i class="fa fa-check"></i><b>4.3.4</b> Adding, changing and renaming columns</a></li>
+<li class="chapter" data-level="4.3.5" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#splitting-and-uniting-columns"><i class="fa fa-check"></i><b>4.3.5</b> Splitting and uniting columns</a></li>
+<li class="chapter" data-level="4.3.6" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#sorting-a-data-set"><i class="fa fa-check"></i><b>4.3.6</b> Sorting a data set</a></li>
+<li class="chapter" data-level="4.3.7" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#combining-tibbles"><i class="fa fa-check"></i><b>4.3.7</b> Combining tibbles</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="Chap-02-02-data-grouping-nesting.html"><a href="Chap-02-02-data-grouping-nesting.html"><i class="fa fa-check"></i><b>4.4</b> Grouped operations</a></li>
+<li class="chapter" data-level="4.5" data-path="Chap-02-02-data-case-study-KoF.html"><a href="Chap-02-02-data-case-study-KoF.html"><i class="fa fa-check"></i><b>4.5</b> Case study: the King of France</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="Chap-02-02-data-case-study-KoF.html"><a href="Chap-02-02-data-case-study-KoF.html#cleaning-the-data"><i class="fa fa-check"></i><b>4.5.1</b> Cleaning the data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Chap-02-03-summary-statistics.html"><a href="Chap-02-03-summary-statistics.html"><i class="fa fa-check"></i><b>5</b> Summary statistics</a><ul>
+<li class="chapter" data-level="5.1" data-path="Chap-02-03-summary-statistics-counts.html"><a href="Chap-02-03-summary-statistics-counts.html"><i class="fa fa-check"></i><b>5.1</b> Counts and proportions</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="Chap-02-03-summary-statistics-counts.html"><a href="Chap-02-03-summary-statistics-counts.html#loading-and-inspecting-the-data"><i class="fa fa-check"></i><b>5.1.1</b> Loading and inspecting the data</a></li>
+<li class="chapter" data-level="5.1.2" data-path="Chap-02-03-summary-statistics-counts.html"><a href="Chap-02-03-summary-statistics-counts.html#obtaining-counts-with-n-count-and-tally"><i class="fa fa-check"></i><b>5.1.2</b> Obtaining counts with <code>n</code>, <code>count</code> and <code>tally</code></a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html"><i class="fa fa-check"></i><b>5.2</b> Central tendency and dispersion</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#the-data-for-the-remainder-of-the-chapter"><i class="fa fa-check"></i><b>5.2.1</b> The data for the remainder of the chapter</a></li>
+<li class="chapter" data-level="5.2.2" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#measures-of-central-tendency"><i class="fa fa-check"></i><b>5.2.2</b> Measures of central tendency</a></li>
+<li class="chapter" data-level="5.2.3" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#measures-of-dispersion"><i class="fa fa-check"></i><b>5.2.3</b> Measures of dispersion</a></li>
+<li class="chapter" data-level="5.2.4" data-path="Chap-02-03-summary-statistics-1D.html"><a href="Chap-02-03-summary-statistics-1D.html#excursion-quantifying-confidence-with-bootstrapping"><i class="fa fa-check"></i><b>5.2.4</b> Excursion: Quantifying confidence with bootstrapping</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html"><i class="fa fa-check"></i><b>5.3</b> Covariance and correlation</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#covariance"><i class="fa fa-check"></i><b>5.3.1</b> Covariance</a></li>
+<li class="chapter" data-level="5.3.2" data-path="Chap-02-03-summary-statistics-2D.html"><a href="Chap-02-03-summary-statistics-2D.html#correlation"><i class="fa fa-check"></i><b>5.3.2</b> Correlation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="Chap-02-02-visualization.html"><a href="Chap-02-02-visualization.html"><i class="fa fa-check"></i><b>6</b> Data Visualization</a><ul>
+<li class="chapter" data-level="6.1" data-path="Chap-02-04-Anscombe-example.html"><a href="Chap-02-04-Anscombe-example.html"><i class="fa fa-check"></i><b>6.1</b> Motivating example: Anscombe’s quartet</a></li>
+<li class="chapter" data-level="6.2" data-path="Chap-02-04-good-visualization.html"><a href="Chap-02-04-good-visualization.html"><i class="fa fa-check"></i><b>6.2</b> Visualization: the good, the bad and the infographic</a></li>
+<li class="chapter" data-level="6.3" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html"><i class="fa fa-check"></i><b>6.3</b> Basics of <code>ggplot</code></a><ul>
+<li class="chapter" data-level="6.3.1" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#incremental-composition-of-a-plot"><i class="fa fa-check"></i><b>6.3.1</b> Incremental composition of a plot</a></li>
+<li class="chapter" data-level="6.3.2" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#elements-in-the-layered-grammar-of-graphs"><i class="fa fa-check"></i><b>6.3.2</b> Elements in the layered grammar of graphs</a></li>
+<li class="chapter" data-level="6.3.3" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#layers-and-groups"><i class="fa fa-check"></i><b>6.3.3</b> Layers and groups</a></li>
+<li class="chapter" data-level="6.3.4" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#grouping"><i class="fa fa-check"></i><b>6.3.4</b> Grouping</a></li>
+<li class="chapter" data-level="6.3.5" data-path="Chap-02-04-ggplot.html"><a href="Chap-02-04-ggplot.html#example-of-a-customized-plot"><i class="fa fa-check"></i><b>6.3.5</b> Example of a customized plot</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html"><i class="fa fa-check"></i><b>6.4</b> A rendezvous with popular geoms</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html#scatter-plots-with-geom_point"><i class="fa fa-check"></i><b>6.4.1</b> Scatter plots with <code>geom_point</code></a></li>
+<li class="chapter" data-level="6.4.2" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html#smooth"><i class="fa fa-check"></i><b>6.4.2</b> Smooth</a></li>
+<li class="chapter" data-level="6.4.3" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html#line"><i class="fa fa-check"></i><b>6.4.3</b> Line</a></li>
+<li class="chapter" data-level="6.4.4" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html#barplot"><i class="fa fa-check"></i><b>6.4.4</b> Barplot</a></li>
+<li class="chapter" data-level="6.4.5" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html#plotting-distributions-histograms-boxplots-densities-and-violins"><i class="fa fa-check"></i><b>6.4.5</b> Plotting distributions: histograms, boxplots, densities and violins</a></li>
+<li class="chapter" data-level="6.4.6" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html#rugs"><i class="fa fa-check"></i><b>6.4.6</b> Rugs</a></li>
+<li class="chapter" data-level="6.4.7" data-path="Chap-02-04-geoms.html"><a href="Chap-02-04-geoms.html#annotation"><i class="fa fa-check"></i><b>6.4.7</b> Annotation</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="Chap-02-04-faceting.html"><a href="Chap-02-04-faceting.html"><i class="fa fa-check"></i><b>6.5</b> Faceting</a></li>
+<li class="chapter" data-level="6.6" data-path="Chap-02-04-customization.html"><a href="Chap-02-04-customization.html"><i class="fa fa-check"></i><b>6.6</b> Customization etc.</a><ul>
+<li class="chapter" data-level="6.6.1" data-path="Chap-02-04-customization.html"><a href="Chap-02-04-customization.html#themes"><i class="fa fa-check"></i><b>6.6.1</b> Themes</a></li>
+<li class="chapter" data-level="6.6.2" data-path="Chap-02-04-customization.html"><a href="Chap-02-04-customization.html#guides"><i class="fa fa-check"></i><b>6.6.2</b> Guides</a></li>
+<li class="chapter" data-level="6.6.3" data-path="Chap-02-04-customization.html"><a href="Chap-02-04-customization.html#axes-ticks-and-tick-labels"><i class="fa fa-check"></i><b>6.6.3</b> Axes, ticks and tick labels</a></li>
+<li class="chapter" data-level="6.6.4" data-path="Chap-02-04-customization.html"><a href="Chap-02-04-customization.html#labels"><i class="fa fa-check"></i><b>6.6.4</b> Labels</a></li>
+<li class="chapter" data-level="6.6.5" data-path="Chap-02-04-customization.html"><a href="Chap-02-04-customization.html#combining-arranging-plots"><i class="fa fa-check"></i><b>6.6.5</b> Combining &amp; arranging plots</a></li>
+<li class="chapter" data-level="6.6.6" data-path="Chap-02-04-customization.html"><a href="Chap-02-04-customization.html#latex-expressions-in-plot-labels"><i class="fa fa-check"></i><b>6.6.6</b> LaTeX expressions in plot labels</a></li>
+</ul></li>
+</ul></li>
+<li class="part"><span><b>III Models and inferences</b></span></li>
+<li class="chapter" data-level="7" data-path="Chap-03-01-probability.html"><a href="Chap-03-01-probability.html"><i class="fa fa-check"></i><b>7</b> Basics of Probability Theory</a><ul>
+<li class="chapter" data-level="7.1" data-path="Chap-03-01-probability-basics.html"><a href="Chap-03-01-probability-basics.html"><i class="fa fa-check"></i><b>7.1</b> Probability</a><ul>
+<li class="chapter" data-level="7.1.1" data-path="Chap-03-01-probability-basics.html"><a href="Chap-03-01-probability-basics.html#outcomes-events-observations"><i class="fa fa-check"></i><b>7.1.1</b> Outcomes, events, observations</a></li>
+<li class="chapter" data-level="7.1.2" data-path="Chap-03-01-probability-basics.html"><a href="Chap-03-01-probability-basics.html#probability-distributions"><i class="fa fa-check"></i><b>7.1.2</b> Probability distributions</a></li>
+<li class="chapter" data-level="7.1.3" data-path="Chap-03-01-probability-basics.html"><a href="Chap-03-01-probability-basics.html#interpretations-of-probability"><i class="fa fa-check"></i><b>7.1.3</b> Interpretations of probability</a></li>
+<li class="chapter" data-level="7.1.4" data-path="Chap-03-01-probability-basics.html"><a href="Chap-03-01-probability-basics.html#distributions-as-samples"><i class="fa fa-check"></i><b>7.1.4</b> Distributions as samples</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="Chap-03-01-probability-marginal.html"><a href="Chap-03-01-probability-marginal.html"><i class="fa fa-check"></i><b>7.2</b> Structured events &amp; marginal distributions</a><ul>
+<li class="chapter" data-level="7.2.1" data-path="Chap-03-01-probability-marginal.html"><a href="Chap-03-01-probability-marginal.html#probability-table-for-a-flip-and-draw-scenario"><i class="fa fa-check"></i><b>7.2.1</b> Probability table for a flip-and-draw scenario</a></li>
+<li class="chapter" data-level="7.2.2" data-path="Chap-03-01-probability-marginal.html"><a href="Chap-03-01-probability-marginal.html#structured-events-and-joint-probability-distributions"><i class="fa fa-check"></i><b>7.2.2</b> Structured events and joint-probability distributions</a></li>
+<li class="chapter" data-level="7.2.3" data-path="Chap-03-01-probability-marginal.html"><a href="Chap-03-01-probability-marginal.html#marginalization"><i class="fa fa-check"></i><b>7.2.3</b> Marginalization</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="Chap-03-01-probability-conditional.html"><a href="Chap-03-01-probability-conditional.html"><i class="fa fa-check"></i><b>7.3</b> Conditional probability</a><ul>
+<li class="chapter" data-level="7.3.1" data-path="Chap-03-01-probability-conditional.html"><a href="Chap-03-01-probability-conditional.html#bayes-rule"><i class="fa fa-check"></i><b>7.3.1</b> Bayes rule</a></li>
+<li class="chapter" data-level="7.3.2" data-path="Chap-03-01-probability-conditional.html"><a href="Chap-03-01-probability-conditional.html#Chap-03-01-probability-independence"><i class="fa fa-check"></i><b>7.3.2</b> Stochastic (in-)dependence</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="Chap-03-01-probability-random-variables.html"><a href="Chap-03-01-probability-random-variables.html"><i class="fa fa-check"></i><b>7.4</b> Random variables</a><ul>
+<li class="chapter" data-level="7.4.1" data-path="Chap-03-01-probability-random-variables.html"><a href="Chap-03-01-probability-random-variables.html#notation-terminology"><i class="fa fa-check"></i><b>7.4.1</b> Notation &amp; terminology</a></li>
+<li class="chapter" data-level="7.4.2" data-path="Chap-03-01-probability-random-variables.html"><a href="Chap-03-01-probability-random-variables.html#cumulative-distribution-functions-mass-density"><i class="fa fa-check"></i><b>7.4.2</b> Cumulative distribution functions, mass &amp; density</a></li>
+<li class="chapter" data-level="7.4.3" data-path="Chap-03-01-probability-random-variables.html"><a href="Chap-03-01-probability-random-variables.html#expected-value-variance"><i class="fa fa-check"></i><b>7.4.3</b> Expected value &amp; variance</a></li>
+<li class="chapter" data-level="7.4.4" data-path="Chap-03-01-probability-random-variables.html"><a href="Chap-03-01-probability-random-variables.html#composite-random-variables"><i class="fa fa-check"></i><b>7.4.4</b> Composite random variables</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="Chap-03-01-probability-R.html"><a href="Chap-03-01-probability-R.html"><i class="fa fa-check"></i><b>7.5</b> Probability distributions in R</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="Chap-03-03-models.html"><a href="Chap-03-03-models.html"><i class="fa fa-check"></i><b>8</b> Models</a><ul>
+<li class="chapter" data-level="8.1" data-path="Chap-03-03-models-general.html"><a href="Chap-03-03-models-general.html"><i class="fa fa-check"></i><b>8.1</b> Statistical models</a></li>
+<li class="chapter" data-level="8.2" data-path="Chap-03-03-models-representation.html"><a href="Chap-03-03-models-representation.html"><i class="fa fa-check"></i><b>8.2</b> Notation &amp; graphical representation</a><ul>
+<li class="chapter" data-level="8.2.1" data-path="Chap-03-03-models-representation.html"><a href="Chap-03-03-models-representation.html#formula-notation"><i class="fa fa-check"></i><b>8.2.1</b> Formula notation</a></li>
+<li class="chapter" data-level="8.2.2" data-path="Chap-03-03-models-representation.html"><a href="Chap-03-03-models-representation.html#graphical-notation"><i class="fa fa-check"></i><b>8.2.2</b> Graphical notation</a></li>
+</ul></li>
+<li class="chapter" data-level="8.3" data-path="Chap-03-03-models-parameters-priors.html"><a href="Chap-03-03-models-parameters-priors.html"><i class="fa fa-check"></i><b>8.3</b> Parameters, priors, and prior predictions</a><ul>
+<li class="chapter" data-level="8.3.1" data-path="Chap-03-03-models-parameters-priors.html"><a href="Chap-03-03-models-parameters-priors.html#whats-a-model-parameter"><i class="fa fa-check"></i><b>8.3.1</b> What’s a model parameter?</a></li>
+<li class="chapter" data-level="8.3.2" data-path="Chap-03-03-models-parameters-priors.html"><a href="Chap-03-03-models-parameters-priors.html#Chap-03-02-models-priors"><i class="fa fa-check"></i><b>8.3.2</b> Priors over parameters</a></li>
+<li class="chapter" data-level="8.3.3" data-path="Chap-03-03-models-parameters-priors.html"><a href="Chap-03-03-models-parameters-priors.html#prior-predictions"><i class="fa fa-check"></i><b>8.3.3</b> Prior predictions</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="ch-03-04-parameter-estimation.html"><a href="ch-03-04-parameter-estimation.html"><i class="fa fa-check"></i><b>9</b> Parameter estimation</a><ul>
+<li class="chapter" data-level="9.1" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html"><i class="fa fa-check"></i><b>9.1</b> Bayes rule for parameter estimation</a><ul>
+<li class="chapter" data-level="9.1.1" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#definitions-and-terminology"><i class="fa fa-check"></i><b>9.1.1</b> Definitions and terminology</a></li>
+<li class="chapter" data-level="9.1.2" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#the-effects-of-prior-and-likelihood-on-the-posterior"><i class="fa fa-check"></i><b>9.1.2</b> The effects of prior and likelihood on the posterior</a></li>
+<li class="chapter" data-level="9.1.3" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#ch-03-04-parameter-estimation-conjugacy"><i class="fa fa-check"></i><b>9.1.3</b> Computing Bayesian posteriors with conjugate priors</a></li>
+<li class="chapter" data-level="9.1.4" data-path="ch-03-03-estimation-bayes.html"><a href="ch-03-03-estimation-bayes.html#sequential-updating"><i class="fa fa-check"></i><b>9.1.4</b> Sequential updating</a></li>
+</ul></li>
+<li class="chapter" data-level="9.2" data-path="point-valued-and-interval-ranged-estimates.html"><a href="point-valued-and-interval-ranged-estimates.html"><i class="fa fa-check"></i><b>9.2</b> Point-valued and interval-ranged estimates</a><ul>
+<li class="chapter" data-level="9.2.1" data-path="point-valued-and-interval-ranged-estimates.html"><a href="point-valued-and-interval-ranged-estimates.html#posterior-means"><i class="fa fa-check"></i><b>9.2.1</b> Posterior means</a></li>
+<li class="chapter" data-level="9.2.2" data-path="point-valued-and-interval-ranged-estimates.html"><a href="point-valued-and-interval-ranged-estimates.html#maximum-a-posteriori"><i class="fa fa-check"></i><b>9.2.2</b> Maximum a posteriori</a></li>
+<li class="chapter" data-level="9.2.3" data-path="point-valued-and-interval-ranged-estimates.html"><a href="point-valued-and-interval-ranged-estimates.html#maximum-likelihood-estimate"><i class="fa fa-check"></i><b>9.2.3</b> Maximum likelihood estimate</a></li>
+<li class="chapter" data-level="9.2.4" data-path="point-valued-and-interval-ranged-estimates.html"><a href="point-valued-and-interval-ranged-estimates.html#credible-intervals"><i class="fa fa-check"></i><b>9.2.4</b> Credible intervals</a></li>
+<li class="chapter" data-level="9.2.5" data-path="point-valued-and-interval-ranged-estimates.html"><a href="point-valued-and-interval-ranged-estimates.html#excursion-computing-point-estimates-in-r"><i class="fa fa-check"></i><b>9.2.5</b> Excursion: Computing point-estimates in R</a></li>
+<li class="chapter" data-level="9.2.6" data-path="point-valued-and-interval-ranged-estimates.html"><a href="point-valued-and-interval-ranged-estimates.html#computing-bayesian-estimates"><i class="fa fa-check"></i><b>9.2.6</b> Computing Bayesian estimates</a></li>
+</ul></li>
+<li class="chapter" data-level="9.3" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html"><i class="fa fa-check"></i><b>9.3</b> Algorithms for parameter estimation</a></li>
+<li class="chapter" data-level="9.4" data-path="approximating-the-posterior.html"><a href="approximating-the-posterior.html"><i class="fa fa-check"></i><b>9.4</b> Approximating the posterior</a><ul>
+<li class="chapter" data-level="9.4.1" data-path="approximating-the-posterior.html"><a href="approximating-the-posterior.html#ch-03-03-MCMC"><i class="fa fa-check"></i><b>9.4.1</b> Of apples and trees: Markov Chain Monte Carlo sampling</a></li>
+<li class="chapter" data-level="9.4.2" data-path="approximating-the-posterior.html"><a href="approximating-the-posterior.html#ch-03-03-estimation-Stan"><i class="fa fa-check"></i><b>9.4.2</b> Probabilistic modeling with Stan</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="ch-03-05-hypothesis-testing.html"><a href="ch-03-05-hypothesis-testing.html"><i class="fa fa-check"></i><b>10</b> Hypothesis Testing</a><ul>
+<li class="chapter" data-level="10.1" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html"><i class="fa fa-check"></i><b>10.1</b> <em>p</em>-values</a><ul>
+<li class="chapter" data-level="10.1.1" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html#binomial-model---frequentist-version"><i class="fa fa-check"></i><b>10.1.1</b> Binomial Model - frequentist version</a></li>
+<li class="chapter" data-level="10.1.2" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html#p-values-for-the-binomial-model"><i class="fa fa-check"></i><b>10.1.2</b> <em>p</em>-values for the Binomial Model</a></li>
+<li class="chapter" data-level="10.1.3" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html#statistical-significance"><i class="fa fa-check"></i><b>10.1.3</b> Statistical significance</a></li>
+<li class="chapter" data-level="10.1.4" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html#p-values-and-alpha-errors"><i class="fa fa-check"></i><b>10.1.4</b> <em>p</em>-values and <span class="math inline">\(\alpha\)</span>-errors</a></li>
+<li class="chapter" data-level="10.1.5" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html#relation-of-p-values-to-confidence-intervals"><i class="fa fa-check"></i><b>10.1.5</b> Relation of <em>p</em>-values to confidence intervals</a></li>
+<li class="chapter" data-level="10.1.6" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html#distribution-of-p-values"><i class="fa fa-check"></i><b>10.1.6</b> Distribution of <span class="math inline">\(p\)</span>-values</a></li>
+<li class="chapter" data-level="10.1.7" data-path="ch-03-05-hypothesis-p-values.html"><a href="ch-03-05-hypothesis-p-values.html#how-not-to-interpret-p-values"><i class="fa fa-check"></i><b>10.1.7</b> How (not) to interpret <em>p</em>-values</a></li>
+</ul></li>
+<li class="chapter" data-level="10.2" data-path="ch-03-05-hypothesis-testing-CLT.html"><a href="ch-03-05-hypothesis-testing-CLT.html"><i class="fa fa-check"></i><b>10.2</b> Central Limit Theorem</a><ul>
+<li class="chapter" data-level="10.2.1" data-path="ch-03-05-hypothesis-testing-CLT.html"><a href="ch-03-05-hypothesis-testing-CLT.html#hands-on"><i class="fa fa-check"></i><b>10.2.1</b> Hands-on</a></li>
+</ul></li>
+<li class="chapter" data-level="10.3" data-path="ch-03-05-hypothesis-testing-tests.html"><a href="ch-03-05-hypothesis-testing-tests.html"><i class="fa fa-check"></i><b>10.3</b> Selected tests</a><ul>
+<li class="chapter" data-level="10.3.1" data-path="ch-03-05-hypothesis-testing-tests.html"><a href="ch-03-05-hypothesis-testing-tests.html#ch-03-05-hypothesis-testing-Pearsons-Chi"><i class="fa fa-check"></i><b>10.3.1</b> Pearson’s <span class="math inline">\(\chi^2\)</span>-tests</a></li>
+<li class="chapter" data-level="10.3.2" data-path="ch-03-05-hypothesis-testing-tests.html"><a href="ch-03-05-hypothesis-testing-tests.html#ch-03-05-hypothesis-testing-z-test"><i class="fa fa-check"></i><b>10.3.2</b> <em>z</em>-test</a></li>
+<li class="chapter" data-level="10.3.3" data-path="ch-03-05-hypothesis-testing-tests.html"><a href="ch-03-05-hypothesis-testing-tests.html#ch-03-05-hypothesis-testing-t-test"><i class="fa fa-check"></i><b>10.3.3</b> <em>t</em>-tests</a></li>
+<li class="chapter" data-level="10.3.4" data-path="ch-03-05-hypothesis-testing-tests.html"><a href="ch-03-05-hypothesis-testing-tests.html#ch-03-05-hypothesis-testing-ANOVA"><i class="fa fa-check"></i><b>10.3.4</b> ANOVA</a></li>
+</ul></li>
+<li class="chapter" data-level="10.4" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html"><i class="fa fa-check"></i><b>10.4</b> Three approaches</a><ul>
+<li class="chapter" data-level="10.4.1" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html#fisher"><i class="fa fa-check"></i><b>10.4.1</b> Fisher</a></li>
+<li class="chapter" data-level="10.4.2" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html#neyman-pearson"><i class="fa fa-check"></i><b>10.4.2</b> Neyman-Pearson</a></li>
+<li class="chapter" data-level="10.4.3" data-path="ch-03-05-hypothesis-testing-3-approaches.html"><a href="ch-03-05-hypothesis-testing-3-approaches.html#hybrid-modern-nhst"><i class="fa fa-check"></i><b>10.4.3</b> Hybrid modern NHST</a></li>
+</ul></li>
+<li class="chapter" data-level="10.5" data-path="ch-03-05-hypothesis-testing-3-model-checking.html"><a href="ch-03-05-hypothesis-testing-3-model-checking.html"><i class="fa fa-check"></i><b>10.5</b> Relation to model checking</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="Chap-03-06-model-comparison.html"><a href="Chap-03-06-model-comparison.html"><i class="fa fa-check"></i><b>11</b> Model Comparison</a><ul>
+<li class="chapter" data-level="11.1" data-path="Chap-03-06-model-comparison-case-study.html"><a href="Chap-03-06-model-comparison-case-study.html"><i class="fa fa-check"></i><b>11.1</b> Case study: recall models</a></li>
+<li class="chapter" data-level="11.2" data-path="Chap-03-06-model-comparison-AIC.html"><a href="Chap-03-06-model-comparison-AIC.html"><i class="fa fa-check"></i><b>11.2</b> Akaike Information Criterion</a></li>
+<li class="chapter" data-level="11.3" data-path="Chap-03-06-model-comparison-LR-test.html"><a href="Chap-03-06-model-comparison-LR-test.html"><i class="fa fa-check"></i><b>11.3</b> Likelihood-Ratio Test</a></li>
+<li class="chapter" data-level="11.4" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html"><i class="fa fa-check"></i><b>11.4</b> Bayes factors</a><ul>
+<li class="chapter" data-level="11.4.1" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#grid-approximation"><i class="fa fa-check"></i><b>11.4.1</b> Grid approximation</a></li>
+<li class="chapter" data-level="11.4.2" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#naive-monte-carlo"><i class="fa fa-check"></i><b>11.4.2</b> Naive Monte Carlo</a></li>
+</ul></li>
+<li class="chapter" data-level="11.5" data-path="outlook.html"><a href="outlook.html"><i class="fa fa-check"></i><b>11.5</b> Outlook</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="ch-03-07-hypothesis-testing-Bayes.html"><a href="ch-03-07-hypothesis-testing-Bayes.html"><i class="fa fa-check"></i><b>12</b> Bayesian hypothesis testing</a><ul>
+<li class="chapter" data-level="12.1" data-path="data-and-models-for-this-chapter.html"><a href="data-and-models-for-this-chapter.html"><i class="fa fa-check"></i><b>12.1</b> Data and models for this chapter</a><ul>
+<li class="chapter" data-level="12.1.1" data-path="data-and-models-for-this-chapter.html"><a href="data-and-models-for-this-chapter.html#section"><i class="fa fa-check"></i><b>12.1.1</b> 24/7</a></li>
+<li class="chapter" data-level="12.1.2" data-path="data-and-models-for-this-chapter.html"><a href="data-and-models-for-this-chapter.html#eco-sensitivity-fictitious"><i class="fa fa-check"></i><b>12.1.2</b> Eco-sensitivity (fictitious)</a></li>
+</ul></li>
+<li class="chapter" data-level="12.2" data-path="testing-as-posterior-estimation.html"><a href="testing-as-posterior-estimation.html"><i class="fa fa-check"></i><b>12.2</b> Testing as posterior estimation</a><ul>
+<li class="chapter" data-level="12.2.1" data-path="testing-as-posterior-estimation.html"><a href="testing-as-posterior-estimation.html#example-247"><i class="fa fa-check"></i><b>12.2.1</b> Example: 24/7</a></li>
+<li class="chapter" data-level="12.2.2" data-path="testing-as-posterior-estimation.html"><a href="testing-as-posterior-estimation.html#example-eco-sensitivity"><i class="fa fa-check"></i><b>12.2.2</b> Example: Eco-sensitivity</a></li>
+</ul></li>
+<li class="chapter" data-level="12.3" data-path="the-savage-dickey-method.html"><a href="the-savage-dickey-method.html"><i class="fa fa-check"></i><b>12.3</b> The Savage-Dickey method</a><ul>
+<li class="chapter" data-level="12.3.1" data-path="the-savage-dickey-method.html"><a href="the-savage-dickey-method.html#nested-bayesian-models"><i class="fa fa-check"></i><b>12.3.1</b> Nested (Bayesian) models</a></li>
+<li class="chapter" data-level="12.3.2" data-path="the-savage-dickey-method.html"><a href="the-savage-dickey-method.html#savage-dickey-theorem"><i class="fa fa-check"></i><b>12.3.2</b> Savage-Dickey theorem</a></li>
+<li class="chapter" data-level="12.3.3" data-path="the-savage-dickey-method.html"><a href="the-savage-dickey-method.html#example-247-1"><i class="fa fa-check"></i><b>12.3.3</b> Example: 24/7</a></li>
+<li class="chapter" data-level="12.3.4" data-path="the-savage-dickey-method.html"><a href="the-savage-dickey-method.html#example-eco-sensitivity-1"><i class="fa fa-check"></i><b>12.3.4</b> Example: Eco-sensitivity</a></li>
+</ul></li>
+<li class="chapter" data-level="12.4" data-path="bayes-factors-for-rope-d-hypotheses-through-encompassing-models.html"><a href="bayes-factors-for-rope-d-hypotheses-through-encompassing-models.html"><i class="fa fa-check"></i><b>12.4</b> Bayes factors for ROPE-d hypotheses through encompassing models</a><ul>
+<li class="chapter" data-level="12.4.1" data-path="bayes-factors-for-rope-d-hypotheses-through-encompassing-models.html"><a href="bayes-factors-for-rope-d-hypotheses-through-encompassing-models.html#example-247-2"><i class="fa fa-check"></i><b>12.4.1</b> Example: 24/7</a></li>
+<li class="chapter" data-level="12.4.2" data-path="bayes-factors-for-rope-d-hypotheses-through-encompassing-models.html"><a href="bayes-factors-for-rope-d-hypotheses-through-encompassing-models.html#example-eco-sensitivity-2"><i class="fa fa-check"></i><b>12.4.2</b> Example: Eco-sensitivity</a></li>
+</ul></li>
+</ul></li>
+<li class="part"><span><b>IV Applied (generalized) linear modeling</b></span></li>
+<li class="chapter" data-level="13" data-path="Chap-04-01-simple-linear-regression.html"><a href="Chap-04-01-simple-linear-regression.html"><i class="fa fa-check"></i><b>13</b> Simple linear regression</a><ul>
+<li class="chapter" data-level="13.1" data-path="data-set-murder-data.html"><a href="data-set-murder-data.html"><i class="fa fa-check"></i><b>13.1</b> Data set: murder data</a></li>
+<li class="chapter" data-level="13.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html"><i class="fa fa-check"></i><b>13.2</b> Ordinary least squares regression</a><ul>
+<li class="chapter" data-level="13.2.1" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#prediction-without-any-further-information"><i class="fa fa-check"></i><b>13.2.1</b> Prediction without any further information</a></li>
+<li class="chapter" data-level="13.2.2" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#prediction-with-knowledge-of-unemployment-rate"><i class="fa fa-check"></i><b>13.2.2</b> Prediction with knowledge of unemployment rate</a></li>
+<li class="chapter" data-level="13.2.3" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#simple-linear-regression-general-problem-formulation"><i class="fa fa-check"></i><b>13.2.3</b> Simple linear regression: general problem formulation</a></li>
+<li class="chapter" data-level="13.2.4" data-path="ordinary-least-squares-regression.html"><a href="ordinary-least-squares-regression.html#finding-the-ols-solution"><i class="fa fa-check"></i><b>13.2.4</b> Finding the OLS-solution</a></li>
+</ul></li>
+<li class="chapter" data-level="13.3" data-path="a-maximum-likelihood-approach.html"><a href="a-maximum-likelihood-approach.html"><i class="fa fa-check"></i><b>13.3</b> A maximum-likelihood approach</a><ul>
+<li class="chapter" data-level="13.3.1" data-path="a-maximum-likelihood-approach.html"><a href="a-maximum-likelihood-approach.html#a-likelihood-based-model"><i class="fa fa-check"></i><b>13.3.1</b> A likelihood-based model</a></li>
+<li class="chapter" data-level="13.3.2" data-path="a-maximum-likelihood-approach.html"><a href="a-maximum-likelihood-approach.html#finding-the-mle-solution-with-optim"><i class="fa fa-check"></i><b>13.3.2</b> Finding the MLE-solution with <code>optim</code></a></li>
+<li class="chapter" data-level="13.3.3" data-path="a-maximum-likelihood-approach.html"><a href="a-maximum-likelihood-approach.html#finding-the-mle-solution-with-math"><i class="fa fa-check"></i><b>13.3.3</b> Finding the MLE-solution with math</a></li>
+<li class="chapter" data-level="13.3.4" data-path="a-maximum-likelihood-approach.html"><a href="a-maximum-likelihood-approach.html#finding-the-mle-solution-with-glm"><i class="fa fa-check"></i><b>13.3.4</b> Finding the MLE-solution with <code>glm</code></a></li>
+</ul></li>
+<li class="chapter" data-level="13.4" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html"><i class="fa fa-check"></i><b>13.4</b> A Bayesian approach</a><ul>
+<li class="chapter" data-level="13.4.1" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#implementation-in-stan"><i class="fa fa-check"></i><b>13.4.1</b> Implementation in <code>Stan</code></a></li>
+<li class="chapter" data-level="13.4.2" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#using-the-brms-package"><i class="fa fa-check"></i><b>13.4.2</b> Using the <code>brms</code> package</a></li>
+<li class="chapter" data-level="13.4.3" data-path="a-bayesian-approach.html"><a href="a-bayesian-approach.html#bayesian-regression-with-non-informative-standard-priors"><i class="fa fa-check"></i><b>13.4.3</b> Bayesian regression with non-informative standard priors</a></li>
+</ul></li>
+<li class="chapter" data-level="13.5" data-path="testing-coefficients.html"><a href="testing-coefficients.html"><i class="fa fa-check"></i><b>13.5</b> Testing coefficients</a><ul>
+<li class="chapter" data-level="13.5.1" data-path="testing-coefficients.html"><a href="testing-coefficients.html#bayesian-approach"><i class="fa fa-check"></i><b>13.5.1</b> Bayesian approach</a></li>
+<li class="chapter" data-level="13.5.2" data-path="testing-coefficients.html"><a href="testing-coefficients.html#frequentist-approach"><i class="fa fa-check"></i><b>13.5.2</b> Frequentist approach</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="14" data-path="Chap-04-02-beyond-simple-regression.html"><a href="Chap-04-02-beyond-simple-regression.html"><i class="fa fa-check"></i><b>14</b> Beyond simple linear regression</a><ul>
+<li class="chapter" data-level="14.1" data-path="two-categorical-predictors.html"><a href="two-categorical-predictors.html"><i class="fa fa-check"></i><b>14.1</b> Two categorical predictors</a></li>
+<li class="chapter" data-level="14.2" data-path="more-than-two-categorical-predictors.html"><a href="more-than-two-categorical-predictors.html"><i class="fa fa-check"></i><b>14.2</b> More than two categorical predictors</a></li>
+<li class="chapter" data-level="14.3" data-path="interaction-terms-in-factorial-designs.html"><a href="interaction-terms-in-factorial-designs.html"><i class="fa fa-check"></i><b>14.3</b> Interaction terms in factorial designs</a></li>
+</ul></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="app-90-further-material.html"><a href="app-90-further-material.html"><i class="fa fa-check"></i><b>A</b> Further useful material</a><ul>
+<li class="chapter" data-level="A.1" data-path="material-on-introduction-to-probability.html"><a href="material-on-introduction-to-probability.html"><i class="fa fa-check"></i><b>A.1</b> Material on <em>Introduction to Probability</em>:</a></li>
+<li class="chapter" data-level="A.2" data-path="material-on-bayesian-data-analysis.html"><a href="material-on-bayesian-data-analysis.html"><i class="fa fa-check"></i><b>A.2</b> Material on <em>Bayesian Data Analysis</em>:</a></li>
+<li class="chapter" data-level="A.3" data-path="material-on-frequentist-statistics.html"><a href="material-on-frequentist-statistics.html"><i class="fa fa-check"></i><b>A.3</b> Material on <em>frequentist statistics</em>:</a></li>
+<li class="chapter" data-level="A.4" data-path="material-on-r-tidyverse-etc-.html"><a href="material-on-r-tidyverse-etc-.html"><i class="fa fa-check"></i><b>A.4</b> Material on <em>R, tidyverse, etc.</em>:</a></li>
+<li class="chapter" data-level="A.5" data-path="further-information-for-rstudio.html"><a href="further-information-for-rstudio.html"><i class="fa fa-check"></i><b>A.5</b> Further information for RStudio</a></li>
+<li class="chapter" data-level="A.6" data-path="further-information-on-webppl.html"><a href="further-information-on-webppl.html"><i class="fa fa-check"></i><b>A.6</b> Further information on WebPPL</a><ul>
+<li class="chapter" data-level="A.6.1" data-path="further-information-on-webppl.html"><a href="further-information-on-webppl.html#primitives-and-sampling-functions"><i class="fa fa-check"></i><b>A.6.1</b> Primitives and sampling functions</a></li>
+<li class="chapter" data-level="A.6.2" data-path="further-information-on-webppl.html"><a href="further-information-on-webppl.html#inference-with-infer"><i class="fa fa-check"></i><b>A.6.2</b> Inference with <code>Infer()</code></a></li>
+<li class="chapter" data-level="A.6.3" data-path="further-information-on-webppl.html"><a href="further-information-on-webppl.html#visualization"><i class="fa fa-check"></i><b>A.6.3</b> Visualization</a></li>
+<li class="chapter" data-level="A.6.4" data-path="further-information-on-webppl.html"><a href="further-information-on-webppl.html#installation"><i class="fa fa-check"></i><b>A.6.4</b> Installation</a></li>
+<li class="chapter" data-level="A.6.5" data-path="further-information-on-webppl.html"><a href="further-information-on-webppl.html#usage"><i class="fa fa-check"></i><b>A.6.5</b> Usage</a></li>
+<li class="chapter" data-level="A.6.6" data-path="further-information-on-webppl.html"><a href="further-information-on-webppl.html#keyboard-shortcuts-for-in-browser-use"><i class="fa fa-check"></i><b>A.6.6</b> Keyboard shortcuts (for in-browser use)</a></li>
+<li class="chapter" data-level="A.6.7" data-path="further-information-on-webppl.html"><a href="further-information-on-webppl.html#further-resources"><i class="fa fa-check"></i><b>A.6.7</b> Further resources</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="B" data-path="app-91-distributions.html"><a href="app-91-distributions.html"><i class="fa fa-check"></i><b>B</b> Common probability distributions</a><ul>
+<li class="chapter" data-level="B.1" data-path="selected-continuous-distributions-of-random-variables.html"><a href="selected-continuous-distributions-of-random-variables.html"><i class="fa fa-check"></i><b>B.1</b> Selected continuous distributions of random variables</a><ul>
+<li class="chapter" data-level="B.1.1" data-path="selected-continuous-distributions-of-random-variables.html"><a href="selected-continuous-distributions-of-random-variables.html#app-91-distributions-normal"><i class="fa fa-check"></i><b>B.1.1</b> Normal distribution</a></li>
+<li class="chapter" data-level="B.1.2" data-path="selected-continuous-distributions-of-random-variables.html"><a href="selected-continuous-distributions-of-random-variables.html#app-91-distributions-chi2"><i class="fa fa-check"></i><b>B.1.2</b> Chi-squared distribution</a></li>
+<li class="chapter" data-level="B.1.3" data-path="selected-continuous-distributions-of-random-variables.html"><a href="selected-continuous-distributions-of-random-variables.html#f-distribution"><i class="fa fa-check"></i><b>B.1.3</b> F-distribution</a></li>
+<li class="chapter" data-level="B.1.4" data-path="selected-continuous-distributions-of-random-variables.html"><a href="selected-continuous-distributions-of-random-variables.html#app-91-distributions-students-t"><i class="fa fa-check"></i><b>B.1.4</b> Student’s <em>t</em>-distribution</a></li>
+<li class="chapter" data-level="B.1.5" data-path="selected-continuous-distributions-of-random-variables.html"><a href="selected-continuous-distributions-of-random-variables.html#app-91-distributions-beta"><i class="fa fa-check"></i><b>B.1.5</b> Beta distribution</a></li>
+<li class="chapter" data-level="B.1.6" data-path="selected-continuous-distributions-of-random-variables.html"><a href="selected-continuous-distributions-of-random-variables.html#uniform-distribution"><i class="fa fa-check"></i><b>B.1.6</b> Uniform distribution</a></li>
+<li class="chapter" data-level="B.1.7" data-path="selected-continuous-distributions-of-random-variables.html"><a href="selected-continuous-distributions-of-random-variables.html#app-91-distributions-dirichlet"><i class="fa fa-check"></i><b>B.1.7</b> Dirichlet distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="B.2" data-path="selected-discrete-distributions-of-random-variables.html"><a href="selected-discrete-distributions-of-random-variables.html"><i class="fa fa-check"></i><b>B.2</b> Selected discrete distributions of random variables</a><ul>
+<li class="chapter" data-level="B.2.1" data-path="selected-discrete-distributions-of-random-variables.html"><a href="selected-discrete-distributions-of-random-variables.html#app-91-distributions-binomial"><i class="fa fa-check"></i><b>B.2.1</b> Binomial distribution</a></li>
+<li class="chapter" data-level="B.2.2" data-path="selected-discrete-distributions-of-random-variables.html"><a href="selected-discrete-distributions-of-random-variables.html#app-91-distributions-multinomial"><i class="fa fa-check"></i><b>B.2.2</b> Multinomial distribution</a></li>
+<li class="chapter" data-level="B.2.3" data-path="selected-discrete-distributions-of-random-variables.html"><a href="selected-discrete-distributions-of-random-variables.html#app-91-distributions-bernoulli"><i class="fa fa-check"></i><b>B.2.3</b> Bernoulli distribution</a></li>
+<li class="chapter" data-level="B.2.4" data-path="selected-discrete-distributions-of-random-variables.html"><a href="selected-discrete-distributions-of-random-variables.html#app-91-distributions-categorical"><i class="fa fa-check"></i><b>B.2.4</b> Categorical distribution</a></li>
+<li class="chapter" data-level="B.2.5" data-path="selected-discrete-distributions-of-random-variables.html"><a href="selected-discrete-distributions-of-random-variables.html#app-91-distributions-beta-binomial"><i class="fa fa-check"></i><b>B.2.5</b> Beta-Binomial distribution</a></li>
+<li class="chapter" data-level="B.2.6" data-path="selected-discrete-distributions-of-random-variables.html"><a href="selected-discrete-distributions-of-random-variables.html#poisson-distribution"><i class="fa fa-check"></i><b>B.2.6</b> Poisson distribution</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="C" data-path="app-92-exponential-family.html"><a href="app-92-exponential-family.html"><i class="fa fa-check"></i><b>C</b> Exponential Family and Maximum Entropy</a><ul>
+<li class="chapter" data-level="C.1" data-path="an-important-family-the-exponential-family.html"><a href="an-important-family-the-exponential-family.html"><i class="fa fa-check"></i><b>C.1</b> An important family: The Exponential Family</a></li>
+<li class="chapter" data-level="C.2" data-path="excursus-information-entropy-and-maximum-entropy-principle.html"><a href="excursus-information-entropy-and-maximum-entropy-principle.html"><i class="fa fa-check"></i><b>C.2</b> Excursus: “Information Entropy” and “Maximum Entropy Principle”</a><ul>
+<li class="chapter" data-level="C.2.1" data-path="excursus-information-entropy-and-maximum-entropy-principle.html"><a href="excursus-information-entropy-and-maximum-entropy-principle.html#information-entropy"><i class="fa fa-check"></i><b>C.2.1</b> Information Entropy</a></li>
+<li class="chapter" data-level="C.2.2" data-path="excursus-information-entropy-and-maximum-entropy-principle.html"><a href="excursus-information-entropy-and-maximum-entropy-principle.html#deriving-probability-distributions-using-the-maximum-entropy-principle"><i class="fa fa-check"></i><b>C.2.2</b> Deriving Probability Distributions using the Maximum Entropy Principle</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="D" data-path="app-93-data-sets.html"><a href="app-93-data-sets.html"><i class="fa fa-check"></i><b>D</b> Data sets used in the book</a><ul>
+<li class="chapter" data-level="D.1" data-path="app-93-data-sets-mental-chronometry.html"><a href="app-93-data-sets-mental-chronometry.html"><i class="fa fa-check"></i><b>D.1</b> Mental Chronometry</a><ul>
+<li class="chapter" data-level="D.1.1" data-path="app-93-data-sets-mental-chronometry.html"><a href="app-93-data-sets-mental-chronometry.html#nature-origin-and-rationale-of-the-data"><i class="fa fa-check"></i><b>D.1.1</b> Nature, origin and rationale of the data</a></li>
+<li class="chapter" data-level="D.1.2" data-path="app-93-data-sets-mental-chronometry.html"><a href="app-93-data-sets-mental-chronometry.html#loading-and-preprocessing-the-data"><i class="fa fa-check"></i><b>D.1.2</b> Loading and preprocessing the data</a></li>
+<li class="chapter" data-level="D.1.3" data-path="app-93-data-sets-mental-chronometry.html"><a href="app-93-data-sets-mental-chronometry.html#cleaning-the-data-1"><i class="fa fa-check"></i><b>D.1.3</b> Cleaning the data</a></li>
+<li class="chapter" data-level="D.1.4" data-path="app-93-data-sets-mental-chronometry.html"><a href="app-93-data-sets-mental-chronometry.html#exploration-summary-stats-plots"><i class="fa fa-check"></i><b>D.1.4</b> Exploration: summary stats &amp; plots</a></li>
+<li class="chapter" data-level="D.1.5" data-path="app-93-data-sets-mental-chronometry.html"><a href="app-93-data-sets-mental-chronometry.html#data-analysis"><i class="fa fa-check"></i><b>D.1.5</b> Data analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="D.2" data-path="simon-task.html"><a href="simon-task.html"><i class="fa fa-check"></i><b>D.2</b> Simon Task</a><ul>
+<li class="chapter" data-level="D.2.1" data-path="simon-task.html"><a href="simon-task.html#experiment"><i class="fa fa-check"></i><b>D.2.1</b> Experiment</a></li>
+<li class="chapter" data-level="D.2.2" data-path="simon-task.html"><a href="simon-task.html#results"><i class="fa fa-check"></i><b>D.2.2</b> Results</a></li>
+<li class="chapter" data-level="D.2.3" data-path="simon-task.html"><a href="simon-task.html#analysis"><i class="fa fa-check"></i><b>D.2.3</b> Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="D.3" data-path="world-values-survey-wave-6-2010-2014.html"><a href="world-values-survey-wave-6-2010-2014.html"><i class="fa fa-check"></i><b>D.3</b> World Values Survey (wave 6 | 2010-2014)</a><ul>
+<li class="chapter" data-level="D.3.1" data-path="world-values-survey-wave-6-2010-2014.html"><a href="world-values-survey-wave-6-2010-2014.html#nature-origin-and-rationale-of-the-data-1"><i class="fa fa-check"></i><b>D.3.1</b> Nature, origin and rationale of the data</a></li>
+</ul></li>
+<li class="chapter" data-level="D.4" data-path="app-93-data-sets-king-of-france.html"><a href="app-93-data-sets-king-of-france.html"><i class="fa fa-check"></i><b>D.4</b> King of France</a><ul>
+<li class="chapter" data-level="D.4.1" data-path="app-93-data-sets-king-of-france.html"><a href="app-93-data-sets-king-of-france.html#app-93-data-sets-king-of-france-background"><i class="fa fa-check"></i><b>D.4.1</b> Nature, origin and rationale of the data</a></li>
+<li class="chapter" data-level="D.4.2" data-path="app-93-data-sets-king-of-france.html"><a href="app-93-data-sets-king-of-france.html#loading-and-preprocessing-the-data-1"><i class="fa fa-check"></i><b>D.4.2</b> Loading and preprocessing the data</a></li>
+<li class="chapter" data-level="D.4.3" data-path="app-93-data-sets-king-of-france.html"><a href="app-93-data-sets-king-of-france.html#cleaning-the-data-2"><i class="fa fa-check"></i><b>D.4.3</b> Cleaning the data</a></li>
+<li class="chapter" data-level="D.4.4" data-path="app-93-data-sets-king-of-france.html"><a href="app-93-data-sets-king-of-france.html#exploration-summary-stats-plots-1"><i class="fa fa-check"></i><b>D.4.4</b> Exploration: summary stats &amp; plots</a></li>
+<li class="chapter" data-level="D.4.5" data-path="app-93-data-sets-king-of-france.html"><a href="app-93-data-sets-king-of-france.html#data-analysis-1"><i class="fa fa-check"></i><b>D.4.5</b> Data analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="D.5" data-path="app-93-data-sets-BLJM.html"><a href="app-93-data-sets-BLJM.html"><i class="fa fa-check"></i><b>D.5</b> Bio-Logic Jazz-Metal (and where to consume it)</a><ul>
+<li class="chapter" data-level="D.5.1" data-path="app-93-data-sets-BLJM.html"><a href="app-93-data-sets-BLJM.html#nature-origin-and-rationale-of-the-data-2"><i class="fa fa-check"></i><b>D.5.1</b> Nature, origin and rationale of the data</a></li>
+<li class="chapter" data-level="D.5.2" data-path="app-93-data-sets-BLJM.html"><a href="app-93-data-sets-BLJM.html#loading-and-preprocessing-the-data-2"><i class="fa fa-check"></i><b>D.5.2</b> Loading and preprocessing the data</a></li>
+<li class="chapter" data-level="D.5.3" data-path="app-93-data-sets-BLJM.html"><a href="app-93-data-sets-BLJM.html#exploration-counts-plots"><i class="fa fa-check"></i><b>D.5.3</b> Exploration: counts &amp; plots</a></li>
+</ul></li>
+<li class="chapter" data-level="D.6" data-path="app-93-data-sets-avocado.html"><a href="app-93-data-sets-avocado.html"><i class="fa fa-check"></i><b>D.6</b> Avocado prices</a><ul>
+<li class="chapter" data-level="D.6.1" data-path="app-93-data-sets-avocado.html"><a href="app-93-data-sets-avocado.html#nature-origin-and-rationale-of-the-data-3"><i class="fa fa-check"></i><b>D.6.1</b> Nature, origin and rationale of the data</a></li>
+<li class="chapter" data-level="D.6.2" data-path="app-93-data-sets-avocado.html"><a href="app-93-data-sets-avocado.html#loading-and-preprocessing-the-data-3"><i class="fa fa-check"></i><b>D.6.2</b> Loading and preprocessing the data</a></li>
+<li class="chapter" data-level="D.6.3" data-path="app-93-data-sets-avocado.html"><a href="app-93-data-sets-avocado.html#summary-statistics"><i class="fa fa-check"></i><b>D.6.3</b> Summary statistics</a></li>
+<li class="chapter" data-level="D.6.4" data-path="app-93-data-sets-avocado.html"><a href="app-93-data-sets-avocado.html#plots"><i class="fa fa-check"></i><b>D.6.4</b> Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="D.7" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html"><i class="fa fa-check"></i><b>D.7</b> Annual average world surface temperature</a><ul>
+<li class="chapter" data-level="D.7.1" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#nature-origin-and-rationale-of-the-data-4"><i class="fa fa-check"></i><b>D.7.1</b> Nature, origin and rationale of the data</a></li>
+<li class="chapter" data-level="D.7.2" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#loading-and-preprocessing-the-data-4"><i class="fa fa-check"></i><b>D.7.2</b> Loading and preprocessing the data</a></li>
+<li class="chapter" data-level="D.7.3" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#hypothesis-modeling-approach"><i class="fa fa-check"></i><b>D.7.3</b> Hypothesis &amp; modeling approach</a></li>
+<li class="chapter" data-level="D.7.4" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#plotting"><i class="fa fa-check"></i><b>D.7.4</b> Plotting</a></li>
+<li class="chapter" data-level="D.7.5" data-path="app-93-data-sets-temperature.html"><a href="app-93-data-sets-temperature.html#analysis-1"><i class="fa fa-check"></i><b>D.7.5</b> Analysis</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Data Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="approximating-the-posterior" class="section level2">
+<h2><span class="header-section-number">9.4</span> Approximating the posterior</h2>
+<p>There are several methods of computing approximations of Bayesian posteriors. <strong>Variational inference</strong>, for example, hinges on the fact that under very general conditions, Bayesian posterior distributions are well approximated by (multi-variate) normal distributions. The more data, the better the approximation. We can then reduce the approximation of a Bayesian posterior to a problem of optimizing parameter values: we simply look for the parameter values that yield the “best” parametric approximation to the Bayesian posterior. (Here, “best” is usually expressed in terms of minimizing a measure of divergence between probability distributions, such as <a href="https://en.wikipedia.org/wiki/Kullback–Leibler_divergence">Kullback-Leibler divergence</a>.) Another prominent method of approximating Bayesian posteriors is <a href="https://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a>.</p>
+<p>The most prominent class of methods to approximate Bayesian posteriors are Markov Chain Monte Carlo methods. We will describe the most basic version of such MCMC algorithms below. For this class, it suffices to accept that there are black boxes (with some knobs for fine-tuning) that, if you supply a model description, priors and data, will return samples from the posterior distribution.</p>
+<div id="ch-03-03-MCMC" class="section level3">
+<h3><span class="header-section-number">9.4.1</span> Of apples and trees: Markov Chain Monte Carlo sampling</h3>
+<div style="float:right; width:20%;">
+<p><img src="visuals/apples.png" alt="apples"></p>
+</div>
+<p>Beginning of each summer, Nature sends out the Children to distribute the apples among the trees. It is custom that bigger trees ought to receive more apples. Indeed, every tree is supposed to receive apples in proportion to how many leaves it has. If Giant George (an apple tree!) has twice as many leaves as Thin Finn (another apple tree!), Giant George is to receive twice as many apples as Thin Finn. This means that if there are <span class="math inline">\(n_a\)</span> apples to distribute in total, and <span class="math inline">\(L(t)\)</span> is the number of leaves of tree <span class="math inline">\(t\)</span>, every tree should receive <span class="math inline">\(A(t)\)</span> apples, where:</p>
+<p><span class="math display">\[ A(t) = \frac{L(t)}{\sum_{t&#39;} L(t&#39;)} \ n_a \]</span></p>
+<p>The trouble is that Nature does not know the number of leaves of all the trees: Nature does not care about numbers. The Children, however, can count. But they cannot keep in mind the number of leaves for many trees for a long time. And no single Child could ever visit all the trees before the winter. This is why the Children distribute apples in a way that approximates Nature’s will. The more apples to distribute, the better the approximation. Nature is generally fine with approximate but practical solutions.</p>
+<p>When a Child visits a tree, it affectionately hangs an apple into its branches. It also writes down the name of the tree in a list next to the number of the apple it has just delivered. It then looks around and selects a random tree in the neighborhood. If the current tree <span class="math inline">\(t_c\)</span> where the Child is at present has fewer leaves than this other tree <span class="math inline">\(t_o\)</span>, i.e., if <span class="math inline">\(L(t_c) &lt; L(t_o)\)</span>, the Child visits <span class="math inline">\(t_o\)</span>. If instead <span class="math inline">\(L(t_c) \ge L(t_o)\)</span> the child flips a coin and visits <span class="math inline">\(t_o\)</span> with a probability proportional to <span class="math inline">\(\frac{L(t_o)}{L(t_c)}\)</span>. In other words, the Child will always visit a tree with more leaves, and it will visit a tree with fewer leaves depending on the proportion of leaves.</p>
+<p>When a large number of apples are distributed, and Nature looks at the list of trees each Child has visited. This list of tree names is a set of <strong>representative samples</strong> from the probability distribution:</p>
+<p><span class="math display">\[P(t) \propto L(t)\]</span></p>
+<p>These samples were obtained without the knowledge of the normalizing constant. The Children only had <span class="math inline">\(L(t)\)</span> at their disposal. When trees are parameter tuples <span class="math inline">\(\theta\)</span> and the number of leaves is the product <span class="math inline">\(P(D \mid \theta) \ P(\theta)\)</span>, the Children would deliver samples from the posterior distribution <em>without</em> knowledge of the normalizing constant (a.k.a. the integral of doom).</p>
+<p>The sequence of trees visited by a single Child is a <strong>sample chain</strong>. Usually, Nature sends out at least 2-4 Children. The first tree a Child visits is the <strong>initialization of the chain</strong>. Sometimes Nature selects initial trees strategically for each Child. Sometimes Nature lets randomness rule. In any case, a Child might be quite far away from the meadow with lush apple trees, the so-called <strong>critical region</strong> (where to dwell makes the most sense). It might take many tree hops before a Child reaches this meadow. Nature, therefore, allows each Child to hop from tree to tree for a certain time, the <strong>warm-up period</strong>, before the Children start distributing apples and taking notes. If each Child only records every <span class="math inline">\(k\)</span>-th tree it visits, Nature calls <span class="math inline">\(k\)</span> a <strong>thinning factor</strong>. Thinning generally reduces <strong>autocorrelation</strong> (think: the amount to which subsequent samples do not carry independent information about the distribution). Since every next hop depends on the current tree (and only on the current tree), the whole process is a <strong>Markov process</strong>. It is light on memory and parallelizable but also affected by autocorrelation. Since we are using samples, a so-called <strong>Monte Carlo method</strong>, the whole affair is a <strong>Markov Chain Monte Carlo</strong> algorithm. It is one of many. It’s called <strong>Metropolis-Hastings</strong>. More complex MCMC algorithms exist. One class of such MCMC algorithms is called <strong>Hamiltonian Monte Carlo</strong>, and these approaches use gradients to optimize the <strong>proposal function</strong>, i.e., the choice of the next tree to consider going to. They use the warm-up period to initialize certain tuning parameters, making them much faster and more reliable (at least if the distribution of leaves among neighboring trees is well-behaved).</p>
+<p>How could Nature be sure that the plan succeeded? If not even Nature knows the distribution <span class="math inline">\(P(t)\)</span>, how can we be sure that the Children’s list gives representative samples to work with? Certainty is petty. The reduction of uncertainty is key! Since we send out several Children in parallel, and since each Child distributed many apples, we can compare the list of trees delivered by each Child (= the set of samples in each chain). For that purpose, we can use statistics and ask: is it plausible that the set of samples in each chain has been generated from the same probability distribution? - The answer to this question can help reduce uncertainty about the quality of the sampling process.</p>
+<style>
+#target_box {
+  width: 250px;
+  height: 80px;
+  border: 1px solid #aaaaaa;
+  overflow: auto;
+}
+#start_box {
+  width: 300px;
+  height: auto;
+  padding: 10px;
+  margin: 2em 5em 0 0;
+  float: right;
+}
+.drag {
+  height: auto;
+  padding: 10px;
+  margin: 0 0 0 0;
+}
+</style>
+<div class="exercises">
+<p><strong>Exercise 9.6</strong></p>
+<p>On the right, there is a shuffled list of the steps that occur in the MH algorithm. Bring the list in the right order by dragging each step to the corresponding box on the left.</p>
+<div id="start_box" ondrop="drop(event)" ondragover="allowDrop(event)">
+<p id="drag1" class="drag" draggable="true" ondragstart="drag(event)">
+If the new proposal has a higher posterior value than the most recent
+sample, then accept the new proposal.
+</p>
+<p id="drag2" class="drag" draggable="true" ondragstart="drag(event)">
+Generate a new value (proposal).
+</p>
+<p id="drag3" class="drag" draggable="true" ondragstart="drag(event)">
+Set an initial value.
+</p>
+<p id="drag4" class="drag" draggable="true" ondragstart="drag(event)">
+Compare the posterior value of the new proposal and the height of the
+posterior at the previous step.
+</p>
+<p id="drag5" class="drag" draggable="true" ondragstart="drag(event)">
+Choose to accept or reject the new proposal concerning the computed
+proportion.
+</p>
+<p id="drag6" class="drag" draggable="true" ondragstart="drag(event)">
+If the new proposal has a lower posterior value than the most recent
+sample, compute the proportion of the posterior value of the new proposal and the height of the posterior at the previous step.
+</p>
+</div>
+<p>
+<b>Step 1:</b>
+</p>
+<div id="target_box" ondrop="drop(event)" ondragover="allowDrop(event)">
+
+</div>
+<p>
+<b>Step 2:</b>
+</p>
+<div id="target_box" ondrop="drop(event)" ondragover="allowDrop(event)">
+
+</div>
+<p>
+<b>Step 3:</b>
+</p>
+<div id="target_box" ondrop="drop(event)" ondragover="allowDrop(event)">
+
+</div>
+<p>
+<b>Step 4:</b>
+</p>
+<div id="target_box" ondrop="drop(event)" ondragover="allowDrop(event)">
+
+</div>
+<p>
+<b>Step 5:</b>
+</p>
+<div id="target_box" ondrop="drop(event)" ondragover="allowDrop(event)">
+
+</div>
+<p>
+<b>Step 6:</b>
+</p>
+<div id="target_box" ondrop="drop(event)" ondragover="allowDrop(event)">
+
+</div>
+<p><br></p>
+<div class="collapsibleSolution">
+<button class="trigger">
+Solution
+</button>
+<div class="content">
+<p><strong>Step 1:</strong> Set an initial value.</p>
+<p><strong>Step 2:</strong> Generate a new value (proposal).</p>
+<p><strong>Step 3:</strong> Compare the posterior value of the new proposal and the height of the posterior at the previous step.</p>
+<p><strong>Step 4:</strong> If the new proposal has a higher posterior value than the most recent sample, then accept the new proposal.</p>
+<p><strong>Step 5:</strong> If the new proposal has a lower posterior value than the most recent sample, compute the proportion of the posterior value of the new proposal and the height of the posterior at the previous step.</p>
+<p><strong>Step 6:</strong> Choose to accept or reject the new proposal concerning the computed proportion.</p>
+</div>
+</div>
+</div>
+<script>
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  ev.target.appendChild(document.getElementById(data));
+}
+</script>
+</div>
+<div id="ch-03-03-estimation-Stan" class="section level3">
+<h3><span class="header-section-number">9.4.2</span> Probabilistic modeling with Stan</h3>
+<p>There are a number of software solutions for Bayesian posterior approximation, all of which implement a form of MCMC sampling, and most of which also realize at least one other form of parameter estimation. Many of these use a special language to define the model and rely on a different programming language (like R, Python, Julia, etc.) to communicate with the program that does the sampling. Some options are:</p>
+<ul>
+<li><a href="https://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/">WinBUGS</a>: a classic which has grown out of use a bit</li>
+<li><a href="http://mcmc-jags.sourceforge.net">JAGS</a>: another classic</li>
+<li><a href="https://mc-stan.org">Stan</a>: strongly developed current workhorse</li>
+<li><a href="http://webppl.org">WebPPL</a>: light-weight, browser-based full probabilistic programming language</li>
+<li><a href="http://pyro.ai">pyro</a>: for probabilistic (deep) machine learning, based on PyTorch</li>
+<li><a href="https://greta-stats.org">greta</a>: R-only probabilistic modeling package, based on Python and TensorFlow</li>
+</ul>
+<p>We will be using Stan to look at explicitly formulated models. Later, when focusing on regression models, we will use an R package called <code>brms</code>, which relies on Stan, so that it is interesting to get a rough feeling for what is happening under the hood.</p>
+<div id="basics-of-stan" class="section level4">
+<h4><span class="header-section-number">9.4.2.1</span> Basics of Stan</h4>
+<p>In order to approximate a posterior distribution over parameters for a model, given some data, using an MCMC algorithm, we need to specify the model for the sampler. In particular, we must tell it about (i) the parameters, (ii) their priors, and (iii) the likelihood function. The latter requires that the sampler knows about the data. To communicate with Stan we will use the R package <code>rstan</code> (there are similar packages also for Python, Julia and other languages). More information about Stan can be found in <a href="https://mc-stan.org/users/documentation/">the documentation section of the Stan homepage</a>.</p>
+<p>The usual workflow with Stan and <code>rstan</code> consists of the following steps. First, we use R to massage the data into the right format for passing to Stan (a named list, see below). Second, we write the model in the Stan programming language. We do this in a stand-alone file.<a href="#fn52" class="footnote-ref" id="fnref52"><sup>52</sup></a> Then, we run the Stan code with the R command <code>rstan::stan</code> supplied by the package <code>rstan</code>. Finally, we collect the output of this operation (basically: a set of samples from the posterior distribution) and do with it as we please (plotting, further analysis, diagnosing the quality of the samples, …).</p>
+<p>This is best conveyed by a simple example.</p>
+</div>
+<div id="binomial-model" class="section level4">
+<h4><span class="header-section-number">9.4.2.2</span> Binomial Model</h4>
+<p>Figure <a href="approximating-the-posterior.html#fig:ch-03-03-Binomial-Model-repeated">9.7</a> shows the Binomial model for coin flips, as discussed before. We are going to implement it in Stan.</p>
+<div class="figure" style="text-align: center"><span id="fig:ch-03-03-Binomial-Model-repeated"></span>
+<img src="visuals/binomial-model.png" alt="The Binomial Model (repeated from before)." width="40%" />
+<p class="caption">
+Figure 9.7: The Binomial Model (repeated from before).
+</p>
+</div>
+<p>We use the data from the <a href="app-93-data-sets-king-of-france.html#app-93-data-sets-king-of-france">King of France example</a>, where we are interested in the number <span class="math inline">\(k = 109\)</span> of “true” responses to sentences with a false presupposition over all <span class="math inline">\(N = 311\)</span> relevant observations. The research question of interest is whether the idea that the parameter <span class="math inline">\(\theta\)</span> which models to an overall disposition to answer “true” for these sentences could plausibly be fixed to <span class="math inline">\(\theta = 0.5\)</span>.</p>
+<p>We collect this information in a named list, which we will pass to Stan.</p>
+<div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb434-1" data-line-number="1">KoF_data_<span class="dv">4</span>_Stan &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb434-2" data-line-number="2">  <span class="dt">k =</span> <span class="dv">109</span>,</a>
+<a class="sourceLine" id="cb434-3" data-line-number="3">  <span class="dt">N =</span> <span class="dv">311</span></a>
+<a class="sourceLine" id="cb434-4" data-line-number="4">)</a></code></pre></div>
+<p>Next, we need to write the actual model. Notice that Stan code is strictly regimented to be divided into different blocks, so that Stan knows what is data, what are parameters and what constitutes the actual model (prior and likelihood). Stan also wants to know the type of its variables (and the ranges of values these can take on).</p>
+<pre class="mystan"><code>data {
+int&lt;lower=0&gt; N ;
+int&lt;lower=0,upper=N&gt; k ;
+}
+parameters {
+real&lt;lower=0,upper=1&gt; theta ;
+} 
+model {
+# prior 
+theta ~ beta(1,1) ;
+# likelihood
+k ~ binomial(N, theta) ;
+}</code></pre>
+<p>We save this Stan code in a file <code>binomial_model.stan</code> (which you can dowload <a href="https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/models_stan/binomial_model.stan">here</a>) in a folder <code>models_stan</code> and then use the function <code>rstan::stan</code> to run the Stan code from within R.</p>
+<div class="sourceCode" id="cb436"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb436-1" data-line-number="1">stan_fit_binomial &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
+<a class="sourceLine" id="cb436-2" data-line-number="2">  <span class="co"># where is the Stan code</span></a>
+<a class="sourceLine" id="cb436-3" data-line-number="3">  <span class="dt">file =</span> <span class="st">&#39;models_stan/binomial_model.stan&#39;</span>,</a>
+<a class="sourceLine" id="cb436-4" data-line-number="4">  <span class="co"># data to supply to the Stan program</span></a>
+<a class="sourceLine" id="cb436-5" data-line-number="5">  <span class="dt">data =</span> KoF_data_<span class="dv">4</span>_Stan,</a>
+<a class="sourceLine" id="cb436-6" data-line-number="6">  <span class="co"># how many iterations of MCMC</span></a>
+<a class="sourceLine" id="cb436-7" data-line-number="7">  <span class="dt">iter =</span> <span class="dv">3000</span>,</a>
+<a class="sourceLine" id="cb436-8" data-line-number="8">  <span class="co"># how many warmup steps</span></a>
+<a class="sourceLine" id="cb436-9" data-line-number="9">  <span class="dt">warmup =</span> <span class="dv">500</span></a>
+<a class="sourceLine" id="cb436-10" data-line-number="10">)</a></code></pre></div>
+<p>The object returned from this call to Stan is a special model fit object. If we just print it, we get interesting information about the estimated parameters:</p>
+<div class="sourceCode" id="cb437"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb437-1" data-line-number="1"><span class="kw">print</span>(stan_fit_binomial)</a></code></pre></div>
+<pre><code>## Inference for Stan model: binomial_model.
+## 4 chains, each with iter=3000; warmup=500; thin=1; 
+## post-warmup draws per chain=2500, total post-warmup draws=10000.
+## 
+##          mean se_mean   sd    2.5%     25%     50%     75%   97.5% n_eff Rhat
+## theta    0.35    0.00 0.03    0.30    0.33    0.35    0.37    0.40  3501    1
+## lp__  -203.42    0.01 0.69 -205.36 -203.58 -203.16 -202.98 -202.93  5157    1
+## 
+## Samples were drawn using NUTS(diag_e) at Fri Nov 20 18:49:47 2020.
+## For each parameter, n_eff is a crude measure of effective sample size,
+## and Rhat is the potential scale reduction factor on split chains (at 
+## convergence, Rhat=1).</code></pre>
+<!-- TODO: explain this  -->
+<p>To get the posterior samples in a tidy format we use a function from the <code>tidybayes</code> package:</p>
+<div class="sourceCode" id="cb439"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb439-1" data-line-number="1">tidy_samples &lt;-<span class="st"> </span>tidybayes<span class="op">::</span><span class="kw">tidy_draws</span>(stan_fit_binomial) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(theta)</a>
+<a class="sourceLine" id="cb439-2" data-line-number="2">tidy_samples</a></code></pre></div>
+<pre><code>## # A tibble: 10,000 x 1
+##    theta
+##    &lt;dbl&gt;
+##  1 0.317
+##  2 0.371
+##  3 0.356
+##  4 0.361
+##  5 0.374
+##  6 0.381
+##  7 0.374
+##  8 0.355
+##  9 0.340
+## 10 0.341
+## # … with 9,990 more rows</code></pre>
+<p>We can then <code>pull</code> out the column <code>theta</code> as a vector and feed it into the summary function from the `aida`` package to get our key Bayesian estimates:</p>
+<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb441-1" data-line-number="1">Bayes_estimates &lt;-<span class="st"> </span>tidy_samples <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb441-2" data-line-number="2"><span class="st">  </span><span class="kw">pull</span>(theta) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb441-3" data-line-number="3"><span class="st">  </span>aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>()</a>
+<a class="sourceLine" id="cb441-4" data-line-number="4">Bayes_estimates</a></code></pre></div>
+<pre><code>## # A tibble: 1 x 4
+##   Parameter `|95%`  mean `95%|`
+##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+## 1 &quot;&quot;         0.299 0.351  0.403</code></pre>
+<p>Figure <a href="approximating-the-posterior.html#fig:ch-03-03-binomial-posterior">9.8</a> moreover shows a density plot derived from the MCMC samples, together with the estimated 95% HDI and the true posterior distribution (in back), as derived by conjugacy.</p>
+<div class="figure" style="text-align: center"><span id="fig:ch-03-03-binomial-posterior"></span>
+<img src="I2DA_files/figure-html/ch-03-03-binomial-posterior-1.png" alt="Posterior over bias $\theta$ given $k=109$ and $N=311$ approximated by samples from Stan, with estimated 95% credible interval (red area). The black curve shows the true posterior, derived through conjugacy." width="672" />
+<p class="caption">
+Figure 9.8: Posterior over bias <span class="math inline">\(\theta\)</span> given <span class="math inline">\(k=109\)</span> and <span class="math inline">\(N=311\)</span> approximated by samples from Stan, with estimated 95% credible interval (red area). The black curve shows the true posterior, derived through conjugacy.
+</p>
+</div>
+<!-- The resulting `draws` object is a special kind of object, an `MCMC.list` as defined in the `coda` package. This is not very important for us, however, we simply transform the samples into a tidy representation, using the function `ggs` from the `ggmcmc` package: -->
+<!-- ```{r} -->
+<!-- # cast results (type 'mcmc.list') into tidy tibble -->
+<!-- tidy_draws = ggmcmc::ggs(draws) -->
+<!-- tidy_draws -->
+<!-- ``` -->
+<!-- We can use these samples to compute Bayesian point- and interval estimates, for example: -->
+<!-- ```{r, eval = T} -->
+<!-- # obtain Bayesian point and interval estimates -->
+<!-- Bayes_estimates <- tidy_draws %>%  -->
+<!--   group_by(Parameter) %>% -->
+<!--   summarise( -->
+<!--     '|95%' = HDInterval::hdi(value)[1], -->
+<!--     mean = mean(value), -->
+<!--     '95|%' = HDInterval::hdi(value)[2] -->
+<!--   ) -->
+<!-- Bayes_estimates -->
+<!-- ``` -->
+<!-- Using the (controversial) method of inspecting posterior estimates, we would conclude that $\theta = 0$ is not an *a posteriori* credible value for the inclination to judge the truth of sentences with a false presupposition.  -->
+<!-- Figure \@ref(fig:ch-03-03-binomial-posterior) moreover shows a density plot derived from the MCMC samples, together with the estimated 95% HDI and the true posterior distribution (in back), as derived by conjugacy. -->
+<!-- ```{r ch-03-03-binomial-posterior, echo = F, fig.cap = "Posterior over coin bias $\\theta$ given $k=109$ and $N=311$ approximated by samples from `greta`, with estimated 95% credible interval (red area). The black curve shows the true posterior, derived through conjugacy."} -->
+<!-- # get density estimates from samples -->
+<!-- dens <- filter(tidy_draws, Parameter == "theta") %>% pull(value) %>%  -->
+<!--   density() -->
+<!-- # plot estimated density with true posterior -->
+<!-- tibble( -->
+<!--   parameter = dens$x, -->
+<!--   density = dens$y -->
+<!-- ) %>%  -->
+<!--   ggplot(aes(x = parameter, y = density)) + -->
+<!--   geom_line(color = "firebrick") + -->
+<!--   geom_area(aes(x = ifelse(parameter > Bayes_estimates[1,2] %>% as.numeric & parameter < Bayes_estimates[1,4] %>% as.numeric , parameter, 0)), -->
+<!--             fill = "firebrick", alpha = 0.5) + -->
+<!--   ylim(0, max(dens$y)) + -->
+<!--   xlim(min(dens$x), max(dens$x)) + -->
+<!--   geom_line( -->
+<!--     data = tibble( -->
+<!--       parameter = seq(0,1, length.out = 401), -->
+<!--       density = dbeta(parameter, 109, 311-109) -->
+<!--     ), -->
+<!--     color = "black" -->
+<!--   ) +  -->
+<!--   ylim(c(0,15.6)) +  -->
+<!--   labs( -->
+<!--     x = latex2exp::TeX("Parameter $\\theta$") -->
+<!--   ) -->
+<!-- ``` -->
+<!-- ### T-Test Model for Mental Chronometry -->
+<!-- <div style = "float:right; width:15%;"> -->
+<!-- <img src="visuals/badge-mental-chronometry.png" alt="badge-mental-chronometry">   -->
+<!-- </div>   -->
+<!-- We will use the [Mental Chronometry](#app-93-data-sets-mental-chronometry) data to compare the reaction times in the "go/No-go" condition to the reaction times in the "discrimination" condition. To do this, we implement a T-Test model by hand in `greta`. -->
+<!-- First, we read in the data and get some handy summary statistics: -->
+<!-- ```{r} -->
+<!-- mc_data_cleaned <- read_csv('data_sets/mental-chrono-data_cleaned.csv', -->
+<!--                             col_types = cols( -->
+<!--                               submission_id = col_double(), -->
+<!--                               trial_number = col_double(), -->
+<!--                               block = col_character(), -->
+<!--                               stimulus = col_character(), -->
+<!--                               RT = col_double(), -->
+<!--                               handedness = col_character(), -->
+<!--                               gender = col_character(), -->
+<!--                               total_time_spent = col_double(), -->
+<!--                               comments = col_character(), -->
+<!--                               mean_C = col_double(), -->
+<!--                               sd_C = col_double(), -->
+<!--                               trial_type = col_character(), -->
+<!--                               trial = col_double() -->
+<!--                             )) -->
+<!-- means_and_diffs <- mc_data_cleaned %>% -->
+<!--   filter(block != "reaction") %>%  -->
+<!--   group_by(block) %>%  -->
+<!--   summarise( -->
+<!--     mean_RT = mean(RT) -->
+<!--   ) %>%  -->
+<!--   pivot_wider( -->
+<!--     names_from = block, -->
+<!--     values_from = mean_RT -->
+<!--   ) %>%  -->
+<!--   mutate( -->
+<!--     `discr - gng` = discrimination - goNoGo -->
+<!--   ) -->
+<!-- means_and_diffs -->
+<!-- ``` -->
+<!-- The model we will use for this situation is the T-Test model shown in Figure \@ref(fig:ch-03-03-T-Test-Model-Difference), repeated from the previous Chapter. We use the model which explicitly codes the difference between means (the variable $\delta$) to directly address the question of whether $\delta = 0$ is a plausible point-value for this parameter. -->
+<!-- ```{r ch-03-03-T-Test-Model-Difference, echo = F, out.width = '70%', fig.cap="A T-Test Model where one group is the default and the difference between group means is explicitly coded as a parameter."} -->
+<!-- knitr::include_graphics("visuals/t-test-model-difference.png") -->
+<!-- ``` -->
+<!-- We extract the relevant data and declare it as a `greta` object: -->
+<!-- ```{r, eval = F} -->
+<!-- # isolate data vectors -->
+<!-- RT_goNoGo <- mc_data_cleaned %>% filter(block == "goNoGo") %>% pull(RT) -->
+<!-- RT_discrm <- mc_data_cleaned %>% filter(block == "discrimination") %>% pull(RT) -->
+<!-- # declare as greta data arrays -->
+<!-- y0 <- as_data(RT_goNoGo) -->
+<!-- y1 <- as_data(RT_discrm) -->
+<!-- ``` -->
+<!-- We then define the model, using weakly informative, partly regularizing priors, i.e., priors that are informed by the data to ensure swift convergence (expecting values of `mean_0` to lie in the plausible region), but that are not very biased to allow a large impact of the likelihood function (using relatively large standard deviations). -->
+<!-- ```{r, eval = F} -->
+<!-- # priors  -->
+<!-- mean_0   <- normal(430, 50) -->
+<!-- delta    <- normal(0, 100) -->
+<!-- sigma    <- normal(100, 10, truncation = c(0, Inf)) -->
+<!-- # derived prameters -->
+<!-- mean_1   <- mean_0 + delta -->
+<!-- # likelihood -->
+<!-- distribution(y0) <- normal(mean_0, sigma) -->
+<!-- distribution(y1) <- normal(mean_1, sigma) -->
+<!-- # model  -->
+<!-- m <- model(mean_0, mean_1, delta, sigma)## --- sampling --- -->
+<!-- draws <- greta::mcmc(m, warmup = 4000, n_samples = 6000, thin = 2) -->
+<!-- ``` -->
+<!-- ```{r, echo = F} -->
+<!-- # saveRDS(draws, '../models_greta/ttest_draws.rds') -->
+<!-- draws <- readRDS('models_greta/ttest_draws.rds') -->
+<!-- ``` -->
+<!-- Bayesian point- and interval-estimates can be calculated from the posterior samples, including  -->
+<!-- ```{r, echo = T} -->
+<!-- tidy_draws = ggmcmc::ggs(draws) -->
+<!-- Bayes_estimates <- tidy_draws %>%  -->
+<!--   group_by(Parameter) %>% -->
+<!--   summarise( -->
+<!--     '|95%' = HDInterval::hdi(value)[1], -->
+<!--     mean = mean(value), -->
+<!--     '95|%' = HDInterval::hdi(value)[2] -->
+<!--   ) -->
+<!-- Bayes_estimates -->
+<!-- ``` -->
+<!-- The Bayesian point-estimates for means and the difference correspond closely to the summary statistics we derived previously: -->
+<!-- ```{r} -->
+<!-- means_and_diffs -->
+<!-- ``` -->
+<!-- But we also now get indications of credible ranges of parameter values. Most interestingly, we obtain a 95% credible interval for the $\delta$ parameter, the difference between the means, which quite clearly does not include the case $\delta = 0$. The lower bound of the estimated 95% credible interval is more than 40 ms. We could conclude from this that, given this data set and the model used here, it is plausible that the difference in mean reaction times between the "discrimination" condition and the "go/no-go" condition is at least 40ms. -->
+<!-- The plot below shows the density estimated from the posterior samples of $\delta$, together with the estimated 95% credible interval.  -->
+<!-- ```{r} -->
+<!-- dens <- filter(tidy_draws, Parameter == "delta") %>% pull(value) %>%  -->
+<!--   density() -->
+<!-- tibble( -->
+<!--   delta = dens$x, -->
+<!--   density = dens$y -->
+<!-- ) %>%  -->
+<!--   ggplot(aes(x = delta, y = density)) + -->
+<!--   geom_line() + -->
+<!--   geom_area(aes(x = ifelse( -->
+<!--     delta > Bayes_estimates[1,2] %>% as.numeric &  -->
+<!--       delta < Bayes_estimates[1,4] %>% as.numeric ,  -->
+<!--     delta, 0)), -->
+<!--     fill = "firebrick", alpha = 0.5) + -->
+<!--   ylim(0, max(dens$y)) + -->
+<!--   xlim(min(dens$x), max(dens$x)) -->
+<!-- ``` -->
+<!-- The actual posterior is multi-dimensional, and it always pays to inspect the full joint-posterior distribution so as not to miss any unexpected dependencies that might indicate sub-optimal inference or modeling. The `mcmc_pairs` function from the `bayesplot` package plots samples individually for each pair of parameters. Doing this we see the obvious (and perfectly fine) linear relation between estimates of `mean_0` and `delta`: the lower `mean_0` is estimated, the higher `delta` needs to be to yield a value of `mean_` that explains the data well. -->
+<!-- ```{r} -->
+<!-- bayesplot::mcmc_pairs(draws) -->
+<!-- ``` -->
+
+</div>
+</div>
+</div>
+<!-- </div> -->
+<div class="footnotes">
+<hr />
+<ol start="52">
+<li id="fn52"><p>RStudio provides syntax highlighting for Stan code. Use the file ending <code>*.stan</code>.<a href="approximating-the-posterior.html#fnref52" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="Ch-03-03-estimation-algorithms.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="ch-03-05-hypothesis-testing.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": false,
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["I2DA.epub", "I2DA.pdf"],
+"toc": {
+"collapse": "section",
+"scroll_highlight": true
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
