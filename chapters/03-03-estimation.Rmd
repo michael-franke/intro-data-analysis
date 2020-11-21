@@ -1,4 +1,4 @@
-# Parameter estimation {#ch-03-04-parameter-estimation}
+# Bayesian parameter estimation {#ch-03-04-parameter-estimation}
 
 <hr>
 
@@ -9,7 +9,10 @@
 Based on a model $M$ with parameters $\theta$, parameter estimation addresses the question of which values of $\theta$ are good estimates, given some data $D$. 
 This chapter deals specifically with _Bayesian_ parameter estimation. 
 Given a Bayesian model $M$, we can use Bayes rule to update prior beliefs about $\theta$ to obtain so-called _posterior beliefs_ $P_M(\theta \mid D)$, which represent the new beliefs after observing D and updating in a conservative, rational manner based on the assumptions spelled out in $M$, which represent the new beliefs after observing D and updating in a conservative, rational manner based on the assumptions spelled out in $M$.
-We will see two different methods of computing posterior distributions $P_M(\theta \mid D)$, a precise mathematical derivation with limited applicability in terms of so-called _conjugate priors_, and an approximate, sampling-based method based on so-called _Markov Chain Monte Carlo algorithms_.
+We will see two different methods of computing posterior distributions $P_M(\theta \mid D)$, a precise mathematical derivation with limited applicability in terms of so-called **conjugate priors**, and an efficient but approximate, sampling method based on so-called **Markov Chain Monte Carlo algorithms**.
+The chapter also introduces common **point-valued and interval-ranged estimates** for parameters, in particular the Baysian measures of **posterior mean** and **credible intervals**.
+We will also learn about the **posterior predictive distribution** and how to draw inferences about hypotheses about specific parameter values. 
+
 
 ```{block, type='infobox'}
 The learning goals for this chapter are:
@@ -20,11 +23,11 @@ The learning goals for this chapter are:
 - understand and compute point-valued and interval-range estimators
   - MLE, MAP, posterior mean
   - (Bayesian) credible intervals
-- understand the notion of a _posterior predictive distribution_
 - understand the basic ideas behind MCMC sampling algorithms 
+- understand the notion of a _posterior predictive distribution_
+- learn how to use Bayesian parameter inference to test hypotheses about parameter values
 
 ```
-
 
 ## Bayes rule for parameter estimation  {#ch-03-03-estimation-bayes}
 
@@ -49,11 +52,8 @@ where the "proportional to" sign $\propto$ indicates that the probabilities on t
 
 ### The effects of prior and likelihood on the posterior
 
-The shorthand notation for the posterior, repeated below, makes it particularly clear that the posterior distribution is a "mix" of prior and likelihood:
-
-$$\underbrace{P(\theta \, | \, D)}_{posterior} \propto \underbrace{P(\theta)}_{prior} \ \underbrace{P(D \, | \, \theta)}_{likelihood}$$
-
-Let's explore this first before worrying about how to compute posteriors concretely.
+The shorthand notation for the posterior $P(\theta \, | \, D) \propto P(\theta) \ P(D \, | \, \theta) makes it particularly clear that the posterior distribution is a "mix" of prior and likelihood.
+Let's first explore this "mixing property" of the posterior before worrying about how to compute posteriors concretely.
 
 We consider the case of flipping a coin with unknown bias $\theta$ a total of $N$ times and observing $k$ heads (= successes). This is modeled with the  **Binomial Model** (see Section \@ref(Chap-03-03-models-general)), using priors expressed with a [Beta distribution](#app-91-distributions-beta), giving us a model specification as: 
 
@@ -102,9 +102,12 @@ data_KoF_cleaned %>%
 ```
 
 
-We can plot the likelihood function for both data sets like this:
+The likelihood function for both data sets is plotted in Figure \@ref(fig:ch-03-03-estimation-likelihood-functions). 
+The most important thing to notice is that the more data we have (as in the KoF example), the narrower the range of parameter values that make the data likely.
+Intuitively, this means that the more data we have the more severely constrained the range of _a posteriori_ plausible parameter values will be, all else equal.
 
-```{r, echo = F, fig.cap = "Likelihood for the two examples of binomial data."}
+
+```{r ch-03-03-estimation-likelihood-functions, echo = F, fig.cap = "Likelihood for two examples of binomial data. The first example has $k = 7$ and $N=24$. The second has $k = 109$ and $N=311".}
 lh_tibble <- 
   tibble(
   theta = seq(0,1, length.out = 401),
@@ -131,14 +134,15 @@ lh_tibble %>%
 
 
 
-Picking up the example from Section \@ref(Chap-03-02-models-priors), we will consider the four types of priors show below:
-
-```{r ch-03-03-estimation-types-of-priors, echo = F, fig.cap = "Examples of different kinds of Bayesian priors for the Binomial Model."}
+Picking up the example from Section \@ref(Chap-03-02-models-priors), we will consider the four types of priors show below in Figure \@ref(fig:ch-03-03-estimation-types-of-priors).
+ 
+ 
+ ```{r ch-03-03-estimation-types-of-priors, echo = F, fig.cap = "Examples of different kinds of Bayesian priors for the Binomial Model."}
 prior_tibble <- tibble(
   theta = seq(0, 1, length.out = 401),
   uninformative = dbeta(theta, 1, 1),
-  `weakly informative` = dbeta(theta, 5, 2),
-  `strongly informative` = dbeta(theta, 50, 20),
+  `weakly inf.` = dbeta(theta, 5, 2),
+  `strongly inf.` = dbeta(theta, 50, 20),
   `point-valued` = dbeta(theta, 50000, 20000)
 )
 
@@ -149,7 +153,7 @@ prior_tibble %>%
     values_to = "prior"
   ) %>%
   mutate(
-    prior_type = factor(prior_type, levels = c('uninformative', 'weakly informative', 'strongly informative', 'point-valued'))
+    prior_type = factor(prior_type, levels = c('uninformative', 'weakly inf.', 'strongly inf.', 'point-valued'))
   ) %>% 
   ggplot(aes(x = theta, y = prior)) +
   geom_line(size = 2) +
@@ -163,7 +167,7 @@ prior_tibble %>%
 
 ```
 
-Combining the four different priors and the two different data sets, we see that the posterior is indeed a mix of prior and likelihood. In particular, we see that the weakly informative prior has only little effect if there are many data points (the KoF data).
+Combining the four different priors and the two different data sets, we see that the posterior is indeed a mix of prior and likelihood. In particular, we see that the weakly informative prior has only little effect if there are many data points (the KoF data), but does affect the posterior of the 24/7 case (compared against the uninformative prior).
 
 ```{r ch-03-03-estimation-posteriors-comparison, echo = F, fig.cap = "Posterior beliefs over bias parameter $\\theta$ under different priors and different data sets. We see that strongly informative priors have more influence on the posterior than weakly informative priors, and that the influence of the prior is stronger for less data than for more."}
 full_join(lh_tibble, prior_tibble, by = 'theta') %>% 
@@ -186,7 +190,7 @@ full_join(lh_tibble, prior_tibble, by = 'theta') %>%
     posterior = posterior/sum(posterior)
   ) %>%
   mutate(
-    prior_type = factor(prior_type, levels = c('uninformative', 'weakly informative', 'strongly informative', 'point-valued'))
+    prior_type = factor(prior_type, levels = c('uninformative', 'weakly inf.', 'strongly inf.', 'point-valued'))
   ) %>%
   ggplot(aes(x = theta, y = posterior, color = example)) +
   geom_line(size = 2) +
@@ -246,7 +250,7 @@ To make the prior more strongly informative, you should increase the shape param
 </div>
 </div>
 
-b. Based on the notation above, which of the following statements do you think is true?
+b. Based on your explorations of the WebPPL code, which of the following statements do you think is true?
 
 1. The prior always influences the posterior more than the likelihood.
 
@@ -291,7 +295,7 @@ $$P(D) = \int P(D \mid \theta) \ P(\theta) \ \text{d}\theta$$
 
 Section \@ref(Ch-03-03-estimation-algorithms) will, therefore, enlarge on methods to compute or approximate the posterior distribution efficiently.
 
-Fortunately, computing Bayesian posterior distributions need not always be intractable. If the prior and the likelihood function cooperate, so to speak, the computation of the posterior can be as simple as sleep. The nature of the data often prescribes which likelihood function is plausible. But we have more wiggle room in the choice of the priors. If prior $P(\theta)$ and posterior $P(\theta \, | \, D)$ are of the same family, i.e., if they are the same kind of distribution albeit possibly with different parameterizations, we say that they **conjugate**. In that case, the prior $P(\theta)$ is called **conjugate prior** for the likelihood function $P(D \, | \, \theta)$ from which the posterior $P(\theta \, | \, D)$ is derived.
+Fortunately, the computation of Bayesian posterior distributions can be quite simple in special cases. If the prior and the likelihood function cooperate, so to speak, the computation of the posterior can be as simple as sleep. The nature of the data often prescribes which likelihood function is plausible. But we have more wiggle room in the choice of the priors. If prior $P(\theta)$ and posterior $P(\theta \, | \, D)$ are of the same family, i.e., if they are the same kind of distribution albeit possibly with different parameterizations, we say that they **conjugate**. In that case, the prior $P(\theta)$ is called **conjugate prior** for the likelihood function $P(D \, | \, \theta)$ from which the posterior $P(\theta \, | \, D)$ is derived.
 
 ```{theorem, "Conjugacy-beta-binomial"}
 The Beta distribution is the conjugate prior of binomial likelihood. For $\theta \sim \text{Beta}(a,b)$ as prior and data $k$ and $N$, the posterior is $\theta \sim \text{Beta}(a+k, b+ N-k)$.
@@ -300,14 +304,16 @@ The Beta distribution is the conjugate prior of binomial likelihood. For $\theta
 
 ```{proof}
 By construction, the posterior is:
-$$P(\theta \mid \langle{k, n \rangle}) \propto \text{Binomial}(k ; n, \theta) \ \text{Beta}(\theta \, | \, a, b) $$
+$$P(\theta \mid \langle{k, N \rangle}) \propto \text{Binomial}(k ; N, \theta) \ \text{Beta}(\theta \, | \, a, b) $$
 
 
-We extend the RHS by definitions:
+We extend the RHS by definitions, while omitting the normalizing constants:
 
 $$
 \begin{aligned} 
-\text{Binomial}(k ; n, \theta) \ \text{Beta}(\theta \, | \, a, b) & = \theta^{k} \, (1-\theta)^{n-k} \, \theta^{a-1} \, (1-\theta)^{b-1}  \\  & = \theta^{k + a - 1} \, (1-\theta)^{n-k +b -1}
+\text{Binomial}(k ; N, \theta) \ \text{Beta}(\theta \, | \, a, b) & 
+  \propto \theta^{k} \, (1-\theta)^{N-k} \, \theta^{a-1} \, (1-\theta)^{b-1}  \\  &
+  = \theta^{k + a - 1} \, (1-\theta)^{N-k +b -1}
 \end{aligned}
 $$
 
@@ -367,7 +373,7 @@ b. Suppose that Jones flipped a coin with unknown bias 30 times. She observed 20
 
 </div>
 
-### Sequential updating
+### Excursion: Sequential updating
 
 Ancient wisdom has coined the widely popular proverb: "Today's posterior is tomorrow's prior." Suppose we collected data from an experiment, like $k = 7$ in $N = 24$. Using uninformative priors at the outset, our posterior belief after the experiment is $\theta \sim \text{Beta}(8,18)$. But now consider what happened at half-time. After half the experiment, we had $k = 2$ and $N = 12$, so our beliefs followed $\theta \sim \text{Beta}(3, 10)$ at this moment in time. But using these beliefs as priors, and observing the rest of the data would consequently result in updating the prior $\theta \sim \text{Beta}(3, 10)$ with another set of observations $k = 5$ and $N = 12$, giving us the same posterior belief as what we would have gotten if we updated in one swoop. Figure \@ref(fig:ch-03-03-estimation-sequential-updates) shows the steps through the belief space, starting uninformed and observing one piece of data at a time (going right for each outcome of heads, down for each outcome of tails).
 
@@ -494,11 +500,11 @@ cowplot::plot_grid(
 )
 ```
 
-The posterior probability distribution in Figure \@ref(fig:ch-03-03-estimation-24-7-overview) contains rich information. It specifies how likely each value of $\theta$ is, obtained by updating the original prior beliefs with the observed data. Such rich information is difficult to process and communicate in a language. It is therefore convenient to have conventional means of summarizing the rich information carried in a probability distribution like in Figure \@ref(fig:ch-03-03-estimation-24-7-overview). Customarily, we summarize in terms of a point-estimate and/or an interval estimate. The *point estimate* gives information about a "best value", i.e., a salient point, and the *interval estimate* gives, usually, an indication of how closely other *good values* are scattered around the *best value*.
+The posterior probability distribution in Figure \@ref(fig:ch-03-03-estimation-24-7-overview) contains rich information. It specifies how likely each value of $\theta$ is, obtained by updating the original prior beliefs with the observed data. Such rich information is difficult to process and communicate in natural language. It is therefore convenient to have conventional means of summarizing the rich information carried in a probability distribution like in Figure \@ref(fig:ch-03-03-estimation-24-7-overview). Customarily, we summarize in terms of a point-estimate and/or an interval estimate. The *point estimate* gives information about a "best value", i.e., a salient point, and the *interval estimate* gives, usually, an indication of how closely other "good values" are scattered around the "best value".
 The most frequently used Bayesian point estimate is the mean of the posterior distribution, and the most frequently used Bayesian interval estimate is the credible interval.
-We will introduce both below, alongside some alternative estimates (namely the _maximum a posteriori_ and the _maximum likelihood estimate_).
+We will introduce both below, alongside some alternatives (namely the _maximum a posteriori_, the _maximum likelihood estimate_ and the inner-quantile range).
 
-### Posterior means
+### Point-valued estimates
 
 A common Bayesian point estimate of parameter vector $\theta$ is **the mean of the posterior distribution** over $\theta$. It gives the value of $\theta$ which we would expect to see when basing out expectations on the posterior distribution:
 $$
@@ -508,15 +514,11 @@ $$
 $$
 Taking the Binomial Model as example, if we start with flat beliefs, the expected value of $\theta$ after $k$ successes in $N$ flips can be calculated rather easily as $\frac{k+1}{n+2}$.^[This is also known as *Laplace's rule* or the *rule of succession*.] For our example case, we calculate the expected value of $\theta$ as $\frac{8}{26} \approx 0.308$ (see also Figure \@ref(fig:ch-03-03-estimation-24-7-overview)).
 
-### Maximum a posteriori
-
 Another salient point-estimate to summarize a Bayesian posterior distribution is the **maximum _a posteriori_**, or MAP, for short. The MAP is the parameter value (tuple) that maximizes the posterior distribution:
   
 $$ \text{MAP}(P(\theta \mid D)) =  \arg \max_\theta P(\theta \mid D) $$
   
 While the mean of the posterior is "holistic" in the sense that it depends on the whole distribution, the MAP does not. The mean is therefore more faithful to the Bayesian ideal of taking the full posterior distribution into account. Moreover, depending on how Bayesian posteriors are computed/approximated, the estimation of a mean can be more reliable than that of a MAP.
-
-### Maximum likelihood estimate
 
 The **maximum likelihood estimate (MLE)** is a point estimate based on the likelihood function alone.
 It specifies the value of $\theta$ for which the observed data is most likely. We often use the notation $\hat{\theta}$ to denote the MLE of $\theta$:
@@ -527,6 +529,7 @@ $$
 \end{aligned}
 $$
 
+By ignoring the prior information entirely, the MLE is not a Bayesian notion, but a frequentist one (more on this in later chapters).
 For the binomial likelihood function, the maximum likelihood estimate is easy to calculate as $\frac{k}{N}$, yielding
 $\frac{7}{24} \approx 0.292$ for the running example. Figure \@ref(fig:ch-03-03-estimation-MLE) shows a graph of the non-normalized likelihood function and indicates the maximum likelihood estimate (the value that maximizes the curve).
 
@@ -560,7 +563,7 @@ MLE is a special case of MAP with a uniform prior.
 </div>
 </div>
 
-### Credible intervals
+### Interval-ranged estimates
 
 A common Bayesian interval estimate of the coin bias parameter $\theta$ is a **credible interval**.^[Also frequently called "highest-density intervals", even when we are dealing not with density but probability mass.] An interval $[l;u]$ is a $\gamma\%$ credible interval for a random variable $X$ if two conditions hold, namely
 $$
@@ -571,32 +574,80 @@ $$
 and, secondly, for every $x \in[l;u]$ and $x' \not \in[l;u]$ we have $P(X=x) > P(X = x')$. Intuitively, a $95\%$ credible interval gives the range of values in which we believe with
 relatively high certainty that the true value resides. Figure \@ref(fig:ch-03-03-estimation-24-7-overview) indicates the $95\%$ credible interval, based on the posterior distribution $P(\theta \mid D)$ of $\theta$, for the 24/7 example.^[Not all random variables have a credible interval for a given $\gamma$, according to this definition. A bimodal distribution might not, for example. A bi-modal distribution has two regions of high probability. We can, therefore, generalize the concept to a finite set of disjoint convex *credible regions*, all of which have the second property of the definition above and all of which conjointly are realized with $\gamma\%$ probability. Unfortunately, common parlor uses the term "credible interval" to refer to credible regions as well. The same disaster occurs with alternative terms, such as "$\gamma\%$ highest-density intervals", which also often refers to what should better be called "highest-density regions".]
 
+Instead of credible intervals, sometimes posteriors are also summarized in terms of the $\gamma\%$ inner-quantile region. This is the interval $[l;u]$ such that 
 
-### Excursion: Computing point-estimates in R
+$$P(l \le X) = P(X \le u) =  0.5 \cdot (1 - \frac{\gamma}{100}$$ 
+
+For example, a 95% inner-quantile region contains all values except the smallest and largest values what each comprise 2.5% of the probability mass/density.
+The inner-quantile range is easier to compute and does not have trouble with multi-modality.
+This is why it is frequently used to approximate Bayesian credible intervals. 
+However, care must be taken because the inner-quantile range is not as intuitive a measure of the "best values" as credible intervals.
+While credible intervals and inner quantile regions coincide for distributions with a symmetric distribution around a single maximum, and so tend to coincide for large sample size when posteriors tend to converge to normal distributions, there are cases of clear divergence. 
+Figure \@ref(fig:ch-03-03-estimation-credible-interval-vs-interquantilerange) shows such a case.
+While the inner-quantile region does not include the most likely values, the credible interval does.
+
+```{r ch-03-03-estimation-credible-interval-vs-interquantilerange, echo = F, fig.cap = "Difference between a 95% credible interval and a 95% inner-quantile region."}
+
+CI_of_beta <- c(0, qbeta(p = 0.6, 1, 3))
+IQR_of_beta <- qbeta(p = c(0.3, 0.7), 1, 3)
+
+tibble(
+  x = seq(from = 0,to = 1, length.out = 10001),
+  density = dbeta(x, 1, 3)
+) %>% 
+ggplot(aes(x = x, y = density)) +
+  geom_line() +
+  geom_segment(aes(y = 0.2, yend = 0.2, x = IQR_of_beta[1], xend = IQR_of_beta[2]), color = project_colors[1], size = 2) +
+  geom_segment(aes(y = 0.8, yend = 0.8, x = CI_of_beta[1], xend = CI_of_beta[2]), color = project_colors[2], size = 2) +
+  annotate("text", x = mean(CI_of_beta), y = 0.91, label = "60% Credible interval", color = project_colors[2], size = 5) +
+  annotate("text", x = mean(IQR_of_beta), y = 0.31, label = "60% inner-quant. region", color = project_colors[1], size = 5)
+
+
+```
+
+### Computing Bayesian estimates
+
+As mentioned, the most common (and arguably best) summaries to report for a Bayesian posterior are the posterior mean and a credible interval. The `aida` package which accompanies this book, has a convenience function called `aida::summarize_sample_vector()` that gives the mean and 95% credible interval for a vector of samples. 
+You can use it like so:
+
+```{r }
+# take samples from a posterior (24/7 example with flat priors)
+posterior_samples <- rbeta(100000, 8, 18)
+# get summaries
+aida::summarize_sample_vector(
+  # vector of samples 
+  samples = posterior_samples,
+  # name of output column
+  name = "theta"
+)
+```
+
+### Excursion: Computing MLEs and MAPs in R
 
 Computing the maximum or minimum of a function, such as an MLE or MAP estimate, is a common problem. R has a built-in function `optim` that is useful for finding the minimum of a function. (If a maximum is needed, just multiply by $-1$ and search the minimum with `optim`.)
 
 We can use the `optim` function to retrieve an MLE for 24/7 data and the Binomial Model (with flat priors) using conjugacy like so:
 
 ```{r }
-optim(
+# perform optimization
+MLE <- optim(
+  # starting value for optimization
   par = 0.2,
+  # funtion to minimize (= optimize)
   fn = function(par){
     -dbeta(par, 8, 18)
   },
+  # method of optimization (for 1-d cases)
   method = "Brent",
+  # lower and upper bound of possible parameter values
   lower = 0,
   upper = 1
 )
+# retrieve MLE
+MLE$par
 ```
 
-### Computing Bayesian estimates
-
-Use the function `aida::summarize_sample_vector()`.
-
-## Algorithms for parameter estimation {#Ch-03-03-estimation-algorithms}
-
-Statistical methods are also dictated by practicality: a model or a procedure is not useful if it's hard or even impossible to compute it with existing computational tools. We must understand that recent changes in statistical practice are a natural reaction to advances in computability. We also must perceive the classical notions and procedures in statistics from this perspective of computability. 
+Indeed, the value obtained by computationally approximating the maximum likelihood estimate for this likelihood function coincides with the true value of $\frac{7}{24}$
 
 ## Approximating the posterior
 
