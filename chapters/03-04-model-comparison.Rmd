@@ -228,9 +228,11 @@ AIC_scores
 
 How should we interpret the difference in AIC-scores? Some suggest that differences in AIC-scores larger than 10 should be treated as implying that the weaker model has practically no empirical support [@BurnhamAnderson2002:Model-Selection]. Adopting such a criterion, we would therefore favor the exponential model based on the data observed. 
 
-But we could also try to walk a more nuanced, more quantitative road. Indeed, we can look at relative AIC-scores in terms of so-called **Akaike weights** [@WagenmakersFarrell2004:AIC-model-selec;@BurnhamAnderson2002:Model-Selection]. If we want to compare models $M_1, \dots, M_n$ and $\text{AIC}(M_i, D)$ is the AIC-score of model $M_i$ for observed data $D$, then the Akaike weight of model $M_i$ is defined as:
-
-
+But we could also try to walk a more nuanced, more quantitative road.
+We would ideally want to know the *absolute probability* of $M_i$ given the data: $P(M_i \mid D)$. 
+Unfortunately, to calculate this (by Bayes rule), we would need to normalize by quantifying over *all* models. Alternatively, we look at the relative probability of a small selection of models.
+Indeed, we can look at relative AIC-scores in terms of so-called **Akaike weights** [@WagenmakersFarrell2004:AIC-model-selec;@BurnhamAnderson2002:Model-Selection] to derive an approximation of $P(M_i \mid D)$, at least for the case where we only consider a small set of candidate models.
+So, if we want to compare models $M_1, \dots, M_n$ and $\text{AIC}(M_i, D)$ is the AIC-score of model $M_i$ for observed data $D$, then the **Akaike weight of model $M_i$** is defined as:
 
 $$
 \begin{aligned}
@@ -253,7 +255,8 @@ Akaike_weight_exponential <- exp(-0.5 * delta_AIC_exponential) /
 Akaike_weight_exponential
 ```
 
-We would conclude from this approximate quantitative assessment that the evidence in favor of the exponential model is rather strong.
+We can interpret this numerical result as indicating that, given a universe in which only the exponential and the power model exist, the posterior probability of the exponential model is almost 1 (assuming, implicitly, that both models are equally likely _a priori_).
+We would conclude from this approximate quantitative assessment that the empirical evidence supplied by the given data in favor of the exponential model is very strong.
 
 Our approximation is better the more data we have. We will see a method below, the Bayesian method using Bayes factors, which computes $P(M_i \mid D)$ in a non-approximate way.
 
@@ -296,101 +299,9 @@ We use the same data twice! We use $D_{\text{obs}}$ to find the best fitting par
 </div>
 
 
-## Likelihood-Ratio Test {#Chap-03-06-model-comparison-LR-test}
-
-The likelihood-ratio (LR) test is a very popular frequentist method of model comparison. The LR-test assimilates model comparison to frequentist hypothesis testing. It defines a suitable test statistic and supplies an approximation of the sampling distribution. The LR-test first and foremost applies to the comparison of **nested models**, but there are results about how approximate results can be obtained when comparing non-nested models with an LR-test [@Vuong1989:Likelihood-Rati]. 
-
-A frequentist model $M_i$ is **nested** inside another frequentist model $M_j$ iff $M_i$ can be obtained from $M_j$ by fixing at least one of $M_j$'s free parameters to a specific value. If $M_i$ is nested under $M_j$, $M_i$ is called the nested model, and $M_j$ is called the **nesting model** or the **encompassing model**. Obviously, the nested model is simpler (of lower complexity) than the nesting model.
-
-For example, we had the two-parameter exponential model previously:
-
-$$
-\begin{aligned}
-P(D = \langle k, N \rangle \mid \langle a, b\rangle) & = \text{Binom}(k,N, a \exp (-bt)), \ \ \ \ \text{where } a,b>0 
-\end{aligned}
-$$
-
-An example of a model that is nested under this two-parameter model is the following one-parameter model, which fixes $a = 1.1$.
-
-$$
-\begin{aligned}
-P(D = \langle k, N \rangle \mid b) & = \text{Binom}(k,N, 1.1 \ \exp (-bt)), \ \ \ \ \text{where } b>0 
-\end{aligned}
-$$
-
-Here's an ML-estimation for the nested model:
-
-```{r}
-nLL_expo_nested <- function(b) {
-  # calculate predicted recall rates for given parameters
-  theta <- 1.1*exp(-b*t)  # one-param exponential model 
-  # avoid edge cases of infinite log-likelihood
-  theta[theta <= 0.0] <- 1.0e-4
-  theta[theta >= 1.0] <- 1-1.0e-4
-  # return negative log-likelihood of data
-  - sum(dbinom(x = obs, prob = theta, size = 100, log = T))
-}
-
-bestExpo_nested <- optim(
-  nLL_expo_nested, 
-  par = 0.5, 
-  method = "Brent", 
-  lower = 0, 
-  upper = 20
-)
-bestExpo_nested
-```
-
-The LR-test looks at the likelihood ratio of the nested model $M_0$ over the encompassing model $M_1$ using the following test statistic:
-
-$$\text{LR}(M_1, M_0) = -2\log \left(\frac{P_{M_0}(D_\text{obs} \mid \hat{\theta}_0)}{P_{M_1}(D_\text{obs} \mid \hat{\theta}_1)}\right)$$
-
-We can calculate the value of this test statistic for the current example as follows:
-
-```{r}
-LR_observed <- 2 * bestExpo_nested$value - 2 * bestExpo$value
-LR_observed
-```
-
-If the simpler (nested) model is true, the sampling distribution of this test statistic approximates a $\chi^2$-distribution with $d$ if we have more and more data. The degrees of freedom $d$ is given by the difference in free parameters, i.e., the number of parameters the nested model fixes to specific values, but which are free in the nesting model. 
-
-We can therefore calculate the $p$-value for the LR-test for our current example like so:
-
-```{r}
-p_value_LR_test <- 1 - pchisq(LR_observed, 1)
-p_value_LR_test
-```
-
-The $p$-value of this test quantifies the evidence against the assumption that the data was generated by the simpler model. A significant test result would therefore indicate that it would be surprising if the data was generated by the simpler model. This is standardly taken as evidence in favor of the more complex, nesting model. For the current $p$-value  $p \approx `r p_value_LR_test %>% round(4)`$, there is no strong evidence against the simpler model and we would therefore rather favor the nested model due to its simplicity; the data at hand does not seem to warrant the added complexity of the nesting model; the nested model seems to suffice.
-
-
-
-<div class = "exercises">
-**Exercise 11.2**
-
-TRUE OR FALSE?
-
-a. The nested model usually has more free parameters than the nesting model.
-b. When we perform the LR-test, we initially assume that the nested model is more plausible.
-c. A LR-test can only compare the nested model with nesting models.
-d. If the LR-test result has a $p$-value equal to 1.0, one can conclude that it's a piece of evidence in favor of the simpler model. 
-
-<div class="collapsibleSolution">
-<button class="trigger">Solution</button>
-<div class="content">
-
-a. False
-b. True
-c. False
-d. True
-
-</div>
-</div>
-</div>
-
 ## Bayes factors {#Chap-03-06-model-comparison-BF}
 
-Bayes factors are the flagship Bayesian measures of comparing models. Since Bayesians do not hesitate to assign probabilities to models, parameters and hypotheses, we would ideally want to know the *absolute probability* of $M_i$ given the data: $P(M_i \mid D)$. Unfortunately, to calculate this (by Bayes rule), we would need to normalize by quantifying over *all* models. Alternatively, we look at the relative probability of a small selection of models, or, even more economic, compare only two models, preferably in terms of their odds, as follows.
+At the end of the previous section, we saw that we can use the AIC-approach to calculate an approximate value of the posterior probability $P(M_{i} \mid D)$ for model $M_{i}$ is given data $D$. The Bayes factor approach is similar to this, but avoids taking priors over models into the equation by focusing on _the extent to which data $D$ changes our beliefs about the which model is more likely_. 
 
 Take two Bayesian models:
 
