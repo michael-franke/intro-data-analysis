@@ -71,7 +71,7 @@ Taking the binary nature of data (recalled / not recalled) into account, this re
 
 $$
 \begin{aligned}
-P(D = \langle k, N \rangle \mid \langle a, b\rangle) & = \text{Binom}(k,N, a \exp (-bt)), \ \ \ \ \text{where } a,b>0 
+P(k \mid a, b, N , M_{\text{exp}}) & = \text{Binom}(k,N, a \exp (-bt)), \ \ \ \ \text{where } a,b>0 
 \end{aligned}
 $$
 
@@ -83,7 +83,7 @@ The resulting likelihood function for the power model is:
 
 $$
 \begin{aligned}
-P(D = \langle k, N \rangle \mid \langle c, d\rangle) & = \text{Binom}(k,N, c\ t^{-d}), \ \ \ \ \text{where } c,d>0 
+P(k \mid a, b, N , M_{\text{pow}}) & = \text{Binom}(k,N, c\ t^{-d}), \ \ \ \ \text{where } c,d>0 
 \end{aligned}
 $$
 
@@ -280,12 +280,12 @@ c. $P(D_\text{obs} \mid \hat{\theta_i}, M_i)$ stands for:
 
 a. the number of free parameters in model $M_{i}$;
 b. the parameter vector obtained by maximum likelihood estimation for model $M_{i}$ and data $D_{\text{obs}}$;
-c. the likelihood of the data $D_{\text{obs}}$ under the best fitting parameters of a model $M_{i}}$.
+c. the likelihood of the data $D_{\text{obs}}$ under the best fitting parameters of a model $M_{i}$.
 
 </div>
 </div>
 
-2. Do you think that there is anything fishy (e.g., circular) in the definition of AICs?
+2. Do you see that there is something "circular" in the definition of AICs? (Hint: What do we use the data $D_{\text{obs}}$ for?)
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
@@ -312,17 +312,21 @@ Using Bayes rule, we compute the posterior odds of models (given the data) as th
 
 $$\underbrace{\frac{P(M_1 \mid D)}{P(M_2 \mid D)}}_{\text{posterior odds}} = \underbrace{\frac{P(D \mid M_1)}{P(D \mid M_2)}}_{\text{Bayes factor}} \ \underbrace{\frac{P(M_1)}{P(M_2)}}_{\text{prior odds}}$$
 
-The likelihood ratio is also called the **Bayes factor**. Formally, the Bayes factor is the factor by which a rational agent changes her prior odds in the light of observed data to arrive at updated, posterior odds. More intuitively, the Bayes factor quantifies the strength of evidence given by the data about the models of interest. It expresses this evidence in terms of the models' relative prior predictive accuracy. To see the latter, let's expand the Bayes factor as what it actually is: the ratio of marginal likelihoods.
+The likelihood ratio is also called the **Bayes factor**. Formally, the Bayes factor is the factor by which a rational agent changes her prior odds in the light of observed data to arrive at the posterior odds. More intuitively, the Bayes factor quantifies the strength of evidence given by the data about the models of interest. It expresses this evidence in terms of the models' relative prior predictive accuracy. To see the latter, let's expand the Bayes factor as what it actually is: the ratio of marginal likelihoods.
 
 $$
 \frac{P(D \mid M_1)}{P(D \mid M_2)} = \frac{\int P(\theta_1 \mid M_1) \ P(D \mid \theta_1, M_1) \text{ d}\theta_1}{\int P(\theta_2 \mid M_2) \ P(D \mid \theta_2, M_2) \text{ d}\theta_2}
 $$
 
-Three insights are to be gained from this expansion. Firstly, the Bayes factor is a measure of how well each model would have predicted the data *ex ante*, i.e., before having seen any data. In this way, it is diametrically opposed to a concept like AIC or the LR-test, which both relied on models' maximum likelihood fits (therefore *using the data*, so being *ex post*). 
+Three insights are to be gained from this expansion. Firstly, the Bayes factor is a measure of how well each model would have predicted the data *ex ante*, i.e., before having seen any data. In this way, it is diametrically opposed to a concept like AIC, which relies on models' maximum likelihood fits (therefore *using the data*, so being *ex post*). 
 
-Secondly, the marginal likelihood of a model is exactly the quantity that we identified (in the context of parameter estimation) as being very hard to compute, especially for complex models. The fact that marginal likelihoods are hard to compute was the reason that we looked briefly at MCMC sampling, for example. It follows that Bayes factors are very tough nuts to crack. But, as we will see, there are very clever approaches to computing Bayes factors after all.
+Secondly, the marginal likelihood of a model is exactly the quantity that we identified (in the context of parameter estimation) as being very hard to compute, especially for complex models. The fact that marginal likelihoods are hard to compute was the reason that we methods like MCMC sampling are useful, since they give posterior samples _without_ requiring the calculation of marginal likelihoods. 
+It follows that Bayes factors can be very difficult to compute in general. 
+However, for many prominent models, it is possible to calculate Bayes factors analytically if the right kinds of priors are specified [@RouderSpeckman2009:Bayesian-t-test;@RouderMorey2012:Default-Bayes-F;@GronauLy2019:Informed-Bayesi].
+We will see an example of this in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
+Also, as we will see in the following there are very clever approaches to computing Bayes factors in special cases and good algorithms for approximating marginal likelihoods also for complex models.
 
-Thirdly, Bayes factor model comparison implicitly (and quite vigorously) punishes model complexity, but in a more sophisticated manner than just counting free parameters. To appreciate this intuitively, imagine a model with a large parameter set a very diffuse prior that spreads its probability over a wide range of parameter values. Since Bayes factors are computed based on *ex ante* predictions, a diffuse model is punished for its imprecision of prior predictions because we integrate over all parameters (weighted by priors) and their associated likelihood. 
+Thirdly, Bayes factor model comparison implicitly (and quite vigorously) punishes model complexity, but in a more sophisticated manner than just counting free parameters. To appreciate this intuitively, imagine a model with a large parameter set and a very diffuse, uninformative prior that spreads its probability over a wide range of parameter values. Since Bayes factors are computed based on *ex ante* predictions, a diffuse model is punished for its imprecision of prior predictions because we integrate over all parameters (weighted by priors) and their associated likelihood. 
 
 As for notation, we write:
 
@@ -341,41 +345,39 @@ $BF_{12}$ | interpretation
 
 As $\text{BF}_{12} = \text{BF}_{21}^{-1}$ it suffices to give this translation into natural language only for values $\ge 1$.
 
-There are at least two general approaches to calculating or approximating Bayes factors, paired here with a (non-exhaustive) list of instantiations, only some of which will be dealt with here
+There are at least two general approaches to calculating or approximating Bayes factors, paired here with a (non-exhaustive) list of example methods:
 
 1. get each model's marginal likelihood 
-    - grid approximation        
-    - by Monte Carlo sampling   
-    - brute force clever math   
-    - bridge sampling 
+    - grid approximation (see Section \@ref(Chap-03-06-model-comparison-BF-grid))
+    - by Monte Carlo sampling (see Section \@ref(Chap-03-06-model-comparison-BF-naiveMC))
+    - bridge sampling (see Section \@ref(Chap-03-06-model-comparison-BF-bridge))
 2. get Bayes factor directly
-    - Savage-Dickey method  
-    - using encompassing priors
-    - transdimensional MCMC 
-    - supermodels
+    - Savage-Dickey method (see Section \@ref(ch-03-07-hypothesis-testing-Bayes-Savage-Dickey))
+    - using encompassing models (see Section \@ref(ch-03-07-hypothesis-testing-Bayes-encompassing-models))
 
-In the following, we will concern ourselves with grid approximation and MC sampling, based on the running example of memory recall as a function of time.
+### Grid approximation {#Chap-03-06-model-comparison-BF-grid}
 
-### Grid approximation
+We can use _grid approximation_ to approximate a model's marginal likelihood if the model are small enough, say, no more than 4-5 free parameters. 
+Grid approximation considers discrete values for each parameter evenly spaced over the whole range of plausible parameter values, thereby approximating the integral in the definition of marginal likelihoods. 
 
-Grid approximation for a model's marginal likelihood works for relatively small models with, say, no more than 4-5 free parameters. Grid approximation considers discrete values for each parameter evenly spaced over the whole range of plausible parameter values, thereby approximating the integral in the definition of marginal likelihoods. 
-
-To begin with, we need to define a prior over parameters to obtain Bayesian versions of the exponential and power model of forgetting. Here, we assume flat priors over a reasonable range of parameter values for simplicity. For the exponential model, we choose:
+Let's calculate an example for the comparison of the exponential and the power model of forgetting.
+To begin with, we need to define a prior over parameters to obtain Bayesian versions of the exponential and power model.
+Here, we assume flat priors over a reasonable range of parameter values for simplicity. For the exponential model, we choose:
 
 $$
 \begin{aligned}
-P(D = \langle k_i, N \rangle \mid \langle a, b\rangle, M_{\text{exp}}) & = \text{Binom}(k,N, a \exp (-bt_i)) \\
+P(k \mid a, b, N, M_{\text{exp}}) & = \text{Binom}(k,N, a \exp (-bt_i)) \\
 P(a \mid M_{\text{exp}}) & = \text{Uniform}(a, 0, 1.5) \\
 P(b \mid M_{\text{exp}}) & = \text{Uniform}(b, 0, 1.5) 
 \end{aligned}
 $$
 
-The (Bayesian) power model is then:
+The (Bayesian) power model is given by:
 
 
 $$
 \begin{aligned}
-P(D = \langle k_i, N \rangle \mid \langle c, d\rangle, M_{\text{pow}}) & = \text{Binom}(k,N, c\ t_i^{-d}) \\
+P(k \mid a, b, N, M_{\text{pow}}) & = \text{Binom}(k,N, c\ t_i^{-d}) \\
 P(c \mid M_{\text{pow}}) & = \text{Uniform}(c, 0, 1.5) \\
 P(d \mid M_{\text{pow}}) & = \text{Uniform}(d, 0, 1.5) 
 \end{aligned}
@@ -418,8 +420,8 @@ lhPow <- Vectorize(lhPow)
 
 # define the step size of the grid
 stepsize <- 0.01
-# calculate the "evidence" aka marginal likelihood
-evidence <- expand.grid(
+# calculate the marginal likelihood
+marg_lh <- expand.grid(
   x = seq(0.005, 1.495, by = stepsize),
   y = seq(0.005, 1.495, by = stepsize)
 ) %>% 
@@ -428,15 +430,15 @@ evidence <- expand.grid(
     lhPow = lhPow(x,y), priPow = 1 / length(x)
   )
 # output result
-message(
+str_c(
   "BF in favor of exponential model: ", 
-  with(evidence, sum(priExp*lhExp)/ sum(priPow*lhPow)) %>% round(2)
+  with(marg_lh, sum(priExp*lhExp)/ sum(priPow*lhPow)) %>% round(2)
 )
 ```
 
-Based on this computation, we would be entitled to conclude that the data provides overwhelming evidence in favor of the exponential model. No matter what we believed at the outset about which model is more likely, we should adjust these beliefs by a factor of more than 1000 in favor of the exponential model. 
+Based on this computation, we would be entitled to conclude that the data provides overwhelming evidence in favor of the exponential model. The result tells us that a rational agent should adjust her prior odds by a factor of more than 1000 in favor of the exponential model when updating her beliefs with the data. In other words, the data tilt our beliefs very strongly towards the exponential model, no matter what we believed initially. In this sense, the data provides strong evidence for the exponential model. 
 
-### Naive Monte Carlo
+### Naive Monte Carlo {#Chap-03-06-model-comparison-BF-naiveMC}
 
 For simple models (with maybe 4-5 free parameters), we can also use naive Monte Carlo sampling to approximate Bayes factors. In particular, we can approximate the marginal likelihood by taking samples from the prior, calculating the likelihood of the data for each sampled parameter tuple, and then averaging over all calculated likelihoods:
 
@@ -446,19 +448,24 @@ Here is a calculation using one million samples from the prior of each model:
 
 ```{r}
 nSamples <- 1000000
+# sample from the prior
 a <- runif(nSamples, 0, 1.5)
 b <- runif(nSamples, 0, 1.5)
+# calculate likelihood of data for each sample
 lhExpVec <- lhExp(a,b)
 lhPowVec <- lhPow(a,b)
-message(
+# compute marginal likelihoods
+str_c(
  "BF in favor of exponential model: ", 
- signif(sum(lhExpVec) / sum(lhPowVec)),6 
+ round(mean(lhExpVec) / mean(lhPowVec),2)
 )
 ```
 
 We can also check the time course of our MC-estimate by a plot like that in Figure \@ref(fig:Chap-03-06-model-comparison-MC-estimate-time).
+The plot shows the current estimate of the Bayes factor on the $y$-axis after having taken the number of samples given on the $x$-axis.
+We see that the initial calculations (after only a 10,000 samples) is far off, but that the approximation finally gets reasonably close to the value calculated by grid approximation, which is shown as the red line.
 
-```{r Chap-03-06-model-comparison-MC-estimate-time, fig.cap = "Temporal development (as more samples come in) of the Monte Carlo estimate of the Bayes factor in favor of the exponential model over the power model of forgetting."}
+```{r Chap-03-06-model-comparison-MC-estimate-time, echo = F, fig.cap = "Temporal development (as more samples come in) of the Monte Carlo estimate of the Bayes factor in favor of the exponential model over the power model of forgetting. The red horizontal line indicates the Bayes factor estimate obtained previously via grid approximation."}
 BFVec <- map_dbl(
   # start at 10.000 and then inspect every 500 samples
   seq(10000, nSamples, by = 500), 
@@ -496,15 +503,15 @@ e. BF computation penalizes more complex models.
 <button class="trigger">Solution</button>
 <div class="content">
 
-Statements b., d. and e. are correct.
+Statements b. and e. are correct.
 
 </div>
 </div>
 </div>
 
-## Outlook
+
+### Bridge sampling {#Chap-03-06-model-comparison-BF-grid}
 
 For more complex models (e.g., high-dimensional/hierarchical parameter spaces), naive Monte Carlo methods can be highly inefficient. If random sampling of parameter values from the priors is unlikely to deliver values for which the likelihood of the data is reasonably high, most naive MC samples will contribute very little information to the overall estimate of the marginal likelihood. For this reason, there are better sampling-based procedures which preferentially sample *a posteriori* credible parameter values (given the data) and use clever math to compensate for using the wrong distribution to sample from. This is the main idea behind approaches like [importance sampling](https://en.wikipedia.org/wiki/Importance_sampling). A very promising approach is in particular **bridge sampling**, which also has its own R package (but we will not be able to deal with this in this course) [@GronauSarafoglou2017:A-tutorial-on-b].
 
-For many prominent models (e.g., Bayesian $t$-tests, ANOVA, linear regression), it is possible to calculate Bayes factors analytically if the right kinds of priors are specified [@RouderSpeckman2009:Bayesian-t-test;@RouderMorey2012:Default-Bayes-F;@GronauLy2019:Informed-Bayesi].
 
