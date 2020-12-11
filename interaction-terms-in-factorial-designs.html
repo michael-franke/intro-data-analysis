@@ -336,10 +336,10 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="10.1" data-path="Chap-03-06-model-comparison-case-study.html"><a href="Chap-03-06-model-comparison-case-study.html"><i class="fa fa-check"></i><b>10.1</b> Case study: recall models</a></li>
 <li class="chapter" data-level="10.2" data-path="Chap-03-06-model-comparison-AIC.html"><a href="Chap-03-06-model-comparison-AIC.html"><i class="fa fa-check"></i><b>10.2</b> Akaike Information Criterion</a></li>
 <li class="chapter" data-level="10.3" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html"><i class="fa fa-check"></i><b>10.3</b> Bayes factors</a><ul>
-<li class="chapter" data-level="10.3.1" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#grid-approximation"><i class="fa fa-check"></i><b>10.3.1</b> Grid approximation</a></li>
-<li class="chapter" data-level="10.3.2" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#naive-monte-carlo"><i class="fa fa-check"></i><b>10.3.2</b> Naive Monte Carlo</a></li>
+<li class="chapter" data-level="10.3.1" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#Chap-03-06-model-comparison-BF-grid"><i class="fa fa-check"></i><b>10.3.1</b> Grid approximation</a></li>
+<li class="chapter" data-level="10.3.2" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#Chap-03-06-model-comparison-BF-naiveMC"><i class="fa fa-check"></i><b>10.3.2</b> Naive Monte Carlo</a></li>
+<li class="chapter" data-level="10.3.3" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#Chap-03-06-model-comparison-BF-grid"><i class="fa fa-check"></i><b>10.3.3</b> Excursion: Bridge sampling</a></li>
 </ul></li>
-<li class="chapter" data-level="10.4" data-path="outlook.html"><a href="outlook.html"><i class="fa fa-check"></i><b>10.4</b> Outlook</a></li>
 </ul></li>
 <li class="chapter" data-level="11" data-path="ch-03-07-hypothesis-testing-Bayes.html"><a href="ch-03-07-hypothesis-testing-Bayes.html"><i class="fa fa-check"></i><b>11</b> Bayesian hypothesis testing</a><ul>
 <li class="chapter" data-level="11.1" data-path="data-and-models-for-this-chapter.html"><a href="data-and-models-for-this-chapter.html"><i class="fa fa-check"></i><b>11.1</b> Data and models for this chapter</a><ul>
@@ -528,8 +528,8 @@ code span.wa { color: #bf0303; } /* Warning */
 </div>
 <p>The following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs <span class="citation">(Franke and Roettger <a href="#ref-FrankeRoettger2019:Bayesian-regres">2019</a>)</span>, which can be downloaded <a href="https://psyarxiv.com/cdxv3">here</a>. We consider data on voice pitch in a <span class="math inline">\(2 \times 2\)</span> factorial design, with factors <code>gender</code> and <code>context</code>. This is laboratory data measuring the voice pitch of male and female speakers (factor <code>gender</code>) in two different kinds of linguistic contexts, namely a polite and an informal situation (factor <code>context</code>).</p>
 <p>We load the data, inspect and plot it.</p>
-<div class="sourceCode" id="cb538"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb538-1" data-line-number="1">politeness_url &lt;-<span class="st"> </span><span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/politeness_data.csv&#39;</span>)</a>
-<a class="sourceLine" id="cb538-2" data-line-number="2">politeness_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(politeness_url)</a></code></pre></div>
+<div class="sourceCode" id="cb546"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb546-1" data-line-number="1">politeness_url &lt;-<span class="st"> </span><span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/politeness_data.csv&#39;</span>)</a>
+<a class="sourceLine" id="cb546-2" data-line-number="2">politeness_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(politeness_url)</a></code></pre></div>
 <pre><code>## # A tibble: 83 x 5
 ##    subject gender sentence context pitch
 ##    &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
@@ -544,7 +544,7 @@ code span.wa { color: #bf0303; } /* Warning */
 ##  9 F1      F      S5       pol      232.
 ## 10 F1      F      S5       inf      252.
 ## # … with 73 more rows</code></pre>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-385-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-391-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>In a <span class="math inline">\(2 \times 2\)</span> factorial design like this, there are essentially four pairs of factor levels (so-called <strong>design cells</strong>): female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts. Different schemes exist by means of which different comparisons of means of design cells (or single factors) can be probed. A simple coding scheme for differences in our <span class="math inline">\(2 \times 2\)</span> design is shown in Figure <a href="interaction-terms-in-factorial-designs.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">13.1</a>. We consider the cell “female+informal” as the reference level and therefore model its mean as intercept <span class="math inline">\(\beta_0\)</span>. We then have a slope term <span class="math inline">\(\beta_{\text{pol}}\)</span> which encodes the difference between female pitch in informal and female pitch in polite contexts. Analogous reasoning holds for <span class="math inline">\(\beta_{\text{male}}\)</span>. Finally, we also include a so-called <strong>interaction term</strong>, denoted as <span class="math inline">\(\beta_{\text{pol\&amp;male}}\)</span> in Figure <a href="interaction-terms-in-factorial-designs.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">13.1</a>. The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.</p>
 <div class="figure" style="text-align: center"><span id="fig:Chap-04-02-beyond-simple-regression-factorial-coefficients"></span>
 <img src="visuals/coefficients_factorial_design.png" alt="Regression coefficients for a factorial design (using so-called 'treatment coding')."  />
@@ -553,14 +553,14 @@ Figure 13.1: Regression coefficients for a factorial design (using so-called ‘
 </p>
 </div>
 <p>We can fit a regression model with this coding scheme using the formula <code>pitch ~ gender * context</code>. Importantly the star <code>*</code> between explanatory variables <code>gender</code> and <code>context</code> indicates that we also want to include the interaction term.</p>
-<div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb540-1" data-line-number="1">fit_brms_politeness &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb540-2" data-line-number="2">  <span class="co"># model &#39;pitch&#39; as a function of &#39;gender&#39; and &#39;context&#39;,</span></a>
-<a class="sourceLine" id="cb540-3" data-line-number="3">  <span class="co">#  also including the interaction between `gender` and `context`</span></a>
-<a class="sourceLine" id="cb540-4" data-line-number="4">  <span class="dt">formula =</span> pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
-<a class="sourceLine" id="cb540-5" data-line-number="5">  <span class="dt">data =</span> politeness_data</a>
-<a class="sourceLine" id="cb540-6" data-line-number="6">)</a></code></pre></div>
+<div class="sourceCode" id="cb548"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb548-1" data-line-number="1">fit_brms_politeness &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb548-2" data-line-number="2">  <span class="co"># model &#39;pitch&#39; as a function of &#39;gender&#39; and &#39;context&#39;,</span></a>
+<a class="sourceLine" id="cb548-3" data-line-number="3">  <span class="co">#  also including the interaction between `gender` and `context`</span></a>
+<a class="sourceLine" id="cb548-4" data-line-number="4">  <span class="dt">formula =</span> pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
+<a class="sourceLine" id="cb548-5" data-line-number="5">  <span class="dt">data =</span> politeness_data</a>
+<a class="sourceLine" id="cb548-6" data-line-number="6">)</a></code></pre></div>
 <p>The summary statistics below lists the model parameters indicated in Figure <a href="interaction-terms-in-factorial-designs.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">13.1</a>.</p>
-<div class="sourceCode" id="cb541"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb541-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb549"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb549-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                      Estimate   l-95% CI   u-95% CI
 ## Intercept           261.02993  245.65872 276.800178
 ## genderM            -116.53009 -138.41661 -93.764509

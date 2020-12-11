@@ -336,10 +336,10 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="10.1" data-path="Chap-03-06-model-comparison-case-study.html"><a href="Chap-03-06-model-comparison-case-study.html"><i class="fa fa-check"></i><b>10.1</b> Case study: recall models</a></li>
 <li class="chapter" data-level="10.2" data-path="Chap-03-06-model-comparison-AIC.html"><a href="Chap-03-06-model-comparison-AIC.html"><i class="fa fa-check"></i><b>10.2</b> Akaike Information Criterion</a></li>
 <li class="chapter" data-level="10.3" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html"><i class="fa fa-check"></i><b>10.3</b> Bayes factors</a><ul>
-<li class="chapter" data-level="10.3.1" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#grid-approximation"><i class="fa fa-check"></i><b>10.3.1</b> Grid approximation</a></li>
-<li class="chapter" data-level="10.3.2" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#naive-monte-carlo"><i class="fa fa-check"></i><b>10.3.2</b> Naive Monte Carlo</a></li>
+<li class="chapter" data-level="10.3.1" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#Chap-03-06-model-comparison-BF-grid"><i class="fa fa-check"></i><b>10.3.1</b> Grid approximation</a></li>
+<li class="chapter" data-level="10.3.2" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#Chap-03-06-model-comparison-BF-naiveMC"><i class="fa fa-check"></i><b>10.3.2</b> Naive Monte Carlo</a></li>
+<li class="chapter" data-level="10.3.3" data-path="Chap-03-06-model-comparison-BF.html"><a href="Chap-03-06-model-comparison-BF.html#Chap-03-06-model-comparison-BF-grid"><i class="fa fa-check"></i><b>10.3.3</b> Excursion: Bridge sampling</a></li>
 </ul></li>
-<li class="chapter" data-level="10.4" data-path="outlook.html"><a href="outlook.html"><i class="fa fa-check"></i><b>10.4</b> Outlook</a></li>
 </ul></li>
 <li class="chapter" data-level="11" data-path="ch-03-07-hypothesis-testing-Bayes.html"><a href="ch-03-07-hypothesis-testing-Bayes.html"><i class="fa fa-check"></i><b>11</b> Bayesian hypothesis testing</a><ul>
 <li class="chapter" data-level="11.1" data-path="data-and-models-for-this-chapter.html"><a href="data-and-models-for-this-chapter.html"><i class="fa fa-check"></i><b>11.1</b> Data and models for this chapter</a><ul>
@@ -526,58 +526,58 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="example-247" class="section level3">
 <h3><span class="header-section-number">11.2.1</span> Example: 24/7</h3>
 <p>The following repeats code and calculations from Chapter <a href="ch-03-04-parameter-estimation.html#ch-03-04-parameter-estimation">9</a>. We can calculate the 95% HDI as follows (via Beta/Binomial conjugacy):</p>
-<div class="sourceCode" id="cb466"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb466-1" data-line-number="1">estimates_<span class="dv">24</span>_<span class="dv">7</span> &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb466-2" data-line-number="2">  <span class="st">`</span><span class="dt">lower_Bayes</span><span class="st">`</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(<span class="cf">function</span>(x) <span class="kw">qbeta</span>(x, <span class="dv">8</span>, <span class="dv">18</span>))[<span class="dv">1</span>],</a>
-<a class="sourceLine" id="cb466-3" data-line-number="3">  <span class="st">`</span><span class="dt">upper_Bayes</span><span class="st">`</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(<span class="cf">function</span>(x) <span class="kw">qbeta</span>(x, <span class="dv">8</span>, <span class="dv">18</span>))[<span class="dv">2</span>],</a>
-<a class="sourceLine" id="cb466-4" data-line-number="4">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb466-5" data-line-number="5"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
-<a class="sourceLine" id="cb466-6" data-line-number="6">    <span class="kw">everything</span>(),</a>
-<a class="sourceLine" id="cb466-7" data-line-number="7">    <span class="dt">names_pattern =</span> <span class="st">&quot;(.*)_(.*)&quot;</span>,</a>
-<a class="sourceLine" id="cb466-8" data-line-number="8">    <span class="dt">names_to =</span> <span class="kw">c</span>(<span class="st">&quot;.value&quot;</span>, <span class="st">&quot;approach&quot;</span>)</a>
-<a class="sourceLine" id="cb466-9" data-line-number="9">  )</a>
-<a class="sourceLine" id="cb466-10" data-line-number="10">estimates_<span class="dv">24</span>_<span class="dv">7</span></a></code></pre></div>
+<div class="sourceCode" id="cb474"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb474-1" data-line-number="1">estimates_<span class="dv">24</span>_<span class="dv">7</span> &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb474-2" data-line-number="2">  <span class="st">`</span><span class="dt">lower_Bayes</span><span class="st">`</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(<span class="cf">function</span>(x) <span class="kw">qbeta</span>(x, <span class="dv">8</span>, <span class="dv">18</span>))[<span class="dv">1</span>],</a>
+<a class="sourceLine" id="cb474-3" data-line-number="3">  <span class="st">`</span><span class="dt">upper_Bayes</span><span class="st">`</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(<span class="cf">function</span>(x) <span class="kw">qbeta</span>(x, <span class="dv">8</span>, <span class="dv">18</span>))[<span class="dv">2</span>],</a>
+<a class="sourceLine" id="cb474-4" data-line-number="4">) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb474-5" data-line-number="5"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
+<a class="sourceLine" id="cb474-6" data-line-number="6">    <span class="kw">everything</span>(),</a>
+<a class="sourceLine" id="cb474-7" data-line-number="7">    <span class="dt">names_pattern =</span> <span class="st">&quot;(.*)_(.*)&quot;</span>,</a>
+<a class="sourceLine" id="cb474-8" data-line-number="8">    <span class="dt">names_to =</span> <span class="kw">c</span>(<span class="st">&quot;.value&quot;</span>, <span class="st">&quot;approach&quot;</span>)</a>
+<a class="sourceLine" id="cb474-9" data-line-number="9">  )</a>
+<a class="sourceLine" id="cb474-10" data-line-number="10">estimates_<span class="dv">24</span>_<span class="dv">7</span></a></code></pre></div>
 <pre><code>## # A tibble: 1 x 3
 ##   approach lower upper
 ##   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;
 ## 1 Bayes    0.141 0.483</code></pre>
 <p>Here is a plot of the posterior.</p>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-314-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-320-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Using Lindley’s approach, we notice that the point-value of interest, namely <span class="math inline">\(\theta = 0.5\)</span>, is excluded from the 95% HDI. We therefore reject the idea of a fair coin as being sufficiently unlikely to act as if it was false.
 Using the ROPE-approach of Kruschke, we notice that our ROPE of <span class="math inline">\(\theta = 0.5 \pm 0.01\)</span> is also fully outside of the 95% HDI. Here too, we conclude that the idea of a fair coin is sufficiently unlikely to act as if it was false.</p>
 </div>
 <div id="example-eco-sensitivity" class="section level3">
 <h3><span class="header-section-number">11.2.2</span> Example: Eco-sensitivity</h3>
 <p>We use <code>Stan</code> to draw samples from the posterior distribution.</p>
-<div class="sourceCode" id="cb468"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb468-1" data-line-number="1"><span class="co"># sampling</span></a>
-<a class="sourceLine" id="cb468-2" data-line-number="2">stan_fit_ttest &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
-<a class="sourceLine" id="cb468-3" data-line-number="3">  <span class="co"># where is the Stan code</span></a>
-<a class="sourceLine" id="cb468-4" data-line-number="4">  <span class="dt">file =</span> <span class="st">&#39;models_stan/ttest_model.stan&#39;</span>,</a>
-<a class="sourceLine" id="cb468-5" data-line-number="5">  <span class="co"># data to supply to the Stan program</span></a>
-<a class="sourceLine" id="cb468-6" data-line-number="6">  <span class="dt">data =</span> eco_data_<span class="dv">4</span>_Stan,</a>
-<a class="sourceLine" id="cb468-7" data-line-number="7">  <span class="co"># how many iterations of MCMC</span></a>
-<a class="sourceLine" id="cb468-8" data-line-number="8">  <span class="dt">iter =</span> <span class="dv">3000</span>,</a>
-<a class="sourceLine" id="cb468-9" data-line-number="9">  <span class="co"># how many warmup steps</span></a>
-<a class="sourceLine" id="cb468-10" data-line-number="10">  <span class="dt">warmup =</span> <span class="dv">500</span></a>
-<a class="sourceLine" id="cb468-11" data-line-number="11">)</a>
-<a class="sourceLine" id="cb468-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb468-13" data-line-number="13"><span class="co"># cast results (type &#39;mcmc.list&#39;) into tidy tibble</span></a>
-<a class="sourceLine" id="cb468-14" data-line-number="14">tidy_draws_tt2 =<span class="st"> </span>ggmcmc<span class="op">::</span><span class="kw">ggs</span>(stan_fit_ttest)</a></code></pre></div>
+<div class="sourceCode" id="cb476"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb476-1" data-line-number="1"><span class="co"># sampling</span></a>
+<a class="sourceLine" id="cb476-2" data-line-number="2">stan_fit_ttest &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
+<a class="sourceLine" id="cb476-3" data-line-number="3">  <span class="co"># where is the Stan code</span></a>
+<a class="sourceLine" id="cb476-4" data-line-number="4">  <span class="dt">file =</span> <span class="st">&#39;models_stan/ttest_model.stan&#39;</span>,</a>
+<a class="sourceLine" id="cb476-5" data-line-number="5">  <span class="co"># data to supply to the Stan program</span></a>
+<a class="sourceLine" id="cb476-6" data-line-number="6">  <span class="dt">data =</span> eco_data_<span class="dv">4</span>_Stan,</a>
+<a class="sourceLine" id="cb476-7" data-line-number="7">  <span class="co"># how many iterations of MCMC</span></a>
+<a class="sourceLine" id="cb476-8" data-line-number="8">  <span class="dt">iter =</span> <span class="dv">3000</span>,</a>
+<a class="sourceLine" id="cb476-9" data-line-number="9">  <span class="co"># how many warmup steps</span></a>
+<a class="sourceLine" id="cb476-10" data-line-number="10">  <span class="dt">warmup =</span> <span class="dv">500</span></a>
+<a class="sourceLine" id="cb476-11" data-line-number="11">)</a>
+<a class="sourceLine" id="cb476-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb476-13" data-line-number="13"><span class="co"># cast results (type &#39;mcmc.list&#39;) into tidy tibble</span></a>
+<a class="sourceLine" id="cb476-14" data-line-number="14">tidy_draws_tt2 =<span class="st"> </span>ggmcmc<span class="op">::</span><span class="kw">ggs</span>(stan_fit_ttest)</a></code></pre></div>
 <p>We then check the 95% HDI of the posterior.</p>
-<div class="sourceCode" id="cb469"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb469-1" data-line-number="1"><span class="co"># get the mean difference and 95% HDI</span></a>
-<a class="sourceLine" id="cb469-2" data-line-number="2">Bayes_estimates_eco &lt;-<span class="st"> </span>tidy_draws_tt2 <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb469-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(Parameter) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb469-4" data-line-number="4"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb469-5" data-line-number="5">    <span class="st">&#39;|95%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(value)[<span class="dv">1</span>],</a>
-<a class="sourceLine" id="cb469-6" data-line-number="6">    <span class="dt">mean =</span> <span class="kw">mean</span>(value),</a>
-<a class="sourceLine" id="cb469-7" data-line-number="7">    <span class="st">&#39;95|%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(value)[<span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb469-8" data-line-number="8">  )</a>
-<a class="sourceLine" id="cb469-9" data-line-number="9">Bayes_estimates_eco</a></code></pre></div>
+<div class="sourceCode" id="cb477"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb477-1" data-line-number="1"><span class="co"># get the mean difference and 95% HDI</span></a>
+<a class="sourceLine" id="cb477-2" data-line-number="2">Bayes_estimates_eco &lt;-<span class="st"> </span>tidy_draws_tt2 <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb477-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(Parameter) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb477-4" data-line-number="4"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb477-5" data-line-number="5">    <span class="st">&#39;|95%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(value)[<span class="dv">1</span>],</a>
+<a class="sourceLine" id="cb477-6" data-line-number="6">    <span class="dt">mean =</span> <span class="kw">mean</span>(value),</a>
+<a class="sourceLine" id="cb477-7" data-line-number="7">    <span class="st">&#39;95|%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(value)[<span class="dv">2</span>]</a>
+<a class="sourceLine" id="cb477-8" data-line-number="8">  )</a>
+<a class="sourceLine" id="cb477-9" data-line-number="9">Bayes_estimates_eco</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 4
 ##   Parameter   `|95%`   mean `95|%`
 ##   &lt;fct&gt;        &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
-## 1 delta       0.0706   2.39   4.67
-## 2 mu        108.     113.   119.  
-## 3 sigma       4.18     4.57   5.00</code></pre>
+## 1 delta      -0.0190   2.39   4.62
+## 2 mu        107.     113.   119.  
+## 3 sigma       4.15     4.57   5.01</code></pre>
 <p>Figure <a href="testing-as-posterior-estimation.html#fig:ch-03-07-hypothesis-testing-Bayes-tt2-posterior">11.3</a> shows the posterior distribution and the 95% HDI (in red).</p>
 <div class="figure" style="text-align: center"><span id="fig:ch-03-07-hypothesis-testing-Bayes-tt2-posterior"></span>
 <img src="I2DA_files/figure-html/ch-03-07-hypothesis-testing-Bayes-tt2-posterior-1.png" alt="Posterior density of the $\delta$ parameter in Bayesian $t$-test model for (fictitious) eco-sensitivity data with the 95% HDI (in red)." width="672" />
@@ -604,7 +604,7 @@ Solution
 </button>
 <div class="content">
 <p>One solution to this exercise might look as follows.</p>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-319-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-325-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <p>The red shaded area under the curves shows the 95% credible interval. The black dots represent (arbitrary) point values of interest, and the horizontal bars in panels c)-e) depict the ROPE around a given point value.</p>
 </div>
 </div>
