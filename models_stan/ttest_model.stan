@@ -12,7 +12,7 @@ parameters {
 model {
   // priors
   target += log(1/sigma) ;
-  delta ~ normal(0, 5) ;
+  delta ~ normal(0, 1) ;
   
   // likelihood
   y1 ~ normal(mu + sigma*delta/2, sigma^2) ;
