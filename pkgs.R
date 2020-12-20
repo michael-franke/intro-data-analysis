@@ -19,7 +19,7 @@ library(binom)       # for binomial confidence intervals
 library(BSDA)        # for z.test
 library(polspline)   # for reliable density estimates at point-values
 library(GGally)      # for ally plots 
-library(LaplaceDemon) # for student t-distribution with different means and SDs
+library(LaplacesDemon) # for student t-distribution with different means and SDs
 # for visualizing dirichlet distribution; 
 # needs github version, see .travis.yml for that
 if (!("dirichlet" %in% installed.packages())) {
