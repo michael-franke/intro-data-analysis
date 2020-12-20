@@ -285,10 +285,11 @@ stan_fit_ttest <- rstan::stan(
 Here is a concise summary of the relevant parameters:
 
 ```{r}
-rstan::As.mcmc.list(
+Bayes_estimates_ST <- rstan::As.mcmc.list(
   stan_fit_ttest, pars = c('delta', 'mu', 'sigma')
   ) %>% 
   aida::summarize_mcmc_list()
+Bayes_estimates_ST
 ```
 
 Figure \@ref(fig:ch-03-07-hypothesis-testing-Bayes-tt2-posterior) shows the posterior distribution over $\delta$ and the 95% HDI (in red).
@@ -297,9 +298,11 @@ Figure \@ref(fig:ch-03-07-hypothesis-testing-Bayes-tt2-posterior) shows the post
 # cast results (type 'mcmc.list') into tidy tibble
 tidy_draws_tt2 = ggmcmc::ggs(stan_fit_ttest)
 
+# extract samples for parameter 'delta' (most relevant parameter)
+delta_samples <- filter(tidy_draws_tt2, Parameter == "delta") %>% pull(value)
+
 # get a density estimate for 'delta' parameter
-dens <- filter(tidy_draws_tt2, Parameter == "delta") %>% pull(value) %>% 
-  density()
+dens <- delta_samples %>% density()
 
 tibble(
   delta = dens$x,
@@ -307,7 +310,7 @@ tibble(
 ) %>% 
   ggplot(aes(x = delta, y = density)) +
   geom_line() +
-  geom_area(aes(x = ifelse(delta > Bayes_estimates_eco[1,2] %>% as.numeric & delta < Bayes_estimates_eco[1,4] %>% as.numeric , delta, 0)),
+  geom_area(aes(x = ifelse(delta > Bayes_estimates_ST[1,2] %>% as.numeric & delta < Bayes_estimates_ST[1,4] %>% as.numeric , delta, 0)),
             fill = "firebrick", alpha = 0.5) +
   ylim(0, max(dens$y)) +
   xlim(min(dens$x), max(dens$x))
@@ -563,52 +566,6 @@ BF_delta_null
 
 We conclude from this result that the data provide extremely strong evidence against the null model, which assumes that $\delta = 0$, when compared to an alternative model $M_1$, which assumes that $\delta \sim \mathcal{N}(0,1)$ in the prior.
 
-#### [Excursion:] Calculating the Bayes factor precisely
-
-<span style = "color:firebrick">under construction</span>
-
-<!-- Since this last numerical result relies on some computational approximation (namely in the estimation of the posterior density at $\delta = 0$ using polynomial splines approximation), we can also make use of the fact that the $t$-test model we used here allows for a direct mathematical computation of the Bayes factor. -->
-
-
-```{r, eval = F, echo = F}
-# store data to work with in short variables
-y1 <- simon_data_4_Stan$y1
-y2 <- simon_data_4_Stan$y2
-N1 <- simon_data_4_Stan$N1
-N2 <- simon_data_4_Stan$N2
-
-# means and sums of squares
-y1_bar  <-  mean(y1)
-y2_bar <- mean(y2)
-s_squared_1 <- sum((y1-y1_bar)^2)
-s_squared_2 <- sum((y2-y2_bar)^2)
-
-s_squared_1 <- var(y1)
-s_squared_2 <- var(y2)
-
-# parameters of the T-test model
-mu_delta <- 0
-g <- 1
-
-# degrees of freedom
-nu_obs <- N1 + N2 - 2
-
-# effective sample size
-n_delta <- (1/N1 + 1/N2)^(-1)
-
-# pooled sum of squares (divided by nu)
-s_pooled <- ((N1-1)*s_squared_1 + (N2-1)*s_squared_2) / nu_obs
-
-# observed t-value
-t_obs <- sqrt(n_delta) * (y1_bar - y2_bar) / s_pooled
-
-# handy constant for following calculation
-a <- 1/sqrt(1 + n_delta * g)
-
-BF_01_precise <- a * LaplacesDemon::dst(x = t_obs*a, mu = a*sqrt(n_delta)*mu_delta, nu = nu_obs, sigma = 1) / 
-  LaplacesDemon::dst(x = t_obs, mu = 0, nu = nu_obs, sigma = 1)
-BF_01_precise
-```
 
 
 
@@ -704,6 +661,52 @@ A BF of $\frac{5}{2}$ is mild evidence in favor of the null model, but conventio
 
 </div>
 
+#### [Excursion:] Calculating the Bayes factor precisely
+
+<span style = "color:firebrick">under construction</span>
+
+<!-- Since this last numerical result relies on some computational approximation (namely in the estimation of the posterior density at $\delta = 0$ using polynomial splines approximation), we can also make use of the fact that the $t$-test model we used here allows for a direct mathematical computation of the Bayes factor. -->
+
+
+```{r, eval = F, echo = F}
+# store data to work with in short variables
+y1 <- simon_data_4_Stan$y1
+y2 <- simon_data_4_Stan$y2
+N1 <- simon_data_4_Stan$N1
+N2 <- simon_data_4_Stan$N2
+
+# means and sums of squares
+y1_bar  <-  mean(y1)
+y2_bar <- mean(y2)
+s_squared_1 <- sum((y1-y1_bar)^2)
+s_squared_2 <- sum((y2-y2_bar)^2)
+
+s_squared_1 <- var(y1)
+s_squared_2 <- var(y2)
+
+# parameters of the T-test model
+mu_delta <- 0
+g <- 1
+
+# degrees of freedom
+nu_obs <- N1 + N2 - 2
+
+# effective sample size
+n_delta <- (1/N1 + 1/N2)^(-1)
+
+# pooled sum of squares (divided by nu)
+s_pooled <- ((N1-1)*s_squared_1 + (N2-1)*s_squared_2) / nu_obs
+
+# observed t-value
+t_obs <- sqrt(n_delta) * (y1_bar - y2_bar) / s_pooled
+
+# handy constant for following calculation
+a <- 1/sqrt(1 + n_delta * g)
+
+BF_01_precise <- a * LaplacesDemon::dst(x = t_obs*a, mu = a*sqrt(n_delta)*mu_delta, nu = nu_obs, sigma = 1) / 
+  LaplacesDemon::dst(x = t_obs, mu = 0, nu = nu_obs, sigma = 1)
+BF_01_precise
+```
 
 ### Encompassing models {#ch-03-07-hypothesis-testing-Bayes-encompassing-models}
 
