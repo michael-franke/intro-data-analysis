@@ -4,64 +4,35 @@
 
 <hr>
 
-This chapter introduces the basics of (simple) linear regression modeling with one explanatory variable. It covers ordinary least-squares regression, a frequentist maximum-likelihood approach, as well as a Bayesian approach. It addresses how hypotheses about the values of a regression model's parameters (so-called coefficients) can be addressed in a frequentist and a Bayesian approach.
+This chapter introduces the basics of (simple) linear regression modeling with one explanatory variable. 
+It covers ordinary least-squares (OLS) regression, a maximum-likelihood approach, and finally a Bayesian approach.
+Impatient readers can skip to the Bayesian analyses directly, but understanding the OLS and MLE approaches helps to see the bigger (historical) picture and also helps appreciating some of the formal results pertaining to the Bayesian analysis. 
+Finally, the chapter addresses how hypotheses about the values of a regression model's parameters (so-called coefficients) can be addressed.
 
-## Data set: murder data
+All concrete calculations in this chapter are based on the same running example using the [murder data set](app-93-data-sets-murder-data). 
 
-<div style = "float:right; width:20%;">
-<img src="visuals/badge-murder-data.png" alt="badge-murder-data">  
-</div>  
+```{block, type='infobox'}
+The learning goals for this chapter are:
 
-As a running example, we use data on murder rates in cities of different population sizes, also containing further socio-economic information.
-
-```{r, echo = F}
-murder_data <- read_csv('data_sets/murder_rates.csv') %>% 
-  rename(murder_rate = annual_murder_rate_per_million_inhabitants,
-         low_income = percentage_low_income, 
-         unemployment = percentage_unemployment) %>% 
-  select(murder_rate, low_income, unemployment, population)
+- understand what a simple linear regression model is
+- see the conceptual differences between OLS, MLE and Bayesian approaches to simple regression
+- be able to find best fitting values for OLS and MLE regression using R's built-in functions
+- be able to sample *a posteriori* credible values for a simple regression model using the non-informative standard model 
 ```
-
-```{r, eval = F}
-murder_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/murder_rates.csv')) %>% 
-  rename(murder_rate = annual_murder_rate_per_million_inhabitants,
-         low_income = percentage_low_income, 
-         unemployment = percentage_unemployment) %>% 
-  select(murder_rate, low_income, unemployment, population)
-```
-
-We take a look at the data:
-
-```{r}
-murder_data
-```
-
-Each row in this data set shows data from a city. The information in the columns is:
-
-- `murder_rate`: annual murder rate per million inhabitants
-- `low_income`: percentage of inhabitants with a low income (however that is defined)
-- `unemployment`: percentage of unemployed inhabitants
-- `population`: number of inhabitants of a city
-
-Here's a nice way of plotting each variable against each other:
-
-```{r, fig.height = 8}
-GGally::ggpairs(murder_data, title = "Murder rate data")
-```
-
-The diagonal of this graph shows the density curve of the data in each column. Scatter plots below the diagonal show pairs of values from two columns plotted against each other. The information above the diagonal gives the correlation score of each pair of variables.
-
 
 ## Ordinary least squares regression
 
-This section introduces an ordinary least squares linear regression. The main idea is that we look for the best-fitting line in a (multi-dimensional) cloud of points, where "best-fitting" is defined in terms of a geometrical measure of distance (squared prediction error).
+This section introduces an ordinary least squares (OLS) linear regression. The main idea is that we look for the best-fitting line in a (multi-dimensional) cloud of points, where "best-fitting" is defined in terms of a geometrical measure of distance (squared prediction error).
 
 ### Prediction without any further information
 
-We are interested in explaining or predicting the murder rates in a city. Suppose we have no other information to explain it with, i.e., we only have a vector of murder rates. Let's plot the murder rate for every city (just numbered consecutively):
+We are interested in explaining or predicting the murder rates in a city using the [murder data set](app-93-data-sets-murder-data).
+Concretely, we are interested in whether knowing a city's unemployment rate (stored in variable `unemployment`) helps make a better prediction for that city's murder rate (stored in variable `murder_rate`).
+
+Let's first plot the murder rate for every city (just numbered consecutively):
 
 ```{r, echo = F}
-murder_data %>% 
+murder_data %>%
   ggplot(aes(x = 1:20, y = murder_rate)) +
   geom_point() +
   labs(
@@ -70,9 +41,25 @@ murder_data %>%
   ) 
 ```
 
-Suppose we knew all observed murder rates. If we then wanted to predict the murder rate of a random city but had no further information about that city, our best guess would be the **mean** of the observed murder rates, because that is what minimizes the distance to the observed murder rates on average. 
+Suppose we know the vector of all observed murder rates but we don't know which murder rate belongs to which city.
+We are given a city to guess its murder rate.
+What's a good guess?
 
-The plot below visualizes the prediction we make by this naive approach. The black dots show the data points, the red line shows the prediction we make (the mean murder rate), the small hollow dots show the specific predictions for each observed value $x_i$ and the gray lines show the distance between our prediction and the actual data observation.
+Actually, what is the best guess depends on what we want to do with this guess (the utility function of a decision problem).
+For now, let's just assume that we have a measure of **prediction error** which we would like to minimize. 
+A common measure of **prediction error** uses intuitions about geometric distance and is defined in terms of the **total sum of squares**, where $y$ is the $n$-dimensional vector of observed murder rates and $y'$ is the prediction we make:
+
+$$
+\text{TSS}(y') = \sum_{i=1}^n (y_i - y')^2
+$$
+
+This measure of prediction error is what underlies the ordinary least squares approach to simple regression.
+
+It turns out that the **best prediction** we can make, i.e., the vector $\hat{y} = \arg \min TSS(y')$ for which TSS is minimized, is the mean $\hat{y}$ of the orginal predictions.
+So, given the goal of minimizing TSS, our best guess is the mean of the observed murder rates.
+
+The plot below visualizes the prediction we make based on the naive predictor $\hat{y}$.
+The black dots show the data points, the red line shows the prediction we make (the mean murder rate), the small hollow dots show the specific predictions for each observed value and the gray lines show the distance between our prediction and the actual data observation.
 
 ```{r echo = F}
 mean_y <- murder_data %>% pull(murder_rate) %>% mean()
@@ -96,13 +83,8 @@ murder_data %>%
   ) 
 ```
 
-The mean distance could be captured in terms of the **total sum of squares** like this, where $y$ is the $n$-dimensional vector of observed murder rates and $\bar{y}$ is its mean:
-
-$$
-\text{TSS} = \sum_{i=1}^n (y_i - \bar{y})^2
-$$
-
-In the case at hand, that is:
+To obtain the TSS for the prediction shown in the plot above, we would need to take each gray line, measure it's distance, square this number and sum over all lines (cities).
+In the case at hand, the prediction error we make by assuming just the mean as predictor is:
 
 ```{r}
 y <- murder_data %>% pull(murder_rate)
@@ -110,6 +92,7 @@ n <- length(y)
 tss_simple <- sum((y - mean(y))^2)
 tss_simple
 ```
+
 
 
 ### Prediction with knowledge of unemployment rate
@@ -429,9 +412,6 @@ $$\frac{\partial^2Q}{\partial \hat\beta_1^2}= 2 \sum_{i=1}^{n}x_i^2 >0. \tag{1.1
 </div>
 
 
-
-
-
 Let's use these formulas to calculate regression coefficients for the running example as well:
 
 ```{r}
@@ -441,7 +421,11 @@ tibble(
 )
 ```
 
-A similar result also exists for regression with more than one predictor variable. 
+A similar result also exists for regression with more than one predictor variable.
+For a more compact representation, we will use matrix notation in the following.
+Traditionally, we consider a so-called design matrix $X$ of size $n \times k+1$, where $n$ is the number of observations in the data set and $k$ is the number of predictor variables.
+The design matrix also includes a column $X_0$ for which $X_{i0}=1$ for all $1 \le i \ne n$ so that the intercept $\beta_0$ can be treated on a par with the other regression coefficients.
+
 
 $$
 \hat{\beta} = \langle \hat{\beta}_0, \hat{\beta}_1, \dots  , \hat{\beta}_k\rangle = \arg \min_{\beta} \sum_{i = 1}^k \left(y_i - \sum_{j=0}^k \left( \beta_j x_{ji} \right) \right)^2
@@ -449,10 +433,10 @@ $$
 <div class = "exercises">
 
 ```{theorem, "OLS-Solution-general", name = "OLS general"}
-Let $X$ be the $n \times (k+1)$ regression matrix for a simple linear regression model with $k$ predictor variables for a data set $y$ with $n$ observations. The solution for
+Let $X$ be the $n \times (k+1)$ regression matrix for a simple linear regression model with $k$ predictor variables for a data set $y$ with $n$ observations. The solution for OLS regression
 
 $$
-\hat{\beta} = \langle \hat{\beta}_0, \hat{\beta}_1, \dots  , \hat{\beta}_k\rangle = \arg \min_{\beta} \sum_{i = 1}^k (y_i - \sum_{j=0}^k(\beta_j x_{ji}))^2
+\hat{\beta} = \langle \hat{\beta}_0, \hat{\beta}_1, \dots  , \hat{\beta}_k\rangle = \arg \min_{\beta} \sum_{i = 1}^k (y_i - \sum_{j=0}^k(\beta_j X_{ij}))^2
 $$
   
 is given by:
@@ -468,84 +452,118 @@ $$
 <div class="content">
 
 ```{proof}
-*[see e.g., @bremer2012, pp. 21-23; @gonzalez2014, pp. 5-15]*
+```
 
-The model of multiple linear regression is given by the following expression:
+With $n$ observations, the vector $y$ of predicted values for given coefficient vector $\beta$ is:
 
-$$y=\beta_0+\beta_1x_1+\beta_2x_2+...+\beta_kx_k+\epsilon \tag{1.2.1}$$
-Suppose we have $n$ observations, then we can write:
-$$\begin{align}
-y_1&=\beta_0+\beta_{1}x_{11}+\beta_2x_{21}+...+\beta_kx_{k1}+\epsilon_1\\
-y_2&=\beta_0+\beta_{1}x_{12}+\beta_2x_{22}+...+\beta_kx_{k2}+\epsilon_2\\
-...\\
-y_n&=\beta_0+\beta_{1}x_{1n}+\beta_2x_{2n}+...+\beta_kx_{kn}+\epsilon_n
-\tag{1.2.2}
-\end{align}$$
-The model of multiple linear regression is often expressed in matrix notation:
+$$
+\begin{align*}
+y_1&=\beta_0 + \beta_{1} X_{11}+\beta_2 X_{12} + \ldots + \beta_k X_{1k}\\
+y_2&=\beta_0 + \beta_{1} X_{21}+\beta_2 X_{22} + \ldots + \beta_k X_{2k}\\
+\ldots\\
+y_n&=\beta_0 + \beta_{1} X_{n1}+\beta_2 X_{n2}+ \ldots + \beta_k X_{nk}
+\end{align*}
+$$
 
-$$\begin{bmatrix} y_1\\y_2\\...\\y_n \end{bmatrix}= \begin{bmatrix}1&x_{11}& x_{21}&...&x_{k1}\\1&x_{12}& x_{22}&...&x_{k2}\\...& ...&...&...&...\\1&x_{1n}&x_{2n}&...&x_{kn}\end{bmatrix}\begin{bmatrix}\beta_0\\\beta_1\\...\\\beta_k \end{bmatrix}+\begin{bmatrix}\epsilon_1\\\epsilon_2\\...\\\epsilon_n \end{bmatrix} \tag{1.2.3}$$
+This can also be expressed in matrix notation:
 
-Which can be expressed in a compact form as
+$$
+\begin{bmatrix} 
+  y_1 \\
+  y_2 \\ 
+  \ldots \\ 
+  y_n 
+\end{bmatrix} 
+= 
+\begin{bmatrix}
+  1 & X_{11} &  X_{12} & \ldots  & X_{1k} \\
+  1 & X_{21} &  X_{22} & \ldots  & X_{2k} \\
+  \ldots  &  \ldots  & \ldots  & \ldots  & \ldots \\
+  1 & X_{n1} & X_{n2} & \ldots  & X_{nk}
+\end{bmatrix} 
+\begin{bmatrix}
+  \beta_0 \\
+  \beta_1 \\
+  \ldots \\
+  \beta_k 
+\end{bmatrix}
+$$
 
-$$\mathbf{Y=X\beta+\epsilon} \tag{1.2.4}$$
-where $y$ is a vector $n\times 1$, $X$ is a matrix $n \times k$, $\beta$ is a vector $k \times 1$ and $\epsilon$ is a vector $n \times 1$.
+And more compactly:
+
+$$
+y=X \beta
+$$
 
 The OLS estimator is obtained (like in the special case) by minimizing the residual sum of squares (RSS).
-
-$$RSS \rightarrow min.$$
-
 The RSS for the multiple linear regression model is
 
-$$Q=RSS=\sum_{i=1}^n \hat\epsilon_i^2=\sum_{i=1}^n (y_i - \hat{y}_i)^2=\sum_{i=1}^n \left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]^2 \tag{1.2.5}$$
+$$
+Q=\sum_{i=1}^n \left(y_i-\beta_0 - \beta_1 X_{i1}- \beta_2 X_{i2}-...-\beta_k X_{ik}\right)^2
+$$
 
-to apply the least-squares criterion in the model of multiple linear regression, thus to minimize $RSS$, we calculate the first partial derivative from $Q$ with respect to each $\hat\beta_j$in the expression:
+To find the minimum of $Q$ we calculate the first partial derivative of $Q$ for each $\beta_j$in the expression:
 
 $$\begin{align}
-\frac{\partial Q}{\partial\hat\beta_0}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-1]\\
+\frac{\partial Q}{\partial\beta_0}&=2\sum_{i=1}^n\left(y_i-\beta_0-\beta_1 X_{i1}-\beta_2 X_{i2}- \ldots -\beta_k X_{ik}\right)(-1)\\
 \\
-\frac{\partial Q}{\partial\hat\beta_1}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{1i}]\\
+\frac{\partial Q}{\partial\beta_1}&=2\sum_{i=1}^n\left(y_i-\beta_0-\beta_1 X_{i1}-\beta_2 X_{i2}- \ldots -\beta_k X_{ik}\right)(- X_{i1})\\
 \\
-\frac{\partial Q}{\partial\hat\beta_2}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{2i}]\\
-...\\
-\frac{\partial Q}{\partial\hat\beta_k}&=2\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right][-x_{ki}]
-\tag{1.2.6}
+\frac{\partial Q}{\partial\beta_2}&=2\sum_{i=1}^n\left(y_i-\beta_0-\beta_1 X_{i1}-\beta_2 X_{i2}- \ldots -\beta_k X_{ik}\right)(- X_{i2})\\
+ \ldots \\
+\frac{\partial Q}{\partial\beta_k}&=2\sum_{i=1}^n\left(y_i-\beta_0-\beta_1 X_{i1}-\beta_2 X_{i2}- \ldots -\beta_k X_{ik}\right)(- X_{ik})
 \end{align}$$
 
-Then the derivative of each equation is set to zero:
+For the minimium $\hat{\beta}$ the derivative of each equation must be zero:
 
 $$\begin{align}
-&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]=0\\
-&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{1i}=0\\
-&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{2i}=0\\
-&...\\
-&\sum_{i=1}^n\left[y_i-\hat\beta_0-\hat\beta_1x_{1i}-\hat\beta_2x_{2i}-...-\hat\beta_kx_{ki}\right]x_{ki}=0
-\tag{1.2.7}
+&\sum_{i=1}^n\left(y_i-\hat\beta_0-\hat\beta_1 X_{i1}-\hat\beta_2 X_{i2}- \ldots -\hat\beta_k X_{ik}\right) = 0\\
+&\sum_{i=1}^n\left(y_i-\hat\beta_0-\hat\beta_1 X_{i1}-\hat\beta_2 X_{i2}- \ldots -\hat\beta_k X_{ik}\right) X_{i1} = 0\\
+&\sum_{i=1}^n\left(y_i-\hat\beta_0-\hat\beta_1 X_{i1}-\hat\beta_2 X_{i2}- \ldots -\hat\beta_k X_{ik}\right) X_{i2} = 0\\
+& \ldots \\
+&\sum_{i=1}^n\left(y_i-\hat\beta_0-\hat\beta_1 X_{i1}-\hat\beta_2 X_{i2}- \ldots -\hat\beta_k X_{ik}\right) X_{ik} = 0
 \end{align}$$
 
 Alternatively, we can use matrix notation and combine the above equations into the following form:
 
-$$\mathbf{X'Y-X'X\hat\beta=0}.\tag{1.2.8}$$
+$$X'y-X'X\hat\beta=0$$
 
-Whereby the following expression is known as **normal equations**:
+Rearranging this, the following expression is known as **normal equations**:
 
-$$\mathbf{X'X\hat\beta=X'Y}.\tag{1.2.9}$$
+$$X'X\hat\beta=X'y$$
 
-The system of normal equations in expanded matrix notation is:
+Just for illustration, the system of normal equations in expanded matrix notation is:
 
-$$\begin{bmatrix} n&\sum_{i=1}^nx_{1i}&...&\sum_{i=1}^nx_{ki}\\
-\sum_{i=1}^nx_{1i}&\sum_{i=1}^nx_{1i}^2&...&\sum_{i=1}^nx_{1i}x_{ki}\\...&...&...&...\\
-\sum_{i=1}^nx_{ki}&\sum_{i=1}^nx_{ki}x_{1i}&...&\sum_{i=1}^nx_{ki}^2\end{bmatrix}\begin{bmatrix}\hat\beta_0\\\hat\beta_1\\...\\\hat\beta_k\end{bmatrix}=\begin{bmatrix}\sum_{i=1}^ny_i\\\sum_{i=1}^nx_{1i}y_i\\...\\\sum_{i=1}^nx_{ki}y_i
-\tag{1.2.10}
-\end{bmatrix}$$
+$$
+\begin{bmatrix} 
+n & \sum_{i=1}^n X_{i1} & ... & \sum_{i=1}^n X_{ik}\\
+\sum_{i=1}^n X_{i1} & \sum_{i=1}^n X_{i1}^2 & ... & \sum_{i=1}^n X_{i1} X_{ik}\\... & ... & ... & ...\\
+\sum_{i=1}^n X_{ik} & \sum_{i=1}^n X_{ik} X_{i1} & ... & \sum_{i=1}^n X_{ik}^2
+\end{bmatrix}
+\begin{bmatrix}
+\hat\beta_0 \\
+\hat\beta_1 \\
+\ldots \\
+\hat\beta_k
+\end{bmatrix}
+=
+\begin{bmatrix}
+\sum_{i=1}^ny_i\\\sum_{i=1}^n X_{i1}y_i \\
+\ldots \\
+\sum_{i=1}^nX_{ik}y_i
+\end{bmatrix}
+$$
 
-In order to obtain the estimator $\hat\beta$, we have to rearrange (1.2.10) and get the solution:
+The estimator $\hat\beta$ can be obtained by rearranging again:
 
-$$\begin{bmatrix}\hat\beta_0\\\hat\beta_1\\...\\\hat\beta_k\end{bmatrix}=\mathbf{\hat\beta}=[\mathbf{X'X}]^{-1}\mathbf{X'Y}\tag{1.2.11}$$
+$$
+\mathbf{\hat\beta}=[\mathbf{X'X}]^{-1}\mathbf{X'Y}
+$$
 
-Where $\hat\beta$ is a global minimizer of the OLS criterion as the second order condition is always a semidefinite positive matrix.
+Finally, to see that $\hat\beta$ is indeed a global minimizer of the OLS criterion, we check that the second order condition is always a semidefinite positive matrix:
 
 $$\frac{\partial^2 Q}{\partial \mathbf{\hat\beta}^2}=2X'X >0.$$
-```
+
 
 &nbsp;
 

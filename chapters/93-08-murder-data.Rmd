@@ -1,0 +1,51 @@
+
+## Murder data {#app-93-data-sets-murder-data}
+
+### Nature, origin and rationale of the data
+
+<div style = "float:right; width:20%;">
+<img src="visuals/badge-murder-data.png" alt="badge-murder-data">  
+</div>  
+
+The murder data set contains information about the relative number of murders in American cities.
+It also contains further socio-economic information, such as a city's unemployment rate, and the percentage of inhabitants with a low income.
+We use this data set just for illustration.
+No further real-world conclusions should be drawn from this, as the data should be treated as entirely fictitious. 
+
+```{r, echo = F}
+murder_data <- read_csv('../data_sets/murder_rates.csv')
+```
+
+```{r, eval = F}
+murder_data <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/murder_rates.csv'))
+```
+
+We take a look at the data:
+
+```{r}
+murder_data %>% head()
+```
+
+Each row in this data set shows data from a city. The information in the columns is:
+
+- `murder_rate`: annual murder rate per million inhabitants
+- `low_income`: percentage of inhabitants with a low income (however that is defined)
+- `unemployment`: percentage of unemployed inhabitants
+- `population`: number of inhabitants of a city
+
+There is information for a total of 20 cities in this data set.
+
+Here's a nice way of plotting each variable against each other:
+
+```{r, fig.height = 8}
+GGally::ggpairs(murder_data, title = "Murder rate data")
+```
+
+The diagonal of this graph shows the density curve of the data in each column. Scatter plots below the diagonal show pairs of values from two columns plotted against each other. The information above the diagonal gives the correlation score of each pair of variables.
+
+The "research question" of interest for this data set is which factors help predict a city's `murder_rate`.
+In other words, we want to know, for example, whether knowing a random city's valeu for the variable `unemployment`, whether this will allow us to make better predictions about that city's value for the variable `murder_rate`.
+Chapter \@ref(Chap-04-01-simple-linear-regression) uses this data set to specifically ask whether we can use information from variables like `unemployment` to predict `murder_rate` based on the assumption of a *linear relationship*.
+
+It is important to stress here that asking for an epistemic / stochastic relationship of the form "Does $x$ help to make better predictions about $y$?" does *not* relate to or presuppose a *causal relationship* between $x$ and $y$.
+The variables $x$ and $y$ could be mutual effects of a common cause, and yet still knowing about $x$ could carry information about $y$ even if manipulating $x$ by divine intervention would not change $y$, and vice versa.
