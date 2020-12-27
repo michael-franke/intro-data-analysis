@@ -27,7 +27,7 @@ This section introduces an ordinary least squares (OLS) linear regression. The m
 ### Prediction without any further information
 
 We are interested in explaining or predicting the murder rates in a city using the [murder data set](app-93-data-sets-murder-data).
-Concretely, we are interested in whether knowing a city's unemployment rate (stored in variable `unemployment`) helps make a better prediction for that city's murder rate (stored in variable `murder_rate`).
+Concretely, we are interested in whether knowing a city's unemployment rate (stored in variable `unemployment`) helps make better predictions for that city's murder rate (stored in variable `murder_rate`).
 
 Let's first plot the murder rate for every city (just numbered consecutively):
 
@@ -41,22 +41,66 @@ murder_data %>%
   ) 
 ```
 
-Suppose we know the vector of all observed murder rates but we don't know which murder rate belongs to which city.
+Suppose we know the vector $y$ of all observed murder rates but we don't know which murder rate belongs to which city.
 We are given a city to guess its murder rate.
+But we cannot tell cities apart.
+So we must guess one number as a prediction for any of the cities. 
 What's a good guess?
 
-Actually, what is the best guess depends on what we want to do with this guess (the utility function of a decision problem).
-For now, let's just assume that we have a measure of **prediction error** which we would like to minimize. 
-A common measure of **prediction error** uses intuitions about geometric distance and is defined in terms of the **total sum of squares**, where $y$ is the $n$-dimensional vector of observed murder rates and $y'$ is the prediction we make:
+Actually, how good a guess is depends on what we want to do with this guess (the utility function of a decision problem).
+For now, let's just assume that we have a measure of **prediction error** which we would like to minimize with our guesses.
+A common measure of **prediction error** uses intuitions about geometric distance and is defined in terms of the **total sum of squares**, where $y$ is the $n$-dimensional vector of observed murder rates and $\xi$ is a single numeric prediction:
 
 $$
-\text{TSS}(y') = \sum_{i=1}^n (y_i - y')^2
+\text{TSS}(\xi) = \sum_{i=1}^n (y_i - \xi)^2
 $$
 
 This measure of prediction error is what underlies the ordinary least squares approach to simple regression.
 
-It turns out that the **best prediction** we can make, i.e., the vector $\hat{y} = \arg \min TSS(y')$ for which TSS is minimized, is the mean $\hat{y}$ of the orginal predictions.
+It turns out that the **best prediction** we can make, i.e., the number $\hat{\xi} = \arg \min_{\xi} TSS(\xi)$ for which TSS is minimized, is the mean $\bar{y}$ of the original predictions.
 So, given the goal of minimizing TSS, our best guess is the mean of the observed murder rates.
+
+<div class = "exercises">
+
+```{proposition, "TSS-solution-mean", name = "Mean minimizes total sum of squares."}
+
+$$
+\arg \min_{\xi} \sum_{i=1}^n (y_i - \xi)^2 = \frac{1}{n} \sum_{i=1}^n y_i = \bar{y}
+$$ 
+
+```
+
+<div class="collapsibleSolution">
+<button class="trigger">Show proof.</button>
+<div class="content">
+
+```{proof}
+
+To find a minimum, consider the first derivative of TSS(\xi) and find its zero points:
+
+$$
+\begin{align*}
+& f(\xi)   = \sum_{i=1}^n (y_i - \xi)^2 = \sum_{i=1}^n (y_i^2 - 2 y_i \xi + \xi^2) \\
+& f'(\xi)  = \sum_{i=1}^n (-2y_i + 2\xi) = 0 \\
+\Leftrightarrow &  \sum_{i=1}^n -2y_i  = -2 n \xi \\
+\Leftrightarrow &  \xi = \frac{1}{n} \sum_{i=1}^n y_i  = \bar{y} \\
+\end{align*}
+$$
+
+Indeed, the zero point $\xi = \bar{y}$ is a minimum because its second derivative is positive:
+
+$$
+f''(\bar{y}) = 2
+$$
+
+```
+
+&nbsp;
+
+</div>
+</div>
+</div>
+
 
 The plot below visualizes the prediction we make based on the naive predictor $\hat{y}$.
 The black dots show the data points, the red line shows the prediction we make (the mean murder rate), the small hollow dots show the specific predictions for each observed value and the gray lines show the distance between our prediction and the actual data observation.
@@ -93,7 +137,11 @@ tss_simple <- sum((y - mean(y))^2)
 tss_simple
 ```
 
-
+At this stage, a question might arise:
+Why square the distances to obtaine the total sum of, well, *squares*?
+One intuitive motivation is that we want small deviations from our prediction to have less overall impact than huge deviations.
+A technical motivation is that the best solution to OLS estimation corresponds to the best solution under a maximul likelihood approach, if we use a normal distribution as likelihood function.
+This is what we will cover in the next section after having introduced the regression model in full.
 
 ### Prediction with knowledge of unemployment rate
 
