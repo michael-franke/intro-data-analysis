@@ -1,10 +1,10 @@
 # (PART) Applied (generalized) linear modeling {-}
 
-# Simple linear regression {#Chap-04-01-simple-linear-regression}
+# Linear regression {#Chap-04-01-simple-linear-regression}
 
 <hr>
 
-This chapter introduces the basics of (simple) linear regression modeling with one explanatory variable. 
+This chapter introduces the basics of linear regression modeling. 
 It covers ordinary least-squares (OLS) regression, a maximum-likelihood approach, and finally a Bayesian approach.
 Impatient readers can skip to the Bayesian analyses directly, but understanding the OLS and MLE approaches helps to see the bigger (historical) picture and also helps appreciating some of the formal results pertaining to the Bayesian analysis. 
 Finally, the chapter addresses how hypotheses about the values of a regression model's parameters (so-called coefficients) can be addressed.
@@ -14,10 +14,10 @@ All concrete calculations in this chapter are based on the same running example 
 ```{block, type='infobox'}
 The learning goals for this chapter are:
 
-- understand what a simple linear regression model is
-- see the conceptual differences between OLS, MLE and Bayesian approaches to simple regression
+- understand what a linear regression model is
+- see the conceptual differences between OLS, MLE and Bayesian approaches to linear regression
 - be able to find best fitting values for OLS and MLE regression using R's built-in functions
-- be able to sample *a posteriori* credible values for a simple regression model using the non-informative standard model 
+- be able to sample *a posteriori* credible values for a regression model using the non-informative standard model 
 ```
 
 ## Ordinary least squares regression
@@ -55,7 +55,7 @@ $$
 \text{TSS}(\xi) = \sum_{i=1}^n (y_i - \xi)^2
 $$
 
-This measure of prediction error is what underlies the ordinary least squares approach to simple regression.
+This measure of prediction error is what underlies the ordinary least squares approach to  regression.
 
 It turns out that the **best prediction** we can make, i.e., the number $\hat{\xi} = \arg \min_{\xi} TSS(\xi)$ for which TSS is minimized, is the mean $\bar{y}$ of the original predictions.
 So, given the goal of minimizing TSS, our best guess is the mean of the observed murder rates.
@@ -157,7 +157,7 @@ murder_data %>%
 ```
 
 
-Let us assume, for the sake of current illustration, that we expect a very particular functional relationship between the variables `murder_rate` and `unemployment`. For some reason or other, we hypothesize that even with 0% unemployment, the murder rate would be positive, namely at 4 murders per million inhabitants. We further hypothesize that with each increase of 1% in the unemployment percentage, the murder rate per million increases by 2. The functional relationship between dependent variable $y$ (= murder rate) and predictor variable $x$ (= unemployment) can then be expressed as a linear function of the following form, where $\xi$ is now a vector of predictions (one prediction $\xi$ for each data observation $y_i$):^[The predictor vector for simple linear regression is often written as $\hat{y}$. The notation in terms of a linear predictor $\xi$ is useful for later extensions to generalized linear regression models.]
+Let us assume, for the sake of current illustration, that we expect a very particular functional relationship between the variables `murder_rate` and `unemployment`. For some reason or other, we hypothesize that even with 0% unemployment, the murder rate would be positive, namely at 4 murders per million inhabitants. We further hypothesize that with each increase of 1% in the unemployment percentage, the murder rate per million increases by 2. The functional relationship between dependent variable $y$ (= murder rate) and predictor variable $x$ (= unemployment) can then be expressed as a linear function of the following form, where $\xi$ is now a vector of predictions (one prediction $\xi$ for each data observation $y_i$):^[The predictor vector for  linear regression is often written as $\hat{y}$. The notation in terms of a linear predictor $\xi$ is useful for later extensions to generalized linear regression models.]
 
 $$
 \xi_i = 2x_i + 4
@@ -220,37 +220,67 @@ The difference between RSS and TSS tells us how good our prediction is in compar
 </div>
 </div>
 
-### Simple linear regression: general problem formulation
+### Linear regression: general problem formulation
 
 Suppose we have $k$ predictor variables $x_1, \dots , x_k$ and a dependent variable $y$. 
-We consider the simple linear relation (where the hat on top of vector $y$ symbolizes that this is a vector of predicted $y$ values): 
+We consider the linear relation: 
 
-$$ \hat{y}_i = \beta_0 + \beta_1 x_{1i} + \dots + \beta_k x_{ki}$$
+$$ \xi_i({\beta}_0, {\beta}_1, \dots, {\beta}_k) = \beta_0 + \beta_1 x_{1i} + \dots + \beta_k x_{ki} $$
+Often we do not explicitly write $\xi$ as a function of the parameters $\beta_0, \dots \beta_k$, and write instead:
 
-The parameters $\beta_0, \beta_1, \dots, \beta_k$ of this equation are called **regression coefficients**. In particular, $\beta_0$ is called the **regression intercept** and $\beta_1, \dots, \beta_k$ are **regression slope coefficients**. 
+$$ \xi_i = \beta_0 + \beta_1 x_{1i} + \dots + \beta_k x_{ki} $$
+The parameters $\beta_0, \beta_1, \dots, \beta_k$ are called **regression coefficients**. 
+In particular, $\beta_0$ is called the **regression intercept** and $\beta_1, \dots, \beta_k$ are **regression slope coefficients**. 
+
+If there is more than one predictor, i.e., $k \ge 1$, the term **multiple linear regression** is common.
+The term **simple linear regression** is often used to cover the special case of $k=1$.
+
 Based on the predictions of a parameter vector $\langle \hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_k\rangle$, we consider the residual sum of squares as a measure of prediction error:
 
-$$\text{RSS}_{\langle {\beta}_0, {\beta}_1, \dots, {\beta}_k\rangle} = \sum_{i = 1}^k [y_i - \hat{y}_i ({\beta}_0, {\beta}_1, \dots, {\beta}_k) ]^2 $$
+$$\text{RSS}_{\langle {\beta}_0, {\beta}_1, \dots, {\beta}_k\rangle} = \sum_{i = 1}^k [y_i - \xi_i ({\beta}_0, {\beta}_1, \dots, {\beta}_k) ]^2 $$
 
-We would like to find the best parameter values (denoted traditionally by a hat on the parameter's variable: $\hat{\beta}_i$) in the sense of minimizing the residual sum of squares:
+We would like to find the *best parameter values* (denoted traditionally by a hat on the parameter's variable: $\hat{\beta}_i$) in the sense of minimizing the residual sum of squares:
 
 $$
 \langle \hat{\beta}_0, \hat{\beta}_1, \dots  , \hat{\beta}_k\rangle = \arg \min_{\langle \beta_0, \beta_1, \dots, \beta_k\rangle} \text{RSS}_{\langle {\beta}_0, {\beta}_1, \dots, {\beta}_k\rangle}
 $$
 
+The prediction corresponding to the best parameter values is denoted by $\hat{\xi}$ and called the *best linear predictor*:
+
+$$ \hat{\xi}_i = \hat{\beta}_0 + \hat{\beta}_1 x_{1i} + \dots + \hat{\beta}_k x_{ki}$$
+
+It is also possible, and often convenient, to state the linear regression model in terms of matrix operations.
+Traditionally, we consider a so-called **design matrix** $X$ of size $n \times k+1$, where $n$ is the number of observations in the data set and $k$ is the number of predictor variables.
+The design matrix includes the values for all predictor variables and it also includes an "intercept column" $X_0$ for which $X_{i0}=1$ for all $1 \le i \ne n$ so that the intercept $\beta_0$ can be treated on a par with the other regression coefficients.
+You can conveniently think of the design matrix as just the data you want to analyze in a tidy tibble format, with the columns giving the variables of interest, only that you have removed the column with the dependent variable $y$ and that you have instead added the "intercept column" containing the entry 1 in each row.
+
+Using the design matrix $X$, the linear predictor vector $\xi$ is:
+
+$$\xi = X \beta$$
+
 <div class = "exercises">
 **Exercise 13.2**
-How many coefficients does the naive model have? How can they be interpreted?
+
+How can we interpret the parameters $a$ and $b$ of the linear model $\xi_i = a x_i + b$ have? How are they usually called in regression jargon?
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
-The naive model has only $\beta_0$ as its coefficient with it being the mean of $y$ values, i.e., $\hat{\beta}_0$ = $\bar{y}$.
+
+Parameter $a$ is the slope, $b$ the intercept of a simple linear regression.
+Parameter $a$ gives the amount of change of $y$ for each unit of change in $x$. 
+Parameter $b$ gives the value of $y$ at $x=0$.
+
 </div>
 </div>
 </div>
 
-In the above example, where we regressed `murder_rate` against `unemployment`, the model has two regression coefficients: an intercept term and a slope for `unemployment`. The optimal solution for these (see next section) delivers the regression line in the graph below:
+
+### Finding the OLS-solution
+
+In the above example, where we regressed `murder_rate` against `unemployment`.
+The model has two regression coefficients: an intercept term and a slope for `unemployment`.
+The optimal solution for these delivers the regression line in the graph below.
 
 ```{r, echo = F}
 lm_fit_murder <- lm(murder_rate ~ unemployment, data = murder_data)
@@ -273,7 +303,6 @@ murder_data %>%
   labs(y = "murder rate")
 ```
 
-
 The total sum of squares for the best fitting parameters is:
 
 ```{r, echo = F}
@@ -285,13 +314,12 @@ tss_best <- sum((y - predicted_y)^2)
 tss_best
 ```
 
-### Finding the OLS-solution
-
+This is the best prediction we can make based on a linear predictor.
 In the following, we discuss several methods of finding the best-fitting values for regression coefficients that minimize the residual sum of squares.
 
 #### Finding optimal parameters with `optim`
 
-We can use the `optim` function to find the best-fitting parameter values for simple linear regression. Here is an example based on the murder data. 
+We can use the `optim` function to find the best-fitting parameter values for our simple linear regression.
 
 ```{r, message = T}
 # data to be explained / predicted
@@ -303,7 +331,7 @@ get_rss = function(y, x, beta_0, beta_1) {
   yPred = beta_0 + x * beta_1
   sum((y-yPred)^2) 
 }
-# finding best-fitting values for TSS
+# finding best-fitting values for RSS
 fit_rss = optim(par = c(0, 1),  # initial parameter values
   fn = function(par) {  # function to minimize
     get_rss(y, x, par[1], par[2])
@@ -312,9 +340,9 @@ fit_rss = optim(par = c(0, 1),  # initial parameter values
 # output the results
 message(
   "Best fitting parameter values:",
-  "\n\tIntercept: ", fit_rss$par[1] %>% signif(5),
-  "\n\tSlope: ", fit_rss$par[2] %>%  signif(5),
-  "\nRSS for best fit: ", fit_rss$value %>% signif(5)
+  "\n\tIntercept: ", fit_rss$par[1] %>% round(2),
+  "\n\tSlope: ", fit_rss$par[2] %>%  round(2),
+  "\nRSS for best fit: ", fit_rss$value %>% round(2)
 )
 ```
 
@@ -334,11 +362,7 @@ fit_lm <- lm(
 fit_lm
 ```
 
-The output of the fitted object shows the best-fitting values (compare them to what we obtained by hand). It also shows the function call by which this fit was obtained. There is more information in the object `fit_lm` and we will return to this later when we consider hypothesis testing on regression coefficients. But it might be interesting to take a quick preview already:
-
-```{r}
-summary(fit_lm)
-```
+The output of the fitted object shows the best-fitting values (compare them to what we obtained before).^[The fitted object `fit_lm` also contains additional information, to be inspected with `summary(fit_lm)`. We skip these details here because the current focus is on applied *Bayesian* analyses.]
 
 #### Finding optimal parameter values with math
 
@@ -475,10 +499,9 @@ tibble(
 )
 ```
 
-A similar result also exists for regression with more than one predictor variable.
+A similar result also exists for regression with more than one predictor variable, so-called **multiple linear regression**.
 For a more compact representation, we will use matrix notation in the following.
-Traditionally, we consider a so-called design matrix $X$ of size $n \times k+1$, where $n$ is the number of observations in the data set and $k$ is the number of predictor variables.
-The design matrix also includes a column $X_0$ for which $X_{i0}=1$ for all $1 \le i \ne n$ so that the intercept $\beta_0$ can be treated on a par with the other regression coefficients.
+
 
 
 $$
@@ -629,6 +652,8 @@ $$\frac{\partial^2 Q}{\partial \mathbf{\hat\beta}^2}=2X'X >0.$$
 
 The availability of these elegant mathematical solutions for OLS-regression explains why the computation of best-fitting regression coefficients with a built-in function like `lm` is lightning fast: it does not rely on optimization with `optim`, sampling methods or other similar computational approaches. Instead, it instantaneously calculates the analytical solution.
 
+
+
 ## A maximum-likelihood approach
 
 In order to be able to extend regression modeling to predictor variables other than metric variables (so-called generalized linear regression models), the geometric approach needs to be abandoned in favor of a likelihood-based approach. The likelihood-based approach tries to find coefficients that explain the observed data most plausibly. 
@@ -648,8 +673,8 @@ $$
 
 $$
 \begin{aligned}
-y_{\text{pred},i} & = \beta_0 + \beta_1 x_i  \\
-y_i & = y_{\text{pred},i} + \epsilon_i \\
+\xi & = X \beta  \\
+y_i & = \xi + \epsilon_i \\
 \epsilon_i & \sim \text{Normal}(0, \sigma)  \\
 \end{aligned}
 $$
@@ -663,13 +688,13 @@ $$
 
 $$
 \begin{aligned}
-y_i & \sim \text{Normal}(\beta_0 + \beta_1 x_i, \sigma)
+y_i & \sim \text{Normal}((X \beta)_i, \sigma)
 \end{aligned}
 $$
 
 ### Finding the MLE-solution with `optim`
 
-We can use `optim` to find maximum likelihood estimates:
+We can use `optim` to find maximum likelihood estimates for the simple linear regression of `murder_rates` predicted in terms of `unemployment` like so:
 
 ```{r, message = T}
 # data to be explained / predicted
@@ -692,9 +717,9 @@ fit_lh = optim(par = c(0, 1, 1),
 # output the results
 message(
   "Best fitting parameter values:",
-  "\n\tIntercept: ", fit_lh$par[1] %>% signif(5),
-  "\n\tSlope: ", fit_lh$par[2] %>%  signif(5),
-  "\nNegative log-likelihood for best fit: ", fit_lh$value %>% signif(5)
+  "\n\tIntercept: ", fit_lh$par[1] %>% round(2),
+  "\n\tSlope: ", fit_lh$par[2] %>%  round(2),
+  "\nNegative log-likelihood for best fit: ", fit_lh$value %>% round(2)
 )
 
 ```
@@ -826,25 +851,6 @@ R also has a built-in way of approaching simple linear regression with a maximum
 fit_glm <- glm(murder_rate ~ unemployment, data = murder_data)
 fit_glm
 ```
-
-We might also risk a peek at the summary of `fit_glm`:
-
-```{r}
-summary(fit_glm)
-```
-
-<div class = "exercises">
-**Exercise 13.4**
-
-Compare the output of `fit_lm` on the last page and `fit_glm` on this page. Why are the estimates of coefficients the same?
-
-<div class="collapsibleSolution">
-<button class="trigger">Solution</button>
-<div class="content">
-By default, `glm` assumes a normal link function when it is not specified. `lm` can be seen as a more specific version of `glm` where the link function is fixed to be a normal distribution.
-</div>
-</div>
-</div>
 
 ## A Bayesian approach
 
