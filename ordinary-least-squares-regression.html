@@ -669,17 +669,17 @@ This is what we will cover in the next section after having introduced the regre
 <p>We might not be very content with this prediction error. Suppose we could use some piece of information about the random city whose murder rate we are trying to predict. E.g., we might happen to know the value of the variable <code>unemployment</code>. How could that help us make a better prediction?</p>
 <p>There does seem to be some useful information in the unemployment rate, which may lead to better predictions of the murder rate. We see this in a scatter plot:</p>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-354-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Let us assume, for the sake of current illustration, that we expect a very particular functional relationship between the variables <code>murder_rate</code> and <code>unemployment</code>. For some reason or other, we hypothesize that even with 0% unemployment, the murder rate would be positive, namely at 4 murders per million inhabitants. We further hypothesize that with each increase of 1% in the unemployment percentage, the murder rate per million increases by 2. The functional relationship between dependent variable <span class="math inline">\(y\)</span> (= murder rate) and predictor variable <span class="math inline">\(x\)</span> (= unemployment) can then be expressed as a linear function (the hat on variable <span class="math inline">\(y\)</span> indicates that these are not data observations but predictions):</p>
+<p>Let us assume, for the sake of current illustration, that we expect a very particular functional relationship between the variables <code>murder_rate</code> and <code>unemployment</code>. For some reason or other, we hypothesize that even with 0% unemployment, the murder rate would be positive, namely at 4 murders per million inhabitants. We further hypothesize that with each increase of 1% in the unemployment percentage, the murder rate per million increases by 2. The functional relationship between dependent variable <span class="math inline">\(y\)</span> (= murder rate) and predictor variable <span class="math inline">\(x\)</span> (= unemployment) can then be expressed as a linear function of the following form, where <span class="math inline">\(\xi\)</span> is now a vector of predictions (one prediction <span class="math inline">\(\xi\)</span> for each data observation <span class="math inline">\(y_i\)</span>):<a href="#fn53" class="footnote-ref" id="fnref53"><sup>53</sup></a></p>
 <p><span class="math display">\[
-\hat{y}_i = 2x_i + 4
+\xi_i = 2x_i + 4
 \]</span></p>
-<p>Here is a graphical representation of this functional relationship. Again, the black dots show the data points, the red line the linear function <span class="math inline">\(f(x) = 2x +4\)</span>, the small hollow dots show the specific predictions for each observed value <span class="math inline">\(x_i\)</span> and the gray lines show the distance between our prediction and the actual data observation. (Notice that there are data points for which the unemployment rate is the same, but we observed different murder rates.)</p>
+<p>Here is a graphical representation of this particular functional relationship assumed in the equation above. Again, the black dots show the data points, the red line the linear function <span class="math inline">\(f(x) = 2x +4\)</span>, the small hollow dots show the specific predictions for each observed value <span class="math inline">\(x_i\)</span> and the gray lines show the distance between our prediction and the actual data observation. (Notice that there are data points for which the unemployment rate is the same, but we observed different murder rates.)</p>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-355-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>We can again quantify our prediction error in terms of a sum of squares like we did before. For the case of a prediction vector <span class="math inline">\(\hat{y}\)</span>, the quantity in question is called the <strong>residual sum of squares</strong>.</p>
+<p>We can again quantify our prediction error in terms of a sum of squares like we did before. For the case of a prediction vector <span class="math inline">\(\xi\)</span>, the quantity in question is called the <strong>residual sum of squares</strong>.</p>
 <p><span class="math display">\[
-\text{RSS} = \sum_{i=1}^n (y_i - \hat{y})^2
+\text{RSS} = \sum_{i=1}^n (y_i - \xi)^2
 \]</span></p>
-<p>Here is how we can calculate RSS in R:</p>
+<p>Here is how we can calculate RSS in R for the particular vector <span class="math inline">\(\xi_{i} = 2x_i + 4\)</span>:</p>
 <div class="sourceCode" id="cb506"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb506-1"><a href="ordinary-least-squares-regression.html#cb506-1" aria-hidden="true"></a>y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</span>
 <span id="cb506-2"><a href="ordinary-least-squares-regression.html#cb506-2" aria-hidden="true"></a>x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</span>
 <span id="cb506-3"><a href="ordinary-least-squares-regression.html#cb506-3" aria-hidden="true"></a>predicted_y &lt;-<span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">4</span></span>
@@ -687,16 +687,18 @@ This is what we will cover in the next section after having introduced the regre
 <span id="cb506-5"><a href="ordinary-least-squares-regression.html#cb506-5" aria-hidden="true"></a>rss_guesswork &lt;-<span class="st"> </span><span class="kw">sum</span>((y <span class="op">-</span><span class="st"> </span>predicted_y)<span class="op">^</span><span class="dv">2</span>)</span>
 <span id="cb506-6"><a href="ordinary-least-squares-regression.html#cb506-6" aria-hidden="true"></a>rss_guesswork</span></code></pre></div>
 <pre><code>## [1] 1327.74</code></pre>
-<p>Compared to the previous prediction, which was based on the mean <span class="math inline">\(\bar{y}\)</span> only, this linear function reduces the prediction error (measured here geometrically in terms of a sum of squares).</p>
+<p>Compared to the previous prediction, which was based on the mean <span class="math inline">\(\bar{y}\)</span> only, this linear function reduces the prediction error (measured here geometrically in terms of a sum of squares).
+This alone could be taken as <em>prima facie</em> evidence that knowledge of <code>unemployment`` helps make better predictions about</code>murder_rate`.</p>
 <div class="exercises">
-<p><strong>Exercise 13.1 [optional]</strong>
-Compare RSS and TSS. In which component do they differ from each other? Think about which information the difference between the two measures conveys.</p>
+<p><strong>Exercise 13.1 [optional]</strong></p>
+<p>Compare RSS and TSS. How / where exactly do these notions differ from each other? Think about which information the difference between the two measures conveys.</p>
 <div class="collapsibleSolution">
 <button class="trigger">
 Solution
 </button>
 <div class="content">
-<p>TSS computes the distance between a data point and the mean, whereas RSS computes the distance between a data point and its predictor. The difference between these two measures tells us how good our prediction is in comparison to a naive prediction (using just the mean). If the variance of the predictor variable(s) correlates strongly with the variance of the predicted variable, the difference between RSS and TSS will be bigger.</p>
+<p>TSS computes the distance between a data point and the overall mean of all data points, whereas RSS computes the distance between a data point and a predictor value specific to this data point.
+The difference between RSS and TSS tells us how good our prediction is in comparison to a naive prediction (using just the mean).</p>
 </div>
 </div>
 </div>
@@ -1041,6 +1043,12 @@ n &amp; \sum_{i=1}^n X_{i1} &amp; ... &amp; \sum_{i=1}^n X_{ik}\\
 <div id="ref-olive2017">
 <p>Olive, David J. 2017. <em>Linear Regression</em>. Springer International Publishing.</p>
 </div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="53">
+<li id="fn53"><p>The predictor vector for simple linear regression is often written as <span class="math inline">\(\hat{y}\)</span>. The notation in terms of a linear predictor <span class="math inline">\(\xi\)</span> is useful for later extensions to generalized linear regression models.<a href="ordinary-least-squares-regression.html#fnref53" class="footnote-back">↩︎</a></p></li>
+</ol>
 </div>
             </section>
 
