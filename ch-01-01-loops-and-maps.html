@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>2.4 Loops and maps | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="2.4 Loops and maps | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -526,25 +526,25 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="for-loops" class="section level3">
 <h3><span class="header-section-number">2.4.1</span> For-loops</h3>
 <p>For iteratively performing computation steps, R has a special syntax for <code>for</code> loops. Here is an example of an (again, stupid, but illustrative) example of a <code>for</code> loop in R:</p>
-<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb160-1"><a href="ch-01-01-loops-and-maps.html#cb160-1"></a><span class="co"># fix a vector to transform</span></span>
-<span id="cb160-2"><a href="ch-01-01-loops-and-maps.html#cb160-2"></a>input_vector &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">6</span></span>
-<span id="cb160-3"><a href="ch-01-01-loops-and-maps.html#cb160-3"></a></span>
-<span id="cb160-4"><a href="ch-01-01-loops-and-maps.html#cb160-4"></a><span class="co"># create output vector for memory allocation</span></span>
-<span id="cb160-5"><a href="ch-01-01-loops-and-maps.html#cb160-5"></a>output_vector &lt;-<span class="st"> </span><span class="kw">integer</span>(<span class="kw">length</span>(input_vector))</span>
-<span id="cb160-6"><a href="ch-01-01-loops-and-maps.html#cb160-6"></a></span>
-<span id="cb160-7"><a href="ch-01-01-loops-and-maps.html#cb160-7"></a><span class="co"># iterate over length of input</span></span>
-<span id="cb160-8"><a href="ch-01-01-loops-and-maps.html#cb160-8"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(input_vector)) {</span>
-<span id="cb160-9"><a href="ch-01-01-loops-and-maps.html#cb160-9"></a>  <span class="co"># multiply by 10 if even</span></span>
-<span id="cb160-10"><a href="ch-01-01-loops-and-maps.html#cb160-10"></a>  <span class="cf">if</span> (input_vector[i] <span class="op">%%</span><span class="st"> </span><span class="dv">2</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span>) {</span>
-<span id="cb160-11"><a href="ch-01-01-loops-and-maps.html#cb160-11"></a>    output_vector[i] &lt;-<span class="st"> </span>input_vector[i] <span class="op">*</span><span class="st"> </span><span class="dv">10</span></span>
-<span id="cb160-12"><a href="ch-01-01-loops-and-maps.html#cb160-12"></a>  }</span>
-<span id="cb160-13"><a href="ch-01-01-loops-and-maps.html#cb160-13"></a>  <span class="co"># otherwise leave unchanged</span></span>
-<span id="cb160-14"><a href="ch-01-01-loops-and-maps.html#cb160-14"></a>  <span class="cf">else</span> {</span>
-<span id="cb160-15"><a href="ch-01-01-loops-and-maps.html#cb160-15"></a>    output_vector[i] &lt;-<span class="st"> </span>input_vector[i]</span>
-<span id="cb160-16"><a href="ch-01-01-loops-and-maps.html#cb160-16"></a>  }</span>
-<span id="cb160-17"><a href="ch-01-01-loops-and-maps.html#cb160-17"></a>}</span>
-<span id="cb160-18"><a href="ch-01-01-loops-and-maps.html#cb160-18"></a></span>
-<span id="cb160-19"><a href="ch-01-01-loops-and-maps.html#cb160-19"></a>output_vector</span></code></pre></div>
+<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb160-1" data-line-number="1"><span class="co"># fix a vector to transform</span></a>
+<a class="sourceLine" id="cb160-2" data-line-number="2">input_vector &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">6</span></a>
+<a class="sourceLine" id="cb160-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb160-4" data-line-number="4"><span class="co"># create output vector for memory allocation</span></a>
+<a class="sourceLine" id="cb160-5" data-line-number="5">output_vector &lt;-<span class="st"> </span><span class="kw">integer</span>(<span class="kw">length</span>(input_vector))</a>
+<a class="sourceLine" id="cb160-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb160-7" data-line-number="7"><span class="co"># iterate over length of input</span></a>
+<a class="sourceLine" id="cb160-8" data-line-number="8"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(input_vector)) {</a>
+<a class="sourceLine" id="cb160-9" data-line-number="9">  <span class="co"># multiply by 10 if even</span></a>
+<a class="sourceLine" id="cb160-10" data-line-number="10">  <span class="cf">if</span> (input_vector[i] <span class="op">%%</span><span class="st"> </span><span class="dv">2</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span>) {</a>
+<a class="sourceLine" id="cb160-11" data-line-number="11">    output_vector[i] &lt;-<span class="st"> </span>input_vector[i] <span class="op">*</span><span class="st"> </span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb160-12" data-line-number="12">  }</a>
+<a class="sourceLine" id="cb160-13" data-line-number="13">  <span class="co"># otherwise leave unchanged</span></a>
+<a class="sourceLine" id="cb160-14" data-line-number="14">  <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb160-15" data-line-number="15">    output_vector[i] &lt;-<span class="st"> </span>input_vector[i]</a>
+<a class="sourceLine" id="cb160-16" data-line-number="16">  }</a>
+<a class="sourceLine" id="cb160-17" data-line-number="17">}</a>
+<a class="sourceLine" id="cb160-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb160-19" data-line-number="19">output_vector</a></code></pre></div>
 <pre><code>## [1]  1 20  3 40  5 60</code></pre>
 <div class="exercises">
 <p><strong>Exercise 2.12</strong></p>
@@ -563,35 +563,35 @@ Example: If <code>a</code> has the values [25, 39, 12, 33, 47, 3, 48, 14, 45, 8]
 Solution
 </button>
 <div class="content">
-<div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb162-1"><a href="ch-01-01-loops-and-maps.html#cb162-1"></a>a &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">sample</span>((<span class="dv">1</span><span class="op">:</span><span class="dv">50</span>), <span class="dv">10</span>, <span class="dt">replace =</span> T))</span>
-<span id="cb162-2"><a href="ch-01-01-loops-and-maps.html#cb162-2"></a>b &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">integer</span>(<span class="kw">length</span>(a)))</span>
-<span id="cb162-3"><a href="ch-01-01-loops-and-maps.html#cb162-3"></a></span>
-<span id="cb162-4"><a href="ch-01-01-loops-and-maps.html#cb162-4"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(a)){</span>
-<span id="cb162-5"><a href="ch-01-01-loops-and-maps.html#cb162-5"></a>  <span class="cf">if</span> (i <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) {</span>
-<span id="cb162-6"><a href="ch-01-01-loops-and-maps.html#cb162-6"></a>    b[i] &lt;-<span class="st"> </span>(<span class="kw">sum</span>(a[i<span class="op">:</span>(i<span class="op">+</span><span class="dv">1</span>)])<span class="op">/</span><span class="dv">3</span>)</span>
-<span id="cb162-7"><a href="ch-01-01-loops-and-maps.html#cb162-7"></a>  } </span>
-<span id="cb162-8"><a href="ch-01-01-loops-and-maps.html#cb162-8"></a>  <span class="cf">else</span> <span class="cf">if</span> (i <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(a)) {</span>
-<span id="cb162-9"><a href="ch-01-01-loops-and-maps.html#cb162-9"></a>    b[i] &lt;-<span class="st"> </span>(<span class="kw">sum</span>((a[(i<span class="dv">-1</span>)<span class="op">:</span>i]))<span class="op">/</span><span class="dv">3</span>)</span>
-<span id="cb162-10"><a href="ch-01-01-loops-and-maps.html#cb162-10"></a>  }</span>
-<span id="cb162-11"><a href="ch-01-01-loops-and-maps.html#cb162-11"></a>  <span class="cf">else</span> {</span>
-<span id="cb162-12"><a href="ch-01-01-loops-and-maps.html#cb162-12"></a>    b[i] &lt;-<span class="st"> </span>(<span class="kw">mean</span>(a[(i<span class="dv">-1</span>)<span class="op">:</span>(i<span class="op">+</span><span class="dv">1</span>)]))</span>
-<span id="cb162-13"><a href="ch-01-01-loops-and-maps.html#cb162-13"></a>  }</span>
-<span id="cb162-14"><a href="ch-01-01-loops-and-maps.html#cb162-14"></a>}</span>
-<span id="cb162-15"><a href="ch-01-01-loops-and-maps.html#cb162-15"></a></span>
-<span id="cb162-16"><a href="ch-01-01-loops-and-maps.html#cb162-16"></a><span class="kw">tibble</span>(a, b)</span></code></pre></div>
+<div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb162-1" data-line-number="1">a &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">sample</span>((<span class="dv">1</span><span class="op">:</span><span class="dv">50</span>), <span class="dv">10</span>, <span class="dt">replace =</span> T))</a>
+<a class="sourceLine" id="cb162-2" data-line-number="2">b &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">integer</span>(<span class="kw">length</span>(a)))</a>
+<a class="sourceLine" id="cb162-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb162-4" data-line-number="4"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(a)){</a>
+<a class="sourceLine" id="cb162-5" data-line-number="5">  <span class="cf">if</span> (i <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) {</a>
+<a class="sourceLine" id="cb162-6" data-line-number="6">    b[i] &lt;-<span class="st"> </span>(<span class="kw">sum</span>(a[i<span class="op">:</span>(i<span class="op">+</span><span class="dv">1</span>)])<span class="op">/</span><span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb162-7" data-line-number="7">  } </a>
+<a class="sourceLine" id="cb162-8" data-line-number="8">  <span class="cf">else</span> <span class="cf">if</span> (i <span class="op">==</span><span class="st"> </span><span class="kw">length</span>(a)) {</a>
+<a class="sourceLine" id="cb162-9" data-line-number="9">    b[i] &lt;-<span class="st"> </span>(<span class="kw">sum</span>((a[(i<span class="dv">-1</span>)<span class="op">:</span>i]))<span class="op">/</span><span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb162-10" data-line-number="10">  }</a>
+<a class="sourceLine" id="cb162-11" data-line-number="11">  <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb162-12" data-line-number="12">    b[i] &lt;-<span class="st"> </span>(<span class="kw">mean</span>(a[(i<span class="dv">-1</span>)<span class="op">:</span>(i<span class="op">+</span><span class="dv">1</span>)]))</a>
+<a class="sourceLine" id="cb162-13" data-line-number="13">  }</a>
+<a class="sourceLine" id="cb162-14" data-line-number="14">}</a>
+<a class="sourceLine" id="cb162-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb162-16" data-line-number="16"><span class="kw">tibble</span>(a, b)</a></code></pre></div>
 <pre><code>## # A tibble: 10 x 2
 ##        a     b
 ##    &lt;int&gt; &lt;dbl&gt;
-##  1    43 17   
-##  2     8 33.7 
-##  3    50 32.3 
-##  4    39 40   
-##  5    31 24   
-##  6     2 14.3 
-##  7    10  4.33
-##  8     1 16.3 
-##  9    38 21   
-## 10    24 20.7</code></pre>
+##  1    18  15  
+##  2    27  24.3
+##  3    28  23  
+##  4    14  20.7
+##  5    20  17  
+##  6    17  17  
+##  7    14  17.3
+##  8    21  18  
+##  9    19  19.7
+## 10    19  12.7</code></pre>
 </div>
 </div>
 </div>
@@ -599,52 +599,52 @@ Solution
 <div id="functional-iterators" class="section level3">
 <h3><span class="header-section-number">2.4.2</span> Functional iterators</h3>
 <p>Base R provides functional iterators (e.g., <code>apply</code>), but we will use the functional iterators from the <code>purrr</code> package. The main functional operator from <code>purrr</code> is <code>map</code> which takes a vector and a function, applies the function to each element in the vector and returns a list with the outcome. There are also versions of <code>map</code>, written as <code>map_dbl</code> (double), <code>map_lgl</code> (logical) or <code>map_df</code> (data frame), which return a vector of doubles, Booleans or a data frame. The following code repeats the previous example which used a for-loop but now within a functional style using the functional iterator <code>map_dbl</code>:</p>
-<div class="sourceCode" id="cb164"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb164-1"><a href="ch-01-01-loops-and-maps.html#cb164-1"></a>input_vector &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">6</span></span>
-<span id="cb164-2"><a href="ch-01-01-loops-and-maps.html#cb164-2"></a><span class="kw">map_dbl</span>(</span>
-<span id="cb164-3"><a href="ch-01-01-loops-and-maps.html#cb164-3"></a>  input_vector,</span>
-<span id="cb164-4"><a href="ch-01-01-loops-and-maps.html#cb164-4"></a>  <span class="cf">function</span>(i) {</span>
-<span id="cb164-5"><a href="ch-01-01-loops-and-maps.html#cb164-5"></a>    <span class="cf">if</span> (input_vector[i] <span class="op">%%</span><span class="st"> </span><span class="dv">2</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span>) {</span>
-<span id="cb164-6"><a href="ch-01-01-loops-and-maps.html#cb164-6"></a>      <span class="kw">return</span>(input_vector[i] <span class="op">*</span><span class="st"> </span><span class="dv">10</span>)</span>
-<span id="cb164-7"><a href="ch-01-01-loops-and-maps.html#cb164-7"></a>    }</span>
-<span id="cb164-8"><a href="ch-01-01-loops-and-maps.html#cb164-8"></a>    <span class="cf">else</span> {</span>
-<span id="cb164-9"><a href="ch-01-01-loops-and-maps.html#cb164-9"></a>      <span class="kw">return</span> (input_vector[i])</span>
-<span id="cb164-10"><a href="ch-01-01-loops-and-maps.html#cb164-10"></a>    }</span>
-<span id="cb164-11"><a href="ch-01-01-loops-and-maps.html#cb164-11"></a>  }</span>
-<span id="cb164-12"><a href="ch-01-01-loops-and-maps.html#cb164-12"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb164"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb164-1" data-line-number="1">input_vector &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">6</span></a>
+<a class="sourceLine" id="cb164-2" data-line-number="2"><span class="kw">map_dbl</span>(</a>
+<a class="sourceLine" id="cb164-3" data-line-number="3">  input_vector,</a>
+<a class="sourceLine" id="cb164-4" data-line-number="4">  <span class="cf">function</span>(i) {</a>
+<a class="sourceLine" id="cb164-5" data-line-number="5">    <span class="cf">if</span> (input_vector[i] <span class="op">%%</span><span class="st"> </span><span class="dv">2</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span>) {</a>
+<a class="sourceLine" id="cb164-6" data-line-number="6">      <span class="kw">return</span>(input_vector[i] <span class="op">*</span><span class="st"> </span><span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb164-7" data-line-number="7">    }</a>
+<a class="sourceLine" id="cb164-8" data-line-number="8">    <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb164-9" data-line-number="9">      <span class="kw">return</span> (input_vector[i])</a>
+<a class="sourceLine" id="cb164-10" data-line-number="10">    }</a>
+<a class="sourceLine" id="cb164-11" data-line-number="11">  }</a>
+<a class="sourceLine" id="cb164-12" data-line-number="12">)</a></code></pre></div>
 <pre><code>## [1]  1 20  3 40  5 60</code></pre>
 <p>We can write this even shorter, using <code>purrr</code>’s short-hand notation for functions:<a href="#fn11" class="footnote-ref" id="fnref11"><sup>11</sup></a></p>
-<div class="sourceCode" id="cb166"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb166-1"><a href="ch-01-01-loops-and-maps.html#cb166-1"></a>input_vector &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">6</span></span>
-<span id="cb166-2"><a href="ch-01-01-loops-and-maps.html#cb166-2"></a><span class="kw">map_dbl</span>(</span>
-<span id="cb166-3"><a href="ch-01-01-loops-and-maps.html#cb166-3"></a>  input_vector,</span>
-<span id="cb166-4"><a href="ch-01-01-loops-and-maps.html#cb166-4"></a>  <span class="op">~</span><span class="st"> </span><span class="kw">ifelse</span>( .x <span class="op">%%</span><span class="st"> </span><span class="dv">2</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, .x <span class="op">*</span><span class="st"> </span><span class="dv">10</span>, .x) </span>
-<span id="cb166-5"><a href="ch-01-01-loops-and-maps.html#cb166-5"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb166"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb166-1" data-line-number="1">input_vector &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">6</span></a>
+<a class="sourceLine" id="cb166-2" data-line-number="2"><span class="kw">map_dbl</span>(</a>
+<a class="sourceLine" id="cb166-3" data-line-number="3">  input_vector,</a>
+<a class="sourceLine" id="cb166-4" data-line-number="4">  <span class="op">~</span><span class="st"> </span><span class="kw">ifelse</span>( .x <span class="op">%%</span><span class="st"> </span><span class="dv">2</span> <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, .x <span class="op">*</span><span class="st"> </span><span class="dv">10</span>, .x) </a>
+<a class="sourceLine" id="cb166-5" data-line-number="5">)</a></code></pre></div>
 <pre><code>## [1]  1 20  3 40  5 60</code></pre>
 <p>The trailing <code>~</code> indicates that we define an anonymous function. It, therefore, replaces the usual <code>function(...)</code> call which indicates which arguments the anonymous function expects. To make up for this, after the <code>~</code> we can use <code>.x</code> for the first (and only) argument of our anonymous function.</p>
 <p>To apply a function to more than one input vector, element per element, we can use <code>pmap</code> and its derivatives, like <code>pmap_dbl</code> etc. <code>pmap</code> takes a list of vectors and a function. In short-hand notation, we can define an anonymous function with <code>~</code> and integers like <code>..1</code>, <code>..2</code> etc, for the first, second … argument. For example:</p>
-<div class="sourceCode" id="cb168"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb168-1"><a href="ch-01-01-loops-and-maps.html#cb168-1"></a>x &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">3</span></span>
-<span id="cb168-2"><a href="ch-01-01-loops-and-maps.html#cb168-2"></a>y &lt;-<span class="st"> </span><span class="dv">4</span><span class="op">:</span><span class="dv">6</span></span>
-<span id="cb168-3"><a href="ch-01-01-loops-and-maps.html#cb168-3"></a>z &lt;-<span class="st"> </span><span class="dv">7</span><span class="op">:</span><span class="dv">9</span></span>
-<span id="cb168-4"><a href="ch-01-01-loops-and-maps.html#cb168-4"></a></span>
-<span id="cb168-5"><a href="ch-01-01-loops-and-maps.html#cb168-5"></a><span class="kw">pmap_dbl</span>(</span>
-<span id="cb168-6"><a href="ch-01-01-loops-and-maps.html#cb168-6"></a>  <span class="kw">list</span>(x, y, z),</span>
-<span id="cb168-7"><a href="ch-01-01-loops-and-maps.html#cb168-7"></a>  <span class="op">~</span><span class="st"> </span>..<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>..<span class="dv">2</span> <span class="op">+</span><span class="st"> </span>..<span class="dv">3</span></span>
-<span id="cb168-8"><a href="ch-01-01-loops-and-maps.html#cb168-8"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb168"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb168-1" data-line-number="1">x &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">3</span></a>
+<a class="sourceLine" id="cb168-2" data-line-number="2">y &lt;-<span class="st"> </span><span class="dv">4</span><span class="op">:</span><span class="dv">6</span></a>
+<a class="sourceLine" id="cb168-3" data-line-number="3">z &lt;-<span class="st"> </span><span class="dv">7</span><span class="op">:</span><span class="dv">9</span></a>
+<a class="sourceLine" id="cb168-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb168-5" data-line-number="5"><span class="kw">pmap_dbl</span>(</a>
+<a class="sourceLine" id="cb168-6" data-line-number="6">  <span class="kw">list</span>(x, y, z),</a>
+<a class="sourceLine" id="cb168-7" data-line-number="7">  <span class="op">~</span><span class="st"> </span>..<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>..<span class="dv">2</span> <span class="op">+</span><span class="st"> </span>..<span class="dv">3</span></a>
+<a class="sourceLine" id="cb168-8" data-line-number="8">)</a></code></pre></div>
 <pre><code>## [1] 4 5 6</code></pre>
 <div class="exercises">
 <p><strong>Exercise 2.13</strong></p>
 <p>Use <code>map_dbl</code> and an anonymous function to take the following input vector and return a vector whose <span class="math inline">\(i\)</span>th element is the cumulative product of <code>input</code> up to the <span class="math inline">\(i\)</span>th position divided by the cumulative sum of <code>input</code> up to that position. (<strong>Hint:</strong> the cumulative product up to position <span class="math inline">\(i\)</span> is produced by <code>prod(input[1:i])</code>; notice that you need to “loop over”, so to speak, the index <span class="math inline">\(i\)</span>, not the elements of the vector <code>input</code>.)</p>
-<div class="sourceCode" id="cb170"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb170-1"><a href="ch-01-01-loops-and-maps.html#cb170-1"></a>input &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">12</span>,<span class="dv">6</span>,<span class="dv">18</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb170"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb170-1" data-line-number="1">input &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">12</span>,<span class="dv">6</span>,<span class="dv">18</span>)</a></code></pre></div>
 <div class="collapsibleSolution">
 <button class="trigger">
 Solution
 </button>
 <div class="content">
-<div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb171-1"><a href="ch-01-01-loops-and-maps.html#cb171-1"></a><span class="kw">map_dbl</span>(</span>
-<span id="cb171-2"><a href="ch-01-01-loops-and-maps.html#cb171-2"></a>  <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(input),</span>
-<span id="cb171-3"><a href="ch-01-01-loops-and-maps.html#cb171-3"></a>  <span class="cf">function</span>(i) {</span>
-<span id="cb171-4"><a href="ch-01-01-loops-and-maps.html#cb171-4"></a>    <span class="kw">prod</span>(input[<span class="dv">1</span><span class="op">:</span>i]) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(input[<span class="dv">1</span><span class="op">:</span>i])</span>
-<span id="cb171-5"><a href="ch-01-01-loops-and-maps.html#cb171-5"></a>  }</span>
-<span id="cb171-6"><a href="ch-01-01-loops-and-maps.html#cb171-6"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb171-1" data-line-number="1"><span class="kw">map_dbl</span>(</a>
+<a class="sourceLine" id="cb171-2" data-line-number="2">  <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(input),</a>
+<a class="sourceLine" id="cb171-3" data-line-number="3">  <span class="cf">function</span>(i) {</a>
+<a class="sourceLine" id="cb171-4" data-line-number="4">    <span class="kw">prod</span>(input[<span class="dv">1</span><span class="op">:</span>i]) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(input[<span class="dv">1</span><span class="op">:</span>i])</a>
+<a class="sourceLine" id="cb171-5" data-line-number="5">  }</a>
+<a class="sourceLine" id="cb171-6" data-line-number="6">)</a></code></pre></div>
 <pre><code>## [1]  1  4 36</code></pre>
 </div>
 </div>
@@ -654,7 +654,7 @@ Solution
 <div class="footnotes">
 <hr />
 <ol start="11">
-<li id="fn11"><p>Just for the record, we can achieve the same result also by <code>ifelse(input_vector %% 2 == 0, input_vector * 10, input_vector)</code>.<a href="ch-01-01-loops-and-maps.html#fnref11" class="footnote-back">↩︎</a></p></li>
+<li id="fn11"><p>Just for the record, we can achieve the same result also by <code>ifelse(input_vector %% 2 == 0, input_vector * 10, input_vector)</code>.<a href="ch-01-01-loops-and-maps.html#fnref11" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>

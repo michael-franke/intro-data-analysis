@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>16.1 p-values | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="16.1 p-values | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -615,13 +615,13 @@ Figure 16.4: Sampling distribution (here: Binomial distribution) and the probabi
 p(k) = \sum_{k&#39; = 0}^{N} [\text{Binomial}(k&#39;, N, \theta_0) &lt;= \text{Binomial}(k, N, \theta_0)] \ \text{Binomial}(k&#39;, N, \theta_0)
 \]</span></p>
 <p>In code, we calculate this <span class="math inline">\(p\)</span>-value as follows:</p>
-<div class="sourceCode" id="cb552"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb552-1"><a href="ch-03-05-hypothesis-p-values.html#cb552-1"></a><span class="co"># exact p-value for k = 7 with N = 24 and null hypothesis theta = 0.5</span></span>
-<span id="cb552-2"><a href="ch-03-05-hypothesis-p-values.html#cb552-2"></a>k_obs &lt;-<span class="st"> </span><span class="dv">7</span></span>
-<span id="cb552-3"><a href="ch-03-05-hypothesis-p-values.html#cb552-3"></a>N &lt;-<span class="st">  </span><span class="dv">24</span></span>
-<span id="cb552-4"><a href="ch-03-05-hypothesis-p-values.html#cb552-4"></a>theta_<span class="dv">0</span> &lt;-<span class="st">  </span><span class="fl">0.5</span></span>
-<span id="cb552-5"><a href="ch-03-05-hypothesis-p-values.html#cb552-5"></a><span class="kw">tibble</span>( <span class="dt">lh =</span> <span class="kw">dbinom</span>(<span class="dv">0</span><span class="op">:</span>N, N, theta_<span class="dv">0</span>) ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb552-6"><a href="ch-03-05-hypothesis-p-values.html#cb552-6"></a><span class="st">  </span><span class="kw">filter</span>( lh <span class="op">&lt;=</span><span class="st">  </span><span class="kw">dbinom</span>(k_obs, N, theta_<span class="dv">0</span>) ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb552-7"><a href="ch-03-05-hypothesis-p-values.html#cb552-7"></a><span class="st">  </span><span class="kw">pull</span>(lh) <span class="op">%&gt;%</span><span class="st"> </span>sum <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb552"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb552-1" data-line-number="1"><span class="co"># exact p-value for k = 7 with N = 24 and null hypothesis theta = 0.5</span></a>
+<a class="sourceLine" id="cb552-2" data-line-number="2">k_obs &lt;-<span class="st"> </span><span class="dv">7</span></a>
+<a class="sourceLine" id="cb552-3" data-line-number="3">N &lt;-<span class="st">  </span><span class="dv">24</span></a>
+<a class="sourceLine" id="cb552-4" data-line-number="4">theta_<span class="dv">0</span> &lt;-<span class="st">  </span><span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb552-5" data-line-number="5"><span class="kw">tibble</span>( <span class="dt">lh =</span> <span class="kw">dbinom</span>(<span class="dv">0</span><span class="op">:</span>N, N, theta_<span class="dv">0</span>) ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb552-6" data-line-number="6"><span class="st">  </span><span class="kw">filter</span>( lh <span class="op">&lt;=</span><span class="st">  </span><span class="kw">dbinom</span>(k_obs, N, theta_<span class="dv">0</span>) ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb552-7" data-line-number="7"><span class="st">  </span><span class="kw">pull</span>(lh) <span class="op">%&gt;%</span><span class="st"> </span>sum <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">5</span>)</a></code></pre></div>
 <pre><code>## [1] 0.06391</code></pre>
 <p>Figure <a href="ch-03-05-hypothesis-p-values.html#fig:ch-03-04-testing-binomial-p-value">16.5</a> shows the values that need to be summed over in red.</p>
 <div class="figure" style="text-align: center"><span id="fig:ch-03-04-testing-binomial-p-value"></span>
@@ -631,17 +631,16 @@ Figure 16.5: Sampling distribution (Binomial likelihood function) and <span clas
 </p>
 </div>
 <p>Of course, R also has a built-in function for a Binomial test. We can use it to verify that we get the same result for the <span class="math inline">\(p\)</span>-value:</p>
-<div class="sourceCode" id="cb554"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb554-1"><a href="ch-03-05-hypothesis-p-values.html#cb554-1"></a><span class="kw">binom.test</span>(</span>
-<span id="cb554-2"><a href="ch-03-05-hypothesis-p-values.html#cb554-2"></a>  <span class="dt">x =</span> <span class="dv">7</span>,     <span class="co"># observed successes</span></span>
-<span id="cb554-3"><a href="ch-03-05-hypothesis-p-values.html#cb554-3"></a>  <span class="dt">n =</span> <span class="dv">24</span>,    <span class="co"># total no. of observations</span></span>
-<span id="cb554-4"><a href="ch-03-05-hypothesis-p-values.html#cb554-4"></a>  <span class="dt">p =</span> <span class="fl">0.5</span>    <span class="co"># null hypothesis</span></span>
-<span id="cb554-5"><a href="ch-03-05-hypothesis-p-values.html#cb554-5"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb554"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb554-1" data-line-number="1"><span class="kw">binom.test</span>(</a>
+<a class="sourceLine" id="cb554-2" data-line-number="2">  <span class="dt">x =</span> <span class="dv">7</span>,     <span class="co"># observed successes</span></a>
+<a class="sourceLine" id="cb554-3" data-line-number="3">  <span class="dt">n =</span> <span class="dv">24</span>,    <span class="co"># total no. of observations</span></a>
+<a class="sourceLine" id="cb554-4" data-line-number="4">  <span class="dt">p =</span> <span class="fl">0.5</span>    <span class="co"># null hypothesis</span></a>
+<a class="sourceLine" id="cb554-5" data-line-number="5">)</a></code></pre></div>
 <pre><code>## 
 ##  Exact binomial test
 ## 
 ## data:  7 and 24
-## number of successes = 7, number of trials = 24, p-value =
-## 0.06391
+## number of successes = 7, number of trials = 24, p-value = 0.06391
 ## alternative hypothesis: true probability of success is not equal to 0.5
 ## 95 percent confidence interval:
 ##  0.1261521 0.5109478
@@ -650,25 +649,24 @@ Figure 16.5: Sampling distribution (Binomial likelihood function) and <span clas
 ##              0.2916667</code></pre>
 <p><strong>Research question <span class="math inline">\(\theta &gt; 0.5\)</span>.</strong> Let’s now look at the case where our research hypothesis is that <span class="math inline">\(\theta &gt; 0.5\)</span>, i.e., that there is a bias towards heads. Again we need to settle what the null hypothesis should be and how <span class="math inline">\(\succeq^{H_{0,a}}\)</span> should be interpreted. In this case, we could consider an interval-valued null hypothesis like <span class="math inline">\(\theta_0 &gt; 0.5\)</span> (making the research hypothesis the null). But even so, we would still resort to testing a point-valued null hypothesis <span class="math inline">\(\theta_0 = 0.5\)</span> eventually. This is because point-valued null hypotheses are easy to work with.<a href="#fn68" class="footnote-ref" id="fnref68"><sup>68</sup></a> It has therefore become customary to pick the value from the relevant interval which is most favorable of the interval-valued null hypothesis. In case we find strong evidence <em>against</em> even the most favorable value from the interval, then this does constitute the strongest possible case <em>against</em> the whole interval-based null hypothesis.</p>
 <p>But even though we use the same null-value of <span class="math inline">\(\theta_0 = 0.5\)</span>, the calculation of the <span class="math inline">\(p\)</span>-value will be different from the case we looked at previously. The reason lies in a change to what we should consider more extreme evidence against this interval-valued null hypothesis, i.e., the interpretation of <span class="math inline">\(\succeq^{H_{0,a}}\)</span>. In the case at hand, observing values of <span class="math inline">\(k\)</span> larger than 12, even if they are unlikely for the point-valued hypothesis <span class="math inline">\(\theta_0 = 0.5\)</span>, does not constitute evidence against the interval-valued hypothesis we are interested in. So therefore, we disregard the contribution of the right-hand side in Figure <a href="ch-03-05-hypothesis-p-values.html#fig:ch-03-04-testing-binomial-p-value">16.5</a> to arrive at a picture like in Figure <a href="ch-03-05-hypothesis-p-values.html#fig:ch-03-04-testing-binomial-p-value-one-sided">16.6</a>. The associated <span class="math inline">\(p\)</span>-value with this so-called <strong>one-sided test</strong> is consequently:</p>
-<div class="sourceCode" id="cb556"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb556-1"><a href="ch-03-05-hypothesis-p-values.html#cb556-1"></a>k_obs &lt;-<span class="st"> </span><span class="dv">7</span></span>
-<span id="cb556-2"><a href="ch-03-05-hypothesis-p-values.html#cb556-2"></a>N &lt;-<span class="st"> </span><span class="dv">24</span></span>
-<span id="cb556-3"><a href="ch-03-05-hypothesis-p-values.html#cb556-3"></a>theta_<span class="dv">0</span> &lt;-<span class="st"> </span><span class="fl">0.5</span></span>
-<span id="cb556-4"><a href="ch-03-05-hypothesis-p-values.html#cb556-4"></a><span class="co"># exact p-value for k = 7 with N = 24 and null hypothesis theta &gt; 0.5</span></span>
-<span id="cb556-5"><a href="ch-03-05-hypothesis-p-values.html#cb556-5"></a><span class="kw">dbinom</span>(<span class="dv">0</span><span class="op">:</span>k_obs, N, theta_<span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span>sum <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb556"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb556-1" data-line-number="1">k_obs &lt;-<span class="st"> </span><span class="dv">7</span></a>
+<a class="sourceLine" id="cb556-2" data-line-number="2">N &lt;-<span class="st"> </span><span class="dv">24</span></a>
+<a class="sourceLine" id="cb556-3" data-line-number="3">theta_<span class="dv">0</span> &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb556-4" data-line-number="4"><span class="co"># exact p-value for k = 7 with N = 24 and null hypothesis theta &gt; 0.5</span></a>
+<a class="sourceLine" id="cb556-5" data-line-number="5"><span class="kw">dbinom</span>(<span class="dv">0</span><span class="op">:</span>k_obs, N, theta_<span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span>sum <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">5</span>)</a></code></pre></div>
 <pre><code>## [1] 0.03196</code></pre>
 <p>We can double-check against the built-in function <code>binom.test</code> when we ask for a one-sided test:</p>
-<div class="sourceCode" id="cb558"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb558-1"><a href="ch-03-05-hypothesis-p-values.html#cb558-1"></a><span class="kw">binom.test</span>(</span>
-<span id="cb558-2"><a href="ch-03-05-hypothesis-p-values.html#cb558-2"></a>  <span class="dt">x =</span> <span class="dv">7</span>,     <span class="co"># observed successes</span></span>
-<span id="cb558-3"><a href="ch-03-05-hypothesis-p-values.html#cb558-3"></a>  <span class="dt">n =</span> <span class="dv">24</span>,    <span class="co"># total no. of observations</span></span>
-<span id="cb558-4"><a href="ch-03-05-hypothesis-p-values.html#cb558-4"></a>  <span class="dt">p =</span> <span class="fl">0.5</span>,    <span class="co"># null hypothesis</span></span>
-<span id="cb558-5"><a href="ch-03-05-hypothesis-p-values.html#cb558-5"></a>  <span class="dt">alternative =</span> <span class="st">&quot;less&quot;</span> <span class="co"># the alternative to compare against is theta &lt; 0.5</span></span>
-<span id="cb558-6"><a href="ch-03-05-hypothesis-p-values.html#cb558-6"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb558"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb558-1" data-line-number="1"><span class="kw">binom.test</span>(</a>
+<a class="sourceLine" id="cb558-2" data-line-number="2">  <span class="dt">x =</span> <span class="dv">7</span>,     <span class="co"># observed successes</span></a>
+<a class="sourceLine" id="cb558-3" data-line-number="3">  <span class="dt">n =</span> <span class="dv">24</span>,    <span class="co"># total no. of observations</span></a>
+<a class="sourceLine" id="cb558-4" data-line-number="4">  <span class="dt">p =</span> <span class="fl">0.5</span>,    <span class="co"># null hypothesis</span></a>
+<a class="sourceLine" id="cb558-5" data-line-number="5">  <span class="dt">alternative =</span> <span class="st">&quot;less&quot;</span> <span class="co"># the alternative to compare against is theta &lt; 0.5</span></a>
+<a class="sourceLine" id="cb558-6" data-line-number="6">)</a></code></pre></div>
 <pre><code>## 
 ##  Exact binomial test
 ## 
 ## data:  7 and 24
-## number of successes = 7, number of trials = 24, p-value =
-## 0.03196
+## number of successes = 7, number of trials = 24, p-value = 0.03196
 ## alternative hypothesis: true probability of success is less than 0.5
 ## 95 percent confidence interval:
 ##  0.0000000 0.4787279
@@ -727,7 +725,7 @@ F_Y(y) &amp; = P(Y \le y)  &amp;&amp; [\text{def. of cumulative distribution}] \
 </div>
 <div id="how-not-to-interpret-p-values" class="section level3">
 <h3><span class="header-section-number">16.1.7</span> How (not) to interpret <em>p</em>-values</h3>
-<p>Though central to much of frequentist statistics, <span class="math inline">\(p\)</span>-values are frequently misinterpreted, even by seasoned scientists <span class="citation">(Haller and Krauss <a href="#ref-HallerKrauss2002:Misinterpretati" role="doc-biblioref">2002</a>)</span>. To repeat, the <span class="math inline">\(p\)</span>-value measures the probability of observing, if the null hypothesis is correct, a value of the test statistic that is (in a specific, contextually specified sense) more extreme than the value of the test statistic that we assign to the observed data. We can therefore treat <span class="math inline">\(p\)</span>-values as a measure of evidence <em>against</em> the null hypothesis. And if we want to be even more precise, we interpret this as evidence against the whole assumed data-generating process, a central part of which is the null hypothesis.</p>
+<p>Though central to much of frequentist statistics, <span class="math inline">\(p\)</span>-values are frequently misinterpreted, even by seasoned scientists <span class="citation">(Haller and Krauss <a href="#ref-HallerKrauss2002:Misinterpretati">2002</a>)</span>. To repeat, the <span class="math inline">\(p\)</span>-value measures the probability of observing, if the null hypothesis is correct, a value of the test statistic that is (in a specific, contextually specified sense) more extreme than the value of the test statistic that we assign to the observed data. We can therefore treat <span class="math inline">\(p\)</span>-values as a measure of evidence <em>against</em> the null hypothesis. And if we want to be even more precise, we interpret this as evidence against the whole assumed data-generating process, a central part of which is the null hypothesis.</p>
 <p>The <span class="math inline">\(p\)</span>-value is <em>not</em> a statement about the probability of the null hypothesis given the data. So, it is <em>not</em> something like <span class="math inline">\(P(H_0 \mid D)\)</span>. The latter is a very appealing notion, but it is one that the frequentist denies herself access to. It can also only be computed based on some consideration of prior plausibility of <span class="math inline">\(H_0\)</span> in relation to some alternative hypothesis. Indeed, to calculate <span class="math inline">\(P(H_0 \mid D)\)</span> is the topic of the chapter on <a href="Chap-03-06-model-comparison.html#Chap-03-06-model-comparison">Model Comparison</a>.</p>
 <!-- exercise 1 -->
 <div class="exercises">
@@ -764,7 +762,7 @@ Solution
 Solution
 </button>
 <div class="content">
-<p>Statement c. is correct.</p>
+<p>Statement c. is correct.</p>
 </div>
 </div>
 <ol start="2" style="list-style-type: decimal">
@@ -841,18 +839,17 @@ Solution
 Solution
 </button>
 <div class="content">
-<div class="sourceCode" id="cb560"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb560-1"><a href="ch-03-05-hypothesis-p-values.html#cb560-1"></a><span class="kw">binom.test</span>(</span>
-<span id="cb560-2"><a href="ch-03-05-hypothesis-p-values.html#cb560-2"></a>  <span class="dt">x =</span> <span class="dv">8</span>, <span class="co"># observed successes</span></span>
-<span id="cb560-3"><a href="ch-03-05-hypothesis-p-values.html#cb560-3"></a>  <span class="dt">n =</span> <span class="dv">10</span>, <span class="co"># total no. of observations</span></span>
-<span id="cb560-4"><a href="ch-03-05-hypothesis-p-values.html#cb560-4"></a>  <span class="dt">p =</span> <span class="fl">0.5</span>, <span class="co"># null hypothesis</span></span>
-<span id="cb560-5"><a href="ch-03-05-hypothesis-p-values.html#cb560-5"></a>  <span class="dt">alternative =</span> <span class="st">&quot;greater&quot;</span> <span class="co"># alternative hypothesis</span></span>
-<span id="cb560-6"><a href="ch-03-05-hypothesis-p-values.html#cb560-6"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb560"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb560-1" data-line-number="1"><span class="kw">binom.test</span>(</a>
+<a class="sourceLine" id="cb560-2" data-line-number="2">  <span class="dt">x =</span> <span class="dv">8</span>, <span class="co"># observed successes</span></a>
+<a class="sourceLine" id="cb560-3" data-line-number="3">  <span class="dt">n =</span> <span class="dv">10</span>, <span class="co"># total no. of observations</span></a>
+<a class="sourceLine" id="cb560-4" data-line-number="4">  <span class="dt">p =</span> <span class="fl">0.5</span>, <span class="co"># null hypothesis</span></a>
+<a class="sourceLine" id="cb560-5" data-line-number="5">  <span class="dt">alternative =</span> <span class="st">&quot;greater&quot;</span> <span class="co"># alternative hypothesis</span></a>
+<a class="sourceLine" id="cb560-6" data-line-number="6">)</a></code></pre></div>
 <pre><code>## 
 ##  Exact binomial test
 ## 
 ## data:  8 and 10
-## number of successes = 8, number of trials = 10, p-value =
-## 0.05469
+## number of successes = 8, number of trials = 10, p-value = 0.05469
 ## alternative hypothesis: true probability of success is greater than 0.5
 ## 95 percent confidence interval:
 ##  0.4930987 1.0000000
@@ -884,15 +881,15 @@ Solution
 <div class="footnotes">
 <hr />
 <ol start="61">
-<li id="fn61"><p>To preview later material (see Section <a href="ch-03-05-hypothesis-testing-3-approaches.html#ch-03-05-hypothesis-testing-3-approaches">16.4</a>), the Neyman-Pearson approach goes further and also looks at evidence in favor of the null hypothesis. It also tries to quantify something like evidence in favor of the research hypothesis. But Fisher’s approach and some flavors of the hybrid approach only consider how much the data speak against the null hypothesis.<a href="ch-03-05-hypothesis-p-values.html#fnref61" class="footnote-back">↩︎</a></p></li>
-<li id="fn62"><p>This formulation in terms of a context-dependent, i.e., <span class="math inline">\(H_0\)</span>-dependent, ordering is not usual. However, the interpretation <em>is</em> de facto context-dependent in this way, and so it makes sense to highlight this aspect of the use of <span class="math inline">\(p\)</span>-values also formally. Notice, however, that we can get rid of the context-dependence by using different test statistics. But this is also not how it is done in practice. Essentially, this definition aims for maximal generality so as to cover all cases of use. Since the class of use cases is fuzzy, the definition needs this flexibility. Alternative mathematical definitions that appear to be simpler just do not capture all the use cases.<a href="ch-03-05-hypothesis-p-values.html#fnref62" class="footnote-back">↩︎</a></p></li>
-<li id="fn63"><p>This latter aspect has been particularly important historically. Given more readily available computing power, alternative approaches based on Monte Carlo simulation of <span class="math inline">\(p\)</span>-values can also be used.<a href="ch-03-05-hypothesis-p-values.html#fnref63" class="footnote-back">↩︎</a></p></li>
-<li id="fn64"><p>It is admittedly a bit of a notational overkill to write this comparison relation as a function of <span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_a\)</span> (the alternative hypothesis). Other definitions of the <span class="math inline">\(p\)</span>-value do not. But the comparison <em>is</em> context-dependent, and you deserve to see this clearly. To see it clearly, a certain heaviness of notation is the price to pay.<a href="ch-03-05-hypothesis-p-values.html#fnref64" class="footnote-back">↩︎</a></p></li>
-<li id="fn65"><p>Most often, the random variable capturing the sampling distribution is just written as <span class="math inline">\(T\)</span>, but it does make sense to stress also notationally that <span class="math inline">\(T\)</span> depends crucially on <span class="math inline">\(H_0\)</span>.<a href="ch-03-05-hypothesis-p-values.html#fnref65" class="footnote-back">↩︎</a></p></li>
-<li id="fn66"><p>An alternative way of looking at this case is to say that, at first, we test the interval-range null hypothesis <span class="math inline">\(\theta &gt; 0.5\)</span>, so that research and null hypothesis coincide. To gather evidence against this interval-range null hypothesis, we will compare it to the alternative hypothesis <span class="math inline">\(\theta &lt; 0.5\)</span>. Since we need a point-value to generate the sampling distribution easily, the question becomes which point for the null hypothesis to take. We then choose the value such that if we gather evidence <em>against</em> this value, this is most disastrous to the null hypothesis in question.<a href="ch-03-05-hypothesis-p-values.html#fnref66" class="footnote-back">↩︎</a></p></li>
-<li id="fn67"><p>Here, the bracket notation <span class="math inline">\([ \mathit{Boolean} ]\)</span> is the <a href="https://en.wikipedia.org/wiki/Iverson_bracket">Iverson bracket</a>, evaluation to 1 if the Boolean expression is true and to 0 otherwise.<a href="ch-03-05-hypothesis-p-values.html#fnref67" class="footnote-back">↩︎</a></p></li>
-<li id="fn68"><p>The problem for interval-valued null hypotheses is that we would need to specify some more information about how to rank parameters, if only to say that they are all ranked equally (plausible, <em>a priori</em>), which is something that we try to avoid in frequentist approaches.<a href="ch-03-05-hypothesis-p-values.html#fnref68" class="footnote-back">↩︎</a></p></li>
-<li id="fn69"><p>An important caveat applies here. There can be different (approximate) ways of defining <span class="math inline">\(p\)</span>-values and confidence intervals. The relation described here does not hold when the (approximate) way of computing the <span class="math inline">\(p\)</span>-value does not match the (approximate) way of computing the confidence interval.<a href="ch-03-05-hypothesis-p-values.html#fnref69" class="footnote-back">↩︎</a></p></li>
+<li id="fn61"><p>To preview later material (see Section <a href="ch-03-05-hypothesis-testing-3-approaches.html#ch-03-05-hypothesis-testing-3-approaches">16.4</a>), the Neyman-Pearson approach goes further and also looks at evidence in favor of the null hypothesis. It also tries to quantify something like evidence in favor of the research hypothesis. But Fisher’s approach and some flavors of the hybrid approach only consider how much the data speak against the null hypothesis.<a href="ch-03-05-hypothesis-p-values.html#fnref61" class="footnote-back">↩</a></p></li>
+<li id="fn62"><p>This formulation in terms of a context-dependent, i.e., <span class="math inline">\(H_0\)</span>-dependent, ordering is not usual. However, the interpretation <em>is</em> de facto context-dependent in this way, and so it makes sense to highlight this aspect of the use of <span class="math inline">\(p\)</span>-values also formally. Notice, however, that we can get rid of the context-dependence by using different test statistics. But this is also not how it is done in practice. Essentially, this definition aims for maximal generality so as to cover all cases of use. Since the class of use cases is fuzzy, the definition needs this flexibility. Alternative mathematical definitions that appear to be simpler just do not capture all the use cases.<a href="ch-03-05-hypothesis-p-values.html#fnref62" class="footnote-back">↩</a></p></li>
+<li id="fn63"><p>This latter aspect has been particularly important historically. Given more readily available computing power, alternative approaches based on Monte Carlo simulation of <span class="math inline">\(p\)</span>-values can also be used.<a href="ch-03-05-hypothesis-p-values.html#fnref63" class="footnote-back">↩</a></p></li>
+<li id="fn64"><p>It is admittedly a bit of a notational overkill to write this comparison relation as a function of <span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_a\)</span> (the alternative hypothesis). Other definitions of the <span class="math inline">\(p\)</span>-value do not. But the comparison <em>is</em> context-dependent, and you deserve to see this clearly. To see it clearly, a certain heaviness of notation is the price to pay.<a href="ch-03-05-hypothesis-p-values.html#fnref64" class="footnote-back">↩</a></p></li>
+<li id="fn65"><p>Most often, the random variable capturing the sampling distribution is just written as <span class="math inline">\(T\)</span>, but it does make sense to stress also notationally that <span class="math inline">\(T\)</span> depends crucially on <span class="math inline">\(H_0\)</span>.<a href="ch-03-05-hypothesis-p-values.html#fnref65" class="footnote-back">↩</a></p></li>
+<li id="fn66"><p>An alternative way of looking at this case is to say that, at first, we test the interval-range null hypothesis <span class="math inline">\(\theta &gt; 0.5\)</span>, so that research and null hypothesis coincide. To gather evidence against this interval-range null hypothesis, we will compare it to the alternative hypothesis <span class="math inline">\(\theta &lt; 0.5\)</span>. Since we need a point-value to generate the sampling distribution easily, the question becomes which point for the null hypothesis to take. We then choose the value such that if we gather evidence <em>against</em> this value, this is most disastrous to the null hypothesis in question.<a href="ch-03-05-hypothesis-p-values.html#fnref66" class="footnote-back">↩</a></p></li>
+<li id="fn67"><p>Here, the bracket notation <span class="math inline">\([ \mathit{Boolean} ]\)</span> is the <a href="https://en.wikipedia.org/wiki/Iverson_bracket">Iverson bracket</a>, evaluation to 1 if the Boolean expression is true and to 0 otherwise.<a href="ch-03-05-hypothesis-p-values.html#fnref67" class="footnote-back">↩</a></p></li>
+<li id="fn68"><p>The problem for interval-valued null hypotheses is that we would need to specify some more information about how to rank parameters, if only to say that they are all ranked equally (plausible, <em>a priori</em>), which is something that we try to avoid in frequentist approaches.<a href="ch-03-05-hypothesis-p-values.html#fnref68" class="footnote-back">↩</a></p></li>
+<li id="fn69"><p>An important caveat applies here. There can be different (approximate) ways of defining <span class="math inline">\(p\)</span>-values and confidence intervals. The relation described here does not hold when the (approximate) way of computing the <span class="math inline">\(p\)</span>-value does not match the (approximate) way of computing the confidence interval.<a href="ch-03-05-hypothesis-p-values.html#fnref69" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>

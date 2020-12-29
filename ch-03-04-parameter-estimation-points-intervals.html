@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>9.2 Point-valued and interval-ranged estimates | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="9.2 Point-valued and interval-ranged estimates | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -604,40 +604,40 @@ Figure 9.7: Difference between a 95% credible interval and a 95% inner-quantile 
 <h3><span class="header-section-number">9.2.3</span> Computing Bayesian estimates</h3>
 <p>As mentioned, the most common (and arguably best) summaries to report for a Bayesian posterior are the posterior mean and a credible interval. The <code>aida</code> package which accompanies this book, has a convenience function called <code>aida::summarize_sample_vector()</code> that gives the mean and 95% credible interval for a vector of samples.
 You can use it like so:</p>
-<div class="sourceCode" id="cb432"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb432-1"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb432-1"></a><span class="co"># take samples from a posterior (24/7 example with flat priors)</span></span>
-<span id="cb432-2"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb432-2"></a>posterior_samples &lt;-<span class="st"> </span><span class="kw">rbeta</span>(<span class="dv">100000</span>, <span class="dv">8</span>, <span class="dv">18</span>)</span>
-<span id="cb432-3"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb432-3"></a><span class="co"># get summaries</span></span>
-<span id="cb432-4"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb432-4"></a>aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(</span>
-<span id="cb432-5"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb432-5"></a>  <span class="co"># vector of samples </span></span>
-<span id="cb432-6"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb432-6"></a>  <span class="dt">samples =</span> posterior_samples,</span>
-<span id="cb432-7"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb432-7"></a>  <span class="co"># name of output column</span></span>
-<span id="cb432-8"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb432-8"></a>  <span class="dt">name =</span> <span class="st">&quot;theta&quot;</span></span>
-<span id="cb432-9"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb432-9"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb432"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb432-1" data-line-number="1"><span class="co"># take samples from a posterior (24/7 example with flat priors)</span></a>
+<a class="sourceLine" id="cb432-2" data-line-number="2">posterior_samples &lt;-<span class="st"> </span><span class="kw">rbeta</span>(<span class="dv">100000</span>, <span class="dv">8</span>, <span class="dv">18</span>)</a>
+<a class="sourceLine" id="cb432-3" data-line-number="3"><span class="co"># get summaries</span></a>
+<a class="sourceLine" id="cb432-4" data-line-number="4">aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(</a>
+<a class="sourceLine" id="cb432-5" data-line-number="5">  <span class="co"># vector of samples </span></a>
+<a class="sourceLine" id="cb432-6" data-line-number="6">  <span class="dt">samples =</span> posterior_samples,</a>
+<a class="sourceLine" id="cb432-7" data-line-number="7">  <span class="co"># name of output column</span></a>
+<a class="sourceLine" id="cb432-8" data-line-number="8">  <span class="dt">name =</span> <span class="st">&quot;theta&quot;</span></a>
+<a class="sourceLine" id="cb432-9" data-line-number="9">)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 4
 ##   Parameter `|95%`  mean `95%|`
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
-## 1 theta      0.139 0.308  0.480</code></pre>
+## 1 theta      0.142 0.308  0.485</code></pre>
 </div>
 <div id="excursion-computing-mles-and-maps-in-r" class="section level3">
 <h3><span class="header-section-number">9.2.4</span> Excursion: Computing MLEs and MAPs in R</h3>
 <p>Computing the maximum or minimum of a function, such as an MLE or MAP estimate, is a common problem. R has a built-in function <code>optim</code> that is useful for finding the minimum of a function. (If a maximum is needed, just multiply by <span class="math inline">\(-1\)</span> and search the minimum with <code>optim</code>.)</p>
 <p>We can use the <code>optim</code> function to retrieve an MLE for 24/7 data and the Binomial Model (with flat priors) using conjugacy like so:</p>
-<div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb434-1"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-1"></a><span class="co"># perform optimization</span></span>
-<span id="cb434-2"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-2"></a>MLE &lt;-<span class="st"> </span><span class="kw">optim</span>(</span>
-<span id="cb434-3"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-3"></a>  <span class="co"># starting value for optimization</span></span>
-<span id="cb434-4"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-4"></a>  <span class="dt">par =</span> <span class="fl">0.2</span>,</span>
-<span id="cb434-5"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-5"></a>  <span class="co"># funtion to minimize (= optimize)</span></span>
-<span id="cb434-6"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-6"></a>  <span class="dt">fn =</span> <span class="cf">function</span>(par){</span>
-<span id="cb434-7"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-7"></a>    <span class="op">-</span><span class="kw">dbeta</span>(par, <span class="dv">8</span>, <span class="dv">18</span>)</span>
-<span id="cb434-8"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-8"></a>  },</span>
-<span id="cb434-9"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-9"></a>  <span class="co"># method of optimization (for 1-d cases)</span></span>
-<span id="cb434-10"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-10"></a>  <span class="dt">method =</span> <span class="st">&quot;Brent&quot;</span>,</span>
-<span id="cb434-11"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-11"></a>  <span class="co"># lower and upper bound of possible parameter values</span></span>
-<span id="cb434-12"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-12"></a>  <span class="dt">lower =</span> <span class="dv">0</span>,</span>
-<span id="cb434-13"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-13"></a>  <span class="dt">upper =</span> <span class="dv">1</span></span>
-<span id="cb434-14"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-14"></a>)</span>
-<span id="cb434-15"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-15"></a><span class="co"># retrieve MLE</span></span>
-<span id="cb434-16"><a href="ch-03-04-parameter-estimation-points-intervals.html#cb434-16"></a>MLE<span class="op">$</span>par</span></code></pre></div>
+<div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb434-1" data-line-number="1"><span class="co"># perform optimization</span></a>
+<a class="sourceLine" id="cb434-2" data-line-number="2">MLE &lt;-<span class="st"> </span><span class="kw">optim</span>(</a>
+<a class="sourceLine" id="cb434-3" data-line-number="3">  <span class="co"># starting value for optimization</span></a>
+<a class="sourceLine" id="cb434-4" data-line-number="4">  <span class="dt">par =</span> <span class="fl">0.2</span>,</a>
+<a class="sourceLine" id="cb434-5" data-line-number="5">  <span class="co"># funtion to minimize (= optimize)</span></a>
+<a class="sourceLine" id="cb434-6" data-line-number="6">  <span class="dt">fn =</span> <span class="cf">function</span>(par){</a>
+<a class="sourceLine" id="cb434-7" data-line-number="7">    <span class="op">-</span><span class="kw">dbeta</span>(par, <span class="dv">8</span>, <span class="dv">18</span>)</a>
+<a class="sourceLine" id="cb434-8" data-line-number="8">  },</a>
+<a class="sourceLine" id="cb434-9" data-line-number="9">  <span class="co"># method of optimization (for 1-d cases)</span></a>
+<a class="sourceLine" id="cb434-10" data-line-number="10">  <span class="dt">method =</span> <span class="st">&quot;Brent&quot;</span>,</a>
+<a class="sourceLine" id="cb434-11" data-line-number="11">  <span class="co"># lower and upper bound of possible parameter values</span></a>
+<a class="sourceLine" id="cb434-12" data-line-number="12">  <span class="dt">lower =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb434-13" data-line-number="13">  <span class="dt">upper =</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb434-14" data-line-number="14">)</a>
+<a class="sourceLine" id="cb434-15" data-line-number="15"><span class="co"># retrieve MLE</span></a>
+<a class="sourceLine" id="cb434-16" data-line-number="16">MLE<span class="op">$</span>par</a></code></pre></div>
 <pre><code>## [1] 0.2916667</code></pre>
 <p>Indeed, the value obtained by computationally approximating the maximum likelihood estimate for this likelihood function coincides with the true value of <span class="math inline">\(\frac{7}{24}\)</span></p>
 </div>
@@ -645,9 +645,9 @@ You can use it like so:</p>
 <div class="footnotes">
 <hr />
 <ol start="49">
-<li id="fn49"><p>This is also known as <em>Laplace’s rule</em> or the <em>rule of succession</em>.<a href="ch-03-04-parameter-estimation-points-intervals.html#fnref49" class="footnote-back">↩︎</a></p></li>
-<li id="fn50"><p>Also frequently called “highest-density intervals”, even when we are dealing not with density but probability mass.<a href="ch-03-04-parameter-estimation-points-intervals.html#fnref50" class="footnote-back">↩︎</a></p></li>
-<li id="fn51"><p>Not all random variables have a credible interval for a given <span class="math inline">\(\gamma\)</span>, according to this definition. A bimodal distribution might not, for example. A bi-modal distribution has two regions of high probability. We can, therefore, generalize the concept to a finite set of disjoint convex <em>credible regions</em>, all of which have the second property of the definition above and all of which conjointly are realized with <span class="math inline">\(\gamma\%\)</span> probability. Unfortunately, common parlor uses the term “credible interval” to refer to credible regions as well. The same disaster occurs with alternative terms, such as “<span class="math inline">\(\gamma\%\)</span> highest-density intervals”, which also often refers to what should better be called “highest-density regions”.<a href="ch-03-04-parameter-estimation-points-intervals.html#fnref51" class="footnote-back">↩︎</a></p></li>
+<li id="fn49"><p>This is also known as <em>Laplace’s rule</em> or the <em>rule of succession</em>.<a href="ch-03-04-parameter-estimation-points-intervals.html#fnref49" class="footnote-back">↩</a></p></li>
+<li id="fn50"><p>Also frequently called “highest-density intervals”, even when we are dealing not with density but probability mass.<a href="ch-03-04-parameter-estimation-points-intervals.html#fnref50" class="footnote-back">↩</a></p></li>
+<li id="fn51"><p>Not all random variables have a credible interval for a given <span class="math inline">\(\gamma\)</span>, according to this definition. A bimodal distribution might not, for example. A bi-modal distribution has two regions of high probability. We can, therefore, generalize the concept to a finite set of disjoint convex <em>credible regions</em>, all of which have the second property of the definition above and all of which conjointly are realized with <span class="math inline">\(\gamma\%\)</span> probability. Unfortunately, common parlor uses the term “credible interval” to refer to credible regions as well. The same disaster occurs with alternative terms, such as “<span class="math inline">\(\gamma\%\)</span> highest-density intervals”, which also often refers to what should better be called “highest-density regions”.<a href="ch-03-04-parameter-estimation-points-intervals.html#fnref51" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>

@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>3.4 Basics of experimental design | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="3.4 Basics of experimental design | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -525,14 +525,14 @@ code span.wa { color: #bf0303; } /* Warning */
 <h2><span class="header-section-number">3.4</span> Basics of experimental design</h2>
 <p>The most basic template for an experiment is to just measure a quantity of interest (the dependent variable), without taking into account any kind of variation in any kind of independent variables. For instance, we measure the time it takes for an object with a specific shape and weight to hit the ground when dropped from a height of exactly 2 meters. To filter out <strong>measurement noise</strong>, we do not just record one observation, but, ideally, as much as we possibly and practically can. We use the measurements, in our concrete example: time measurements, to test a theory about acceleration and gravity. Data from such a simple measurement experiment would be just a single vector of numbers.</p>
 <p>A more elaborate kind of experiment would allow for at least one independent variable. Another archetypical example of an empirical experiment would be a medical study, e.g., one in which we are interested in the effect of a particular drug on the blood pressure of patients. We would then randomly allocate each participant to one of two groups. One group, the <strong>treatment group</strong>, receives the drug in question; the other group, <strong>the control group</strong>, receives a placebo (and nobody, not even the experimenter, knows who receives what). After a pre-defined exposure to either drug or placebo, blood pressure (for simplicity, just systolic blood pressure) is measured. The interesting question is whether there is a difference between the measurements across groups. This is a simple example of a <strong>one-factor design</strong>. The factor in question is which group any particular measurement belongs to. Data from such an experiment could look like this:</p>
-<div class="sourceCode" id="cb188"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb188-1"><a href="Chap-02-01-data-exp-design.html#cb188-1"></a><span class="kw">tribble</span>(</span>
-<span id="cb188-2"><a href="Chap-02-01-data-exp-design.html#cb188-2"></a>  <span class="op">~</span>subj_id,     <span class="op">~</span>group,        <span class="op">~</span>systolic,   </span>
-<span id="cb188-3"><a href="Chap-02-01-data-exp-design.html#cb188-3"></a>  <span class="dv">1</span>,            <span class="st">&quot;treatment&quot;</span>,   <span class="dv">118</span>,</span>
-<span id="cb188-4"><a href="Chap-02-01-data-exp-design.html#cb188-4"></a>  <span class="dv">2</span>,            <span class="st">&quot;control&quot;</span>,     <span class="dv">132</span>,</span>
-<span id="cb188-5"><a href="Chap-02-01-data-exp-design.html#cb188-5"></a>  <span class="dv">3</span>,            <span class="st">&quot;control&quot;</span>,     <span class="dv">116</span>,</span>
-<span id="cb188-6"><a href="Chap-02-01-data-exp-design.html#cb188-6"></a>  <span class="dv">4</span>,            <span class="st">&quot;treatment&quot;</span>,   <span class="dv">127</span>,</span>
-<span id="cb188-7"><a href="Chap-02-01-data-exp-design.html#cb188-7"></a>  <span class="dv">5</span>,            <span class="st">&quot;treatment&quot;</span>,   <span class="dv">122</span></span>
-<span id="cb188-8"><a href="Chap-02-01-data-exp-design.html#cb188-8"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb188"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb188-1" data-line-number="1"><span class="kw">tribble</span>(</a>
+<a class="sourceLine" id="cb188-2" data-line-number="2">  <span class="op">~</span>subj_id,     <span class="op">~</span>group,        <span class="op">~</span>systolic,   </a>
+<a class="sourceLine" id="cb188-3" data-line-number="3">  <span class="dv">1</span>,            <span class="st">&quot;treatment&quot;</span>,   <span class="dv">118</span>,</a>
+<a class="sourceLine" id="cb188-4" data-line-number="4">  <span class="dv">2</span>,            <span class="st">&quot;control&quot;</span>,     <span class="dv">132</span>,</a>
+<a class="sourceLine" id="cb188-5" data-line-number="5">  <span class="dv">3</span>,            <span class="st">&quot;control&quot;</span>,     <span class="dv">116</span>,</a>
+<a class="sourceLine" id="cb188-6" data-line-number="6">  <span class="dv">4</span>,            <span class="st">&quot;treatment&quot;</span>,   <span class="dv">127</span>,</a>
+<a class="sourceLine" id="cb188-7" data-line-number="7">  <span class="dv">5</span>,            <span class="st">&quot;treatment&quot;</span>,   <span class="dv">122</span></a>
+<a class="sourceLine" id="cb188-8" data-line-number="8">)</a></code></pre></div>
 <pre><code>## # A tibble: 5 x 3
 ##   subj_id group     systolic
 ##     &lt;dbl&gt; &lt;chr&gt;        &lt;dbl&gt;
@@ -684,7 +684,7 @@ Solution
 <div class="footnotes">
 <hr />
 <ol start="16">
-<li id="fn16"><p>The archetypical medical experiment discussed above is a <em>one-factor design</em>. In contrast, the term ‘factorial design’ is usually used to refer to what is also often called a <strong>full factorial design</strong>. These are designs with at least two independent variables.<a href="Chap-02-01-data-exp-design.html#fnref16" class="footnote-back">↩︎</a></p></li>
+<li id="fn16"><p>The archetypical medical experiment discussed above is a <em>one-factor design</em>. In contrast, the term ‘factorial design’ is usually used to refer to what is also often called a <strong>full factorial design</strong>. These are designs with at least two independent variables.<a href="Chap-02-01-data-exp-design.html#fnref16" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>

@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>D.1 Mental Chronometry | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="D.1 Mental Chronometry | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -558,69 +558,69 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>The raw data produced by the online experiment is not particularly tidy. It needs substantial massages before plotting and analysis.</p>
 <pre><code>## Rows: 3,750
 ## Columns: 32
-## $ submission_id &lt;dbl&gt; 8554, 8554, 8554, 8554, 8554, 8554, 8554, ...
-## $ QUD           &lt;chr&gt; &quot;Press SPACE when you see a shape on the s...
-## $ RT            &lt;dbl&gt; 376, 311, 329, 270, 284, 311, 269, 317, 32...
-## $ age           &lt;dbl&gt; 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21...
-## $ comments      &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ correctness   &lt;chr&gt; &quot;correct&quot;, &quot;correct&quot;, &quot;correct&quot;, &quot;correct&quot;...
-## $ education     &lt;chr&gt; &quot;high school / college&quot;, &quot;high school / co...
-## $ elemSize      &lt;dbl&gt; 100, 100, 100, 100, 100, 100, 100, 100, 10...
-## $ endTime       &lt;dbl&gt; 1.570374e+12, 1.570374e+12, 1.570374e+12, ...
-## $ expected      &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ experiment_id &lt;dbl&gt; 68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68...
-## $ f             &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ focalColor    &lt;chr&gt; &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;b...
-## $ focalNumber   &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
-## $ focalShape    &lt;chr&gt; &quot;square&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;square&quot;, &quot;c...
-## $ gender        &lt;chr&gt; &quot;female&quot;, &quot;female&quot;, &quot;female&quot;, &quot;female&quot;, &quot;f...
-## $ j             &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ key1          &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ key2          &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ key_pressed   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ languages     &lt;chr&gt; &quot;Right&quot;, &quot;Right&quot;, &quot;Right&quot;, &quot;Right&quot;, &quot;Right...
-## $ pause         &lt;dbl&gt; 2631, 1700, 1322, 1787, 1295, 2330, 1620, ...
-## $ response      &lt;chr&gt; &quot;space&quot;, &quot;space&quot;, &quot;space&quot;, &quot;space&quot;, &quot;space...
-## $ sort          &lt;chr&gt; &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;g...
-## $ startDate     &lt;chr&gt; &quot;Sun Oct 06 2019 15:45:19 GMT+0100 (Hora d...
-## $ startTime     &lt;dbl&gt; 1.570373e+12, 1.570373e+12, 1.570373e+12, ...
-## $ stimulus      &lt;chr&gt; &quot;square&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;square&quot;, &quot;c...
-## $ target        &lt;chr&gt; &quot;square&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;square&quot;, &quot;c...
-## $ timeSpent     &lt;dbl&gt; 7.2514, 7.2514, 7.2514, 7.2514, 7.2514, 7....
-## $ total         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
-## $ trial_number  &lt;dbl&gt; 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
-## $ trial_type    &lt;chr&gt; &quot;reaction_practice&quot;, &quot;reaction_practice&quot;, ...</code></pre>
-<div class="sourceCode" id="cb613"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb613-1"><a href="app-93-data-sets-mental-chronometry.html#cb613-1"></a>mc_data_raw &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_raw.csv&#39;</span>))</span>
-<span id="cb613-2"><a href="app-93-data-sets-mental-chronometry.html#cb613-2"></a><span class="kw">glimpse</span>(mc_data_raw)</span></code></pre></div>
+## $ submission_id &lt;dbl&gt; 8554, 8554, 8554, 8554, 8554, 8554, 8554, 8554, 8554, 8…
+## $ QUD           &lt;chr&gt; &quot;Press SPACE when you see a shape on the screen&quot;, &quot;Pres…
+## $ RT            &lt;dbl&gt; 376, 311, 329, 270, 284, 311, 269, 317, 325, 240, 262, …
+## $ age           &lt;dbl&gt; 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,…
+## $ comments      &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ correctness   &lt;chr&gt; &quot;correct&quot;, &quot;correct&quot;, &quot;correct&quot;, &quot;correct&quot;, &quot;correct&quot;, …
+## $ education     &lt;chr&gt; &quot;high school / college&quot;, &quot;high school / college&quot;, &quot;high…
+## $ elemSize      &lt;dbl&gt; 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, …
+## $ endTime       &lt;dbl&gt; 1.570374e+12, 1.570374e+12, 1.570374e+12, 1.570374e+12,…
+## $ expected      &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ experiment_id &lt;dbl&gt; 68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68,…
+## $ f             &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ focalColor    &lt;chr&gt; &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;, &quot;blue&quot;,…
+## $ focalNumber   &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+## $ focalShape    &lt;chr&gt; &quot;square&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;circ…
+## $ gender        &lt;chr&gt; &quot;female&quot;, &quot;female&quot;, &quot;female&quot;, &quot;female&quot;, &quot;female&quot;, &quot;fema…
+## $ j             &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ key1          &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ key2          &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ key_pressed   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ languages     &lt;chr&gt; &quot;Right&quot;, &quot;Right&quot;, &quot;Right&quot;, &quot;Right&quot;, &quot;Right&quot;, &quot;Right&quot;, &quot;…
+## $ pause         &lt;dbl&gt; 2631, 1700, 1322, 1787, 1295, 2330, 1620, 2460, 1580, 1…
+## $ response      &lt;chr&gt; &quot;space&quot;, &quot;space&quot;, &quot;space&quot;, &quot;space&quot;, &quot;space&quot;, &quot;space&quot;, &quot;…
+## $ sort          &lt;chr&gt; &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;, &quot;grid&quot;,…
+## $ startDate     &lt;chr&gt; &quot;Sun Oct 06 2019 15:45:19 GMT+0100 (Hora de verão da Eu…
+## $ startTime     &lt;dbl&gt; 1.570373e+12, 1.570373e+12, 1.570373e+12, 1.570373e+12,…
+## $ stimulus      &lt;chr&gt; &quot;square&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;circ…
+## $ target        &lt;chr&gt; &quot;square&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;square&quot;, &quot;circle&quot;, &quot;circ…
+## $ timeSpent     &lt;dbl&gt; 7.2514, 7.2514, 7.2514, 7.2514, 7.2514, 7.2514, 7.2514,…
+## $ total         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+## $ trial_number  &lt;dbl&gt; 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1…
+## $ trial_type    &lt;chr&gt; &quot;reaction_practice&quot;, &quot;reaction_practice&quot;, &quot;reaction_pra…</code></pre>
+<div class="sourceCode" id="cb613"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb613-1" data-line-number="1">mc_data_raw &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_raw.csv&#39;</span>))</a>
+<a class="sourceLine" id="cb613-2" data-line-number="2"><span class="kw">glimpse</span>(mc_data_raw)</a></code></pre></div>
 <p>The most pressing problem is that entries in the column <code>trial_type</code> contain two logically separate pieces of information: the block (reaction, go/no-go, discrimination) <em>and</em> whether the data comes from a practice trial (which we want to discard) or a main trial (which we want to analyze). We therefore separate this information, and perform some other massages, to finally select a preprocessed data set for further analysis:</p>
-<div class="sourceCode" id="cb614"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb614-1"><a href="app-93-data-sets-mental-chronometry.html#cb614-1"></a>block_levels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;reaction&quot;</span>, <span class="st">&quot;goNoGo&quot;</span>, <span class="st">&quot;discrimination&quot;</span>) <span class="co"># ordering of blocks for plotting, etc. </span></span>
-<span id="cb614-2"><a href="app-93-data-sets-mental-chronometry.html#cb614-2"></a></span>
-<span id="cb614-3"><a href="app-93-data-sets-mental-chronometry.html#cb614-3"></a>mc_data_preprocessed &lt;-<span class="st"> </span>mc_data_raw <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb614-4"><a href="app-93-data-sets-mental-chronometry.html#cb614-4"></a><span class="st">  </span><span class="kw">separate</span>(trial_type, <span class="kw">c</span>(<span class="st">&quot;block&quot;</span>, <span class="st">&quot;stage&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>, <span class="dt">remove =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span></span>
-<span id="cb614-5"><a href="app-93-data-sets-mental-chronometry.html#cb614-5"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">comments =</span> <span class="kw">ifelse</span>(<span class="kw">is.na</span>(comments), <span class="st">&quot;non given&quot;</span>, comments)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb614-6"><a href="app-93-data-sets-mental-chronometry.html#cb614-6"></a><span class="st">  </span><span class="kw">filter</span>(stage <span class="op">==</span><span class="st"> &quot;main&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb614-7"><a href="app-93-data-sets-mental-chronometry.html#cb614-7"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb614-8"><a href="app-93-data-sets-mental-chronometry.html#cb614-8"></a>    <span class="dt">block =</span> <span class="kw">factor</span>(block, <span class="dt">ordered =</span> T, <span class="dt">levels =</span> block_levels),</span>
-<span id="cb614-9"><a href="app-93-data-sets-mental-chronometry.html#cb614-9"></a>    <span class="dt">response =</span> <span class="kw">ifelse</span>(<span class="kw">is.na</span>(response), <span class="st">&quot;none&quot;</span>, response)</span>
-<span id="cb614-10"><a href="app-93-data-sets-mental-chronometry.html#cb614-10"></a>  ) <span class="op">%&gt;%</span></span>
-<span id="cb614-11"><a href="app-93-data-sets-mental-chronometry.html#cb614-11"></a><span class="st">  </span><span class="kw">filter</span>(response <span class="op">!=</span><span class="st"> &quot;wait&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb614-12"><a href="app-93-data-sets-mental-chronometry.html#cb614-12"></a><span class="st">  </span><span class="kw">rename</span>(</span>
-<span id="cb614-13"><a href="app-93-data-sets-mental-chronometry.html#cb614-13"></a>    <span class="dt">handedness =</span> languages, <span class="co"># variable name is simply wrong</span></span>
-<span id="cb614-14"><a href="app-93-data-sets-mental-chronometry.html#cb614-14"></a>    <span class="dt">total_time_spent =</span> timeSpent</span>
-<span id="cb614-15"><a href="app-93-data-sets-mental-chronometry.html#cb614-15"></a>  ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb614-16"><a href="app-93-data-sets-mental-chronometry.html#cb614-16"></a><span class="st">  </span><span class="kw">select</span>(</span>
-<span id="cb614-17"><a href="app-93-data-sets-mental-chronometry.html#cb614-17"></a>    submission_id, </span>
-<span id="cb614-18"><a href="app-93-data-sets-mental-chronometry.html#cb614-18"></a>    trial_number, </span>
-<span id="cb614-19"><a href="app-93-data-sets-mental-chronometry.html#cb614-19"></a>    block, </span>
-<span id="cb614-20"><a href="app-93-data-sets-mental-chronometry.html#cb614-20"></a>    stimulus, </span>
-<span id="cb614-21"><a href="app-93-data-sets-mental-chronometry.html#cb614-21"></a>    RT, </span>
-<span id="cb614-22"><a href="app-93-data-sets-mental-chronometry.html#cb614-22"></a>    handedness, </span>
-<span id="cb614-23"><a href="app-93-data-sets-mental-chronometry.html#cb614-23"></a>    gender, </span>
-<span id="cb614-24"><a href="app-93-data-sets-mental-chronometry.html#cb614-24"></a>    total_time_spent,</span>
-<span id="cb614-25"><a href="app-93-data-sets-mental-chronometry.html#cb614-25"></a>    comments</span>
-<span id="cb614-26"><a href="app-93-data-sets-mental-chronometry.html#cb614-26"></a>  )</span>
-<span id="cb614-27"><a href="app-93-data-sets-mental-chronometry.html#cb614-27"></a></span>
-<span id="cb614-28"><a href="app-93-data-sets-mental-chronometry.html#cb614-28"></a><span class="co"># write_csv(mc_data_preprocessed, &#39;mental-chrono-data_preprocessed.csv&#39;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb614"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb614-1" data-line-number="1">block_levels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;reaction&quot;</span>, <span class="st">&quot;goNoGo&quot;</span>, <span class="st">&quot;discrimination&quot;</span>) <span class="co"># ordering of blocks for plotting, etc. </span></a>
+<a class="sourceLine" id="cb614-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb614-3" data-line-number="3">mc_data_preprocessed &lt;-<span class="st"> </span>mc_data_raw <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb614-4" data-line-number="4"><span class="st">  </span><span class="kw">separate</span>(trial_type, <span class="kw">c</span>(<span class="st">&quot;block&quot;</span>, <span class="st">&quot;stage&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>, <span class="dt">remove =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb614-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">comments =</span> <span class="kw">ifelse</span>(<span class="kw">is.na</span>(comments), <span class="st">&quot;non given&quot;</span>, comments)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb614-6" data-line-number="6"><span class="st">  </span><span class="kw">filter</span>(stage <span class="op">==</span><span class="st"> &quot;main&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb614-7" data-line-number="7"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb614-8" data-line-number="8">    <span class="dt">block =</span> <span class="kw">factor</span>(block, <span class="dt">ordered =</span> T, <span class="dt">levels =</span> block_levels),</a>
+<a class="sourceLine" id="cb614-9" data-line-number="9">    <span class="dt">response =</span> <span class="kw">ifelse</span>(<span class="kw">is.na</span>(response), <span class="st">&quot;none&quot;</span>, response)</a>
+<a class="sourceLine" id="cb614-10" data-line-number="10">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb614-11" data-line-number="11"><span class="st">  </span><span class="kw">filter</span>(response <span class="op">!=</span><span class="st"> &quot;wait&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb614-12" data-line-number="12"><span class="st">  </span><span class="kw">rename</span>(</a>
+<a class="sourceLine" id="cb614-13" data-line-number="13">    <span class="dt">handedness =</span> languages, <span class="co"># variable name is simply wrong</span></a>
+<a class="sourceLine" id="cb614-14" data-line-number="14">    <span class="dt">total_time_spent =</span> timeSpent</a>
+<a class="sourceLine" id="cb614-15" data-line-number="15">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb614-16" data-line-number="16"><span class="st">  </span><span class="kw">select</span>(</a>
+<a class="sourceLine" id="cb614-17" data-line-number="17">    submission_id, </a>
+<a class="sourceLine" id="cb614-18" data-line-number="18">    trial_number, </a>
+<a class="sourceLine" id="cb614-19" data-line-number="19">    block, </a>
+<a class="sourceLine" id="cb614-20" data-line-number="20">    stimulus, </a>
+<a class="sourceLine" id="cb614-21" data-line-number="21">    RT, </a>
+<a class="sourceLine" id="cb614-22" data-line-number="22">    handedness, </a>
+<a class="sourceLine" id="cb614-23" data-line-number="23">    gender, </a>
+<a class="sourceLine" id="cb614-24" data-line-number="24">    total_time_spent,</a>
+<a class="sourceLine" id="cb614-25" data-line-number="25">    comments</a>
+<a class="sourceLine" id="cb614-26" data-line-number="26">  )</a>
+<a class="sourceLine" id="cb614-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb614-28" data-line-number="28"><span class="co"># write_csv(mc_data_preprocessed, &#39;mental-chrono-data_preprocessed.csv&#39;)</span></a></code></pre></div>
 </div>
 <div id="cleaning-the-data-1" class="section level3">
 <h3><span class="header-section-number">D.1.3</span> Cleaning the data</h3>
@@ -638,50 +638,50 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>We remove the data from an individual participant <span class="math inline">\(X\)</span> if there is an experimental condition <span class="math inline">\(C\)</span> such that the mean RT of <span class="math inline">\(X\)</span> for condition <span class="math inline">\(C\)</span> is more than 2 standard deviations away from the overall mean RT for condition <span class="math inline">\(C\)</span>. We also remove all trials with reaction times below 100ms.</p>
 </blockquote>
 <p>This procedure is implemented in this code:</p>
-<div class="sourceCode" id="cb615"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb615-1"><a href="app-93-data-sets-mental-chronometry.html#cb615-1"></a><span class="co"># summary stats (means) for participants</span></span>
-<span id="cb615-2"><a href="app-93-data-sets-mental-chronometry.html#cb615-2"></a>d_sum_stats_participants &lt;-<span class="st"> </span>mc_data_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb615-3"><a href="app-93-data-sets-mental-chronometry.html#cb615-3"></a><span class="st">  </span><span class="kw">group_by</span>(submission_id, block) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb615-4"><a href="app-93-data-sets-mental-chronometry.html#cb615-4"></a><span class="st">  </span><span class="kw">summarise</span>(</span>
-<span id="cb615-5"><a href="app-93-data-sets-mental-chronometry.html#cb615-5"></a>    <span class="dt">mean_P =</span> <span class="kw">mean</span>(RT)</span>
-<span id="cb615-6"><a href="app-93-data-sets-mental-chronometry.html#cb615-6"></a>  )</span>
-<span id="cb615-7"><a href="app-93-data-sets-mental-chronometry.html#cb615-7"></a></span>
-<span id="cb615-8"><a href="app-93-data-sets-mental-chronometry.html#cb615-8"></a><span class="co"># summary stats (means and SDs) for conditions</span></span>
-<span id="cb615-9"><a href="app-93-data-sets-mental-chronometry.html#cb615-9"></a>d_sum_stats_conditions &lt;-<span class="st"> </span>mc_data_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb615-10"><a href="app-93-data-sets-mental-chronometry.html#cb615-10"></a><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb615-11"><a href="app-93-data-sets-mental-chronometry.html#cb615-11"></a><span class="st">  </span><span class="kw">summarise</span>(</span>
-<span id="cb615-12"><a href="app-93-data-sets-mental-chronometry.html#cb615-12"></a>    <span class="dt">mean_C =</span> <span class="kw">mean</span>(RT),</span>
-<span id="cb615-13"><a href="app-93-data-sets-mental-chronometry.html#cb615-13"></a>    <span class="dt">sd_C   =</span> <span class="kw">sd</span>(RT)</span>
-<span id="cb615-14"><a href="app-93-data-sets-mental-chronometry.html#cb615-14"></a>  )</span>
-<span id="cb615-15"><a href="app-93-data-sets-mental-chronometry.html#cb615-15"></a>  </span>
-<span id="cb615-16"><a href="app-93-data-sets-mental-chronometry.html#cb615-16"></a>d_sum_stats_participants &lt;-<span class="st"> </span></span>
-<span id="cb615-17"><a href="app-93-data-sets-mental-chronometry.html#cb615-17"></a><span class="st">  </span><span class="kw">full_join</span>(</span>
-<span id="cb615-18"><a href="app-93-data-sets-mental-chronometry.html#cb615-18"></a>    d_sum_stats_participants,</span>
-<span id="cb615-19"><a href="app-93-data-sets-mental-chronometry.html#cb615-19"></a>    d_sum_stats_conditions,</span>
-<span id="cb615-20"><a href="app-93-data-sets-mental-chronometry.html#cb615-20"></a>    <span class="dt">by =</span> <span class="st">&quot;block&quot;</span></span>
-<span id="cb615-21"><a href="app-93-data-sets-mental-chronometry.html#cb615-21"></a>  ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb615-22"><a href="app-93-data-sets-mental-chronometry.html#cb615-22"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb615-23"><a href="app-93-data-sets-mental-chronometry.html#cb615-23"></a>    <span class="dt">outlier_P =</span> <span class="kw">abs</span>(mean_P <span class="op">-</span><span class="st"> </span>mean_C) <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>sd_C</span>
-<span id="cb615-24"><a href="app-93-data-sets-mental-chronometry.html#cb615-24"></a>  )</span>
-<span id="cb615-25"><a href="app-93-data-sets-mental-chronometry.html#cb615-25"></a></span>
-<span id="cb615-26"><a href="app-93-data-sets-mental-chronometry.html#cb615-26"></a><span class="co"># show outlier participants</span></span>
-<span id="cb615-27"><a href="app-93-data-sets-mental-chronometry.html#cb615-27"></a>d_sum_stats_participants <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(outlier_P <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">show</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb615"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb615-1" data-line-number="1"><span class="co"># summary stats (means) for participants</span></a>
+<a class="sourceLine" id="cb615-2" data-line-number="2">d_sum_stats_participants &lt;-<span class="st"> </span>mc_data_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb615-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(submission_id, block) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb615-4" data-line-number="4"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb615-5" data-line-number="5">    <span class="dt">mean_P =</span> <span class="kw">mean</span>(RT)</a>
+<a class="sourceLine" id="cb615-6" data-line-number="6">  )</a>
+<a class="sourceLine" id="cb615-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb615-8" data-line-number="8"><span class="co"># summary stats (means and SDs) for conditions</span></a>
+<a class="sourceLine" id="cb615-9" data-line-number="9">d_sum_stats_conditions &lt;-<span class="st"> </span>mc_data_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb615-10" data-line-number="10"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb615-11" data-line-number="11"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb615-12" data-line-number="12">    <span class="dt">mean_C =</span> <span class="kw">mean</span>(RT),</a>
+<a class="sourceLine" id="cb615-13" data-line-number="13">    <span class="dt">sd_C   =</span> <span class="kw">sd</span>(RT)</a>
+<a class="sourceLine" id="cb615-14" data-line-number="14">  )</a>
+<a class="sourceLine" id="cb615-15" data-line-number="15">  </a>
+<a class="sourceLine" id="cb615-16" data-line-number="16">d_sum_stats_participants &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb615-17" data-line-number="17"><span class="st">  </span><span class="kw">full_join</span>(</a>
+<a class="sourceLine" id="cb615-18" data-line-number="18">    d_sum_stats_participants,</a>
+<a class="sourceLine" id="cb615-19" data-line-number="19">    d_sum_stats_conditions,</a>
+<a class="sourceLine" id="cb615-20" data-line-number="20">    <span class="dt">by =</span> <span class="st">&quot;block&quot;</span></a>
+<a class="sourceLine" id="cb615-21" data-line-number="21">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb615-22" data-line-number="22"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb615-23" data-line-number="23">    <span class="dt">outlier_P =</span> <span class="kw">abs</span>(mean_P <span class="op">-</span><span class="st"> </span>mean_C) <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>sd_C</a>
+<a class="sourceLine" id="cb615-24" data-line-number="24">  )</a>
+<a class="sourceLine" id="cb615-25" data-line-number="25"></a>
+<a class="sourceLine" id="cb615-26" data-line-number="26"><span class="co"># show outlier participants</span></a>
+<a class="sourceLine" id="cb615-27" data-line-number="27">d_sum_stats_participants <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(outlier_P <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">show</span>()</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 6
 ## # Groups:   submission_id [1]
 ##   submission_id block          mean_P mean_C  sd_C outlier_P
 ##           &lt;dbl&gt; &lt;ord&gt;           &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;lgl&gt;    
 ## 1          8505 discrimination  1078.   518.  185. TRUE</code></pre>
 <p>When plotting the data for this condition and this participant, we see that the high overall mean is not just caused by a single outlier, but several trials that took longer than 1 second.</p>
-<div class="sourceCode" id="cb617"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb617-1"><a href="app-93-data-sets-mental-chronometry.html#cb617-1"></a>mc_data_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb617-2"><a href="app-93-data-sets-mental-chronometry.html#cb617-2"></a><span class="st">  </span><span class="kw">semi_join</span>(</span>
-<span id="cb617-3"><a href="app-93-data-sets-mental-chronometry.html#cb617-3"></a>    d_sum_stats_participants <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(outlier_P <span class="op">==</span><span class="st"> </span><span class="dv">1</span>), </span>
-<span id="cb617-4"><a href="app-93-data-sets-mental-chronometry.html#cb617-4"></a>    <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;submission_id&quot;</span>)</span>
-<span id="cb617-5"><a href="app-93-data-sets-mental-chronometry.html#cb617-5"></a>  ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb617-6"><a href="app-93-data-sets-mental-chronometry.html#cb617-6"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> trial_number, <span class="dt">y =</span> RT)) <span class="op">+</span></span>
-<span id="cb617-7"><a href="app-93-data-sets-mental-chronometry.html#cb617-7"></a><span class="st">  </span><span class="kw">geom_point</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb617"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb617-1" data-line-number="1">mc_data_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb617-2" data-line-number="2"><span class="st">  </span><span class="kw">semi_join</span>(</a>
+<a class="sourceLine" id="cb617-3" data-line-number="3">    d_sum_stats_participants <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(outlier_P <span class="op">==</span><span class="st"> </span><span class="dv">1</span>), </a>
+<a class="sourceLine" id="cb617-4" data-line-number="4">    <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;submission_id&quot;</span>)</a>
+<a class="sourceLine" id="cb617-5" data-line-number="5">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb617-6" data-line-number="6"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> trial_number, <span class="dt">y =</span> RT)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb617-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_point</span>()</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-446-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We are then going to exclude this participant’s entire data from all subsequent analysis:<a href="#fn78" class="footnote-ref" id="fnref78"><sup>78</sup></a></p>
-<div class="sourceCode" id="cb618"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb618-1"><a href="app-93-data-sets-mental-chronometry.html#cb618-1"></a>mc_data_cleaned &lt;-<span class="st"> </span>mc_data_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb618-2"><a href="app-93-data-sets-mental-chronometry.html#cb618-2"></a><span class="st">  </span><span class="kw">filter</span>(submission_id <span class="op">!=</span><span class="st"> </span>d_sum_stats_participants<span class="op">$</span>submission_id[<span class="dv">1</span>] )</span></code></pre></div>
+<div class="sourceCode" id="cb618"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb618-1" data-line-number="1">mc_data_cleaned &lt;-<span class="st"> </span>mc_data_preprocessed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb618-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(submission_id <span class="op">!=</span><span class="st"> </span>d_sum_stats_participants<span class="op">$</span>submission_id[<span class="dv">1</span>] )</a></code></pre></div>
 </div>
 <div id="cleaning-by-trial-1" class="section level4">
 <h4><span class="header-section-number">D.1.3.2</span> Cleaning by-trial</h4>
@@ -690,75 +690,75 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>From the remaining data, we then remove any individual trial <span class="math inline">\(Y\)</span> if the RT of <span class="math inline">\(Y\)</span> is more than 2 standard deviations away from the mean of experimental condition <span class="math inline">\(C\)</span> (where <span class="math inline">\(C\)</span> is the condition of <span class="math inline">\(Y\)</span>, of course). We also remove all trials with reaction times below 100ms.</p>
 </blockquote>
 <p>The following code implements this:</p>
-<div class="sourceCode" id="cb619"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb619-1"><a href="app-93-data-sets-mental-chronometry.html#cb619-1"></a><span class="co"># mark individual trials as outliers</span></span>
-<span id="cb619-2"><a href="app-93-data-sets-mental-chronometry.html#cb619-2"></a>mc_data_cleaned &lt;-<span class="st"> </span>mc_data_cleaned <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb619-3"><a href="app-93-data-sets-mental-chronometry.html#cb619-3"></a><span class="st">  </span><span class="kw">full_join</span>(</span>
-<span id="cb619-4"><a href="app-93-data-sets-mental-chronometry.html#cb619-4"></a>    d_sum_stats_conditions,</span>
-<span id="cb619-5"><a href="app-93-data-sets-mental-chronometry.html#cb619-5"></a>    <span class="dt">by =</span> <span class="st">&quot;block&quot;</span></span>
-<span id="cb619-6"><a href="app-93-data-sets-mental-chronometry.html#cb619-6"></a>  ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb619-7"><a href="app-93-data-sets-mental-chronometry.html#cb619-7"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb619-8"><a href="app-93-data-sets-mental-chronometry.html#cb619-8"></a>    <span class="dt">trial_type =</span> <span class="kw">case_when</span>(</span>
-<span id="cb619-9"><a href="app-93-data-sets-mental-chronometry.html#cb619-9"></a>      <span class="kw">abs</span>(RT <span class="op">-</span><span class="st"> </span>mean_C) <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>sd_C <span class="op">~</span><span class="st"> &quot;too far from mean&quot;</span>,</span>
-<span id="cb619-10"><a href="app-93-data-sets-mental-chronometry.html#cb619-10"></a>      RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">100</span> <span class="op">~</span><span class="st"> &quot;&lt; 100ms&quot;</span>,</span>
-<span id="cb619-11"><a href="app-93-data-sets-mental-chronometry.html#cb619-11"></a>      <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> &quot;acceptable&quot;</span></span>
-<span id="cb619-12"><a href="app-93-data-sets-mental-chronometry.html#cb619-12"></a>    ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">factor</span>(<span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;acceptable&quot;</span>, <span class="st">&quot;&lt; 100ms&quot;</span>, <span class="st">&quot;too far from mean&quot;</span>)),</span>
-<span id="cb619-13"><a href="app-93-data-sets-mental-chronometry.html#cb619-13"></a>    <span class="dt">trial =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(mc_data_cleaned)</span>
-<span id="cb619-14"><a href="app-93-data-sets-mental-chronometry.html#cb619-14"></a>  )</span>
-<span id="cb619-15"><a href="app-93-data-sets-mental-chronometry.html#cb619-15"></a></span>
-<span id="cb619-16"><a href="app-93-data-sets-mental-chronometry.html#cb619-16"></a><span class="co"># visualize outlier trials</span></span>
-<span id="cb619-17"><a href="app-93-data-sets-mental-chronometry.html#cb619-17"></a></span>
-<span id="cb619-18"><a href="app-93-data-sets-mental-chronometry.html#cb619-18"></a>mc_data_cleaned <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb619-19"><a href="app-93-data-sets-mental-chronometry.html#cb619-19"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> trial, <span class="dt">y =</span> RT, <span class="dt">color =</span> trial_type)) <span class="op">+</span></span>
-<span id="cb619-20"><a href="app-93-data-sets-mental-chronometry.html#cb619-20"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.4</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>block) <span class="op">+</span><span class="st"> </span></span>
-<span id="cb619-21"><a href="app-93-data-sets-mental-chronometry.html#cb619-21"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.9</span>, <span class="dt">data =</span> <span class="kw">filter</span>(mc_data_cleaned, trial_type <span class="op">!=</span><span class="st"> &quot;acceptable&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb619"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb619-1" data-line-number="1"><span class="co"># mark individual trials as outliers</span></a>
+<a class="sourceLine" id="cb619-2" data-line-number="2">mc_data_cleaned &lt;-<span class="st"> </span>mc_data_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb619-3" data-line-number="3"><span class="st">  </span><span class="kw">full_join</span>(</a>
+<a class="sourceLine" id="cb619-4" data-line-number="4">    d_sum_stats_conditions,</a>
+<a class="sourceLine" id="cb619-5" data-line-number="5">    <span class="dt">by =</span> <span class="st">&quot;block&quot;</span></a>
+<a class="sourceLine" id="cb619-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb619-7" data-line-number="7"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb619-8" data-line-number="8">    <span class="dt">trial_type =</span> <span class="kw">case_when</span>(</a>
+<a class="sourceLine" id="cb619-9" data-line-number="9">      <span class="kw">abs</span>(RT <span class="op">-</span><span class="st"> </span>mean_C) <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>sd_C <span class="op">~</span><span class="st"> &quot;too far from mean&quot;</span>,</a>
+<a class="sourceLine" id="cb619-10" data-line-number="10">      RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">100</span> <span class="op">~</span><span class="st"> &quot;&lt; 100ms&quot;</span>,</a>
+<a class="sourceLine" id="cb619-11" data-line-number="11">      <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> &quot;acceptable&quot;</span></a>
+<a class="sourceLine" id="cb619-12" data-line-number="12">    ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">factor</span>(<span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;acceptable&quot;</span>, <span class="st">&quot;&lt; 100ms&quot;</span>, <span class="st">&quot;too far from mean&quot;</span>)),</a>
+<a class="sourceLine" id="cb619-13" data-line-number="13">    <span class="dt">trial =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(mc_data_cleaned)</a>
+<a class="sourceLine" id="cb619-14" data-line-number="14">  )</a>
+<a class="sourceLine" id="cb619-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb619-16" data-line-number="16"><span class="co"># visualize outlier trials</span></a>
+<a class="sourceLine" id="cb619-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb619-18" data-line-number="18">mc_data_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb619-19" data-line-number="19"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> trial, <span class="dt">y =</span> RT, <span class="dt">color =</span> trial_type)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb619-20" data-line-number="20"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.4</span>) <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>block) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb619-21" data-line-number="21"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.9</span>, <span class="dt">data =</span> <span class="kw">filter</span>(mc_data_cleaned, trial_type <span class="op">!=</span><span class="st"> &quot;acceptable&quot;</span>))</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-448-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>So, we remove 63 individual trials.</p>
-<div class="sourceCode" id="cb620"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb620-1"><a href="app-93-data-sets-mental-chronometry.html#cb620-1"></a>mc_data_cleaned &lt;-<span class="st"> </span>mc_data_cleaned <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb620-2"><a href="app-93-data-sets-mental-chronometry.html#cb620-2"></a><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;acceptable&quot;</span>)</span>
-<span id="cb620-3"><a href="app-93-data-sets-mental-chronometry.html#cb620-3"></a></span>
-<span id="cb620-4"><a href="app-93-data-sets-mental-chronometry.html#cb620-4"></a><span class="co">## this version of the data is stored as cleaned </span></span>
-<span id="cb620-5"><a href="app-93-data-sets-mental-chronometry.html#cb620-5"></a><span class="co"># write_csv(mc_data_cleaned, &quot;data_sets/mental-chrono-data_cleaned.csv&quot;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb620"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb620-1" data-line-number="1">mc_data_cleaned &lt;-<span class="st"> </span>mc_data_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb620-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;acceptable&quot;</span>)</a>
+<a class="sourceLine" id="cb620-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb620-4" data-line-number="4">## this version of the data is stored as cleaned </a>
+<a class="sourceLine" id="cb620-5" data-line-number="5"><span class="co"># write_csv(mc_data_cleaned, &quot;data_sets/mental-chrono-data_cleaned.csv&quot;)</span></a></code></pre></div>
 </div>
 </div>
 <div id="exploration-summary-stats-plots" class="section level3">
 <h3><span class="header-section-number">D.1.4</span> Exploration: summary stats &amp; plots</h3>
 <p>What’s the distribution of <code>total_time_spent</code>, i.e., the time each participant took to complete the whole study?</p>
-<div class="sourceCode" id="cb621"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb621-1"><a href="app-93-data-sets-mental-chronometry.html#cb621-1"></a>mc_data_cleaned <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb621-2"><a href="app-93-data-sets-mental-chronometry.html#cb621-2"></a><span class="st">  </span><span class="kw">select</span>(submission_id, total_time_spent) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb621-3"><a href="app-93-data-sets-mental-chronometry.html#cb621-3"></a><span class="st">  </span><span class="kw">unique</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb621-4"><a href="app-93-data-sets-mental-chronometry.html#cb621-4"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> total_time_spent)) <span class="op">+</span></span>
-<span id="cb621-5"><a href="app-93-data-sets-mental-chronometry.html#cb621-5"></a><span class="st">  </span><span class="kw">geom_histogram</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb621"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb621-1" data-line-number="1">mc_data_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb621-2" data-line-number="2"><span class="st">  </span><span class="kw">select</span>(submission_id, total_time_spent) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb621-3" data-line-number="3"><span class="st">  </span><span class="kw">unique</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb621-4" data-line-number="4"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> total_time_spent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb621-5" data-line-number="5"><span class="st">  </span><span class="kw">geom_histogram</span>()</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-450-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>There are two participants who took noticably longer than all the others, but we need not necessarily be concerned about this, because it is not unusual for participants of online experiments to open the experiment and wait before actually starting.</p>
 <p>Here are summary statistics for the reaction time measures for each condition (= block).</p>
-<div class="sourceCode" id="cb622"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb622-1"><a href="app-93-data-sets-mental-chronometry.html#cb622-1"></a>mc_sum_stats_blocks_cleaned &lt;-<span class="st"> </span>mc_data_cleaned <span class="op">%&gt;%</span></span>
-<span id="cb622-2"><a href="app-93-data-sets-mental-chronometry.html#cb622-2"></a><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span></span>
-<span id="cb622-3"><a href="app-93-data-sets-mental-chronometry.html#cb622-3"></a><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb622-4"><a href="app-93-data-sets-mental-chronometry.html#cb622-4"></a><span class="st">  </span><span class="kw">summarise</span>(</span>
-<span id="cb622-5"><a href="app-93-data-sets-mental-chronometry.html#cb622-5"></a>    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>RT))</span>
-<span id="cb622-6"><a href="app-93-data-sets-mental-chronometry.html#cb622-6"></a>  ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb622-7"><a href="app-93-data-sets-mental-chronometry.html#cb622-7"></a><span class="st">  </span><span class="kw">unnest</span>(CIs)</span>
-<span id="cb622-8"><a href="app-93-data-sets-mental-chronometry.html#cb622-8"></a></span>
-<span id="cb622-9"><a href="app-93-data-sets-mental-chronometry.html#cb622-9"></a>mc_sum_stats_blocks_cleaned</span></code></pre></div>
+<div class="sourceCode" id="cb622"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb622-1" data-line-number="1">mc_sum_stats_blocks_cleaned &lt;-<span class="st"> </span>mc_data_cleaned <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb622-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(block) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb622-3" data-line-number="3"><span class="st">  </span><span class="kw">nest</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb622-4" data-line-number="4"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb622-5" data-line-number="5">    <span class="dt">CIs =</span> <span class="kw">map</span>(data, <span class="cf">function</span>(d) <span class="kw">bootstrapped_CI</span>(d<span class="op">$</span>RT))</a>
+<a class="sourceLine" id="cb622-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb622-7" data-line-number="7"><span class="st">  </span><span class="kw">unnest</span>(CIs)</a>
+<a class="sourceLine" id="cb622-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb622-9" data-line-number="9">mc_sum_stats_blocks_cleaned</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 4
 ##   block          lower  mean upper
 ##   &lt;ord&gt;          &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1 reaction        296.  300.  304.
 ## 2 goNoGo          420.  427.  434.
-## 3 discrimination  481.  488.  495.</code></pre>
+## 3 discrimination  480.  488.  496.</code></pre>
 <p>And a plot of the summary:</p>
-<div class="sourceCode" id="cb624"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb624-1"><a href="app-93-data-sets-mental-chronometry.html#cb624-1"></a>mc_sum_stats_blocks_cleaned <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb624-2"><a href="app-93-data-sets-mental-chronometry.html#cb624-2"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> block, <span class="dt">y =</span> mean, <span class="dt">fill =</span> block)) <span class="op">+</span></span>
-<span id="cb624-3"><a href="app-93-data-sets-mental-chronometry.html#cb624-3"></a><span class="st">  </span><span class="kw">geom_col</span>() <span class="op">+</span></span>
-<span id="cb624-4"><a href="app-93-data-sets-mental-chronometry.html#cb624-4"></a><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lower, <span class="dt">ymax =</span> upper), <span class="dt">size =</span> <span class="fl">0.3</span>, <span class="dt">width =</span> <span class="fl">0.2</span> ) <span class="op">+</span></span>
-<span id="cb624-5"><a href="app-93-data-sets-mental-chronometry.html#cb624-5"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;mean reaction time&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></span>
-<span id="cb624-6"><a href="app-93-data-sets-mental-chronometry.html#cb624-6"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> project_colors) <span class="op">+</span></span>
-<span id="cb624-7"><a href="app-93-data-sets-mental-chronometry.html#cb624-7"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb624"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb624-1" data-line-number="1">mc_sum_stats_blocks_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb624-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> block, <span class="dt">y =</span> mean, <span class="dt">fill =</span> block)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb624-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_col</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb624-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lower, <span class="dt">ymax =</span> upper), <span class="dt">size =</span> <span class="fl">0.3</span>, <span class="dt">width =</span> <span class="fl">0.2</span> ) <span class="op">+</span></a>
+<a class="sourceLine" id="cb624-5" data-line-number="5"><span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;mean reaction time&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb624-6" data-line-number="6"><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> project_colors) <span class="op">+</span></a>
+<a class="sourceLine" id="cb624-7" data-line-number="7"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>) </a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-452-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We can also plot the data in a manner that is more revealing of the distribution of measurements in each condition:</p>
-<div class="sourceCode" id="cb625"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb625-1"><a href="app-93-data-sets-mental-chronometry.html#cb625-1"></a>mc_data_cleaned <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb625-2"><a href="app-93-data-sets-mental-chronometry.html#cb625-2"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">color =</span> block, <span class="dt">fill =</span> block)) <span class="op">+</span></span>
-<span id="cb625-3"><a href="app-93-data-sets-mental-chronometry.html#cb625-3"></a><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">alpha =</span> <span class="fl">0.3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb625"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb625-1" data-line-number="1">mc_data_cleaned <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb625-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">color =</span> block, <span class="dt">fill =</span> block)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb625-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">alpha =</span> <span class="fl">0.3</span>)</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-453-1.png" width="672" style="display: block; margin: auto;" /></p>
 <!-- To do: -->
 <!-- - give alternative to barplot with individual points -->
@@ -767,23 +767,23 @@ code span.wa { color: #bf0303; } /* Warning */
 <h3><span class="header-section-number">D.1.5</span> Data analysis</h3>
 <p>We are interested in seeing whether the mean RTs are smallest for the ‘reaction’ task, higher for the ‘go/no-go’ task, and highest for the ‘discrimination’ task. We test this with a hierarchical Bayesian regression model, taking the participant-level variation of intercepts and slopes for factor <code>block</code> into account. We make ‘go/no-go’ the default level of the <code>block</code> factor, so that we can directly test our directed hypothesis using posterior parameter inference.</p>
 <!-- TODO: write convenience function for this kind of releveling -->
-<div class="sourceCode" id="cb626"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb626-1"><a href="app-93-data-sets-mental-chronometry.html#cb626-1"></a><span class="co"># making &#39;go/no-go&#39; the reference level</span></span>
-<span id="cb626-2"><a href="app-93-data-sets-mental-chronometry.html#cb626-2"></a><span class="co">## </span><span class="al">TODO</span><span class="co">: write convenience function for this kind of releveling</span></span>
-<span id="cb626-3"><a href="app-93-data-sets-mental-chronometry.html#cb626-3"></a>reflevel &lt;-<span class="st"> &quot;goNoGo&quot;</span></span>
-<span id="cb626-4"><a href="app-93-data-sets-mental-chronometry.html#cb626-4"></a>reflevel_index &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">levels</span>(mc_data_cleaned<span class="op">$</span>block) <span class="op">==</span><span class="st"> </span>reflevel)</span>
-<span id="cb626-5"><a href="app-93-data-sets-mental-chronometry.html#cb626-5"></a><span class="kw">contrasts</span>(mc_data_cleaned<span class="op">$</span>block) &lt;-<span class="st"> </span><span class="kw">contr.treatment</span>(</span>
-<span id="cb626-6"><a href="app-93-data-sets-mental-chronometry.html#cb626-6"></a>  <span class="kw">nlevels</span>(mc_data_cleaned<span class="op">$</span>block), </span>
-<span id="cb626-7"><a href="app-93-data-sets-mental-chronometry.html#cb626-7"></a>  reflevel_index</span>
-<span id="cb626-8"><a href="app-93-data-sets-mental-chronometry.html#cb626-8"></a>)</span>
-<span id="cb626-9"><a href="app-93-data-sets-mental-chronometry.html#cb626-9"></a><span class="kw">colnames</span>(<span class="kw">contrasts</span>(mc_data_cleaned<span class="op">$</span>block)) &lt;-<span class="st"> </span><span class="kw">str_c</span>(<span class="st">&quot;_&quot;</span>,<span class="kw">levels</span>(mc_data_cleaned<span class="op">$</span>block)[<span class="op">-</span>reflevel_index])</span>
-<span id="cb626-10"><a href="app-93-data-sets-mental-chronometry.html#cb626-10"></a>  </span>
-<span id="cb626-11"><a href="app-93-data-sets-mental-chronometry.html#cb626-11"></a>regression_model_ME &lt;-<span class="st"> </span><span class="kw">brm</span>(</span>
-<span id="cb626-12"><a href="app-93-data-sets-mental-chronometry.html#cb626-12"></a>  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>block <span class="op">|</span><span class="st"> </span>submission_id),</span>
-<span id="cb626-13"><a href="app-93-data-sets-mental-chronometry.html#cb626-13"></a>  <span class="dt">data =</span> mc_data_cleaned</span>
-<span id="cb626-14"><a href="app-93-data-sets-mental-chronometry.html#cb626-14"></a>)</span>
-<span id="cb626-15"><a href="app-93-data-sets-mental-chronometry.html#cb626-15"></a></span>
-<span id="cb626-16"><a href="app-93-data-sets-mental-chronometry.html#cb626-16"></a><span class="co">## </span><span class="al">TODO</span><span class="co"> tidy and concise output</span></span>
-<span id="cb626-17"><a href="app-93-data-sets-mental-chronometry.html#cb626-17"></a>regression_model_ME</span></code></pre></div>
+<div class="sourceCode" id="cb626"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb626-1" data-line-number="1"><span class="co"># making &#39;go/no-go&#39; the reference level</span></a>
+<a class="sourceLine" id="cb626-2" data-line-number="2">## <span class="al">TODO</span>: write convenience function for this kind of releveling</a>
+<a class="sourceLine" id="cb626-3" data-line-number="3">reflevel &lt;-<span class="st"> &quot;goNoGo&quot;</span></a>
+<a class="sourceLine" id="cb626-4" data-line-number="4">reflevel_index &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">levels</span>(mc_data_cleaned<span class="op">$</span>block) <span class="op">==</span><span class="st"> </span>reflevel)</a>
+<a class="sourceLine" id="cb626-5" data-line-number="5"><span class="kw">contrasts</span>(mc_data_cleaned<span class="op">$</span>block) &lt;-<span class="st"> </span><span class="kw">contr.treatment</span>(</a>
+<a class="sourceLine" id="cb626-6" data-line-number="6">  <span class="kw">nlevels</span>(mc_data_cleaned<span class="op">$</span>block), </a>
+<a class="sourceLine" id="cb626-7" data-line-number="7">  reflevel_index</a>
+<a class="sourceLine" id="cb626-8" data-line-number="8">)</a>
+<a class="sourceLine" id="cb626-9" data-line-number="9"><span class="kw">colnames</span>(<span class="kw">contrasts</span>(mc_data_cleaned<span class="op">$</span>block)) &lt;-<span class="st"> </span><span class="kw">str_c</span>(<span class="st">&quot;_&quot;</span>,<span class="kw">levels</span>(mc_data_cleaned<span class="op">$</span>block)[<span class="op">-</span>reflevel_index])</a>
+<a class="sourceLine" id="cb626-10" data-line-number="10">  </a>
+<a class="sourceLine" id="cb626-11" data-line-number="11">regression_model_ME &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb626-12" data-line-number="12">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>block <span class="op">|</span><span class="st"> </span>submission_id),</a>
+<a class="sourceLine" id="cb626-13" data-line-number="13">  <span class="dt">data =</span> mc_data_cleaned</a>
+<a class="sourceLine" id="cb626-14" data-line-number="14">)</a>
+<a class="sourceLine" id="cb626-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb626-16" data-line-number="16">## <span class="al">TODO</span> tidy and concise output</a>
+<a class="sourceLine" id="cb626-17" data-line-number="17">regression_model_ME</a></code></pre></div>
 <p>We see that the value zero lies clearly outside of the 95% credible interval for block ‘reaction’ and for block ‘discrimination’. The deviation from the intercept (zero point) is in the expected direction. We may conclude that, as hypothesized, reaction times in the ‘reaction’ condition are lowest, higher in the ‘go/no-go’ condition, and highest in the ‘discrimination’ condition.</p>
 
 </div>
@@ -791,7 +791,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <div class="footnotes">
 <hr />
 <ol start="78">
-<li id="fn78"><p>This may seem a harsh step, but when data acquisition is cheap, it’s generally not a bad strategy to be very strict in exclusion criteria, and to apply rules that are not strongly context-dependent.<a href="app-93-data-sets-mental-chronometry.html#fnref78" class="footnote-back">↩︎</a></p></li>
+<li id="fn78"><p>This may seem a harsh step, but when data acquisition is cheap, it’s generally not a bad strategy to be very strict in exclusion criteria, and to apply rules that are not strongly context-dependent.<a href="app-93-data-sets-mental-chronometry.html#fnref78" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>

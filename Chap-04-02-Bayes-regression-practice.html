@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>13 Bayesian regression in practice | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="13 Bayesian regression in practice | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -527,16 +527,16 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>TBD</p>
 <div id="using-the-brms-package" class="section level3">
 <h3><span class="header-section-number">13.0.1</span> Using the <code>brms</code> package</h3>
-<p>Instead of hand-coding each Bayesian regression model, we can also use the <code>brms</code> package <span class="citation">(B??rkner <a href="#ref-brms2017" role="doc-biblioref">2017</a>)</span>. The main function of this package is <code>brm</code> (short for <strong>B</strong>ayesian <strong>R</strong>egression <strong>M</strong>odel). It behaves very similarly to the <code>glm</code> function we saw above.<a href="#fn57" class="footnote-ref" id="fnref57"><sup>57</sup></a> Here is an example of the current case study:</p>
-<div class="sourceCode" id="cb525"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb525-1"><a href="Chap-04-02-Bayes-regression-practice.html#cb525-1"></a>fit_brms_murder &lt;-<span class="st"> </span><span class="kw">brm</span>(</span>
-<span id="cb525-2"><a href="Chap-04-02-Bayes-regression-practice.html#cb525-2"></a>  <span class="co"># specify what to explain in terms of what</span></span>
-<span id="cb525-3"><a href="Chap-04-02-Bayes-regression-practice.html#cb525-3"></a>  <span class="co">#  using the formula syntax</span></span>
-<span id="cb525-4"><a href="Chap-04-02-Bayes-regression-practice.html#cb525-4"></a>  <span class="dt">formula =</span> murder_rate <span class="op">~</span><span class="st"> </span>unemployment,</span>
-<span id="cb525-5"><a href="Chap-04-02-Bayes-regression-practice.html#cb525-5"></a>  <span class="co"># which data to use</span></span>
-<span id="cb525-6"><a href="Chap-04-02-Bayes-regression-practice.html#cb525-6"></a>  <span class="dt">data =</span> murder_data</span>
-<span id="cb525-7"><a href="Chap-04-02-Bayes-regression-practice.html#cb525-7"></a>)</span></code></pre></div>
+<p>Instead of hand-coding each Bayesian regression model, we can also use the <code>brms</code> package <span class="citation">(B??rkner <a href="#ref-brms2017">2017</a>)</span>. The main function of this package is <code>brm</code> (short for <strong>B</strong>ayesian <strong>R</strong>egression <strong>M</strong>odel). It behaves very similarly to the <code>glm</code> function we saw above.<a href="#fn57" class="footnote-ref" id="fnref57"><sup>57</sup></a> Here is an example of the current case study:</p>
+<div class="sourceCode" id="cb525"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb525-1" data-line-number="1">fit_brms_murder &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb525-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
+<a class="sourceLine" id="cb525-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
+<a class="sourceLine" id="cb525-4" data-line-number="4">  <span class="dt">formula =</span> murder_rate <span class="op">~</span><span class="st"> </span>unemployment,</a>
+<a class="sourceLine" id="cb525-5" data-line-number="5">  <span class="co"># which data to use</span></a>
+<a class="sourceLine" id="cb525-6" data-line-number="6">  <span class="dt">data =</span> murder_data</a>
+<a class="sourceLine" id="cb525-7" data-line-number="7">)</a></code></pre></div>
 <p>The function <code>brm</code> returns a model-fit object, similar to <code>glm</code>. We can inspect it to get more information, using the <code>summary</code> function:</p>
-<div class="sourceCode" id="cb526"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb526-1"><a href="Chap-04-02-Bayes-regression-practice.html#cb526-1"></a><span class="kw">summary</span>(fit_brms_murder)</span></code></pre></div>
+<div class="sourceCode" id="cb526"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb526-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_murder)</a></code></pre></div>
 <pre><code>##  Family: gaussian 
 ##   Links: mu = identity; sigma = identity 
 ## Formula: murder_rate ~ unemployment 
@@ -545,12 +545,9 @@ code span.wa { color: #bf0303; } /* Warning */
 ##          total post-warmup samples = 4000
 ## 
 ## Population-Level Effects: 
-##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-## Intercept      -28.48      7.32   -42.05   -13.79 1.00     3014
-## unemployment     7.07      1.04     4.97     9.04 1.00     2978
-##              Tail_ESS
-## Intercept        2362
-## unemployment     2451
+##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept      -28.48      7.32   -42.05   -13.79 1.00     3014     2362
+## unemployment     7.07      1.04     4.97     9.04 1.00     2978     2451
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
@@ -578,14 +575,14 @@ Solution
 <h3>References</h3>
 <div id="refs" class="references">
 <div id="ref-brms2017">
-<p>B??rkner, Paul-Christian. 2017. “brms: An R Package for Bayesian Multilevel Models Using Stan.” <em>Journal of Statistical Software</em> 80 (1): 1–28. <a href="https://doi.org/10.18637/jss.v080.i01">https://doi.org/10.18637/jss.v080.i01</a>.</p>
+<p>B??rkner, Paul-Christian. 2017. “brms: An R Package for Bayesian Multilevel Models Using Stan.” <em>Journal of Statistical Software</em> 80 (1): 1–28. <a href="https://doi.org/10.18637/jss.v080.i01" class="uri">https://doi.org/10.18637/jss.v080.i01</a>.</p>
 </div>
 </div>
 <div class="footnotes">
 <hr />
 <ol start="57">
-<li id="fn57"><p>Actually, <code>brm</code> behaves similarly to the more general <code>lmer</code> function from the <code>lme4</code> package, which is even more general than <code>glm</code>. Both <code>lmer</code> and <code>brm</code> also cover so-called hierarchical regression models.<a href="Chap-04-02-Bayes-regression-practice.html#fnref57" class="footnote-back">↩︎</a></p></li>
-<li id="fn58"><p>Notice that the 95% inter-quantile range is not necessarily the same as the 95% HDI, but for large sample sizes the two will coincide.<a href="Chap-04-02-Bayes-regression-practice.html#fnref58" class="footnote-back">↩︎</a></p></li>
+<li id="fn57"><p>Actually, <code>brm</code> behaves similarly to the more general <code>lmer</code> function from the <code>lme4</code> package, which is even more general than <code>glm</code>. Both <code>lmer</code> and <code>brm</code> also cover so-called hierarchical regression models.<a href="Chap-04-02-Bayes-regression-practice.html#fnref57" class="footnote-back">↩</a></p></li>
+<li id="fn58"><p>Notice that the 95% inter-quantile range is not necessarily the same as the 95% HDI, but for large sample sizes the two will coincide.<a href="Chap-04-02-Bayes-regression-practice.html#fnref58" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>

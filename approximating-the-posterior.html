@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>9.3 Approximating the posterior | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="9.3 Approximating the posterior | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -686,10 +686,10 @@ Figure 9.8: The Binomial Model (repeated from before).
 </div>
 <p>We use the data from the <a href="app-93-data-sets-king-of-france.html#app-93-data-sets-king-of-france">King of France example</a>, where we are interested in the number <span class="math inline">\(k = 109\)</span> of “true” responses to sentences with a false presupposition over all <span class="math inline">\(N = 311\)</span> relevant observations.</p>
 <p>We collect this information in a named list, which we will pass to Stan.</p>
-<div class="sourceCode" id="cb436"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb436-1"><a href="approximating-the-posterior.html#cb436-1"></a>KoF_data_<span class="dv">4</span>_Stan &lt;-<span class="st"> </span><span class="kw">list</span>(</span>
-<span id="cb436-2"><a href="approximating-the-posterior.html#cb436-2"></a>  <span class="dt">k =</span> <span class="dv">109</span>,</span>
-<span id="cb436-3"><a href="approximating-the-posterior.html#cb436-3"></a>  <span class="dt">N =</span> <span class="dv">311</span></span>
-<span id="cb436-4"><a href="approximating-the-posterior.html#cb436-4"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb436"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb436-1" data-line-number="1">KoF_data_<span class="dv">4</span>_Stan &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb436-2" data-line-number="2">  <span class="dt">k =</span> <span class="dv">109</span>,</a>
+<a class="sourceLine" id="cb436-3" data-line-number="3">  <span class="dt">N =</span> <span class="dv">311</span></a>
+<a class="sourceLine" id="cb436-4" data-line-number="4">)</a></code></pre></div>
 <p>Next, we need to write the actual model. Notice that Stan code is strictly regimented to be divided into different blocks, so that Stan knows what is data, what are parameters and what constitutes the actual model (prior and likelihood). Stan also wants to know the type of its variables (and the ranges of values these can take on).</p>
 <pre class="mystan"><code>data {
   int&lt;lower=0&gt; N ;
@@ -705,60 +705,57 @@ model {
   k ~ binomial(N, theta) ;
 }</code></pre>
 <p>We save this Stan code in a file <code>binomial_model.stan</code> (which you can download <a href="https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/models_stan/binomial_model.stan">here</a>) in a folder <code>models_stan</code> and then use the function <code>rstan::stan</code> to run the Stan code from within R.</p>
-<div class="sourceCode" id="cb438"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb438-1"><a href="approximating-the-posterior.html#cb438-1"></a>stan_fit_binomial &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</span>
-<span id="cb438-2"><a href="approximating-the-posterior.html#cb438-2"></a>  <span class="co"># where is the Stan code</span></span>
-<span id="cb438-3"><a href="approximating-the-posterior.html#cb438-3"></a>  <span class="dt">file =</span> <span class="st">&#39;models_stan/binomial_model.stan&#39;</span>,</span>
-<span id="cb438-4"><a href="approximating-the-posterior.html#cb438-4"></a>  <span class="co"># data to supply to the Stan program</span></span>
-<span id="cb438-5"><a href="approximating-the-posterior.html#cb438-5"></a>  <span class="dt">data =</span> KoF_data_<span class="dv">4</span>_Stan,</span>
-<span id="cb438-6"><a href="approximating-the-posterior.html#cb438-6"></a>  <span class="co"># how many iterations of MCMC</span></span>
-<span id="cb438-7"><a href="approximating-the-posterior.html#cb438-7"></a>  <span class="dt">iter =</span> <span class="dv">3000</span>,</span>
-<span id="cb438-8"><a href="approximating-the-posterior.html#cb438-8"></a>  <span class="co"># how many warmup steps</span></span>
-<span id="cb438-9"><a href="approximating-the-posterior.html#cb438-9"></a>  <span class="dt">warmup =</span> <span class="dv">500</span></span>
-<span id="cb438-10"><a href="approximating-the-posterior.html#cb438-10"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb438"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb438-1" data-line-number="1">stan_fit_binomial &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
+<a class="sourceLine" id="cb438-2" data-line-number="2">  <span class="co"># where is the Stan code</span></a>
+<a class="sourceLine" id="cb438-3" data-line-number="3">  <span class="dt">file =</span> <span class="st">&#39;models_stan/binomial_model.stan&#39;</span>,</a>
+<a class="sourceLine" id="cb438-4" data-line-number="4">  <span class="co"># data to supply to the Stan program</span></a>
+<a class="sourceLine" id="cb438-5" data-line-number="5">  <span class="dt">data =</span> KoF_data_<span class="dv">4</span>_Stan,</a>
+<a class="sourceLine" id="cb438-6" data-line-number="6">  <span class="co"># how many iterations of MCMC</span></a>
+<a class="sourceLine" id="cb438-7" data-line-number="7">  <span class="dt">iter =</span> <span class="dv">3000</span>,</a>
+<a class="sourceLine" id="cb438-8" data-line-number="8">  <span class="co"># how many warmup steps</span></a>
+<a class="sourceLine" id="cb438-9" data-line-number="9">  <span class="dt">warmup =</span> <span class="dv">500</span></a>
+<a class="sourceLine" id="cb438-10" data-line-number="10">)</a></code></pre></div>
 <p>The object returned from this call to Stan is a special model fit object. If we just print it, we get interesting information about the estimated parameters:</p>
-<div class="sourceCode" id="cb439"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb439-1"><a href="approximating-the-posterior.html#cb439-1"></a><span class="kw">print</span>(stan_fit_binomial)</span></code></pre></div>
+<div class="sourceCode" id="cb439"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb439-1" data-line-number="1"><span class="kw">print</span>(stan_fit_binomial)</a></code></pre></div>
 <pre><code>## Inference for Stan model: binomial_model.
 ## 4 chains, each with iter=3000; warmup=500; thin=1; 
 ## post-warmup draws per chain=2500, total post-warmup draws=10000.
 ## 
-##          mean se_mean   sd    2.5%     25%     50%     75%   97.5%
-## theta    0.35    0.00 0.03    0.30    0.33    0.35    0.37    0.40
-## lp__  -203.42    0.01 0.69 -205.39 -203.58 -203.15 -202.97 -202.93
-##       n_eff Rhat
-## theta  3414    1
-## lp__   3385    1
+##          mean se_mean   sd    2.5%     25%     50%     75%   97.5% n_eff Rhat
+## theta    0.35    0.00 0.03    0.30    0.33    0.35    0.37    0.40  3501    1
+## lp__  -203.42    0.01 0.69 -205.36 -203.58 -203.16 -202.98 -202.93  5157    1
 ## 
-## Samples were drawn using NUTS(diag_e) at Mon Dec 28 17:02:07 2020.
+## Samples were drawn using NUTS(diag_e) at Fri Nov 20 18:49:47 2020.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).</code></pre>
 <!-- TODO: explain this  -->
 <p>To get the posterior samples in a tidy format we use a function from the <code>tidybayes</code> package:</p>
-<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb441-1"><a href="approximating-the-posterior.html#cb441-1"></a>tidy_samples &lt;-<span class="st"> </span>tidybayes<span class="op">::</span><span class="kw">tidy_draws</span>(stan_fit_binomial) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(theta)</span>
-<span id="cb441-2"><a href="approximating-the-posterior.html#cb441-2"></a>tidy_samples</span></code></pre></div>
+<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb441-1" data-line-number="1">tidy_samples &lt;-<span class="st"> </span>tidybayes<span class="op">::</span><span class="kw">tidy_draws</span>(stan_fit_binomial) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(theta)</a>
+<a class="sourceLine" id="cb441-2" data-line-number="2">tidy_samples</a></code></pre></div>
 <pre><code>## # A tibble: 10,000 x 1
 ##    theta
 ##    &lt;dbl&gt;
-##  1 0.323
-##  2 0.316
-##  3 0.319
-##  4 0.312
-##  5 0.293
-##  6 0.299
-##  7 0.302
-##  8 0.328
-##  9 0.378
-## 10 0.398
-## # ... with 9,990 more rows</code></pre>
+##  1 0.317
+##  2 0.371
+##  3 0.356
+##  4 0.361
+##  5 0.374
+##  6 0.381
+##  7 0.374
+##  8 0.355
+##  9 0.340
+## 10 0.341
+## # … with 9,990 more rows</code></pre>
 <p>We can then <code>pull</code> out the column <code>theta</code> as a vector and feed it into the summary function from the <code>aida</code> package to get our key Bayesian estimates:</p>
-<div class="sourceCode" id="cb443"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb443-1"><a href="approximating-the-posterior.html#cb443-1"></a>Bayes_estimates &lt;-<span class="st"> </span>tidy_samples <span class="op">%&gt;%</span></span>
-<span id="cb443-2"><a href="approximating-the-posterior.html#cb443-2"></a><span class="st">  </span><span class="kw">pull</span>(theta) <span class="op">%&gt;%</span></span>
-<span id="cb443-3"><a href="approximating-the-posterior.html#cb443-3"></a><span class="st">  </span>aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(<span class="st">&quot;theta&quot;</span>)</span>
-<span id="cb443-4"><a href="approximating-the-posterior.html#cb443-4"></a>Bayes_estimates</span></code></pre></div>
+<div class="sourceCode" id="cb443"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb443-1" data-line-number="1">Bayes_estimates &lt;-<span class="st"> </span>tidy_samples <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb443-2" data-line-number="2"><span class="st">  </span><span class="kw">pull</span>(theta) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb443-3" data-line-number="3"><span class="st">  </span>aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(<span class="st">&quot;theta&quot;</span>)</a>
+<a class="sourceLine" id="cb443-4" data-line-number="4">Bayes_estimates</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 4
 ##   Parameter `|95%`  mean `95%|`
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
-## 1 theta      0.299 0.351  0.404</code></pre>
+## 1 theta      0.299 0.351  0.403</code></pre>
 <p>Figure <a href="approximating-the-posterior.html#fig:ch-03-03-binomial-posterior">9.9</a> moreover shows a density plot derived from the MCMC samples, together with the estimated 95% HDI and the true posterior distribution (in back), as derived by conjugacy.</p>
 <div class="figure" style="text-align: center"><span id="fig:ch-03-03-binomial-posterior"></span>
 <img src="I2DA_files/figure-html/ch-03-03-binomial-posterior-1.png" alt="Posterior over bias $\theta$ given $k=109$ and $N=311$ approximated by samples from Stan, with estimated 95% credible interval (red area). The black curve shows the true posterior, derived through conjugacy." width="672" />
@@ -978,7 +975,7 @@ Figure 9.9: Posterior over bias <span class="math inline">\(\theta\)</span> give
 <div class="footnotes">
 <hr />
 <ol start="52">
-<li id="fn52"><p>RStudio provides syntax highlighting for Stan code. Use the file ending <code>*.stan</code>.<a href="approximating-the-posterior.html#fnref52" class="footnote-back">↩︎</a></p></li>
+<li id="fn52"><p>RStudio provides syntax highlighting for Stan code. Use the file ending <code>*.stan</code>.<a href="approximating-the-posterior.html#fnref52" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>

@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>14.3 Interaction terms in factorial designs | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="14.3 Interaction terms in factorial designs | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -526,10 +526,10 @@ code span.wa { color: #bf0303; } /* Warning */
 <div style="float:right; width:15%;">
 <p><img src="visuals/badge-politeness.png" alt="badge-politeness"></p>
 </div>
-<p>The following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs <span class="citation">(Franke and Roettger <a href="#ref-FrankeRoettger2019:Bayesian-regres" role="doc-biblioref">2019</a>)</span>, which can be downloaded <a href="https://psyarxiv.com/cdxv3">here</a>. We consider data on voice pitch in a <span class="math inline">\(2 \times 2\)</span> factorial design, with factors <code>gender</code> and <code>context</code>. This is laboratory data measuring the voice pitch of male and female speakers (factor <code>gender</code>) in two different kinds of linguistic contexts, namely a polite and an informal situation (factor <code>context</code>).</p>
+<p>The following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs <span class="citation">(Franke and Roettger <a href="#ref-FrankeRoettger2019:Bayesian-regres">2019</a>)</span>, which can be downloaded <a href="https://psyarxiv.com/cdxv3">here</a>. We consider data on voice pitch in a <span class="math inline">\(2 \times 2\)</span> factorial design, with factors <code>gender</code> and <code>context</code>. This is laboratory data measuring the voice pitch of male and female speakers (factor <code>gender</code>) in two different kinds of linguistic contexts, namely a polite and an informal situation (factor <code>context</code>).</p>
 <p>We load the data, inspect and plot it.</p>
-<div class="sourceCode" id="cb547"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb547-1"><a href="interaction-terms-in-factorial-designs.html#cb547-1"></a>politeness_url &lt;-<span class="st"> </span><span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/politeness_data.csv&#39;</span>)</span>
-<span id="cb547-2"><a href="interaction-terms-in-factorial-designs.html#cb547-2"></a>politeness_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(politeness_url)</span></code></pre></div>
+<div class="sourceCode" id="cb547"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb547-1" data-line-number="1">politeness_url &lt;-<span class="st"> </span><span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/politeness_data.csv&#39;</span>)</a>
+<a class="sourceLine" id="cb547-2" data-line-number="2">politeness_data &lt;-<span class="st"> </span><span class="kw">read_csv</span>(politeness_url)</a></code></pre></div>
 <pre><code>## # A tibble: 83 x 5
 ##    subject gender sentence context pitch
 ##    &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
@@ -543,7 +543,7 @@ code span.wa { color: #bf0303; } /* Warning */
 ##  8 F1      F      S4       inf      277.
 ##  9 F1      F      S5       pol      232.
 ## 10 F1      F      S5       inf      252.
-## # ... with 73 more rows</code></pre>
+## # … with 73 more rows</code></pre>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-393-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>In a <span class="math inline">\(2 \times 2\)</span> factorial design like this, there are essentially four pairs of factor levels (so-called <strong>design cells</strong>): female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts. Different schemes exist by means of which different comparisons of means of design cells (or single factors) can be probed. A simple coding scheme for differences in our <span class="math inline">\(2 \times 2\)</span> design is shown in Figure <a href="interaction-terms-in-factorial-designs.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>. We consider the cell “female+informal” as the reference level and therefore model its mean as intercept <span class="math inline">\(\beta_0\)</span>. We then have a slope term <span class="math inline">\(\beta_{\text{pol}}\)</span> which encodes the difference between female pitch in informal and female pitch in polite contexts. Analogous reasoning holds for <span class="math inline">\(\beta_{\text{male}}\)</span>. Finally, we also include a so-called <strong>interaction term</strong>, denoted as <span class="math inline">\(\beta_{\text{pol\&amp;male}}\)</span> in Figure <a href="interaction-terms-in-factorial-designs.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>. The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.</p>
 <div class="figure" style="text-align: center"><span id="fig:Chap-04-02-beyond-simple-regression-factorial-coefficients"></span>
@@ -553,14 +553,14 @@ Figure 14.1: Regression coefficients for a factorial design (using so-called ‘
 </p>
 </div>
 <p>We can fit a regression model with this coding scheme using the formula <code>pitch ~ gender * context</code>. Importantly the star <code>*</code> between explanatory variables <code>gender</code> and <code>context</code> indicates that we also want to include the interaction term.</p>
-<div class="sourceCode" id="cb549"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb549-1"><a href="interaction-terms-in-factorial-designs.html#cb549-1"></a>fit_brms_politeness &lt;-<span class="st"> </span><span class="kw">brm</span>(</span>
-<span id="cb549-2"><a href="interaction-terms-in-factorial-designs.html#cb549-2"></a>  <span class="co"># model &#39;pitch&#39; as a function of &#39;gender&#39; and &#39;context&#39;,</span></span>
-<span id="cb549-3"><a href="interaction-terms-in-factorial-designs.html#cb549-3"></a>  <span class="co">#  also including the interaction between `gender` and `context`</span></span>
-<span id="cb549-4"><a href="interaction-terms-in-factorial-designs.html#cb549-4"></a>  <span class="dt">formula =</span> pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</span>
-<span id="cb549-5"><a href="interaction-terms-in-factorial-designs.html#cb549-5"></a>  <span class="dt">data =</span> politeness_data</span>
-<span id="cb549-6"><a href="interaction-terms-in-factorial-designs.html#cb549-6"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb549"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb549-1" data-line-number="1">fit_brms_politeness &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb549-2" data-line-number="2">  <span class="co"># model &#39;pitch&#39; as a function of &#39;gender&#39; and &#39;context&#39;,</span></a>
+<a class="sourceLine" id="cb549-3" data-line-number="3">  <span class="co">#  also including the interaction between `gender` and `context`</span></a>
+<a class="sourceLine" id="cb549-4" data-line-number="4">  <span class="dt">formula =</span> pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
+<a class="sourceLine" id="cb549-5" data-line-number="5">  <span class="dt">data =</span> politeness_data</a>
+<a class="sourceLine" id="cb549-6" data-line-number="6">)</a></code></pre></div>
 <p>The summary statistics below lists the model parameters indicated in Figure <a href="interaction-terms-in-factorial-designs.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>.</p>
-<div class="sourceCode" id="cb550"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb550-1"><a href="interaction-terms-in-factorial-designs.html#cb550-1"></a><span class="kw">summary</span>(fit_brms_politeness)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb550"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb550-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                      Estimate   l-95% CI   u-95% CI
 ## Intercept           261.02993  245.65872 276.800178
 ## genderM            -116.53009 -138.41661 -93.764509

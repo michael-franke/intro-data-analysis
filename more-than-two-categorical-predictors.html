@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>14.2 More than two categorical predictors | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="14.2 More than two categorical predictors | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -534,25 +534,25 @@ code span.wa { color: #bf0303; } /* Warning */
 \text{RT in &#39;discrimination&#39;}
 \]</span></p>
 <p>So we are interested in the <span class="math inline">\(\delta\)</span>s, so to speak, between ‘reaction’ and ‘goNoGo’ and between ‘discrimination’ and ‘goNoGo’.</p>
-<div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb540-1"><a href="more-than-two-categorical-predictors.html#cb540-1"></a>mc_url &lt;-<span class="st"> </span><span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_cleaned.csv&#39;</span>)</span>
-<span id="cb540-2"><a href="more-than-two-categorical-predictors.html#cb540-2"></a>mc_data_cleaned &lt;-<span class="st"> </span><span class="kw">read_csv</span>(mc_url) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb540-3"><a href="more-than-two-categorical-predictors.html#cb540-3"></a><span class="st">  </span><span class="co"># renaming to make &#39;goNoGo&#39; the reference level </span></span>
-<span id="cb540-4"><a href="more-than-two-categorical-predictors.html#cb540-4"></a><span class="st">  </span><span class="co">#  (dirty hack, but simpler than messing with contrast coding)</span></span>
-<span id="cb540-5"><a href="more-than-two-categorical-predictors.html#cb540-5"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb540-6"><a href="more-than-two-categorical-predictors.html#cb540-6"></a>    <span class="dt">block =</span> <span class="kw">case_when</span>(</span>
-<span id="cb540-7"><a href="more-than-two-categorical-predictors.html#cb540-7"></a>      block <span class="op">==</span><span class="st"> &quot;reaction&quot;</span>         <span class="op">~</span><span class="st"> &quot;B_reaction&quot;</span>,</span>
-<span id="cb540-8"><a href="more-than-two-categorical-predictors.html#cb540-8"></a>      block <span class="op">==</span><span class="st"> &quot;goNoGo&quot;</span>           <span class="op">~</span><span class="st"> &quot;A_goNoGo&quot;</span>,</span>
-<span id="cb540-9"><a href="more-than-two-categorical-predictors.html#cb540-9"></a>      block <span class="op">==</span><span class="st"> &quot;discrimination&quot;</span>   <span class="op">~</span><span class="st"> &quot;C_discrimination&quot;</span></span>
-<span id="cb540-10"><a href="more-than-two-categorical-predictors.html#cb540-10"></a>    )</span>
-<span id="cb540-11"><a href="more-than-two-categorical-predictors.html#cb540-11"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb540-1" data-line-number="1">mc_url &lt;-<span class="st"> </span><span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/mental-chrono-data_cleaned.csv&#39;</span>)</a>
+<a class="sourceLine" id="cb540-2" data-line-number="2">mc_data_cleaned &lt;-<span class="st"> </span><span class="kw">read_csv</span>(mc_url) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb540-3" data-line-number="3"><span class="st">  </span><span class="co"># renaming to make &#39;goNoGo&#39; the reference level </span></a>
+<a class="sourceLine" id="cb540-4" data-line-number="4"><span class="st">  </span><span class="co">#  (dirty hack, but simpler than messing with contrast coding)</span></a>
+<a class="sourceLine" id="cb540-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb540-6" data-line-number="6">    <span class="dt">block =</span> <span class="kw">case_when</span>(</a>
+<a class="sourceLine" id="cb540-7" data-line-number="7">      block <span class="op">==</span><span class="st"> &quot;reaction&quot;</span>         <span class="op">~</span><span class="st"> &quot;B_reaction&quot;</span>,</a>
+<a class="sourceLine" id="cb540-8" data-line-number="8">      block <span class="op">==</span><span class="st"> &quot;goNoGo&quot;</span>           <span class="op">~</span><span class="st"> &quot;A_goNoGo&quot;</span>,</a>
+<a class="sourceLine" id="cb540-9" data-line-number="9">      block <span class="op">==</span><span class="st"> &quot;discrimination&quot;</span>   <span class="op">~</span><span class="st"> &quot;C_discrimination&quot;</span></a>
+<a class="sourceLine" id="cb540-10" data-line-number="10">    )</a>
+<a class="sourceLine" id="cb540-11" data-line-number="11">  )</a></code></pre></div>
 <p>To fit this model with <code>brm</code> we then just need a simple function call with the formula <code>RT ~ block</code> that precisely describes what we are interested in: to explain reaction times as a function of the experimental condition:</p>
-<div class="sourceCode" id="cb541"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb541-1"><a href="more-than-two-categorical-predictors.html#cb541-1"></a>fit_brms_mc &lt;-<span class="st"> </span><span class="kw">brm</span>(</span>
-<span id="cb541-2"><a href="more-than-two-categorical-predictors.html#cb541-2"></a>  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></span>
-<span id="cb541-3"><a href="more-than-two-categorical-predictors.html#cb541-3"></a>  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</span>
-<span id="cb541-4"><a href="more-than-two-categorical-predictors.html#cb541-4"></a>  <span class="dt">data =</span> mc_data_cleaned</span>
-<span id="cb541-5"><a href="more-than-two-categorical-predictors.html#cb541-5"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb541"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb541-1" data-line-number="1">fit_brms_mc &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb541-2" data-line-number="2">  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></a>
+<a class="sourceLine" id="cb541-3" data-line-number="3">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</a>
+<a class="sourceLine" id="cb541-4" data-line-number="4">  <span class="dt">data =</span> mc_data_cleaned</a>
+<a class="sourceLine" id="cb541-5" data-line-number="5">)</a></code></pre></div>
 <p>To inspect the posterior fits of this model, we can extract the relevant summary statistics as before:</p>
-<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb542-1"><a href="more-than-two-categorical-predictors.html#cb542-1"></a><span class="kw">summary</span>(fit_brms_mc)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb542-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_mc)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                         Estimate  l-95% CI   u-95% CI
 ## Intercept              427.26357  419.6334  434.92959
 ## blockB_reaction       -127.38043 -136.8158 -117.98286
@@ -572,13 +572,13 @@ Solution
 </div>
 </div>
 <p>The function call for a frequentist analysis with <code>glm</code> is almost identical:</p>
-<div class="sourceCode" id="cb544"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb544-1"><a href="more-than-two-categorical-predictors.html#cb544-1"></a>fit_glm_mc &lt;-<span class="st"> </span><span class="kw">glm</span>(</span>
-<span id="cb544-2"><a href="more-than-two-categorical-predictors.html#cb544-2"></a>  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></span>
-<span id="cb544-3"><a href="more-than-two-categorical-predictors.html#cb544-3"></a>  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</span>
-<span id="cb544-4"><a href="more-than-two-categorical-predictors.html#cb544-4"></a>  <span class="dt">data =</span> mc_data_cleaned</span>
-<span id="cb544-5"><a href="more-than-two-categorical-predictors.html#cb544-5"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb544"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb544-1" data-line-number="1">fit_glm_mc &lt;-<span class="st"> </span><span class="kw">glm</span>(</a>
+<a class="sourceLine" id="cb544-2" data-line-number="2">  <span class="co"># model &#39;RT&#39; as a function of &#39;block&#39;</span></a>
+<a class="sourceLine" id="cb544-3" data-line-number="3">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>block,</a>
+<a class="sourceLine" id="cb544-4" data-line-number="4">  <span class="dt">data =</span> mc_data_cleaned</a>
+<a class="sourceLine" id="cb544-5" data-line-number="5">)</a></code></pre></div>
 <p>The summary of the model fit reveals <span class="math inline">\(p\)</span>-values for both slope coefficients, which indicate (unsurprisingly) that there is very strong evidence against the null hypothesis of no difference between the means of the two pairs of conditions we compare with this model:</p>
-<div class="sourceCode" id="cb545"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb545-1"><a href="more-than-two-categorical-predictors.html#cb545-1"></a><span class="kw">summary</span>(fit_glm_mc)</span></code></pre></div>
+<div class="sourceCode" id="cb545"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb545-1" data-line-number="1"><span class="kw">summary</span>(fit_glm_mc)</a></code></pre></div>
 <pre><code>## 
 ## Call:
 ## glm(formula = RT ~ block, data = mc_data_cleaned)

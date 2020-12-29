@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>11.4 Testing via model comparison | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="11.4 Testing via model comparison | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -606,15 +606,15 @@ P(D \mid M_0) &amp; = \int P(D \mid \psi, M_0) P(\psi \mid M_0) \ \text{d}\psi
 <div id="example-247-1" class="section level4">
 <h4><span class="header-section-number">11.4.1.1</span> Example: 24/7</h4>
 <p>Here is an example based on the 24/7 data. For a nesting model with a flat prior (<span class="math inline">\(\theta \sim^{M_1} \text{Beta}(1,1)\)</span>), and a point hypothesis <span class="math inline">\(\theta_c = 0.5\)</span>, we just have calculate the prior and posterior probability of the critical value <span class="math inline">\(\theta_c = 0.5\)</span>:</p>
-<div class="sourceCode" id="cb494"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb494-1"><a href="ch-03-05-Bayesian-testing-comparison.html#cb494-1"></a><span class="co"># point-value of interest</span></span>
-<span id="cb494-2"><a href="ch-03-05-Bayesian-testing-comparison.html#cb494-2"></a>theta_star &lt;-<span class="st"> </span><span class="fl">0.5</span></span>
-<span id="cb494-3"><a href="ch-03-05-Bayesian-testing-comparison.html#cb494-3"></a><span class="co"># posterior probability in nesting model</span></span>
-<span id="cb494-4"><a href="ch-03-05-Bayesian-testing-comparison.html#cb494-4"></a>posterior_theta_star &lt;-<span class="st"> </span><span class="kw">dbeta</span>(theta_star, <span class="dv">8</span>, <span class="dv">18</span>)</span>
-<span id="cb494-5"><a href="ch-03-05-Bayesian-testing-comparison.html#cb494-5"></a><span class="co"># prior probability in nesting model</span></span>
-<span id="cb494-6"><a href="ch-03-05-Bayesian-testing-comparison.html#cb494-6"></a>prior_theta_star &lt;-<span class="st"> </span><span class="kw">dbeta</span>(theta_star, <span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb494-7"><a href="ch-03-05-Bayesian-testing-comparison.html#cb494-7"></a><span class="co"># Bayes factor (using Savage-Dickey)</span></span>
-<span id="cb494-8"><a href="ch-03-05-Bayesian-testing-comparison.html#cb494-8"></a>BF_<span class="dv">01</span> &lt;-<span class="st"> </span>posterior_theta_star <span class="op">/</span><span class="st"> </span>prior_theta_star</span>
-<span id="cb494-9"><a href="ch-03-05-Bayesian-testing-comparison.html#cb494-9"></a>BF_<span class="dv">01</span></span></code></pre></div>
+<div class="sourceCode" id="cb494"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb494-1" data-line-number="1"><span class="co"># point-value of interest</span></a>
+<a class="sourceLine" id="cb494-2" data-line-number="2">theta_star &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb494-3" data-line-number="3"><span class="co"># posterior probability in nesting model</span></a>
+<a class="sourceLine" id="cb494-4" data-line-number="4">posterior_theta_star &lt;-<span class="st"> </span><span class="kw">dbeta</span>(theta_star, <span class="dv">8</span>, <span class="dv">18</span>)</a>
+<a class="sourceLine" id="cb494-5" data-line-number="5"><span class="co"># prior probability in nesting model</span></a>
+<a class="sourceLine" id="cb494-6" data-line-number="6">prior_theta_star &lt;-<span class="st"> </span><span class="kw">dbeta</span>(theta_star, <span class="dv">1</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb494-7" data-line-number="7"><span class="co"># Bayes factor (using Savage-Dickey)</span></a>
+<a class="sourceLine" id="cb494-8" data-line-number="8">BF_<span class="dv">01</span> &lt;-<span class="st"> </span>posterior_theta_star <span class="op">/</span><span class="st"> </span>prior_theta_star</a>
+<a class="sourceLine" id="cb494-9" data-line-number="9">BF_<span class="dv">01</span></a></code></pre></div>
 <pre><code>## [1] 0.5157351</code></pre>
 <p>This is very minor evidence in favor of the alternative model (Bayes factor <span class="math inline">\(\text{BF}_{10} \approx 1.94\)</span>). We would not like to draw any (strong) categorical conclusions from this result regarding the question of whether the coin might be fair. Figure <a href="ch-03-05-Bayesian-testing-comparison.html#fig:ch-03-07-hypothesis-testing-Bayes-SD-24-7">11.6</a> also shows the relation between prior and posterior at the point-value of interest.</p>
 <div class="figure" style="text-align: center"><span id="fig:ch-03-07-hypothesis-testing-Bayes-SD-24-7"></span>
@@ -629,23 +629,23 @@ Figure 11.6: Illustration of the Savage-Dickey method of Bayes factor computatio
 <p>In the previous 24/7 example, using the Savage-Dickey method was particularly easy because we know a closed-form solution of the precise posterior, so that we could easily calculte the posterior for the critical value without further ado.
 When this is not the case, like in the application to the Simon task data, we have to obtain an estimate for the posterior density at the critical value, here: <span class="math inline">\(\delta = 0\)</span>, from the posterior samples which we obtain from sampling, like we did earlier in this chapter (using Stan).
 An approximate method for obtaining this value is implemented in the <code>polspline</code> package (using polynomial splines to approximate the posterior curve).</p>
-<div class="sourceCode" id="cb496"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb496-1"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-1"></a><span class="co"># extract the samples for the delta parameter</span></span>
-<span id="cb496-2"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-2"></a><span class="co">#   from the earlier Stan fit</span></span>
-<span id="cb496-3"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-3"></a>delta_samples &lt;-<span class="st"> </span>tidy_draws_tt2 <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb496-4"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-4"></a><span class="st">  </span><span class="kw">filter</span>(Parameter <span class="op">==</span><span class="st"> &quot;delta&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb496-5"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-5"></a><span class="st">  </span><span class="kw">pull</span>(value)</span>
-<span id="cb496-6"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-6"></a></span>
-<span id="cb496-7"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-7"></a><span class="co"># estimating the posterior density at delta = 0 with polynomial splines</span></span>
-<span id="cb496-8"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-8"></a>fit.posterior &lt;-<span class="st"> </span>polspline<span class="op">::</span><span class="kw">logspline</span>(delta_samples)</span>
-<span id="cb496-9"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-9"></a>posterior_delta_null &lt;-<span class="st"> </span>polspline<span class="op">::</span><span class="kw">dlogspline</span>(<span class="dv">0</span>, fit.posterior)</span>
-<span id="cb496-10"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-10"></a></span>
-<span id="cb496-11"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-11"></a><span class="co"># computing the prior density of the point-value of interest</span></span>
-<span id="cb496-12"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-12"></a><span class="co">#   [NB: the prior on delta was a standard normal]</span></span>
-<span id="cb496-13"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-13"></a>prior_delta_null &lt;-<span class="st"> </span><span class="kw">dnorm</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>) </span>
-<span id="cb496-14"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-14"></a></span>
-<span id="cb496-15"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-15"></a><span class="co"># compute BF via Savage-Dickey</span></span>
-<span id="cb496-16"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-16"></a>BF_delta_null =<span class="st"> </span>posterior_delta_null <span class="op">/</span><span class="st"> </span>prior_delta_null</span>
-<span id="cb496-17"><a href="ch-03-05-Bayesian-testing-comparison.html#cb496-17"></a>BF_delta_null</span></code></pre></div>
+<div class="sourceCode" id="cb496"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb496-1" data-line-number="1"><span class="co"># extract the samples for the delta parameter</span></a>
+<a class="sourceLine" id="cb496-2" data-line-number="2"><span class="co">#   from the earlier Stan fit</span></a>
+<a class="sourceLine" id="cb496-3" data-line-number="3">delta_samples &lt;-<span class="st"> </span>tidy_draws_tt2 <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb496-4" data-line-number="4"><span class="st">  </span><span class="kw">filter</span>(Parameter <span class="op">==</span><span class="st"> &quot;delta&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb496-5" data-line-number="5"><span class="st">  </span><span class="kw">pull</span>(value)</a>
+<a class="sourceLine" id="cb496-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb496-7" data-line-number="7"><span class="co"># estimating the posterior density at delta = 0 with polynomial splines</span></a>
+<a class="sourceLine" id="cb496-8" data-line-number="8">fit.posterior &lt;-<span class="st"> </span>polspline<span class="op">::</span><span class="kw">logspline</span>(delta_samples)</a>
+<a class="sourceLine" id="cb496-9" data-line-number="9">posterior_delta_null &lt;-<span class="st"> </span>polspline<span class="op">::</span><span class="kw">dlogspline</span>(<span class="dv">0</span>, fit.posterior)</a>
+<a class="sourceLine" id="cb496-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb496-11" data-line-number="11"><span class="co"># computing the prior density of the point-value of interest</span></a>
+<a class="sourceLine" id="cb496-12" data-line-number="12"><span class="co">#   [NB: the prior on delta was a standard normal]</span></a>
+<a class="sourceLine" id="cb496-13" data-line-number="13">prior_delta_null &lt;-<span class="st"> </span><span class="kw">dnorm</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>) </a>
+<a class="sourceLine" id="cb496-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb496-15" data-line-number="15"><span class="co"># compute BF via Savage-Dickey</span></a>
+<a class="sourceLine" id="cb496-16" data-line-number="16">BF_delta_null =<span class="st"> </span>posterior_delta_null <span class="op">/</span><span class="st"> </span>prior_delta_null</a>
+<a class="sourceLine" id="cb496-17" data-line-number="17">BF_delta_null</a></code></pre></div>
 <p>We conclude from this result that the data provide extremely strong evidence against the null model, which assumes that <span class="math inline">\(\delta = 0\)</span>, when compared to an alternative model <span class="math inline">\(M_1\)</span>, which assumes that <span class="math inline">\(\delta \sim \mathcal{N}(0,1)\)</span> in the prior.</p>
 <!-- exercise 2 -->
 <!-- Taken from the prep exam (IDA-prep-exam-02.pages.pdf) -->
@@ -720,9 +720,9 @@ Solution
 <div id="ch-03-07-hypothesis-testing-Bayes-encompassing-models" class="section level3">
 <h3><span class="header-section-number">11.4.2</span> Encompassing models</h3>
 <p>The Savage-Dickey method can be generalized to also cover interval-valued hypotheses.
-The previous literature has focused on inequality-based intervals/hypotheses (like <span class="math inline">\(\theta \ge 0.5\)</span>) <span class="citation">(Klugkist, Kato, and Hoijtink <a href="#ref-KlugkistKato2005:Bayesian-model" role="doc-biblioref">2005</a>; Wetzels, Grasman, and Wagenmakers <a href="#ref-WetzelsGrasman2010:An-encompassing" role="doc-biblioref">2010</a>; Oh <a href="#ref-Oh2014:Bayesian-compar" role="doc-biblioref">2014</a>)</span>, but the also applies to ROPE-d hypotheses.
+The previous literature has focused on inequality-based intervals/hypotheses (like <span class="math inline">\(\theta \ge 0.5\)</span>) <span class="citation">(Klugkist, Kato, and Hoijtink <a href="#ref-KlugkistKato2005:Bayesian-model">2005</a>; Wetzels, Grasman, and Wagenmakers <a href="#ref-WetzelsGrasman2010:An-encompassing">2010</a>; Oh <a href="#ref-Oh2014:Bayesian-compar">2014</a>)</span>, but the also applies to ROPE-d hypotheses.
 The advantage of this method is that we can use samples from the posterior distribution to approximate integrals, which is more robust than having to estimate point-values of posterior density.</p>
-<p>Following previous work <span class="citation">(Klugkist, Kato, and Hoijtink <a href="#ref-KlugkistKato2005:Bayesian-model" role="doc-biblioref">2005</a>; Wetzels, Grasman, and Wagenmakers <a href="#ref-WetzelsGrasman2010:An-encompassing" role="doc-biblioref">2010</a>; Oh <a href="#ref-Oh2014:Bayesian-compar" role="doc-biblioref">2014</a>)</span>, the main idea is to use so-called <strong>encompassing priors</strong>. Let <span class="math inline">\(\theta\)</span> be a single parameter of interest (for simplicity), which can in principle take on any real value. We are interested in the interval-based hypotheses:</p>
+<p>Following previous work <span class="citation">(Klugkist, Kato, and Hoijtink <a href="#ref-KlugkistKato2005:Bayesian-model">2005</a>; Wetzels, Grasman, and Wagenmakers <a href="#ref-WetzelsGrasman2010:An-encompassing">2010</a>; Oh <a href="#ref-Oh2014:Bayesian-compar">2014</a>)</span>, the main idea is to use so-called <strong>encompassing priors</strong>. Let <span class="math inline">\(\theta\)</span> be a single parameter of interest (for simplicity), which can in principle take on any real value. We are interested in the interval-based hypotheses:</p>
 <ul>
 <li><span class="math inline">\(H_0 \colon \theta \in I_0\)</span>, and</li>
 <li><span class="math inline">\(H_a \colon \theta \not \in I_{0}\)</span></li>
@@ -769,35 +769,35 @@ Show proof.
 <div id="example-247-2" class="section level4">
 <h4><span class="header-section-number">11.4.2.1</span> Example: 24/7</h4>
 <p>The Bayes factor using the ROPE-d method to compute the interval-valued hypothesis <span class="math inline">\(\theta = 0.5 \pm \epsilon\)</span> is:</p>
-<div class="sourceCode" id="cb497"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb497-1"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-1"></a><span class="co"># set the scene</span></span>
-<span id="cb497-2"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-2"></a>theta_null &lt;-<span class="st"> </span><span class="fl">0.5</span></span>
-<span id="cb497-3"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-3"></a>epsilon &lt;-<span class="st"> </span><span class="fl">0.01</span>                 <span class="co"># epsilon margin for ROPE</span></span>
-<span id="cb497-4"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-4"></a>upper &lt;-<span class="st"> </span>theta_null <span class="op">+</span><span class="st"> </span>epsilon   <span class="co"># upper bound of ROPE</span></span>
-<span id="cb497-5"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-5"></a>lower &lt;-<span class="st"> </span>theta_null <span class="op">-</span><span class="st"> </span>epsilon   <span class="co"># lower bound of ROPE</span></span>
-<span id="cb497-6"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-6"></a><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></span>
-<span id="cb497-7"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-7"></a>prior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pbeta</span>(upper, <span class="dv">1</span>, <span class="dv">1</span>) <span class="op">-</span><span class="st"> </span><span class="kw">pbeta</span>(lower, <span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb497-8"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-8"></a>prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</span>
-<span id="cb497-9"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-9"></a><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></span>
-<span id="cb497-10"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-10"></a>posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pbeta</span>(upper, <span class="dv">8</span>, <span class="dv">18</span>) <span class="op">-</span><span class="st"> </span><span class="kw">pbeta</span>(lower, <span class="dv">8</span>, <span class="dv">18</span>)</span>
-<span id="cb497-11"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-11"></a>posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</span>
-<span id="cb497-12"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-12"></a><span class="co"># calculate Bayes factor</span></span>
-<span id="cb497-13"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-13"></a>bf_ROPEd_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</span>
-<span id="cb497-14"><a href="ch-03-05-Bayesian-testing-comparison.html#cb497-14"></a>bf_ROPEd_hypothesis</span></code></pre></div>
+<div class="sourceCode" id="cb497"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb497-1" data-line-number="1"><span class="co"># set the scene</span></a>
+<a class="sourceLine" id="cb497-2" data-line-number="2">theta_null &lt;-<span class="st"> </span><span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb497-3" data-line-number="3">epsilon &lt;-<span class="st"> </span><span class="fl">0.01</span>                 <span class="co"># epsilon margin for ROPE</span></a>
+<a class="sourceLine" id="cb497-4" data-line-number="4">upper &lt;-<span class="st"> </span>theta_null <span class="op">+</span><span class="st"> </span>epsilon   <span class="co"># upper bound of ROPE</span></a>
+<a class="sourceLine" id="cb497-5" data-line-number="5">lower &lt;-<span class="st"> </span>theta_null <span class="op">-</span><span class="st"> </span>epsilon   <span class="co"># lower bound of ROPE</span></a>
+<a class="sourceLine" id="cb497-6" data-line-number="6"><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb497-7" data-line-number="7">prior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pbeta</span>(upper, <span class="dv">1</span>, <span class="dv">1</span>) <span class="op">-</span><span class="st"> </span><span class="kw">pbeta</span>(lower, <span class="dv">1</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb497-8" data-line-number="8">prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</a>
+<a class="sourceLine" id="cb497-9" data-line-number="9"><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb497-10" data-line-number="10">posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pbeta</span>(upper, <span class="dv">8</span>, <span class="dv">18</span>) <span class="op">-</span><span class="st"> </span><span class="kw">pbeta</span>(lower, <span class="dv">8</span>, <span class="dv">18</span>)</a>
+<a class="sourceLine" id="cb497-11" data-line-number="11">posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</a>
+<a class="sourceLine" id="cb497-12" data-line-number="12"><span class="co"># calculate Bayes factor</span></a>
+<a class="sourceLine" id="cb497-13" data-line-number="13">bf_ROPEd_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</a>
+<a class="sourceLine" id="cb497-14" data-line-number="14">bf_ROPEd_hypothesis</a></code></pre></div>
 <pre><code>## [1] 0.5133012</code></pre>
 <p>This is unnoteworthy evidence in favor of the alternative hypothesis (Bayes factor <span class="math inline">\(\text{BF}_{10} \approx 1.95\)</span>).
 Notice that the reason why the alternative hypothesis does not fare better in this analysis is because it also includes a lot of parameter values (<span class="math inline">\(\theta &gt; 0.5\)</span>) which explain the observed data even more poorly than the values included in the null hypothesis.</p>
 <p>We can also use this approach to test the directional hypothesis that <span class="math inline">\(\theta &lt; 0.5\)</span>.</p>
-<div class="sourceCode" id="cb499"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb499-1"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-1"></a><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></span>
-<span id="cb499-2"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-2"></a><span class="co">#   [trivial in the case at hand, but just to be explicit]</span></span>
-<span id="cb499-3"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-3"></a>prior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pbeta</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">1</span>) </span>
-<span id="cb499-4"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-4"></a>prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</span>
-<span id="cb499-5"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-5"></a></span>
-<span id="cb499-6"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-6"></a><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></span>
-<span id="cb499-7"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-7"></a>posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pbeta</span>(<span class="fl">0.5</span>, <span class="dv">8</span>, <span class="dv">18</span>)</span>
-<span id="cb499-8"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-8"></a>posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</span>
-<span id="cb499-9"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-9"></a><span class="co"># calculate Bayes factor</span></span>
-<span id="cb499-10"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-10"></a>bf_directional_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</span>
-<span id="cb499-11"><a href="ch-03-05-Bayesian-testing-comparison.html#cb499-11"></a>bf_directional_hypothesis</span></code></pre></div>
+<div class="sourceCode" id="cb499"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb499-1" data-line-number="1"><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb499-2" data-line-number="2"><span class="co">#   [trivial in the case at hand, but just to be explicit]</span></a>
+<a class="sourceLine" id="cb499-3" data-line-number="3">prior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pbeta</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">1</span>) </a>
+<a class="sourceLine" id="cb499-4" data-line-number="4">prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</a>
+<a class="sourceLine" id="cb499-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb499-6" data-line-number="6"><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb499-7" data-line-number="7">posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pbeta</span>(<span class="fl">0.5</span>, <span class="dv">8</span>, <span class="dv">18</span>)</a>
+<a class="sourceLine" id="cb499-8" data-line-number="8">posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</a>
+<a class="sourceLine" id="cb499-9" data-line-number="9"><span class="co"># calculate Bayes factor</span></a>
+<a class="sourceLine" id="cb499-10" data-line-number="10">bf_directional_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</a>
+<a class="sourceLine" id="cb499-11" data-line-number="11">bf_directional_hypothesis</a></code></pre></div>
 <pre><code>## [1] 45.20512</code></pre>
 <p>Here we should conclude that the data provides substantial evidence in favor of the assumption that the coin is biased towards tails, when compared against the alternative assumption that it is biased towards heads.
 If the dichotomy is “heads bias vs tails bias” the data clearly tilts our beliefs towards the “tails bias” possibility.</p>
@@ -806,32 +806,32 @@ If the dichotomy is “heads bias vs tails bias” the data clearly tilts our be
 <h4><span class="header-section-number">11.4.2.2</span> Example: Simon task</h4>
 <p>Using posterior samples, we can also do similar calculations for the Simon task.
 Let’s first approximate the Bayes factor in favor of the ROPE-d hypothesis <span class="math inline">\(\delta = 0 \pm 0.1\)</span> when compared against the alternative hypothesis <span class="math inline">\(\delta \not \in 0 \pm 0.1\)</span>.</p>
-<div class="sourceCode" id="cb501"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb501-1"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-1"></a><span class="co"># estimating the BF for ROPE-d hypothesis with encompassing priors</span></span>
-<span id="cb501-2"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-2"></a>delta_null &lt;-<span class="st"> </span><span class="dv">0</span></span>
-<span id="cb501-3"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-3"></a>epsilon &lt;-<span class="st"> </span><span class="fl">0.1</span>                  <span class="co"># epsilon margin for ROPE</span></span>
-<span id="cb501-4"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-4"></a>upper &lt;-<span class="st"> </span>delta_null <span class="op">+</span><span class="st"> </span>epsilon   <span class="co"># upper bound of ROPE</span></span>
-<span id="cb501-5"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-5"></a>lower &lt;-<span class="st"> </span>delta_null <span class="op">-</span><span class="st"> </span>epsilon   <span class="co"># lower bound of ROPE</span></span>
-<span id="cb501-6"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-6"></a><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></span>
-<span id="cb501-7"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-7"></a>prior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pnorm</span>(upper, <span class="dv">0</span>, <span class="dv">1</span>) <span class="op">-</span><span class="st"> </span><span class="kw">pnorm</span>(lower, <span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb501-8"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-8"></a>prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</span>
-<span id="cb501-9"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-9"></a><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></span>
-<span id="cb501-10"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-10"></a>posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">mean</span>( lower <span class="op">&lt;=</span><span class="st"> </span>delta_samples <span class="op">&amp;</span><span class="st"> </span>delta_samples <span class="op">&lt;=</span><span class="st"> </span>upper )</span>
-<span id="cb501-11"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-11"></a>posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</span>
-<span id="cb501-12"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-12"></a><span class="co"># calculate Bayes factor</span></span>
-<span id="cb501-13"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-13"></a>bf_ROPEd_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</span>
-<span id="cb501-14"><a href="ch-03-05-Bayesian-testing-comparison.html#cb501-14"></a>bf_ROPEd_hypothesis</span></code></pre></div>
+<div class="sourceCode" id="cb501"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb501-1" data-line-number="1"><span class="co"># estimating the BF for ROPE-d hypothesis with encompassing priors</span></a>
+<a class="sourceLine" id="cb501-2" data-line-number="2">delta_null &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb501-3" data-line-number="3">epsilon &lt;-<span class="st"> </span><span class="fl">0.1</span>                  <span class="co"># epsilon margin for ROPE</span></a>
+<a class="sourceLine" id="cb501-4" data-line-number="4">upper &lt;-<span class="st"> </span>delta_null <span class="op">+</span><span class="st"> </span>epsilon   <span class="co"># upper bound of ROPE</span></a>
+<a class="sourceLine" id="cb501-5" data-line-number="5">lower &lt;-<span class="st"> </span>delta_null <span class="op">-</span><span class="st"> </span>epsilon   <span class="co"># lower bound of ROPE</span></a>
+<a class="sourceLine" id="cb501-6" data-line-number="6"><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb501-7" data-line-number="7">prior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">pnorm</span>(upper, <span class="dv">0</span>, <span class="dv">1</span>) <span class="op">-</span><span class="st"> </span><span class="kw">pnorm</span>(lower, <span class="dv">0</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb501-8" data-line-number="8">prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</a>
+<a class="sourceLine" id="cb501-9" data-line-number="9"><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb501-10" data-line-number="10">posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">mean</span>( lower <span class="op">&lt;=</span><span class="st"> </span>delta_samples <span class="op">&amp;</span><span class="st"> </span>delta_samples <span class="op">&lt;=</span><span class="st"> </span>upper )</a>
+<a class="sourceLine" id="cb501-11" data-line-number="11">posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</a>
+<a class="sourceLine" id="cb501-12" data-line-number="12"><span class="co"># calculate Bayes factor</span></a>
+<a class="sourceLine" id="cb501-13" data-line-number="13">bf_ROPEd_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</a>
+<a class="sourceLine" id="cb501-14" data-line-number="14">bf_ROPEd_hypothesis</a></code></pre></div>
 <p>This is overwhelming evidence against the ROPE-d hypothesis that <span class="math inline">\(\delta = 0 \pm 0.1\)</span>.</p>
 <p>We can also use this approach to test the directional hypothesis that <span class="math inline">\(\delta &gt; 0.5\)</span>.</p>
-<div class="sourceCode" id="cb502"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb502-1"><a href="ch-03-05-Bayesian-testing-comparison.html#cb502-1"></a><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></span>
-<span id="cb502-2"><a href="ch-03-05-Bayesian-testing-comparison.html#cb502-2"></a><span class="co">#   [trivial in the case at hand, but just to be explicit]</span></span>
-<span id="cb502-3"><a href="ch-03-05-Bayesian-testing-comparison.html#cb502-3"></a>prior_of_hypothesis &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">pnorm</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb502-4"><a href="ch-03-05-Bayesian-testing-comparison.html#cb502-4"></a>prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</span>
-<span id="cb502-5"><a href="ch-03-05-Bayesian-testing-comparison.html#cb502-5"></a><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></span>
-<span id="cb502-6"><a href="ch-03-05-Bayesian-testing-comparison.html#cb502-6"></a>posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">mean</span>( delta_samples <span class="op">&gt;=</span><span class="st"> </span><span class="fl">0.5</span> )</span>
-<span id="cb502-7"><a href="ch-03-05-Bayesian-testing-comparison.html#cb502-7"></a>posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</span>
-<span id="cb502-8"><a href="ch-03-05-Bayesian-testing-comparison.html#cb502-8"></a><span class="co"># calculate Bayes factor</span></span>
-<span id="cb502-9"><a href="ch-03-05-Bayesian-testing-comparison.html#cb502-9"></a>bf_directional_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</span>
-<span id="cb502-10"><a href="ch-03-05-Bayesian-testing-comparison.html#cb502-10"></a>bf_directional_hypothesis</span></code></pre></div>
+<div class="sourceCode" id="cb502"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb502-1" data-line-number="1"><span class="co"># calculate prior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb502-2" data-line-number="2"><span class="co">#   [trivial in the case at hand, but just to be explicit]</span></a>
+<a class="sourceLine" id="cb502-3" data-line-number="3">prior_of_hypothesis &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">pnorm</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb502-4" data-line-number="4">prior_odds &lt;-<span class="st"> </span>prior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>prior_of_hypothesis)</a>
+<a class="sourceLine" id="cb502-5" data-line-number="5"><span class="co"># calculate posterior odds of the ROPE-d hypothesis</span></a>
+<a class="sourceLine" id="cb502-6" data-line-number="6">posterior_of_hypothesis &lt;-<span class="st"> </span><span class="kw">mean</span>( delta_samples <span class="op">&gt;=</span><span class="st"> </span><span class="fl">0.5</span> )</a>
+<a class="sourceLine" id="cb502-7" data-line-number="7">posterior_odds &lt;-<span class="st"> </span>posterior_of_hypothesis <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>posterior_of_hypothesis)</a>
+<a class="sourceLine" id="cb502-8" data-line-number="8"><span class="co"># calculate Bayes factor</span></a>
+<a class="sourceLine" id="cb502-9" data-line-number="9">bf_directional_hypothesis &lt;-<span class="st"> </span>posterior_odds <span class="op">/</span><span class="st"> </span>prior_odds</a>
+<a class="sourceLine" id="cb502-10" data-line-number="10">bf_directional_hypothesis</a></code></pre></div>
 <pre><code>## [1] Inf</code></pre>
 <p>Modulo imprecision induced by sampling, we see that the evidence in favor of the directional hypothesis <span class="math inline">\(\delta &gt; 0.5\)</span> is immense.</p>
 <!-- exercise 3 -->
@@ -849,7 +849,7 @@ Let’s first approximate the Bayes factor in favor of the ROPE-d hypothesis <sp
 Solution
 </button>
 <div class="content">
-<p>Statements a. and d. are correct.</p>
+<p>Statements a. and d. are correct.</p>
 </div>
 </div>
 </div>
@@ -870,7 +870,7 @@ Solution
 <p>Oh, Man-Suk. 2014. “Bayesian Comparison of Models with Inequality and Equality Constraints.” <em>Statistics and Probability Letters</em> 84: 176–82.</p>
 </div>
 <div id="ref-WetzelsGrasman2010:An-encompassing">
-<p>Wetzels, Ruud, Raoul P. P. P. Grasman, and Eric-Jan Wagenmakers. 2010. “An Encompassing Prior Generalization of the Savage–Dickey Density Ratio.” <em>Computational Statistics and Data Analysis</em> 54: 2094–2102.</p>
+<p>Wetzels, Ruud, Raoul P.P.P. Grasman, and Eric-Jan Wagenmakers. 2010. “An Encompassing Prior Generalization of the Savage–Dickey Density Ratio.” <em>Computational Statistics and Data Analysis</em> 54: 2094–2102.</p>
 </div>
 </div>
             </section>

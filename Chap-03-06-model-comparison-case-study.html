@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>10.1 Case study: recall models | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
   <meta property="og:title" content="10.1 Case study: recall models | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
@@ -49,9 +49,8 @@
 
 
 
-<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <!--<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-editor-1.0.9.css">-->
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/cdn.webppl.org/webppl-viz-0.7.11.css">
 
@@ -80,9 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <style type="text/css">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
@@ -91,16 +90,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -112,7 +111,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-le
 div.sourceCode
   { color: #1f1c1b; background-color: #ffffff; }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span. { color: #1f1c1b; } /* Normal */
 code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
@@ -146,6 +145,7 @@ code span.va { color: #0057ae; } /* Variable */
 code span.vs { color: #bf0303; } /* VerbatimString */
 code span.wa { color: #bf0303; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 <link rel="stylesheet" href="webppl-editor.css" type="text/css" />
@@ -523,14 +523,14 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="Chap-03-06-model-comparison-case-study" class="section level2">
 <h2><span class="header-section-number">10.1</span> Case study: recall models</h2>
-<p>As a running example for this chapter, we borrow from <span class="citation">Myung (<a href="#ref-Myung2003:Tutorial-on-Max" role="doc-biblioref">2003</a>)</span> and consider a fictitious data set of recall rates and two models to explain this data.</p>
+<p>As a running example for this chapter, we borrow from <span class="citation">Myung (<a href="#ref-Myung2003:Tutorial-on-Max">2003</a>)</span> and consider a fictitious data set of recall rates and two models to explain this data.</p>
 <p>As for the data, for each time point (in seconds) <span class="math inline">\(t \in \{1, 3, 6, 9, 12, 18\}\)</span>, we have 100 (binary) observations of whether a previously memorized item was recalled correctly.</p>
-<div class="sourceCode" id="cb466"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb466-1"><a href="Chap-03-06-model-comparison-case-study.html#cb466-1"></a><span class="co"># time after memorization (in seconds)</span></span>
-<span id="cb466-2"><a href="Chap-03-06-model-comparison-case-study.html#cb466-2"></a>t &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">9</span>, <span class="dv">12</span>, <span class="dv">18</span>)</span>
-<span id="cb466-3"><a href="Chap-03-06-model-comparison-case-study.html#cb466-3"></a><span class="co"># proportion (out of 100) of correct recall</span></span>
-<span id="cb466-4"><a href="Chap-03-06-model-comparison-case-study.html#cb466-4"></a>y &lt;-<span class="st"> </span><span class="kw">c</span>(.<span class="dv">94</span>, <span class="fl">.77</span>, <span class="fl">.40</span>, <span class="fl">.26</span>, <span class="fl">.24</span>, <span class="fl">.16</span>)</span>
-<span id="cb466-5"><a href="Chap-03-06-model-comparison-case-study.html#cb466-5"></a><span class="co"># number of observed correct recalls (out of 100)</span></span>
-<span id="cb466-6"><a href="Chap-03-06-model-comparison-case-study.html#cb466-6"></a>obs &lt;-<span class="st"> </span>y <span class="op">*</span><span class="st"> </span><span class="dv">100</span></span></code></pre></div>
+<div class="sourceCode" id="cb466"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb466-1" data-line-number="1"><span class="co"># time after memorization (in seconds)</span></a>
+<a class="sourceLine" id="cb466-2" data-line-number="2">t &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">9</span>, <span class="dv">12</span>, <span class="dv">18</span>)</a>
+<a class="sourceLine" id="cb466-3" data-line-number="3"><span class="co"># proportion (out of 100) of correct recall</span></a>
+<a class="sourceLine" id="cb466-4" data-line-number="4">y &lt;-<span class="st"> </span><span class="kw">c</span>(.<span class="dv">94</span>, <span class="fl">.77</span>, <span class="fl">.40</span>, <span class="fl">.26</span>, <span class="fl">.24</span>, <span class="fl">.16</span>)</a>
+<a class="sourceLine" id="cb466-5" data-line-number="5"><span class="co"># number of observed correct recalls (out of 100)</span></a>
+<a class="sourceLine" id="cb466-6" data-line-number="6">obs &lt;-<span class="st"> </span>y <span class="op">*</span><span class="st"> </span><span class="dv">100</span></a></code></pre></div>
 <p>A visual representation of this data set is here:</p>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-313-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We are interested in comparing two theoretically different models for this data. Models differ in their assumption about the functional relationship between recall probability and time. The <strong>exponential model</strong> assumes that the recall probability <span class="math inline">\(\theta_t\)</span> at time <span class="math inline">\(t\)</span> is an exponential decay function with parameters <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>:</p>
