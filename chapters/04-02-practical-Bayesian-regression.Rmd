@@ -2,36 +2,110 @@
 
 <hr>
 
-TBD
+Instead of hand-coding each Bayesian regression model, we can use the `brms` package [@brms2017].
+From now on the exploration of Bayesian data analysis will be centered on this package.
+This chapter provides a practical introduction to using this package.
+
+<div style = "float:right; width:7%;">
+<img src="visuals/badge-thermometer.png" alt="badge-thermometer">
+</div>
+
+As a running example, this chapter uses the [world temperature data set](app-93-data-sets-temperature).
+We are going to regress `avg_temp` against `year`, in order to address the "research question" of whether, bluntly put, the world is getting warmer.
+More concretely, we are going to address the question of whether the data provides reason to believe that, on the assumption of a linear relationship $y = \beta_0 + \beta_1 x$, where$x$ is a calendar year and $y$ is the average surface temperature for that year, the coefficient $\beta_1$ is credibly positive.^[Not to let the elephant sneak into the room: yes, there are much better models for this kind of data and research question than a simple linear regression model. But first things first.]
 
 
-### Using the `brms` package
+```{block, type='infobox'}
+The learning goals for this chapter are:
 
-Instead of hand-coding each Bayesian regression model, we can also use the `brms` package [@brms2017]. The main function of this package is `brm` (short for **B**ayesian **R**egression **M**odel). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` behaves similarly to the more general `lmer` function from the `lme4` package, which is even more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example of the current case study:
+- be able to use the `brms` package to run linear regression models and in particular, to:
+  - specify a regression model with an R formula
+  - interpret the summary output
+  - extract posterior samples
+  - change the default priors
+  - test hypotheses about regression coefficients
+
+```
+
+
+## Simple linear regression with `brms`
+
+The main function of the `brms` package is `brm` (short for **B**ayesian **R**egression **M**odel). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` behaves similarly to the more general `lmer` function from the `lme4` package, which is even more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example of the current case study based on the [world temperature data set](app-93-data-sets-temperature) :
 
 ```{r, eval = F}
-fit_brms_murder <- brm(
+data_temperature <- read_csv('data_sets/average-world-temperature.csv')
+fit_temperature <- brm(
   # specify what to explain in terms of what
   #  using the formula syntax
-  formula = murder_rate ~ unemployment,
+  formula = avg_temp ~ year,
   # which data to use
-  data = murder_data
+  data = data_temperature
 )
 ```
 
-```{r, echo = F}
-# samples computed in models_brms/murder_data.R
-fit_brms_murder <- readRDS('models_brms/murder_data.rds')
-```
+The formula syntax `y ~ x` tells R that we want to explain or predict the dependent variable `y` in terms of associated measurements of `x`, as stored in the data set (`tibble` or `data.frame`) supplied in the function call as `data`.
 
-
-The function `brm` returns a model-fit object, similar to `glm`. We can inspect it to get more information, using the `summary` function:
+The object returned by this function call is a special purpose object of the class `brmsfit`. If we print this object to the screen we get a summary (which we can also produce with the explicit call `summary(fit_temperature)).
 
 ```{r}
-summary(fit_brms_murder)
+fit_temperature
 ```
 
-This output tells us about which model we fitted, states some properties of the MCMC sampling routine used to obtain samples from the posterior distribution, and it also gives us information about the posteriors under the heading "Population-Level Effects" we get summary statistics of the set of posterior samples for each regression coefficient, including the mean ("Estimate"), and the 95% inter-quantile range ("l-95%" is the lower bound and "u-95%" is the upper bound).^[Notice that the 95% inter-quantile range is not necessarily the same as the 95% HDI, but for large sample sizes the two will coincide.]
+This output tells us about which model we fitted and states some properties of the MCMC sampling routine used to obtain samples from the posterior distribution.
+Some of this information is beyond the scope of this introductory course.
+The most important pieces of information for drawing conclusions from this analysis are the summaries for the estimated parameters, here called "Intercept" (for $\beta_0$ of the regression model), "year" (the slope coefficient $\beta_1$ for the `year` column in the data) and "sigma" (the standard deviation of the Gaussian error function around the central predictor).
+The "Estimate" shown here for each parameter is its posterior mean.
+The columns "l-95% CI" and "u-95% CI" give the 95% inner quantile range of the marginal posterior distribution for each parameter.
+
+
+## Extracting posterior samples
+
+The function `brms::posterior_samples` extracts the samples from the posterior which are part of the `brmsfit` object.^[The column `lp__` gives the log probability of the data for the corresponding parameter values in each row. This is useful information for model checking and model comparison, but we will neglect it here.]
+
+```{r}
+post_samples_temperature <- brms::posterior_samples(fit_temperature)
+head(post_samples_temperature)
+```
+
+These extracted samples can be used as before, e.g., to compute our own summary tibble:
+
+```{r}
+map_dfr(post_samples_temperature, aida::summarize_sample_vector) %>% 
+  mutate(Parameter = colnames(post_samples_temperature))
+```
+
+Or for manual plotting:^[There are also specialized packages for plotting output of Stan models and `brms` model fits, such as the excellent `tidybayes` and `ggdist` packages.]
+
+```{r}
+post_samples_temperature %>% 
+  select(-lp__) %>% 
+  pivot_longer(cols = everything()) %>% 
+  ggplot(aes(x = value)) +
+  geom_density() +
+  facet_wrap(~name, scales = "free")
+  
+```
+
+## [Excursion:] Inspecting the underlying Stan code
+
+Under the hood, the `brms` package automatically creates Stan code based on the specific function call (e.g., using the formula argument, but also any specific priors or the link functions (more on this in subsequent chapters)).
+
+Here's how we can inspect the precise model that `brms` set up for us and ran:
+
+```{r}
+brms::stancode(fit_temperature)
+```
+
+Something interesting observation to be glimpsed from this code (even if some of it is not entirely transparent):
+
+1. `brms` automatically centralizes the predictor values, but returns fits for the non-centralized coefficients
+2. per default, the prior for slope coefficients is a completely uninformative one (any value equally likely)
+
+## Setting priors
+
+## Testing hypotheses
+
+
 
 <div class = "exercises">
 **Exercise 13.5 [optional]**
