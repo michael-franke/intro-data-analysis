@@ -20,6 +20,7 @@ library(BSDA)        # for z.test
 library(polspline)   # for reliable density estimates at point-values
 library(GGally)      # for ally plots 
 library(LaplacesDemon) # for student t-distribution with different means and SDs
+library(mvtnorm)     # for multi-variate normal (used in lin. regression chapter)
 # for visualizing dirichlet distribution; 
 # needs github version, see .travis.yml for that
 if (!("dirichlet" %in% installed.packages())) {
