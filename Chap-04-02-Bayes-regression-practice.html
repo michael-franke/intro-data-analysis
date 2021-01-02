@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="comparison-of-approaches.html"/>
-<link rel="next" href="Chap-04-03-predictors.html"/>
+<link rel="next" href="simple-linear-regression-with-brms.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -379,7 +379,12 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="12.4" data-path="comparison-of-approaches.html"><a href="comparison-of-approaches.html"><i class="fa fa-check"></i><b>12.4</b> Comparison of approaches</a></li>
 </ul></li>
 <li class="chapter" data-level="13" data-path="Chap-04-02-Bayes-regression-practice.html"><a href="Chap-04-02-Bayes-regression-practice.html"><i class="fa fa-check"></i><b>13</b> Bayesian regression in practice</a><ul>
-<li class="chapter" data-level="13.0.1" data-path="Chap-04-02-Bayes-regression-practice.html"><a href="Chap-04-02-Bayes-regression-practice.html#using-the-brms-package"><i class="fa fa-check"></i><b>13.0.1</b> Using the <code>brms</code> package</a></li>
+<li class="chapter" data-level="13.1" data-path="simple-linear-regression-with-brms.html"><a href="simple-linear-regression-with-brms.html"><i class="fa fa-check"></i><b>13.1</b> Simple linear regression with <code>brms</code></a></li>
+<li class="chapter" data-level="13.2" data-path="extracting-posterior-samples.html"><a href="extracting-posterior-samples.html"><i class="fa fa-check"></i><b>13.2</b> Extracting posterior samples</a></li>
+<li class="chapter" data-level="13.3" data-path="excursion-inspecting-the-underlying-stan-code.html"><a href="excursion-inspecting-the-underlying-stan-code.html"><i class="fa fa-check"></i><b>13.3</b> [Excursion:] Inspecting the underlying Stan code</a></li>
+<li class="chapter" data-level="13.4" data-path="setting-priors.html"><a href="setting-priors.html"><i class="fa fa-check"></i><b>13.4</b> Setting priors</a></li>
+<li class="chapter" data-level="13.5" data-path="posterior-predictions.html"><a href="posterior-predictions.html"><i class="fa fa-check"></i><b>13.5</b> Posterior predictions</a></li>
+<li class="chapter" data-level="13.6" data-path="testing-hypotheses.html"><a href="testing-hypotheses.html"><i class="fa fa-check"></i><b>13.6</b> Testing hypotheses</a></li>
 </ul></li>
 <li class="chapter" data-level="14" data-path="Chap-04-03-predictors.html"><a href="Chap-04-03-predictors.html"><i class="fa fa-check"></i><b>14</b> More on predictors</a><ul>
 <li class="chapter" data-level="14.1" data-path="two-categorical-predictors.html"><a href="two-categorical-predictors.html"><i class="fa fa-check"></i><b>14.1</b> Two categorical predictors</a></li>
@@ -524,52 +529,41 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="Chap-04-02-Bayes-regression-practice" class="section level1">
 <h1><span class="header-section-number">13</span> Bayesian regression in practice</h1>
 <hr>
-<p>TBD</p>
-<div id="using-the-brms-package" class="section level3">
-<h3><span class="header-section-number">13.0.1</span> Using the <code>brms</code> package</h3>
-<p>Instead of hand-coding each Bayesian regression model, we can also use the <code>brms</code> package <span class="citation">(B??rkner <a href="#ref-brms2017">2017</a>)</span>. The main function of this package is <code>brm</code> (short for <strong>B</strong>ayesian <strong>R</strong>egression <strong>M</strong>odel). It behaves very similarly to the <code>glm</code> function we saw above.<a href="#fn57" class="footnote-ref" id="fnref57"><sup>57</sup></a> Here is an example of the current case study:</p>
-<div class="sourceCode" id="cb525"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb525-1" data-line-number="1">fit_brms_murder &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb525-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
-<a class="sourceLine" id="cb525-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
-<a class="sourceLine" id="cb525-4" data-line-number="4">  <span class="dt">formula =</span> murder_rate <span class="op">~</span><span class="st"> </span>unemployment,</a>
-<a class="sourceLine" id="cb525-5" data-line-number="5">  <span class="co"># which data to use</span></a>
-<a class="sourceLine" id="cb525-6" data-line-number="6">  <span class="dt">data =</span> murder_data</a>
-<a class="sourceLine" id="cb525-7" data-line-number="7">)</a></code></pre></div>
-<p>The function <code>brm</code> returns a model-fit object, similar to <code>glm</code>. We can inspect it to get more information, using the <code>summary</code> function:</p>
-<div class="sourceCode" id="cb526"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb526-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_murder)</a></code></pre></div>
-<pre><code>##  Family: gaussian 
-##   Links: mu = identity; sigma = identity 
-## Formula: murder_rate ~ unemployment 
-##    Data: murder_data (Number of observations: 20) 
-## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
-##          total post-warmup samples = 4000
-## 
-## Population-Level Effects: 
-##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept      -28.48      7.32   -42.05   -13.79 1.00     3014     2362
-## unemployment     7.07      1.04     4.97     9.04 1.00     2978     2451
-## 
-## Family Specific Parameters: 
-##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma     5.42      0.96     3.88     7.63 1.00     2664     2196
-## 
-## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
-## and Tail_ESS are effective sample size measures, and Rhat is the potential
-## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<p>This output tells us about which model we fitted, states some properties of the MCMC sampling routine used to obtain samples from the posterior distribution, and it also gives us information about the posteriors under the heading “Population-Level Effects” we get summary statistics of the set of posterior samples for each regression coefficient, including the mean (“Estimate”), and the 95% inter-quantile range (“l-95%” is the lower bound and “u-95%” is the upper bound).<a href="#fn58" class="footnote-ref" id="fnref58"><sup>58</sup></a></p>
-<div class="exercises">
-<p><strong>Exercise 13.5 [optional]</strong></p>
-<p>By default, <code>brms</code> assumes an appropriate prior for coefficients. What do you expect to happen to the estimate of the intercept when using a very strong prior for its value to be around 100?</p>
-<div class="collapsibleSolution">
-<button class="trigger">
-Solution
-</button>
-<div class="content">
-<p>The estimate will have a value that is bigger than the current one, especially if the number of data points is small.</p>
+<p>Instead of hand-coding each Bayesian regression model, we can use the <code>brms</code> package <span class="citation">(B??rkner <a href="#ref-brms2017">2017</a>)</span>.
+From now on the exploration of Bayesian data analysis will be centered on this package.
+This chapter provides a practical introduction to using this package.</p>
+<div style="float:right; width:7%;">
+<p><img src="visuals/badge-thermometer.png" alt="badge-thermometer"></p>
 </div>
-</div>
-</div>
-
+<p>As a running example, this chapter uses the <a href="app-93-data-sets-temperature">world temperature data set</a>.
+We are going to regress <code>avg_temp</code> against <code>year</code> in order to address the “research question” of whether the world is getting warmer.
+More concretely, we are going to address the question of whether the data provides reason to believe that, on the assumption of a linear relationship <span class="math inline">\(y = \beta_0 + \beta_1 x\)</span>, where <span class="math inline">\(x\)</span> is a calendar year and <span class="math inline">\(y\)</span> is the average surface temperature for that year, the coefficient <span class="math inline">\(\beta_1\)</span> is credibly positive.<a href="#fn57" class="footnote-ref" id="fnref57"><sup>57</sup></a></p>
+<div class="infobox">
+<p>
+The learning goals for this chapter are:
+</p>
+<ul>
+<li>
+be able to use the <code>brms</code> package to run linear regression models and in particular, to:
+<ul>
+<li>
+specify a regression model with an R formula
+</li>
+<li>
+interpret the summary output
+</li>
+<li>
+extract posterior samples
+</li>
+<li>
+change the default priors
+</li>
+<li>
+test hypotheses about regression coefficients
+</li>
+</ul>
+</li>
+</ul>
 </div>
 </div>
 <h3>References</h3>
@@ -581,8 +575,7 @@ Solution
 <div class="footnotes">
 <hr />
 <ol start="57">
-<li id="fn57"><p>Actually, <code>brm</code> behaves similarly to the more general <code>lmer</code> function from the <code>lme4</code> package, which is even more general than <code>glm</code>. Both <code>lmer</code> and <code>brm</code> also cover so-called hierarchical regression models.<a href="Chap-04-02-Bayes-regression-practice.html#fnref57" class="footnote-back">↩</a></p></li>
-<li id="fn58"><p>Notice that the 95% inter-quantile range is not necessarily the same as the 95% HDI, but for large sample sizes the two will coincide.<a href="Chap-04-02-Bayes-regression-practice.html#fnref58" class="footnote-back">↩</a></p></li>
+<li id="fn57"><p>Not to let the elephant sneak into the room: yes, there are much better models for this kind of data and research question than a simple linear regression model. But first things first.<a href="Chap-04-02-Bayes-regression-practice.html#fnref57" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>
@@ -591,7 +584,7 @@ Solution
         </div>
       </div>
 <a href="comparison-of-approaches.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="Chap-04-03-predictors.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="simple-linear-regression-with-brms.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

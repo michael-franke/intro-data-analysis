@@ -379,7 +379,12 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="12.4" data-path="comparison-of-approaches.html"><a href="comparison-of-approaches.html"><i class="fa fa-check"></i><b>12.4</b> Comparison of approaches</a></li>
 </ul></li>
 <li class="chapter" data-level="13" data-path="Chap-04-02-Bayes-regression-practice.html"><a href="Chap-04-02-Bayes-regression-practice.html"><i class="fa fa-check"></i><b>13</b> Bayesian regression in practice</a><ul>
-<li class="chapter" data-level="13.0.1" data-path="Chap-04-02-Bayes-regression-practice.html"><a href="Chap-04-02-Bayes-regression-practice.html#using-the-brms-package"><i class="fa fa-check"></i><b>13.0.1</b> Using the <code>brms</code> package</a></li>
+<li class="chapter" data-level="13.1" data-path="simple-linear-regression-with-brms.html"><a href="simple-linear-regression-with-brms.html"><i class="fa fa-check"></i><b>13.1</b> Simple linear regression with <code>brms</code></a></li>
+<li class="chapter" data-level="13.2" data-path="extracting-posterior-samples.html"><a href="extracting-posterior-samples.html"><i class="fa fa-check"></i><b>13.2</b> Extracting posterior samples</a></li>
+<li class="chapter" data-level="13.3" data-path="excursion-inspecting-the-underlying-stan-code.html"><a href="excursion-inspecting-the-underlying-stan-code.html"><i class="fa fa-check"></i><b>13.3</b> [Excursion:] Inspecting the underlying Stan code</a></li>
+<li class="chapter" data-level="13.4" data-path="setting-priors.html"><a href="setting-priors.html"><i class="fa fa-check"></i><b>13.4</b> Setting priors</a></li>
+<li class="chapter" data-level="13.5" data-path="posterior-predictions.html"><a href="posterior-predictions.html"><i class="fa fa-check"></i><b>13.5</b> Posterior predictions</a></li>
+<li class="chapter" data-level="13.6" data-path="testing-hypotheses.html"><a href="testing-hypotheses.html"><i class="fa fa-check"></i><b>13.6</b> Testing hypotheses</a></li>
 </ul></li>
 <li class="chapter" data-level="14" data-path="Chap-04-03-predictors.html"><a href="Chap-04-03-predictors.html"><i class="fa fa-check"></i><b>14</b> More on predictors</a><ul>
 <li class="chapter" data-level="14.1" data-path="two-categorical-predictors.html"><a href="two-categorical-predictors.html"><i class="fa fa-check"></i><b>14.1</b> Two categorical predictors</a></li>
@@ -528,7 +533,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <div style="float:right; width:10%;">
 <p><img src="visuals/badge-thermometer.png" alt="badge-thermometer"></p>
 </div>
-<p>This data set has been downloaded from <a href="http://berkeleyearth.org/">Berkeley Earth</a>.<a href="#fn83" class="footnote-ref" id="fnref83"><sup>83</sup></a> More information on the origin and composition of this data set can be found <a href="http://berkeleyearth.org/data-new/">here</a>. Specifically, what we will use here is the time series data for “land only” using the annual summary of monthly average temperature. We have added to the data set used here the absolute average temperature. (Berkeley Earth only lists the “annual anomaly”, i.e., the deviation from a grand mean.)</p>
+<p>This data set has been downloaded from <a href="http://berkeleyearth.org/">Berkeley Earth</a>.<a href="#fn86" class="footnote-ref" id="fnref86"><sup>86</sup></a> More information on the origin and composition of this data set can be found <a href="http://berkeleyearth.org/data-new/">here</a>. Specifically, what we will use here is the time series data for “land only” using the annual summary of monthly average temperature. We have added to the data set used here the absolute average temperature. (Berkeley Earth only lists the “annual anomaly”, i.e., the deviation from a grand mean.)</p>
 <p>Columns of interest are:</p>
 <ul>
 <li><code>year</code> - year of the observation (1750-2019)</li>
@@ -540,9 +545,9 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="loading-and-preprocessing-the-data-4" class="section level3">
 <h3><span class="header-section-number">D.7.2</span> Loading and preprocessing the data</h3>
 <p>We load the data into a variable named <code>data_temperature</code>:</p>
-<div class="sourceCode" id="cb688"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb688-1" data-line-number="1">data_temperature &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/average-world-temperature.csv&#39;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb706"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb706-1" data-line-number="1">data_temperature &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/average-world-temperature.csv&#39;</span>))</a></code></pre></div>
 <p>And inspect the first rows of data:</p>
-<div class="sourceCode" id="cb689"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb689-1" data-line-number="1"><span class="kw">head</span>(data_temperature)</a></code></pre></div>
+<div class="sourceCode" id="cb707"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb707-1" data-line-number="1"><span class="kw">head</span>(data_temperature)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 4
 ##    year anomaly uncertainty avg_temp
 ##   &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;    &lt;dbl&gt;
@@ -561,48 +566,48 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="plotting" class="section level3">
 <h3><span class="header-section-number">D.7.4</span> Plotting</h3>
 <p>Here is a scatterplot of annual average temperature <code>avg_temp</code> against <code>year</code>. The straight line is the best linear predictor.</p>
-<div class="sourceCode" id="cb691"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb691-1" data-line-number="1">data_temperature <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb691-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> avg_temp)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb691-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb691-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb691-5" data-line-number="5"><span class="st">  </span><span class="kw">labs</span>(</a>
-<a class="sourceLine" id="cb691-6" data-line-number="6">    <span class="dt">y =</span> <span class="st">&quot;temperature (degrees Celcius)&quot;</span>,</a>
-<a class="sourceLine" id="cb691-7" data-line-number="7">    <span class="dt">title =</span> <span class="st">&quot;Annual average surface land temperature&quot;</span></a>
-<a class="sourceLine" id="cb691-8" data-line-number="8">  )</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-507-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb709"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb709-1" data-line-number="1">data_temperature <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb709-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> avg_temp)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb709-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb709-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb709-5" data-line-number="5"><span class="st">  </span><span class="kw">labs</span>(</a>
+<a class="sourceLine" id="cb709-6" data-line-number="6">    <span class="dt">y =</span> <span class="st">&quot;temperature (degrees Celcius)&quot;</span>,</a>
+<a class="sourceLine" id="cb709-7" data-line-number="7">    <span class="dt">title =</span> <span class="st">&quot;Annual average surface land temperature&quot;</span></a>
+<a class="sourceLine" id="cb709-8" data-line-number="8">  )</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-517-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="analysis" class="section level3">
 <h3><span class="header-section-number">D.7.5</span> Analysis</h3>
 <p>We run a simple linear regression model, for relationship <code>avg_temp ~ year</code>:</p>
-<div class="sourceCode" id="cb692"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb692-1" data-line-number="1">fit_avg_temp &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb692-2" data-line-number="2">  <span class="dt">formula =</span> avg_temp <span class="op">~</span><span class="st"> </span>year, </a>
-<a class="sourceLine" id="cb692-3" data-line-number="3">  <span class="dt">data =</span> data_temperature</a>
-<a class="sourceLine" id="cb692-4" data-line-number="4">  )</a></code></pre></div>
+<div class="sourceCode" id="cb710"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb710-1" data-line-number="1">fit_avg_temp &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb710-2" data-line-number="2">  <span class="dt">formula =</span> avg_temp <span class="op">~</span><span class="st"> </span>year, </a>
+<a class="sourceLine" id="cb710-3" data-line-number="3">  <span class="dt">data =</span> data_temperature</a>
+<a class="sourceLine" id="cb710-4" data-line-number="4">  )</a></code></pre></div>
 <p>Based on the posterior samples, we would conclude that the slope parameter is credibly bigger than zero:</p>
-<div class="sourceCode" id="cb693"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb693-1" data-line-number="1"><span class="co"># </span><span class="al">TODO</span><span class="co"> remove this when aida package works</span></a>
-<a class="sourceLine" id="cb693-2" data-line-number="2">summarize_sample_vector &lt;-<span class="st"> </span><span class="cf">function</span>(samples, <span class="dt">name =</span> <span class="st">&#39;&#39;</span>) {</a>
-<a class="sourceLine" id="cb693-3" data-line-number="3">    <span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb693-4" data-line-number="4">        <span class="dt">Parameter =</span> name,</a>
-<a class="sourceLine" id="cb693-5" data-line-number="5">        <span class="st">&#39;|95%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(samples)[<span class="dv">1</span>],</a>
-<a class="sourceLine" id="cb693-6" data-line-number="6">        <span class="dt">mean  =</span> <span class="kw">mean</span>(samples),</a>
-<a class="sourceLine" id="cb693-7" data-line-number="7">        <span class="st">&#39;95%|&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(samples)[<span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb693-8" data-line-number="8">    )</a>
-<a class="sourceLine" id="cb693-9" data-line-number="9">}</a>
-<a class="sourceLine" id="cb693-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb693-11" data-line-number="11"><span class="kw">posterior_samples</span>(fit_avg_temp) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb693-12" data-line-number="12"><span class="st">  </span><span class="kw">pull</span>(b_year) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarize_sample_vector</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb711"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb711-1" data-line-number="1"><span class="co"># </span><span class="al">TODO</span><span class="co"> remove this when aida package works</span></a>
+<a class="sourceLine" id="cb711-2" data-line-number="2">summarize_sample_vector &lt;-<span class="st"> </span><span class="cf">function</span>(samples, <span class="dt">name =</span> <span class="st">&#39;&#39;</span>) {</a>
+<a class="sourceLine" id="cb711-3" data-line-number="3">    <span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb711-4" data-line-number="4">        <span class="dt">Parameter =</span> name,</a>
+<a class="sourceLine" id="cb711-5" data-line-number="5">        <span class="st">&#39;|95%&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(samples)[<span class="dv">1</span>],</a>
+<a class="sourceLine" id="cb711-6" data-line-number="6">        <span class="dt">mean  =</span> <span class="kw">mean</span>(samples),</a>
+<a class="sourceLine" id="cb711-7" data-line-number="7">        <span class="st">&#39;95%|&#39;</span> =<span class="st"> </span>HDInterval<span class="op">::</span><span class="kw">hdi</span>(samples)[<span class="dv">2</span>]</a>
+<a class="sourceLine" id="cb711-8" data-line-number="8">    )</a>
+<a class="sourceLine" id="cb711-9" data-line-number="9">}</a>
+<a class="sourceLine" id="cb711-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb711-11" data-line-number="11"><span class="kw">posterior_samples</span>(fit_avg_temp) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb711-12" data-line-number="12"><span class="st">  </span><span class="kw">pull</span>(b_year) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarize_sample_vector</span>()</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 4
 ##   Parameter  `|95%`    mean  `95%|`
 ##   &lt;chr&gt;       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-## 1 &quot;&quot;        0.00562 0.00627 0.00687</code></pre>
+## 1 &quot;&quot;        0.00564 0.00627 0.00685</code></pre>
 <p>The estimated coefficient for variable <code>year</code> implies that we should expect an annual increase of average world temperature of about 0.006 degrees Celcius.</p>
 
 </div>
 </div>
 <div class="footnotes">
 <hr />
-<ol start="83">
-<li id="fn83"><p>Downloaded on October 6th, 2020.<a href="app-93-data-sets-temperature.html#fnref83" class="footnote-back">↩</a></p></li>
+<ol start="86">
+<li id="fn86"><p>Downloaded on October 6th, 2020.<a href="app-93-data-sets-temperature.html#fnref86" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>

@@ -379,7 +379,12 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="12.4" data-path="comparison-of-approaches.html"><a href="comparison-of-approaches.html"><i class="fa fa-check"></i><b>12.4</b> Comparison of approaches</a></li>
 </ul></li>
 <li class="chapter" data-level="13" data-path="Chap-04-02-Bayes-regression-practice.html"><a href="Chap-04-02-Bayes-regression-practice.html"><i class="fa fa-check"></i><b>13</b> Bayesian regression in practice</a><ul>
-<li class="chapter" data-level="13.0.1" data-path="Chap-04-02-Bayes-regression-practice.html"><a href="Chap-04-02-Bayes-regression-practice.html#using-the-brms-package"><i class="fa fa-check"></i><b>13.0.1</b> Using the <code>brms</code> package</a></li>
+<li class="chapter" data-level="13.1" data-path="simple-linear-regression-with-brms.html"><a href="simple-linear-regression-with-brms.html"><i class="fa fa-check"></i><b>13.1</b> Simple linear regression with <code>brms</code></a></li>
+<li class="chapter" data-level="13.2" data-path="extracting-posterior-samples.html"><a href="extracting-posterior-samples.html"><i class="fa fa-check"></i><b>13.2</b> Extracting posterior samples</a></li>
+<li class="chapter" data-level="13.3" data-path="excursion-inspecting-the-underlying-stan-code.html"><a href="excursion-inspecting-the-underlying-stan-code.html"><i class="fa fa-check"></i><b>13.3</b> [Excursion:] Inspecting the underlying Stan code</a></li>
+<li class="chapter" data-level="13.4" data-path="setting-priors.html"><a href="setting-priors.html"><i class="fa fa-check"></i><b>13.4</b> Setting priors</a></li>
+<li class="chapter" data-level="13.5" data-path="posterior-predictions.html"><a href="posterior-predictions.html"><i class="fa fa-check"></i><b>13.5</b> Posterior predictions</a></li>
+<li class="chapter" data-level="13.6" data-path="testing-hypotheses.html"><a href="testing-hypotheses.html"><i class="fa fa-check"></i><b>13.6</b> Testing hypotheses</a></li>
 </ul></li>
 <li class="chapter" data-level="14" data-path="Chap-04-03-predictors.html"><a href="Chap-04-03-predictors.html"><i class="fa fa-check"></i><b>14</b> More on predictors</a><ul>
 <li class="chapter" data-level="14.1" data-path="two-categorical-predictors.html"><a href="two-categorical-predictors.html"><i class="fa fa-check"></i><b>14.1</b> Two categorical predictors</a></li>
@@ -595,7 +600,7 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 \end{align*}
 \]</span></p>
 <p>Here is a convenience function that takes a vector <code>data_vector</code> (like <code>height_A</code>) of metric observations as input and returns <code>n_samples</code> samples from the posterior.</p>
-<div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb449-1" data-line-number="1">get_samples_single_normal &lt;-<span class="st"> </span><span class="cf">function</span>(data_vector, <span class="dt">n_samples =</span> <span class="dv">1000</span>) {</a>
+<div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb449-1" data-line-number="1">get_samples_single_noninformative &lt;-<span class="st"> </span><span class="cf">function</span>(data_vector, <span class="dt">n_samples =</span> <span class="dv">1000</span>) {</a>
 <a class="sourceLine" id="cb449-2" data-line-number="2">  <span class="co"># determine sample variance</span></a>
 <a class="sourceLine" id="cb449-3" data-line-number="3">  s_squared &lt;-<span class="st"> </span><span class="kw">var</span>(data_vector)</a>
 <a class="sourceLine" id="cb449-4" data-line-number="4">  <span class="co"># posterior samples of the variance</span></a>
@@ -620,7 +625,7 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 <a class="sourceLine" id="cb449-23" data-line-number="23">  )</a>
 <a class="sourceLine" id="cb449-24" data-line-number="24">}</a></code></pre></div>
 <p>If we apply this function for the data of flower ‘A’, we get samples of likely pairs consisting of means <em>and</em> standard deviations (each row is one pair of associated samples):</p>
-<div class="sourceCode" id="cb450"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb450-1" data-line-number="1"><span class="kw">get_samples_single_normal</span>(heights_A, <span class="dt">n_samples =</span> <span class="dv">5</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb450"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb450-1" data-line-number="1"><span class="kw">get_samples_single_noninformative</span>(heights_A, <span class="dt">n_samples =</span> <span class="dv">5</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 5 x 2
 ##      mu sigma
 ##   &lt;dbl&gt; &lt;dbl&gt;
@@ -631,7 +636,7 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 ## 5  9.33  1.56</code></pre>
 <p>By taking more samples from this 2-dimensional (joint) posterior distribution a scatter point reveals its approximate shape.</p>
 <div class="sourceCode" id="cb452"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb452-1" data-line-number="1"><span class="co"># take 10,000 samples from the posterior</span></a>
-<a class="sourceLine" id="cb452-2" data-line-number="2">post_samples_A_noninfo &lt;-<span class="st"> </span><span class="kw">get_samples_single_normal</span>(<span class="dt">data_vector =</span> heights_A, <span class="dt">n_samples =</span> <span class="dv">10000</span>)</a>
+<a class="sourceLine" id="cb452-2" data-line-number="2">post_samples_A_noninfo &lt;-<span class="st"> </span><span class="kw">get_samples_single_noninformative</span>(<span class="dt">data_vector =</span> heights_A, <span class="dt">n_samples =</span> <span class="dv">10000</span>)</a>
 <a class="sourceLine" id="cb452-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb452-4" data-line-number="4"><span class="co"># look at a scatter plot</span></a>
 <a class="sourceLine" id="cb452-5" data-line-number="5">post_samples_A_noninfo <span class="op">%&gt;%</span></a>
