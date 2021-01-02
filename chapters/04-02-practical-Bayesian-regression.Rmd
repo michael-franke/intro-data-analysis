@@ -11,8 +11,8 @@ This chapter provides a practical introduction to using this package.
 </div>
 
 As a running example, this chapter uses the [world temperature data set](app-93-data-sets-temperature).
-We are going to regress `avg_temp` against `year`, in order to address the "research question" of whether, bluntly put, the world is getting warmer.
-More concretely, we are going to address the question of whether the data provides reason to believe that, on the assumption of a linear relationship $y = \beta_0 + \beta_1 x$, where$x$ is a calendar year and $y$ is the average surface temperature for that year, the coefficient $\beta_1$ is credibly positive.^[Not to let the elephant sneak into the room: yes, there are much better models for this kind of data and research question than a simple linear regression model. But first things first.]
+We are going to regress `avg_temp` against `year` in order to address the "research question" of whether the world is getting warmer.
+More concretely, we are going to address the question of whether the data provides reason to believe that, on the assumption of a linear relationship $y = \beta_0 + \beta_1 x$, where $x$ is a calendar year and $y$ is the average surface temperature for that year, the coefficient $\beta_1$ is credibly positive.^[Not to let the elephant sneak into the room: yes, there are much better models for this kind of data and research question than a simple linear regression model. But first things first.]
 
 
 ```{block, type='infobox'}
@@ -30,30 +30,28 @@ The learning goals for this chapter are:
 
 ## Simple linear regression with `brms`
 
-The main function of the `brms` package is `brm` (short for **B**ayesian **R**egression **M**odel). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` behaves similarly to the more general `lmer` function from the `lme4` package, which is even more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example of the current case study based on the [world temperature data set](app-93-data-sets-temperature) :
+The main function of the `brms` package is `brm` (short for **B**ayesian **R**egression **M**odel). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` is similar to the `lmer` function from the `lme4` package, which is more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example of the current case study based on the [world temperature data set](app-93-data-sets-temperature) :
 
-```{r, eval = F}
-data_temperature <- read_csv('data_sets/average-world-temperature.csv')
+```{r, eval = T}
 fit_temperature <- brm(
   # specify what to explain in terms of what
   #  using the formula syntax
   formula = avg_temp ~ year,
   # which data to use
-  data = data_temperature
+  data = aida::data_WorldTemp
 )
 ```
 
 The formula syntax `y ~ x` tells R that we want to explain or predict the dependent variable `y` in terms of associated measurements of `x`, as stored in the data set (`tibble` or `data.frame`) supplied in the function call as `data`.
 
-The object returned by this function call is a special purpose object of the class `brmsfit`. If we print this object to the screen we get a summary (which we can also produce with the explicit call `summary(fit_temperature)).
+The object returned by this function call is a special purpose object of the class `brmsfit`. If we print this object to the screen we get a summary (which we can also produce with the explicit call `summary(fit_temperature))i`.
 
 ```{r}
 fit_temperature
 ```
 
-This output tells us about which model we fitted and states some properties of the MCMC sampling routine used to obtain samples from the posterior distribution.
-Some of this information is beyond the scope of this introductory course.
-The most important pieces of information for drawing conclusions from this analysis are the summaries for the estimated parameters, here called "Intercept" (for $\beta_0$ of the regression model), "year" (the slope coefficient $\beta_1$ for the `year` column in the data) and "sigma" (the standard deviation of the Gaussian error function around the central predictor).
+This output tells us which model we fitted and it states some properties of the MCMC sampling routine used to obtain samples from the posterior distribution.
+The most important pieces of information for drawing conclusions from this analysis are the summaries for the estimated parameters, here called "Intercept" (the $\beta_0$ of the regression model), "year" (the slope coefficient $\beta_1$ for the `year` column in the data) and "sigma" (the standard deviation of the Gaussian error function around the central predictor).
 The "Estimate" shown here for each parameter is its posterior mean.
 The columns "l-95% CI" and "u-95% CI" give the 95% inner quantile range of the marginal posterior distribution for each parameter.
 
@@ -63,15 +61,15 @@ The columns "l-95% CI" and "u-95% CI" give the 95% inner quantile range of the m
 The function `brms::posterior_samples` extracts the samples from the posterior which are part of the `brmsfit` object.^[The column `lp__` gives the log probability of the data for the corresponding parameter values in each row. This is useful information for model checking and model comparison, but we will neglect it here.]
 
 ```{r}
-post_samples_temperature <- brms::posterior_samples(fit_temperature)
-head(post_samples_temperature)
+post_samples_temperature <- brms::posterior_samples(fit_temperature) 
+  head(post_samples_temperature)
 ```
 
 These extracted samples can be used as before, e.g., to compute our own summary tibble:
 
 ```{r}
-map_dfr(post_samples_temperature, aida::summarize_sample_vector) %>% 
-  mutate(Parameter = colnames(post_samples_temperature))
+map_dfr(post_samples_temperature %>% select(-lp__), aida::summarize_sample_vector) %>% 
+  mutate(Parameter = colnames(post_samples_temperature[1:3]))
 ```
 
 Or for manual plotting:^[There are also specialized packages for plotting output of Stan models and `brms` model fits, such as the excellent `tidybayes` and `ggdist` packages.]
@@ -83,42 +81,115 @@ post_samples_temperature %>%
   ggplot(aes(x = value)) +
   geom_density() +
   facet_wrap(~name, scales = "free")
-  
 ```
 
 ## [Excursion:] Inspecting the underlying Stan code
 
-Under the hood, the `brms` package automatically creates Stan code based on the specific function call (e.g., using the formula argument, but also any specific priors or the link functions (more on this in subsequent chapters)).
-
+Under the hood, the `brms` package automatically creates Stan code, runs it and computes useful additionial information for regression modeling around the `stan_fit` object.
 Here's how we can inspect the precise model that `brms` set up for us and ran:
 
 ```{r}
 brms::stancode(fit_temperature)
 ```
 
-Something interesting observation to be glimpsed from this code (even if some of it is not entirely transparent):
+Even if the Stan code itself is not entirely transparent, a few interesting observation to be glimpsed are:
 
 1. `brms` automatically centralizes the predictor values, but returns fits for the non-centralized coefficients
 2. per default, the prior for slope coefficients is a completely uninformative one (any value equally likely)
 
 ## Setting priors
 
-## Testing hypotheses
+Bayesian models require priors for all parameters.
+The function `brms::prior_summary` shows which priors a model fitted with `brms` has (implicitly) assumed.
+
+```{r}
+prior_summary(fit_temperature)
+```
+
+This output tells us that `brms` used a Student's $t$ distribution for the intercept and the standard deviation.^[Actually, the prior on the standard deviation is a *truncated* Student's $t$ distribution, as negative values are impossible for a standard deviation.]
+It also shows us that all slope coefficients (abbreviated here as "b") have a flat (non-informative prior).
+
+If we want to change the prior for any model parameter, or family of model parameters, we can use the `prior` argument in the `brm` function, which requires a special type of input using `brms`' `prior()` function.
+The syntax for distributions inside the `prior()` follows that of Stan, as documented in the [Stan function reference](https://mc-stan.org/docs/2_25/functions-reference/index.html).
+The example below sets the prior for the slope coefficient to a very narrow Student's $t$ distribution with mean zero at `-0.001` and standard deviation `0.001`.
 
 
+```{r}
+fit_temperature_skeptical <- brm(
+  # specify what to explain in terms of what
+  #  using the formula syntax
+  formula = avg_temp ~ year,
+  # which data to use
+  data = aida::data_WorldTemp,
+  # hand-craft priors for slope
+  prior = prior(student_t(1, -0.01, 0.001), coef = year)
+)
+```
+
+This prior is a *skeptical prior* in the sense that it assumes a negative slope to be more likely: that the world has been getting colder over the years.
+Comparing the summary statistics for the original fit:
+
+```{r}
+map_dfr(post_samples_temperature %>% select(-lp__), aida::summarize_sample_vector) %>% 
+  mutate(Parameter = colnames(post_samples_temperature[1:3]))
+```
+
+against those of the new fit using skeptical priors:
+
+```{r}
+post_samples_temperature_skeptical <- brms::posterior_samples(fit_temperature_skeptical)
+map_dfr(post_samples_temperature_skeptical %>% select(-lp__),
+        aida::summarize_sample_vector) %>% 
+  mutate(Parameter = colnames(post_samples_temperature_skeptical[1:3]))
+```
+
+we see that the data has overturned the initial skeptical prior, suggesting that the evidence provided in the data for the belief that the slope coefficient is positive is stronger than the original (maybe hypothetical) assumption to the contrary.
 
 <div class = "exercises">
-**Exercise 13.5 [optional]**
+**Exercise 13.1**
 
-By default, `brms` assumes an appropriate prior for coefficients. What do you expect to happen to the estimate of the intercept when using a very strong prior for its value to be around 100?
+What do you expect to happen to the estimate of the intercept when using a very strong prior on the slope coefficient for `year`, e.g., a normal distribution with mean of 5, standard deviation .01?
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
-The estimate will have a value that is bigger than the current one, especially if the number of data points is small.
+
+We should expect the posterior of the slope for `year` to be much higher than the original estimate, much closer to 5.
+The reason is that the normal distribution is much less "willing" to allow outliers and so constraints the fit much stronger towards the mean of the prior that the Student's $t$ distribution.
+Notice that with slope values close to 5, the estimates for the intercept and standard deviation also change (in ridiculous ways).
+
+```{r}
+fit_temperature_ridiculous <- brm(
+  # specify what to explain in terms of what
+  #  using the formula syntax
+  formula = avg_temp ~ year,
+  # which data to use
+  data = aida::data_WorldTemp,
+  # hand-craft priors for slope
+  prior = prior(normal(5, 0.01), coef = year)
+)
+post_samples_temperature_ridiculous <- brms::posterior_samples(fit_temperature_ridiculous)
+map_dfr(post_samples_temperature_ridiculous %>% select(-lp__),
+        aida::summarize_sample_vector) %>% 
+  mutate(Parameter = colnames(post_samples_temperature_ridiculous[1:3]))
+```
+
 </div>
 </div>
 </div>
+
+## Posterior predictions
+
+The function `brms::posterior_predict` returns samples from the posterior predictive distribution of a `brms_fit` object.
+For example, here we get 4000 sampled predictions for each of the 269 `year` values in the world temperature data set.
+
+```{r}
+samples_post_pred_temperature <- brms::posterior_predict(fit_temperature)
+dim(samples_post_pred_temperature)
+```
+
+
+## Testing hypotheses
 
 
 
