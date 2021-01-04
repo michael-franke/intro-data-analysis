@@ -529,10 +529,28 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="posterior-predictions" class="section level2">
 <h2><span class="header-section-number">13.5</span> Posterior predictions</h2>
 <p>The function <code>brms::posterior_predict</code> returns samples from the posterior predictive distribution of a <code>brms_fit</code> object.
-For example, here we get 4000 sampled predictions for each of the 269 <code>year</code> values in the world temperature data set.</p>
+For example, the code below yields 4000 sampled predictions for each of the 269 <code>year</code> values in the world temperature data set.</p>
 <div class="sourceCode" id="cb544"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb544-1" data-line-number="1">samples_post_pred_temperature &lt;-<span class="st"> </span>brms<span class="op">::</span><span class="kw">posterior_predict</span>(fit_temperature)</a>
 <a class="sourceLine" id="cb544-2" data-line-number="2"><span class="kw">dim</span>(samples_post_pred_temperature)</a></code></pre></div>
 <pre><code>## [1] 4000  269</code></pre>
+<p>The function <code>brms::posterior_predict</code> can also be used to sample from the posterior predictive distribution of a fitted regression model for new values of the model’s predictors.
+If we are interested in predictions of average world surface temperature for the years 2025 and 2040, all we need to is supply a data frame (or tibble) with the predictor values of interest as an argument.</p>
+<div class="sourceCode" id="cb546"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb546-1" data-line-number="1"><span class="co"># make a tibble with new predictor values</span></a>
+<a class="sourceLine" id="cb546-2" data-line-number="2">X_new &lt;-<span class="st"> </span><span class="kw">tribble</span>(</a>
+<a class="sourceLine" id="cb546-3" data-line-number="3">  <span class="op">~</span><span class="st"> &quot;year&quot;</span>, <span class="dv">2025</span>, <span class="dv">2040</span></a>
+<a class="sourceLine" id="cb546-4" data-line-number="4">)</a>
+<a class="sourceLine" id="cb546-5" data-line-number="5"><span class="co"># get sample predictions from the Bayesian model</span></a>
+<a class="sourceLine" id="cb546-6" data-line-number="6">post_pred_new &lt;-<span class="st"> </span>brms<span class="op">::</span><span class="kw">posterior_predict</span>(fit_temperature, X_new)</a>
+<a class="sourceLine" id="cb546-7" data-line-number="7"><span class="co"># get a (Bayesian) summary for these posterior samples</span></a>
+<a class="sourceLine" id="cb546-8" data-line-number="8"><span class="kw">rbind</span>(</a>
+<a class="sourceLine" id="cb546-9" data-line-number="9">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(post_pred_new[,<span class="dv">1</span>], <span class="st">&quot;2025&quot;</span>),</a>
+<a class="sourceLine" id="cb546-10" data-line-number="10">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(post_pred_new[,<span class="dv">2</span>], <span class="st">&quot;2040&quot;</span>)  </a>
+<a class="sourceLine" id="cb546-11" data-line-number="11">)</a></code></pre></div>
+<pre><code>## # A tibble: 2 x 4
+##   Parameter `|95%`  mean `95%|`
+##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+## 1 2025        8.39  9.19   9.98
+## 2 2040        8.44  9.27  10.0</code></pre>
 </div>
             </section>
 
