@@ -181,15 +181,93 @@ map_dfr(post_samples_temperature_ridiculous %>% select(-lp__),
 ## Posterior predictions
 
 The function `brms::posterior_predict` returns samples from the posterior predictive distribution of a `brms_fit` object.
-For example, here we get 4000 sampled predictions for each of the 269 `year` values in the world temperature data set.
+For example, the code below yields 4000 sampled predictions for each of the 269 `year` values in the world temperature data set.
 
 ```{r}
 samples_post_pred_temperature <- brms::posterior_predict(fit_temperature)
 dim(samples_post_pred_temperature)
 ```
 
+The function `brms::posterior_predict` can also be used to sample from the posterior predictive distribution of a fitted regression model for new values of the model's predictors.
+If we are interested in predictions of average world surface temperature for the years 2025 and 2040, all we need to is supply a data frame (or tibble) with the predictor values of interest as an argument.
+
+```{r}
+# make a tibble with new predictor values
+X_new <- tribble(
+  ~ "year", 2025, 2040
+)
+# get sample predictions from the Bayesian model
+post_pred_new <- brms::posterior_predict(fit_temperature, X_new)
+# get a (Bayesian) summary for these posterior samples
+rbind(
+  aida::summarize_sample_vector(post_pred_new[,1], "2025"),
+  aida::summarize_sample_vector(post_pred_new[,2], "2040")  
+)
+```
 
 ## Testing hypotheses
 
+The `brms` package also contains a useful function to address hypotheses about model parameters.
+The function `brms::hypothesis` can compute Bayes factors for point-valued hypotheses using the Savage-Dickey method.
+It also computes a binary test of whether a point-valued hypothesis is credible based on inclusion in a Bayesian credible interval. 
+For interval-valued hypotheses $\theta \in [a;b]$, the function `brms::hypothesis` computes the posterior odds (called *evidence ratio* in the context of this function):^[Notice that for priors where $P(\theta \in [a;b]) = 0.5$, the posterior odds equal the Bayes factor.
+For other priors, we'd need to correct the posterior odds by the priors to obtain Bayes factors, something that `brms` package does not (presently seem to) do unfortunately.]
+$$
+\frac{P(\theta \in [a;b] \mid D)}{P(\theta \not \in [a;b] \mid D)}
+$$
+
+Computing Bayes factors for point-valued hypothesis with `brms::hypothesis` requires proper priors for all parameters that are part of the hypothesis.
+It also requires to take samples from the priors of parameters.^[It may seem unnecessary to take prior samples for parameters, because, after all, couldn't we just look at the (closed-form) definitiono of the prior for that parameter? Well, that only works for top-level parameters, but not parameters in a hierarchical model which depend on the value of other parameters and which therefore have no (easily accessible) closed-form prior to look up.]
+So, here is a function call of `brms:brm` which (i) specifies a reasonably unconstrained but proper parameter for the slopt coeffient for `year` and (ii) also collects samples from the prior (by setting the option `sample_prior = TRUE`).
+
+```{r}
+fit_temperature_weakinfo <- brm(
+  # specify what to explain in terms of what
+  #  using the formula syntax
+  formula = avg_temp ~ year,
+  # which data to use
+  data = aida::data_WorldTemp,
+  # weakly informative prior for slope
+  prior = prior(student_t(1, 0, 1), coef = year),
+  # option to sample from priors as well
+  # (necessary for calculating BFs with Savage-Dickey)
+  sample_prior = TRUE,
+  # increase number of iterations (for precision of estimates)
+  iter = 20000
+)
+```
+
+Before addressing hypotheses about the slope parameter for `year`, let's remind ourselves of the summary statistics for the posterior:
+
+```{r}
+brms::posterior_samples(fit_temperature_weakinfo) %>% 
+  pull(b_year) %>% 
+  aida::summarize_sample_vector()
+```
+
+The main "research hypothesis" of interest is whether the slope for `year` is credibly positive. 
+This is an interval-values hypothesis and we can test it like so:
+
+
+```{r}
+hypothesis(fit_temperature_weakinfo, "year > 0")
+```
+
+The table shows the estimate for the slope of `year`, together with an estmated error, lower and upper bounds of a credible interval (95% per default).
+All of these numbers are rounded.
+It also shows the "Evidence ratio" which, for interval-valued hypthesis is *not* the Bayes factor, but the posterior odds (see above).
+In the present case an evidence ratio of `Inf` means that all posterior samples for the slope coefficient were positive.
+This is also expressed in the posterior probability ("Post.Prod" in the table) for the proposition that the interval-valued hypothesis is true (given data and model).
+
+The following tests a point-valued hypthesis:
+
+```{r}
+hypothesis(fit_temperature_weakinfo, "year = 0.005")
+```
+
+For this point-valued hypothesis, the estimate (and associated erorr and credible interval) are calculated as a comparison against 0, as shown in the "Hypothesis" column.
+The evidence ratio given in the results table is the Bayes factor of the point-valued hypothesis against the embedding model (the full regression model with the prior we specified), as calculated by the Savage-Dickey method.
+As before, the posterior probability is also shown.
+The "Star" in this table indicates that the point-valued hypothesis is excluded from the computed credible interval, so that -if we adopted the (controversial) binary decision logic discussed in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes)- we would reject the tested hypothesis.
 
 
