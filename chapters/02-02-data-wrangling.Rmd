@@ -19,7 +19,7 @@ The learning goals for this chapter are:
 
 ## Data in, data out {#Chap-02-02-data-IO}
 
-The `readr` package handles the reading and writing of data stored in text files.^[Other packages help with reading data from and writing data to other file types, such as excel sheets. Look at the [data I/O cheat sheet](https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf) for more information.] Here is a cheat sheet on the topic: [data I/O cheat sheet](https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf). In this course we will mostly deal with data stored in CSV files.
+The `readr` package handles the reading and writing of data stored in text files.^[Other packages help with reading data from and writing data to other file types, such as excel sheets. Look at the [data I/O cheat sheet](https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf) for more information.] Here is a cheat sheet on the topic: [data I/O cheat sheet](https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf). The data sets we will mainly deal with in this course are conveniently included in the `aida` package. Occasionally, we will also read in data stored in CSV files.
 
 Reading a data set from a CSV file works with the `read_csv` function:
 
@@ -528,35 +528,12 @@ It may be important to remember that after a call of `group_by`, the resulting t
 <img src="visuals/skull_king.png" alt="badge-data-wrangling">  
 </div>  
 
-Let's go through one case study of data preprocessing. We look at the example introduced and fully worked out in Appendix \@ref(app-93-data-sets-king-of-france). (Please read Section \@ref(app-93-data-sets-king-of-france-background) to find out more about where this data set is coming from.)
+Let's go through one case study of data preprocessing and cleaning. We look at the example introduced and fully worked out in Appendix \@ref(app-93-data-sets-king-of-france). (Please read Section \@ref(app-93-data-sets-king-of-france-background) to find out more about where this data set is coming from.)
 
-The raw data set is stored in the GitHub repository that also hosts this web-book. It can be loaded using:
+The raw data set is part of the `aida` package and can be loaded using:
 
-```{r, echo = F}
-data_KoF_raw <- read_csv('data_sets/king-of-france_data_raw.csv',
-                         col_types = cols(
-                           submission_id = col_double(),
-                           RT = col_double(),
-                           age = col_double(),
-                           comments = col_character(),
-                           item_version = col_character(),
-                           correct_answer = col_logical(),
-                           education = col_character(),
-                           gender = col_character(),
-                           languages = col_character(),
-                           question = col_character(),
-                           response = col_logical(),
-                           timeSpent = col_double(),
-                           trial_name = col_character(),
-                           trial_number = col_double(),
-                           trial_type = col_character(),
-                           vignette = col_character()
-                         ))
-```
-
-
-```{r eval = F}
-data_KoF_raw <- read_csv(url('https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/data_sets/king-of-france_data_raw.csv'))
+```{r}
+data_KoF_raw <- aida::data_KoF_raw
 ```
 
 We can then get a glimpse at the data using:
@@ -582,9 +559,6 @@ The variables in this data set are:
 - `trial_number`: consecutive numbering of each participant's trial
 - `trial_type`: whether the trial was of the category `filler`, `main`, `practice` or `special`, where the latter encodes the "background checks"
 - `vignette`: the current item's vignette number (applies only to trials of type `main` and `special`)
-
-
-
 
 
 Let's have a brief look at the comments (sometimes helpful, usually entertaining) and the self-reported native languages:
@@ -641,7 +615,6 @@ data_KoF_processed <-  data_KoF_raw %>%
         )
       )
   )
-# write_csv(data_KoF_processed, "data_sets/king-of-france_data_processed.csv")
 ```
 <!-- TODO: mention reproducible workflow -->
 
@@ -700,8 +673,4 @@ d_cleaned <-
   filter(trial_type == "main" & background_correct == TRUE)
 ```
 
-After cleaning, we might then save the resulting cleaned data set for later reuse. 
-
-```{r writing-csv-cleaned-KoF-data, eval = F}
-write_csv(d_cleaned, "data_sets/king-of-france_data_cleaned.csv")
-```
+For later reuse, both the preprocessed and the cleaned data set are included in the `aida` package as well. They are loaded by calling `aida::data_KoF_preprocessed` and `aida::data_KoF_cleaned`, respectively.
