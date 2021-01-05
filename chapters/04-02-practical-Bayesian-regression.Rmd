@@ -44,7 +44,7 @@ fit_temperature <- brm(
 
 The formula syntax `y ~ x` tells R that we want to explain or predict the dependent variable `y` in terms of associated measurements of `x`, as stored in the data set (`tibble` or `data.frame`) supplied in the function call as `data`.
 
-The object returned by this function call is a special purpose object of the class `brmsfit`. If we print this object to the screen we get a summary (which we can also produce with the explicit call `summary(fit_temperature))i`.
+The object returned by this function call is a special purpose object of the class `brmsfit`. If we print this object to the screen we get a summary (which we can also produce with the explicit call `summary(fit_temperature)`.
 
 ```{r}
 fit_temperature
@@ -72,7 +72,7 @@ map_dfr(post_samples_temperature %>% select(-lp__), aida::summarize_sample_vecto
   mutate(Parameter = colnames(post_samples_temperature[1:3]))
 ```
 
-Or for manual plotting:^[There are also specialized packages for plotting output of Stan models and `brms` model fits, such as the excellent `tidybayes` and `ggdist` packages.]
+Or for manual plotting:^[There are also specialized packages for plotting the output of Stan models and `brms` model fits, such as the excellent `tidybayes` and `ggdist` packages.]
 
 ```{r}
 post_samples_temperature %>% 
@@ -85,14 +85,14 @@ post_samples_temperature %>%
 
 ## [Excursion:] Inspecting the underlying Stan code
 
-Under the hood, the `brms` package automatically creates Stan code, runs it and computes useful additionial information for regression modeling around the `stan_fit` object.
+Under the hood, the `brms` package automatically creates Stan code, runs it and computes useful additional information for regression modeling around the `stan_fit` object.
 Here's how we can inspect the precise model that `brms` set up for us and ran:
 
 ```{r}
 brms::stancode(fit_temperature)
 ```
 
-Even if the Stan code itself is not entirely transparent, a few interesting observation to be glimpsed are:
+Even if the Stan code itself is not entirely transparent, a few interesting observations to be glimpsed are:
 
 1. `brms` automatically centralizes the predictor values, but returns fits for the non-centralized coefficients
 2. per default, the prior for slope coefficients is a completely uninformative one (any value equally likely)
@@ -148,7 +148,7 @@ we see that the data has overturned the initial skeptical prior, suggesting that
 <div class = "exercises">
 **Exercise 13.1**
 
-What do you expect to happen to the estimate of the intercept when using a very strong prior on the slope coefficient for `year`, e.g., a normal distribution with mean of 5, standard deviation .01?
+What do you expect to happen to the estimate of the intercept when using a very strong prior on the slope coefficient for `year`, e.g., a normal distribution with a mean of 5 and a standard deviation of .01?
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
@@ -189,7 +189,7 @@ dim(samples_post_pred_temperature)
 ```
 
 The function `brms::posterior_predict` can also be used to sample from the posterior predictive distribution of a fitted regression model for new values of the model's predictors.
-If we are interested in predictions of average world surface temperature for the years 2025 and 2040, all we need to is supply a data frame (or tibble) with the predictor values of interest as an argument.
+If we are interested in predictions of average world surface temperature for the years 2025 and 2040, all we need to do is supply a data frame (or tibble) with the predictor values of interest as an argument.
 
 ```{r}
 # make a tibble with new predictor values
@@ -211,14 +211,14 @@ The `brms` package also contains a useful function to address hypotheses about m
 The function `brms::hypothesis` can compute Bayes factors for point-valued hypotheses using the Savage-Dickey method.
 It also computes a binary test of whether a point-valued hypothesis is credible based on inclusion in a Bayesian credible interval. 
 For interval-valued hypotheses $\theta \in [a;b]$, the function `brms::hypothesis` computes the posterior odds (called *evidence ratio* in the context of this function):^[Notice that for priors where $P(\theta \in [a;b]) = 0.5$, the posterior odds equal the Bayes factor.
-For other priors, we'd need to correct the posterior odds by the priors to obtain Bayes factors, something that `brms` package does not (presently seem to) do unfortunately.]
+For other priors, we'd need to correct the posterior odds by the priors to obtain Bayes factors, something that the `brms` package does not (presently seem to) do unfortunately.]
 $$
 \frac{P(\theta \in [a;b] \mid D)}{P(\theta \not \in [a;b] \mid D)}
 $$
 
 Computing Bayes factors for point-valued hypothesis with `brms::hypothesis` requires proper priors for all parameters that are part of the hypothesis.
-It also requires to take samples from the priors of parameters.^[It may seem unnecessary to take prior samples for parameters, because, after all, couldn't we just look at the (closed-form) definitiono of the prior for that parameter? Well, that only works for top-level parameters, but not parameters in a hierarchical model which depend on the value of other parameters and which therefore have no (easily accessible) closed-form prior to look up.]
-So, here is a function call of `brms:brm` which (i) specifies a reasonably unconstrained but proper parameter for the slopt coeffient for `year` and (ii) also collects samples from the prior (by setting the option `sample_prior = TRUE`).
+It also requires to take samples from the priors of parameters.^[It may seem unnecessary to take prior samples for parameters, because, after all, couldn't we just look at the (closed-form) definition of the prior for that parameter? Well, that only works for top-level parameters, but not parameters in a hierarchical model which depend on the value of other parameters and which therefore have no (easily accessible) closed-form prior to look up.]
+So, here is a function call of `brms:brm` which (i) specifies a reasonably unconstrained but proper parameter for the slope coefficient for `year` and (ii) also collects samples from the prior (by setting the option `sample_prior = TRUE`).
 
 ```{r}
 fit_temperature_weakinfo <- brm(
@@ -246,26 +246,26 @@ brms::posterior_samples(fit_temperature_weakinfo) %>%
 ```
 
 The main "research hypothesis" of interest is whether the slope for `year` is credibly positive. 
-This is an interval-values hypothesis and we can test it like so:
+This is an interval-valued hypothesis and we can test it like so:
 
 
 ```{r}
 hypothesis(fit_temperature_weakinfo, "year > 0")
 ```
 
-The table shows the estimate for the slope of `year`, together with an estmated error, lower and upper bounds of a credible interval (95% per default).
+The table shows the estimate for the slope of `year`, together with an estimated error, lower and upper bounds of a credible interval (95% per default).
 All of these numbers are rounded.
-It also shows the "Evidence ratio" which, for interval-valued hypthesis is *not* the Bayes factor, but the posterior odds (see above).
-In the present case an evidence ratio of `Inf` means that all posterior samples for the slope coefficient were positive.
+It also shows the "Evidence ratio" which, for an interval-valued hypothesis is *not* the Bayes factor, but the posterior odds (see above).
+In the present case, an evidence ratio of `Inf` means that all posterior samples for the slope coefficient were positive.
 This is also expressed in the posterior probability ("Post.Prod" in the table) for the proposition that the interval-valued hypothesis is true (given data and model).
 
-The following tests a point-valued hypthesis:
+The following tests a point-valued hypothesis:
 
 ```{r}
 hypothesis(fit_temperature_weakinfo, "year = 0.005")
 ```
 
-For this point-valued hypothesis, the estimate (and associated erorr and credible interval) are calculated as a comparison against 0, as shown in the "Hypothesis" column.
+For this point-valued hypothesis, the estimate (and associated error and credible interval) are calculated as a comparison against 0, as shown in the "Hypothesis" column.
 The evidence ratio given in the results table is the Bayes factor of the point-valued hypothesis against the embedding model (the full regression model with the prior we specified), as calculated by the Savage-Dickey method.
 As before, the posterior probability is also shown.
 The "Star" in this table indicates that the point-valued hypothesis is excluded from the computed credible interval, so that -if we adopted the (controversial) binary decision logic discussed in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes)- we would reject the tested hypothesis.
