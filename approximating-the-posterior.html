@@ -705,10 +705,10 @@ Figure 9.8: The Binomial Model (repeated from before).
 </div>
 <p>We use the data from the <a href="app-93-data-sets-king-of-france.html#app-93-data-sets-king-of-france">King of France example</a>, where we are interested in the number <span class="math inline">\(k = 109\)</span> of “true” responses to sentences with a false presupposition over all <span class="math inline">\(N = 311\)</span> relevant observations.</p>
 <p>We collect this information in a named list, which we will pass to Stan.</p>
-<div class="sourceCode" id="cb436"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb436-1" data-line-number="1">KoF_data_<span class="dv">4</span>_Stan &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
-<a class="sourceLine" id="cb436-2" data-line-number="2">  <span class="dt">k =</span> <span class="dv">109</span>,</a>
-<a class="sourceLine" id="cb436-3" data-line-number="3">  <span class="dt">N =</span> <span class="dv">311</span></a>
-<a class="sourceLine" id="cb436-4" data-line-number="4">)</a></code></pre></div>
+<div class="sourceCode" id="cb435"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb435-1" data-line-number="1">KoF_data_<span class="dv">4</span>_Stan &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb435-2" data-line-number="2">  <span class="dt">k =</span> <span class="dv">109</span>,</a>
+<a class="sourceLine" id="cb435-3" data-line-number="3">  <span class="dt">N =</span> <span class="dv">311</span></a>
+<a class="sourceLine" id="cb435-4" data-line-number="4">)</a></code></pre></div>
 <p>Next, we need to write the actual model. Notice that Stan code is strictly regimented to be divided into different blocks, so that Stan knows what is data, what are parameters and what constitutes the actual model (prior and likelihood). Stan also wants to know the type of its variables (and the ranges of values these can take on).</p>
 <pre class="mystan"><code>data {
   int&lt;lower=0&gt; N ;
@@ -724,18 +724,18 @@ model {
   k ~ binomial(N, theta) ;
 }</code></pre>
 <p>We save this Stan code in a file <code>binomial_model.stan</code> (which you can download <a href="https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/models_stan/binomial_model.stan">here</a>) in a folder <code>models_stan</code> and then use the function <code>rstan::stan</code> to run the Stan code from within R.</p>
-<div class="sourceCode" id="cb438"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb438-1" data-line-number="1">stan_fit_binomial &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
-<a class="sourceLine" id="cb438-2" data-line-number="2">  <span class="co"># where is the Stan code</span></a>
-<a class="sourceLine" id="cb438-3" data-line-number="3">  <span class="dt">file =</span> <span class="st">&#39;models_stan/binomial_model.stan&#39;</span>,</a>
-<a class="sourceLine" id="cb438-4" data-line-number="4">  <span class="co"># data to supply to the Stan program</span></a>
-<a class="sourceLine" id="cb438-5" data-line-number="5">  <span class="dt">data =</span> KoF_data_<span class="dv">4</span>_Stan,</a>
-<a class="sourceLine" id="cb438-6" data-line-number="6">  <span class="co"># how many iterations of MCMC</span></a>
-<a class="sourceLine" id="cb438-7" data-line-number="7">  <span class="dt">iter =</span> <span class="dv">3000</span>,</a>
-<a class="sourceLine" id="cb438-8" data-line-number="8">  <span class="co"># how many warmup steps</span></a>
-<a class="sourceLine" id="cb438-9" data-line-number="9">  <span class="dt">warmup =</span> <span class="dv">500</span></a>
-<a class="sourceLine" id="cb438-10" data-line-number="10">)</a></code></pre></div>
+<div class="sourceCode" id="cb437"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb437-1" data-line-number="1">stan_fit_binomial &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
+<a class="sourceLine" id="cb437-2" data-line-number="2">  <span class="co"># where is the Stan code</span></a>
+<a class="sourceLine" id="cb437-3" data-line-number="3">  <span class="dt">file =</span> <span class="st">&#39;models_stan/binomial_model.stan&#39;</span>,</a>
+<a class="sourceLine" id="cb437-4" data-line-number="4">  <span class="co"># data to supply to the Stan program</span></a>
+<a class="sourceLine" id="cb437-5" data-line-number="5">  <span class="dt">data =</span> KoF_data_<span class="dv">4</span>_Stan,</a>
+<a class="sourceLine" id="cb437-6" data-line-number="6">  <span class="co"># how many iterations of MCMC</span></a>
+<a class="sourceLine" id="cb437-7" data-line-number="7">  <span class="dt">iter =</span> <span class="dv">3000</span>,</a>
+<a class="sourceLine" id="cb437-8" data-line-number="8">  <span class="co"># how many warmup steps</span></a>
+<a class="sourceLine" id="cb437-9" data-line-number="9">  <span class="dt">warmup =</span> <span class="dv">500</span></a>
+<a class="sourceLine" id="cb437-10" data-line-number="10">)</a></code></pre></div>
 <p>The object returned from this call to Stan is a special model fit object. If we just print it, we get interesting information about the estimated parameters:</p>
-<div class="sourceCode" id="cb439"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb439-1" data-line-number="1"><span class="kw">print</span>(stan_fit_binomial)</a></code></pre></div>
+<div class="sourceCode" id="cb438"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb438-1" data-line-number="1"><span class="kw">print</span>(stan_fit_binomial)</a></code></pre></div>
 <pre><code>## Inference for Stan model: binomial_model.
 ## 4 chains, each with iter=3000; warmup=500; thin=1; 
 ## post-warmup draws per chain=2500, total post-warmup draws=10000.
@@ -744,14 +744,14 @@ model {
 ## theta    0.35    0.00 0.03    0.30    0.33    0.35    0.37    0.40  3501    1
 ## lp__  -203.42    0.01 0.69 -205.36 -203.58 -203.16 -202.98 -202.93  5157    1
 ## 
-## Samples were drawn using NUTS(diag_e) at Fri Nov 20 18:49:47 2020.
+## Samples were drawn using NUTS(diag_e) at Tue Jan  5 06:21:26 2021.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).</code></pre>
 <!-- TODO: explain this  -->
 <p>To get the posterior samples in a tidy format we use a function from the <code>tidybayes</code> package:</p>
-<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb441-1" data-line-number="1">tidy_samples &lt;-<span class="st"> </span>tidybayes<span class="op">::</span><span class="kw">tidy_draws</span>(stan_fit_binomial) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(theta)</a>
-<a class="sourceLine" id="cb441-2" data-line-number="2">tidy_samples</a></code></pre></div>
+<div class="sourceCode" id="cb440"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb440-1" data-line-number="1">tidy_samples &lt;-<span class="st"> </span>tidybayes<span class="op">::</span><span class="kw">tidy_draws</span>(stan_fit_binomial) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(theta)</a>
+<a class="sourceLine" id="cb440-2" data-line-number="2">tidy_samples</a></code></pre></div>
 <pre><code>## # A tibble: 10,000 x 1
 ##    theta
 ##    &lt;dbl&gt;
@@ -767,10 +767,10 @@ model {
 ## 10 0.341
 ## # … with 9,990 more rows</code></pre>
 <p>We can then <code>pull</code> out the column <code>theta</code> as a vector and feed it into the summary function from the <code>aida</code> package to get our key Bayesian estimates:</p>
-<div class="sourceCode" id="cb443"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb443-1" data-line-number="1">Bayes_estimates &lt;-<span class="st"> </span>tidy_samples <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb443-2" data-line-number="2"><span class="st">  </span><span class="kw">pull</span>(theta) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb443-3" data-line-number="3"><span class="st">  </span>aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(<span class="st">&quot;theta&quot;</span>)</a>
-<a class="sourceLine" id="cb443-4" data-line-number="4">Bayes_estimates</a></code></pre></div>
+<div class="sourceCode" id="cb442"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb442-1" data-line-number="1">Bayes_estimates &lt;-<span class="st"> </span>tidy_samples <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb442-2" data-line-number="2"><span class="st">  </span><span class="kw">pull</span>(theta) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb442-3" data-line-number="3"><span class="st">  </span>aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(<span class="st">&quot;theta&quot;</span>)</a>
+<a class="sourceLine" id="cb442-4" data-line-number="4">Bayes_estimates</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 4
 ##   Parameter `|95%`  mean `95%|`
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
@@ -836,32 +836,17 @@ Figure 9.9: Posterior over bias <span class="math inline">\(\theta\)</span> give
 <!-- We will use the [Mental Chronometry](#app-93-data-sets-mental-chronometry) data to compare the reaction times in the "go/No-go" condition to the reaction times in the "discrimination" condition. To do this, we implement a T-Test model by hand in `greta`. -->
 <!-- First, we read in the data and get some handy summary statistics: -->
 <!-- ```{r} -->
-<!-- mc_data_cleaned <- read_csv('data_sets/mental-chrono-data_cleaned.csv', -->
-<!--                             col_types = cols( -->
-<!--                               submission_id = col_double(), -->
-<!--                               trial_number = col_double(), -->
-<!--                               block = col_character(), -->
-<!--                               stimulus = col_character(), -->
-<!--                               RT = col_double(), -->
-<!--                               handedness = col_character(), -->
-<!--                               gender = col_character(), -->
-<!--                               total_time_spent = col_double(), -->
-<!--                               comments = col_character(), -->
-<!--                               mean_C = col_double(), -->
-<!--                               sd_C = col_double(), -->
-<!--                               trial_type = col_character(), -->
-<!--                               trial = col_double() -->
-<!--                             )) -->
+<!-- mc_data_cleaned <- aida::data_MC_cleaned -->
 <!-- means_and_diffs <- mc_data_cleaned %>% -->
-<!--   filter(block != "reaction") %>%  -->
-<!--   group_by(block) %>%  -->
+<!--   filter(block != "reaction") %>% -->
+<!--   group_by(block) %>% -->
 <!--   summarise( -->
 <!--     mean_RT = mean(RT) -->
-<!--   ) %>%  -->
+<!--   ) %>% -->
 <!--   pivot_wider( -->
 <!--     names_from = block, -->
 <!--     values_from = mean_RT -->
-<!--   ) %>%  -->
+<!--   ) %>% -->
 <!--   mutate( -->
 <!--     `discr - gng` = discrimination - goNoGo -->
 <!--   ) -->

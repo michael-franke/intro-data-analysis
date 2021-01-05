@@ -548,7 +548,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>We are interested in explaining or predicting the murder rates in a city using the <a href="app-93-data-sets-murder-data">murder data set</a>.
 Concretely, we are interested in whether knowing a city’s unemployment rate (stored in variable <code>unemployment</code>) helps make better predictions for that city’s murder rate (stored in variable <code>murder_rate</code>).</p>
 <p>Let’s first plot the murder rate for every city (just numbered consecutively in order of their appearance in the data set):</p>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-350-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-343-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Suppose we know the vector <span class="math inline">\(y\)</span> of all observed murder rates but we don’t know which murder rate belongs to which city.
 We are given a city to guess its murder rate.
 But we cannot tell cities apart.
@@ -599,13 +599,13 @@ f&#39;&#39;(\bar{y}) = 2
 </div>
 <p>The plot below visualizes the prediction we make based on the naive predictor <span class="math inline">\(\hat{y}\)</span>.
 The black dots show the data points, the red line shows the prediction we make (the mean murder rate), the small hollow dots show the specific predictions for each observed value and the gray lines show the distance between our prediction and the actual data observation.</p>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-352-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-345-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>To obtain the TSS for the prediction shown in the plot above, we would need to take each gray line, measure it’s distance, square this number and sum over all lines (cities).
 In the case at hand, the prediction error we make by assuming just the mean as predictor is:</p>
-<div class="sourceCode" id="cb504"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb504-1" data-line-number="1">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
-<a class="sourceLine" id="cb504-2" data-line-number="2">n &lt;-<span class="st"> </span><span class="kw">length</span>(y)</a>
-<a class="sourceLine" id="cb504-3" data-line-number="3">tss_simple &lt;-<span class="st"> </span><span class="kw">sum</span>((y <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y))<span class="op">^</span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb504-4" data-line-number="4">tss_simple</a></code></pre></div>
+<div class="sourceCode" id="cb505"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb505-1" data-line-number="1">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
+<a class="sourceLine" id="cb505-2" data-line-number="2">n &lt;-<span class="st"> </span><span class="kw">length</span>(y)</a>
+<a class="sourceLine" id="cb505-3" data-line-number="3">tss_simple &lt;-<span class="st"> </span><span class="kw">sum</span>((y <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(y))<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb505-4" data-line-number="4">tss_simple</a></code></pre></div>
 <pre><code>## [1] 1855.202</code></pre>
 <p>At this stage, a question might arise:
 Why square the distances to obtain the total sum of, well, <em>squares</em>?
@@ -617,24 +617,24 @@ This is what we will cover in Section <a href="Chap-04-01-linear-regression-MLE.
 <h3><span class="header-section-number">12.1.2</span> Prediction with knowledge of unemployment rate</h3>
 <p>We might not be very content with this prediction error. Suppose we could use some piece of information about the random city whose murder rate we are trying to predict. E.g., we might happen to know the value of the variable <code>unemployment</code>. How could that help us make a better prediction?</p>
 <p>There does seem to be some useful information in the unemployment rate, which may lead to better predictions of the murder rate. We see this in a scatter plot:</p>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-354-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-347-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Let us assume, for the sake of current illustration, that we expect a very particular functional relationship between the variables <code>murder_rate</code> and <code>unemployment</code>. For some reason or other, we hypothesize that even with 0% unemployment, the murder rate would be positive, namely at 4 murders per million inhabitants. We further hypothesize that with each increase of 1% in the unemployment percentage, the murder rate per million increases by 2. The functional relationship between dependent variable <span class="math inline">\(y\)</span> (= murder rate) and predictor variable <span class="math inline">\(x\)</span> (= unemployment) can then be expressed as a linear function of the following form, where <span class="math inline">\(\xi \in \mathbb{R}^n\)</span> is now a vector of <span class="math inline">\(n\)</span> predictions (one prediction <span class="math inline">\(\xi_i\)</span> for each data observation <span class="math inline">\(y_i\)</span>):<a href="#fn53" class="footnote-ref" id="fnref53"><sup>53</sup></a></p>
 <p><span class="math display">\[
 \xi_i = 2x_i + 4
 \]</span></p>
 <p>Here is a graphical representation of this particular functional relationship assumed in the equation above. Again, the black dots show the data points, the red line the linear function <span class="math inline">\(f(x) = 2x +4\)</span>, the small hollow dots show the specific predictions for each observed value <span class="math inline">\(x_i\)</span> and the gray lines show the distance between our prediction <span class="math inline">\(\xi_i\)</span> and the actual data observation <span class="math inline">\(y_i\)</span>. (Notice that there are data points for which the unemployment rate is the same, but we observed different murder rates.)</p>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-355-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-348-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We can again quantify our prediction error in terms of a sum of squares like we did before. For the case of a prediction vector <span class="math inline">\(\xi\)</span>, the quantity in question is called the <strong>residual sum of squares</strong>.</p>
 <p><span class="math display">\[
 \text{RSS} = \sum_{i=1}^n (y_i - \xi_i)^2
 \]</span></p>
 <p>Here is how we can calculate RSS in R for the particular vector <span class="math inline">\(\xi \ in \mathbb{R}^n\)</span> for which <span class="math inline">\(\xi_{i} = 2x_i + 4\)</span>:</p>
-<div class="sourceCode" id="cb506"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb506-1" data-line-number="1">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
-<a class="sourceLine" id="cb506-2" data-line-number="2">x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</a>
-<a class="sourceLine" id="cb506-3" data-line-number="3">predicted_y &lt;-<span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">4</span></a>
-<a class="sourceLine" id="cb506-4" data-line-number="4">n &lt;-<span class="st"> </span><span class="kw">length</span>(y)</a>
-<a class="sourceLine" id="cb506-5" data-line-number="5">rss_guesswork &lt;-<span class="st"> </span><span class="kw">sum</span>((y <span class="op">-</span><span class="st"> </span>predicted_y)<span class="op">^</span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb506-6" data-line-number="6">rss_guesswork</a></code></pre></div>
+<div class="sourceCode" id="cb507"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb507-1" data-line-number="1">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
+<a class="sourceLine" id="cb507-2" data-line-number="2">x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</a>
+<a class="sourceLine" id="cb507-3" data-line-number="3">predicted_y &lt;-<span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">4</span></a>
+<a class="sourceLine" id="cb507-4" data-line-number="4">n &lt;-<span class="st"> </span><span class="kw">length</span>(y)</a>
+<a class="sourceLine" id="cb507-5" data-line-number="5">rss_guesswork &lt;-<span class="st"> </span><span class="kw">sum</span>((y <span class="op">-</span><span class="st"> </span>predicted_y)<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb507-6" data-line-number="6">rss_guesswork</a></code></pre></div>
 <pre><code>## [1] 1327.74</code></pre>
 <p>Compared to the previous prediction, which was based on the mean <span class="math inline">\(\bar{y}\)</span> only, this linear function reduces the prediction error (measured here geometrically in terms of a sum of squares).
 This alone could be taken as <em>prima facie</em> evidence that knowledge of <code>unemployment</code> helps make better predictions about <code>murder_rate</code>.</p>
@@ -712,7 +712,7 @@ Parameter <span class="math inline">\(b\)</span> gives the the prediction xi for
 <h3><span class="header-section-number">12.1.4</span> Finding the OLS-solution</h3>
 <p>In the above example, where we regressed <code>murder_rate</code> against <code>unemployment</code>, the model has two regression coefficients: an intercept term and a slope for <code>unemployment</code>.
 The optimal solution for these delivers the regression line in the graph below.</p>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-357-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-350-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The total sum of squares for the best fitting parameters is:</p>
 <pre><code>## [1] 467.6023</code></pre>
 <p>This is the best prediction we can make based on a linear predictor.
@@ -720,28 +720,28 @@ In the following, we discuss several methods of finding the best-fitting values 
 <div id="finding-optimal-parameters-with-optim" class="section level4">
 <h4><span class="header-section-number">12.1.4.1</span> Finding optimal parameters with <code>optim</code></h4>
 <p>We can use the <code>optim</code> function to find the best-fitting parameter values for our simple linear regression example.</p>
-<div class="sourceCode" id="cb509"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb509-1" data-line-number="1"><span class="co"># data to be explained / predicted</span></a>
-<a class="sourceLine" id="cb509-2" data-line-number="2">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
-<a class="sourceLine" id="cb509-3" data-line-number="3"><span class="co"># data to use for prediction / explanation</span></a>
-<a class="sourceLine" id="cb509-4" data-line-number="4">x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</a>
-<a class="sourceLine" id="cb509-5" data-line-number="5"><span class="co"># function to calculate residual sum of squares</span></a>
-<a class="sourceLine" id="cb509-6" data-line-number="6">get_rss =<span class="st"> </span><span class="cf">function</span>(y, x, beta_<span class="dv">0</span>, beta_<span class="dv">1</span>) {</a>
-<a class="sourceLine" id="cb509-7" data-line-number="7">  yPred =<span class="st"> </span>beta_<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>x <span class="op">*</span><span class="st"> </span>beta_<span class="dv">1</span></a>
-<a class="sourceLine" id="cb509-8" data-line-number="8">  <span class="kw">sum</span>((y<span class="op">-</span>yPred)<span class="op">^</span><span class="dv">2</span>) </a>
-<a class="sourceLine" id="cb509-9" data-line-number="9">}</a>
-<a class="sourceLine" id="cb509-10" data-line-number="10"><span class="co"># finding best-fitting values for RSS</span></a>
-<a class="sourceLine" id="cb509-11" data-line-number="11">fit_rss =<span class="st"> </span><span class="kw">optim</span>(<span class="dt">par =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),  <span class="co"># initial parameter values</span></a>
-<a class="sourceLine" id="cb509-12" data-line-number="12">  <span class="dt">fn =</span> <span class="cf">function</span>(par) {  <span class="co"># function to minimize</span></a>
-<a class="sourceLine" id="cb509-13" data-line-number="13">    <span class="kw">get_rss</span>(y, x, par[<span class="dv">1</span>], par[<span class="dv">2</span>])</a>
-<a class="sourceLine" id="cb509-14" data-line-number="14">  }</a>
-<a class="sourceLine" id="cb509-15" data-line-number="15">)</a>
-<a class="sourceLine" id="cb509-16" data-line-number="16"><span class="co"># output the results</span></a>
-<a class="sourceLine" id="cb509-17" data-line-number="17"><span class="kw">message</span>(</a>
-<a class="sourceLine" id="cb509-18" data-line-number="18">  <span class="st">&quot;Best fitting parameter values:&quot;</span>,</a>
-<a class="sourceLine" id="cb509-19" data-line-number="19">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Intercept: &quot;</span>, fit_rss<span class="op">$</span>par[<span class="dv">1</span>] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb509-20" data-line-number="20">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Slope: &quot;</span>, fit_rss<span class="op">$</span>par[<span class="dv">2</span>] <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">round</span>(<span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb509-21" data-line-number="21">  <span class="st">&quot;</span><span class="ch">\n</span><span class="st">RSS for best fit: &quot;</span>, fit_rss<span class="op">$</span>value <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb509-22" data-line-number="22">)</a></code></pre></div>
+<div class="sourceCode" id="cb510"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb510-1" data-line-number="1"><span class="co"># data to be explained / predicted</span></a>
+<a class="sourceLine" id="cb510-2" data-line-number="2">y &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(murder_rate)</a>
+<a class="sourceLine" id="cb510-3" data-line-number="3"><span class="co"># data to use for prediction / explanation</span></a>
+<a class="sourceLine" id="cb510-4" data-line-number="4">x &lt;-<span class="st"> </span>murder_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(unemployment)</a>
+<a class="sourceLine" id="cb510-5" data-line-number="5"><span class="co"># function to calculate residual sum of squares</span></a>
+<a class="sourceLine" id="cb510-6" data-line-number="6">get_rss =<span class="st"> </span><span class="cf">function</span>(y, x, beta_<span class="dv">0</span>, beta_<span class="dv">1</span>) {</a>
+<a class="sourceLine" id="cb510-7" data-line-number="7">  yPred =<span class="st"> </span>beta_<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>x <span class="op">*</span><span class="st"> </span>beta_<span class="dv">1</span></a>
+<a class="sourceLine" id="cb510-8" data-line-number="8">  <span class="kw">sum</span>((y<span class="op">-</span>yPred)<span class="op">^</span><span class="dv">2</span>) </a>
+<a class="sourceLine" id="cb510-9" data-line-number="9">}</a>
+<a class="sourceLine" id="cb510-10" data-line-number="10"><span class="co"># finding best-fitting values for RSS</span></a>
+<a class="sourceLine" id="cb510-11" data-line-number="11">fit_rss =<span class="st"> </span><span class="kw">optim</span>(<span class="dt">par =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),  <span class="co"># initial parameter values</span></a>
+<a class="sourceLine" id="cb510-12" data-line-number="12">  <span class="dt">fn =</span> <span class="cf">function</span>(par) {  <span class="co"># function to minimize</span></a>
+<a class="sourceLine" id="cb510-13" data-line-number="13">    <span class="kw">get_rss</span>(y, x, par[<span class="dv">1</span>], par[<span class="dv">2</span>])</a>
+<a class="sourceLine" id="cb510-14" data-line-number="14">  }</a>
+<a class="sourceLine" id="cb510-15" data-line-number="15">)</a>
+<a class="sourceLine" id="cb510-16" data-line-number="16"><span class="co"># output the results</span></a>
+<a class="sourceLine" id="cb510-17" data-line-number="17"><span class="kw">message</span>(</a>
+<a class="sourceLine" id="cb510-18" data-line-number="18">  <span class="st">&quot;Best fitting parameter values:&quot;</span>,</a>
+<a class="sourceLine" id="cb510-19" data-line-number="19">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Intercept: &quot;</span>, fit_rss<span class="op">$</span>par[<span class="dv">1</span>] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb510-20" data-line-number="20">  <span class="st">&quot;</span><span class="ch">\n\t</span><span class="st">Slope: &quot;</span>, fit_rss<span class="op">$</span>par[<span class="dv">2</span>] <span class="op">%&gt;%</span><span class="st">  </span><span class="kw">round</span>(<span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb510-21" data-line-number="21">  <span class="st">&quot;</span><span class="ch">\n</span><span class="st">RSS for best fit: &quot;</span>, fit_rss<span class="op">$</span>value <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb510-22" data-line-number="22">)</a></code></pre></div>
 <pre><code>## Best fitting parameter values:
 ##  Intercept: -28.53
 ##  Slope: 7.08
@@ -750,15 +750,15 @@ In the following, we discuss several methods of finding the best-fitting values 
 <div id="fitting-ols-regression-lines-with-lm" class="section level4">
 <h4><span class="header-section-number">12.1.4.2</span> Fitting OLS regression lines with <code>lm</code></h4>
 <p>R also has a built-in function <code>lm</code> which fits linear regression models via RSS minimization. Here is how you call this function for the running example:</p>
-<div class="sourceCode" id="cb511"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb511-1" data-line-number="1"><span class="co"># fit an OLS regression</span></a>
-<a class="sourceLine" id="cb511-2" data-line-number="2">fit_lm &lt;-<span class="st"> </span><span class="kw">lm</span>(</a>
-<a class="sourceLine" id="cb511-3" data-line-number="3">  <span class="co"># the formula argument specifies dependent and independent variables</span></a>
-<a class="sourceLine" id="cb511-4" data-line-number="4">  <span class="dt">formula =</span> murder_rate <span class="op">~</span><span class="st"> </span>unemployment,</a>
-<a class="sourceLine" id="cb511-5" data-line-number="5">  <span class="co"># we also need to say where the data (columns) should come from</span></a>
-<a class="sourceLine" id="cb511-6" data-line-number="6">  <span class="dt">data =</span> murder_data</a>
-<a class="sourceLine" id="cb511-7" data-line-number="7">)</a>
-<a class="sourceLine" id="cb511-8" data-line-number="8"><span class="co"># output the fitted object</span></a>
-<a class="sourceLine" id="cb511-9" data-line-number="9">fit_lm</a></code></pre></div>
+<div class="sourceCode" id="cb512"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb512-1" data-line-number="1"><span class="co"># fit an OLS regression</span></a>
+<a class="sourceLine" id="cb512-2" data-line-number="2">fit_lm &lt;-<span class="st"> </span><span class="kw">lm</span>(</a>
+<a class="sourceLine" id="cb512-3" data-line-number="3">  <span class="co"># the formula argument specifies dependent and independent variables</span></a>
+<a class="sourceLine" id="cb512-4" data-line-number="4">  <span class="dt">formula =</span> murder_rate <span class="op">~</span><span class="st"> </span>unemployment,</a>
+<a class="sourceLine" id="cb512-5" data-line-number="5">  <span class="co"># we also need to say where the data (columns) should come from</span></a>
+<a class="sourceLine" id="cb512-6" data-line-number="6">  <span class="dt">data =</span> murder_data</a>
+<a class="sourceLine" id="cb512-7" data-line-number="7">)</a>
+<a class="sourceLine" id="cb512-8" data-line-number="8"><span class="co"># output the fitted object</span></a>
+<a class="sourceLine" id="cb512-9" data-line-number="9">fit_lm</a></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = murder_rate ~ unemployment, data = murder_data)
@@ -844,10 +844,10 @@ So, we want to find the values <span class="math inline">\(\hat\beta_0\)</span> 
 </div>
 </div>
 <p>Let’s use these formulas to calculate regression coefficients for the running example as well:</p>
-<div class="sourceCode" id="cb513"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb513-1" data-line-number="1"><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb513-2" data-line-number="2">  <span class="dt">beta_1 =</span> <span class="kw">cov</span>(x,y) <span class="op">/</span><span class="st"> </span><span class="kw">var</span>(x),</a>
-<a class="sourceLine" id="cb513-3" data-line-number="3">  <span class="dt">beta_0 =</span> <span class="kw">mean</span>(y) <span class="op">-</span><span class="st"> </span>beta_<span class="dv">1</span> <span class="op">*</span><span class="st"> </span><span class="kw">mean</span>(x)</a>
-<a class="sourceLine" id="cb513-4" data-line-number="4">)</a></code></pre></div>
+<div class="sourceCode" id="cb514"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb514-1" data-line-number="1"><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb514-2" data-line-number="2">  <span class="dt">beta_1 =</span> <span class="kw">cov</span>(x,y) <span class="op">/</span><span class="st"> </span><span class="kw">var</span>(x),</a>
+<a class="sourceLine" id="cb514-3" data-line-number="3">  <span class="dt">beta_0 =</span> <span class="kw">mean</span>(y) <span class="op">-</span><span class="st"> </span>beta_<span class="dv">1</span> <span class="op">*</span><span class="st"> </span><span class="kw">mean</span>(x)</a>
+<a class="sourceLine" id="cb514-4" data-line-number="4">)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 2
 ##   beta_1 beta_0
 ##    &lt;dbl&gt;  &lt;dbl&gt;

@@ -552,31 +552,31 @@ For interval-valued hypotheses <span class="math inline">\(\theta \in [a;b]\)</s
 <p>Computing Bayes factors for point-valued hypothesis with <code>brms::hypothesis</code> requires proper priors for all parameters that are part of the hypothesis.
 It also requires to take samples from the priors of parameters.<a href="#fn63" class="footnote-ref" id="fnref63"><sup>63</sup></a>
 So, here is a function call of <code>brms:brm</code> which (i) specifies a reasonably unconstrained but proper parameter for the slopt coeffient for <code>year</code> and (ii) also collects samples from the prior (by setting the option <code>sample_prior = TRUE</code>).</p>
-<div class="sourceCode" id="cb548"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb548-1" data-line-number="1">fit_temperature_weakinfo &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb548-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
-<a class="sourceLine" id="cb548-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
-<a class="sourceLine" id="cb548-4" data-line-number="4">  <span class="dt">formula =</span> avg_temp <span class="op">~</span><span class="st"> </span>year,</a>
-<a class="sourceLine" id="cb548-5" data-line-number="5">  <span class="co"># which data to use</span></a>
-<a class="sourceLine" id="cb548-6" data-line-number="6">  <span class="dt">data =</span> aida<span class="op">::</span>data_WorldTemp,</a>
-<a class="sourceLine" id="cb548-7" data-line-number="7">  <span class="co"># weakly informative prior for slope</span></a>
-<a class="sourceLine" id="cb548-8" data-line-number="8">  <span class="dt">prior =</span> <span class="kw">prior</span>(<span class="kw">student_t</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>), <span class="dt">coef =</span> year),</a>
-<a class="sourceLine" id="cb548-9" data-line-number="9">  <span class="co"># option to sample from priors as well</span></a>
-<a class="sourceLine" id="cb548-10" data-line-number="10">  <span class="co"># (necessary for calculating BFs with Savage-Dickey)</span></a>
-<a class="sourceLine" id="cb548-11" data-line-number="11">  <span class="dt">sample_prior =</span> <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb548-12" data-line-number="12">  <span class="co"># increase number of iterations (for precision of estimates)</span></a>
-<a class="sourceLine" id="cb548-13" data-line-number="13">  <span class="dt">iter =</span> <span class="dv">20000</span></a>
-<a class="sourceLine" id="cb548-14" data-line-number="14">)</a></code></pre></div>
+<div class="sourceCode" id="cb549"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb549-1" data-line-number="1">fit_temperature_weakinfo &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb549-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
+<a class="sourceLine" id="cb549-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
+<a class="sourceLine" id="cb549-4" data-line-number="4">  <span class="dt">formula =</span> avg_temp <span class="op">~</span><span class="st"> </span>year,</a>
+<a class="sourceLine" id="cb549-5" data-line-number="5">  <span class="co"># which data to use</span></a>
+<a class="sourceLine" id="cb549-6" data-line-number="6">  <span class="dt">data =</span> aida<span class="op">::</span>data_WorldTemp,</a>
+<a class="sourceLine" id="cb549-7" data-line-number="7">  <span class="co"># weakly informative prior for slope</span></a>
+<a class="sourceLine" id="cb549-8" data-line-number="8">  <span class="dt">prior =</span> <span class="kw">prior</span>(<span class="kw">student_t</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>), <span class="dt">coef =</span> year),</a>
+<a class="sourceLine" id="cb549-9" data-line-number="9">  <span class="co"># option to sample from priors as well</span></a>
+<a class="sourceLine" id="cb549-10" data-line-number="10">  <span class="co"># (necessary for calculating BFs with Savage-Dickey)</span></a>
+<a class="sourceLine" id="cb549-11" data-line-number="11">  <span class="dt">sample_prior =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb549-12" data-line-number="12">  <span class="co"># increase number of iterations (for precision of estimates)</span></a>
+<a class="sourceLine" id="cb549-13" data-line-number="13">  <span class="dt">iter =</span> <span class="dv">20000</span></a>
+<a class="sourceLine" id="cb549-14" data-line-number="14">)</a></code></pre></div>
 <p>Before addressing hypotheses about the slope parameter for <code>year</code>, let’s remind ourselves of the summary statistics for the posterior:</p>
-<div class="sourceCode" id="cb549"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb549-1" data-line-number="1">brms<span class="op">::</span><span class="kw">posterior_samples</span>(fit_temperature_weakinfo) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb549-2" data-line-number="2"><span class="st">  </span><span class="kw">pull</span>(b_year) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb549-3" data-line-number="3"><span class="st">  </span>aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb550"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb550-1" data-line-number="1">brms<span class="op">::</span><span class="kw">posterior_samples</span>(fit_temperature_weakinfo) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb550-2" data-line-number="2"><span class="st">  </span><span class="kw">pull</span>(b_year) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb550-3" data-line-number="3"><span class="st">  </span>aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>()</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 4
 ##   Parameter  `|95%`    mean  `95%|`
 ##   &lt;chr&gt;       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-## 1 &quot;&quot;        0.00565 0.00627 0.00691</code></pre>
+## 1 &quot;&quot;        0.00563 0.00627 0.00688</code></pre>
 <p>The main “research hypothesis” of interest is whether the slope for <code>year</code> is credibly positive.
 This is an interval-values hypothesis and we can test it like so:</p>
-<div class="sourceCode" id="cb551"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb551-1" data-line-number="1"><span class="kw">hypothesis</span>(fit_temperature_weakinfo, <span class="st">&quot;year &gt; 0&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb552"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb552-1" data-line-number="1"><span class="kw">hypothesis</span>(fit_temperature_weakinfo, <span class="st">&quot;year &gt; 0&quot;</span>)</a></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##   Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio Post.Prob Star
 ## 1 (year) &gt; 0     0.01         0     0.01     0.01        Inf         1    *
@@ -591,10 +591,10 @@ It also shows the “Evidence ratio” which, for interval-valued hypthesis is <
 In the present case an evidence ratio of <code>Inf</code> means that all posterior samples for the slope coefficient were positive.
 This is also expressed in the posterior probability (“Post.Prod” in the table) for the proposition that the interval-valued hypothesis is true (given data and model).</p>
 <p>The following tests a point-valued hypthesis:</p>
-<div class="sourceCode" id="cb553"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb553-1" data-line-number="1"><span class="kw">hypothesis</span>(fit_temperature_weakinfo, <span class="st">&quot;year = 0.005&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb554"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb554-1" data-line-number="1"><span class="kw">hypothesis</span>(fit_temperature_weakinfo, <span class="st">&quot;year = 0.005&quot;</span>)</a></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##           Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio Post.Prob
-## 1 (year)-(0.005) = 0        0         0        0        0       0.01      0.01
+## 1 (year)-(0.005) = 0        0         0        0        0        0.2      0.17
 ##   Star
 ## 1    *
 ## ---

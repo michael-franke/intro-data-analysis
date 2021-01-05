@@ -574,62 +574,62 @@ What is interesting to note is that the mean of the posterior distribution of re
 \]</span></p>
 <p>This is not surprising given that the mean of a normal distribution is also its mode and that the MAP for a non-informative prior coincides with the MLE.</p>
 <p>The <code>aida</code> package provides a convenience function for sampling from the posterior of the Bayesian non-informative priors model.</p>
-<div class="sourceCode" id="cb519"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb519-1" data-line-number="1"><span class="co"># variables for regression</span></a>
-<a class="sourceLine" id="cb519-2" data-line-number="2">y &lt;-<span class="st"> </span>murder_data<span class="op">$</span>murder_rate</a>
-<a class="sourceLine" id="cb519-3" data-line-number="3">x &lt;-<span class="st"> </span>murder_data<span class="op">$</span>unemployment</a>
-<a class="sourceLine" id="cb519-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb519-5" data-line-number="5"><span class="co"># the predictor &#39;intercept&#39; is just a </span></a>
-<a class="sourceLine" id="cb519-6" data-line-number="6"><span class="co"># column vector of ones of the same length as y</span></a>
-<a class="sourceLine" id="cb519-7" data-line-number="7">int &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span>, <span class="kw">length</span>(y))</a>
-<a class="sourceLine" id="cb519-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb519-9" data-line-number="9"><span class="co"># create predictor matrix with values of all explanatory variables </span></a>
-<a class="sourceLine" id="cb519-10" data-line-number="10"><span class="co">#    (here only intercept and slope for MAD)</span></a>
-<a class="sourceLine" id="cb519-11" data-line-number="11">X &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(int, x),  <span class="dt">ncol =</span> <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb519-12" data-line-number="12"><span class="kw">colnames</span>(X) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;intercept&quot;</span>, <span class="st">&quot;slope&quot;</span>)</a>
-<a class="sourceLine" id="cb519-13" data-line-number="13"></a>
-<a class="sourceLine" id="cb519-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb519-15" data-line-number="15">get_samples_regression_noninormative &lt;-<span class="st"> </span><span class="cf">function</span>(</a>
-<a class="sourceLine" id="cb519-16" data-line-number="16">  X, <span class="co"># design matrix</span></a>
-<a class="sourceLine" id="cb519-17" data-line-number="17">  y, <span class="co"># dependent variable</span></a>
-<a class="sourceLine" id="cb519-18" data-line-number="18">  <span class="dt">n_samples =</span> <span class="dv">1000</span></a>
-<a class="sourceLine" id="cb519-19" data-line-number="19">) {</a>
-<a class="sourceLine" id="cb519-20" data-line-number="20">  </a>
-<a class="sourceLine" id="cb519-21" data-line-number="21">  n &lt;-<span class="st"> </span><span class="kw">length</span>(y)</a>
-<a class="sourceLine" id="cb519-22" data-line-number="22">  k &lt;-<span class="st"> </span><span class="kw">ncol</span>(X)</a>
-<a class="sourceLine" id="cb519-23" data-line-number="23">  </a>
-<a class="sourceLine" id="cb519-24" data-line-number="24">  <span class="co"># calculating the formula from Gelman et al</span></a>
-<a class="sourceLine" id="cb519-25" data-line-number="25">  <span class="co"># NB &#39;solve&#39; computes the inverse of a matrix</span></a>
-<a class="sourceLine" id="cb519-26" data-line-number="26">  beta_hat &lt;-<span class="st"> </span><span class="kw">solve</span>(<span class="kw">t</span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">%*%</span><span class="st"> </span><span class="kw">t</span>(X) <span class="op">%*%</span><span class="st"> </span>y</a>
-<a class="sourceLine" id="cb519-27" data-line-number="27">  V_beta   &lt;-<span class="st"> </span><span class="kw">solve</span>(<span class="kw">t</span>(X) <span class="op">%*%</span><span class="st"> </span>X)</a>
-<a class="sourceLine" id="cb519-28" data-line-number="28">  </a>
-<a class="sourceLine" id="cb519-29" data-line-number="29">  <span class="co"># &#39;sample co-variance matrix&#39;</span></a>
-<a class="sourceLine" id="cb519-30" data-line-number="30">  s_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span>(n<span class="op">-</span>k) <span class="op">*</span><span class="st"> </span><span class="kw">t</span>(y <span class="op">-</span><span class="st"> </span>(X <span class="op">%*%</span><span class="st"> </span>beta_hat)) <span class="op">%*%</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span>(X <span class="op">%*%</span><span class="st"> </span>beta_hat))</a>
-<a class="sourceLine" id="cb519-31" data-line-number="31">  </a>
-<a class="sourceLine" id="cb519-32" data-line-number="32">  <span class="co"># sample from posterior of variance</span></a>
-<a class="sourceLine" id="cb519-33" data-line-number="33">  samples_sigma_squared &lt;-<span class="st"> </span>extraDistr<span class="op">::</span><span class="kw">rinvchisq</span>(</a>
-<a class="sourceLine" id="cb519-34" data-line-number="34">    <span class="dt">n =</span> n_samples, </a>
-<a class="sourceLine" id="cb519-35" data-line-number="35">    <span class="dt">nu =</span> n <span class="op">-</span><span class="st"> </span>k, </a>
-<a class="sourceLine" id="cb519-36" data-line-number="36">    <span class="dt">tau =</span> s_squared</a>
-<a class="sourceLine" id="cb519-37" data-line-number="37">  )</a>
-<a class="sourceLine" id="cb519-38" data-line-number="38">  </a>
-<a class="sourceLine" id="cb519-39" data-line-number="39">  <span class="co"># sample full joint posterior triples</span></a>
-<a class="sourceLine" id="cb519-40" data-line-number="40">  samples_posterior &lt;-<span class="st"> </span><span class="kw">map_df</span>(</a>
-<a class="sourceLine" id="cb519-41" data-line-number="41">    <span class="kw">seq</span>(n_samples), </a>
-<a class="sourceLine" id="cb519-42" data-line-number="42">    <span class="cf">function</span>(i) {</a>
-<a class="sourceLine" id="cb519-43" data-line-number="43">      s &lt;-<span class="st">  </span>mvtnorm<span class="op">::</span><span class="kw">rmvnorm</span>(<span class="dv">1</span>, beta_hat, V_beta <span class="op">*</span><span class="st"> </span>samples_sigma_squared[i]) </a>
-<a class="sourceLine" id="cb519-44" data-line-number="44">      <span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb519-45" data-line-number="45">        <span class="dt">intercept =</span> s[<span class="dv">1</span>],</a>
-<a class="sourceLine" id="cb519-46" data-line-number="46">        <span class="dt">slope =</span> s[<span class="dv">2</span>],</a>
-<a class="sourceLine" id="cb519-47" data-line-number="47">        <span class="dt">sigma =</span> samples_sigma_squared[i] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sqrt</span>()</a>
-<a class="sourceLine" id="cb519-48" data-line-number="48">      )</a>
-<a class="sourceLine" id="cb519-49" data-line-number="49">    }</a>
-<a class="sourceLine" id="cb519-50" data-line-number="50">  )  </a>
-<a class="sourceLine" id="cb519-51" data-line-number="51">  <span class="kw">return</span>(samples_posterior)</a>
-<a class="sourceLine" id="cb519-52" data-line-number="52">}</a>
-<a class="sourceLine" id="cb519-53" data-line-number="53"></a>
-<a class="sourceLine" id="cb519-54" data-line-number="54">samples_Bayes_regression &lt;-<span class="st"> </span><span class="kw">get_samples_regression_noninormative</span>(X,y, <span class="dv">10000</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb520"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb520-1" data-line-number="1"><span class="co"># variables for regression</span></a>
+<a class="sourceLine" id="cb520-2" data-line-number="2">y &lt;-<span class="st"> </span>murder_data<span class="op">$</span>murder_rate</a>
+<a class="sourceLine" id="cb520-3" data-line-number="3">x &lt;-<span class="st"> </span>murder_data<span class="op">$</span>unemployment</a>
+<a class="sourceLine" id="cb520-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb520-5" data-line-number="5"><span class="co"># the predictor &#39;intercept&#39; is just a </span></a>
+<a class="sourceLine" id="cb520-6" data-line-number="6"><span class="co"># column vector of ones of the same length as y</span></a>
+<a class="sourceLine" id="cb520-7" data-line-number="7">int &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span>, <span class="kw">length</span>(y))</a>
+<a class="sourceLine" id="cb520-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb520-9" data-line-number="9"><span class="co"># create predictor matrix with values of all explanatory variables </span></a>
+<a class="sourceLine" id="cb520-10" data-line-number="10"><span class="co">#    (here only intercept and slope for MAD)</span></a>
+<a class="sourceLine" id="cb520-11" data-line-number="11">X &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(int, x),  <span class="dt">ncol =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb520-12" data-line-number="12"><span class="kw">colnames</span>(X) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;intercept&quot;</span>, <span class="st">&quot;slope&quot;</span>)</a>
+<a class="sourceLine" id="cb520-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb520-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb520-15" data-line-number="15">get_samples_regression_noninormative &lt;-<span class="st"> </span><span class="cf">function</span>(</a>
+<a class="sourceLine" id="cb520-16" data-line-number="16">  X, <span class="co"># design matrix</span></a>
+<a class="sourceLine" id="cb520-17" data-line-number="17">  y, <span class="co"># dependent variable</span></a>
+<a class="sourceLine" id="cb520-18" data-line-number="18">  <span class="dt">n_samples =</span> <span class="dv">1000</span></a>
+<a class="sourceLine" id="cb520-19" data-line-number="19">) {</a>
+<a class="sourceLine" id="cb520-20" data-line-number="20">  </a>
+<a class="sourceLine" id="cb520-21" data-line-number="21">  n &lt;-<span class="st"> </span><span class="kw">length</span>(y)</a>
+<a class="sourceLine" id="cb520-22" data-line-number="22">  k &lt;-<span class="st"> </span><span class="kw">ncol</span>(X)</a>
+<a class="sourceLine" id="cb520-23" data-line-number="23">  </a>
+<a class="sourceLine" id="cb520-24" data-line-number="24">  <span class="co"># calculating the formula from Gelman et al</span></a>
+<a class="sourceLine" id="cb520-25" data-line-number="25">  <span class="co"># NB &#39;solve&#39; computes the inverse of a matrix</span></a>
+<a class="sourceLine" id="cb520-26" data-line-number="26">  beta_hat &lt;-<span class="st"> </span><span class="kw">solve</span>(<span class="kw">t</span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">%*%</span><span class="st"> </span><span class="kw">t</span>(X) <span class="op">%*%</span><span class="st"> </span>y</a>
+<a class="sourceLine" id="cb520-27" data-line-number="27">  V_beta   &lt;-<span class="st"> </span><span class="kw">solve</span>(<span class="kw">t</span>(X) <span class="op">%*%</span><span class="st"> </span>X)</a>
+<a class="sourceLine" id="cb520-28" data-line-number="28">  </a>
+<a class="sourceLine" id="cb520-29" data-line-number="29">  <span class="co"># &#39;sample co-variance matrix&#39;</span></a>
+<a class="sourceLine" id="cb520-30" data-line-number="30">  s_squared &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span>(n<span class="op">-</span>k) <span class="op">*</span><span class="st"> </span><span class="kw">t</span>(y <span class="op">-</span><span class="st"> </span>(X <span class="op">%*%</span><span class="st"> </span>beta_hat)) <span class="op">%*%</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span>(X <span class="op">%*%</span><span class="st"> </span>beta_hat))</a>
+<a class="sourceLine" id="cb520-31" data-line-number="31">  </a>
+<a class="sourceLine" id="cb520-32" data-line-number="32">  <span class="co"># sample from posterior of variance</span></a>
+<a class="sourceLine" id="cb520-33" data-line-number="33">  samples_sigma_squared &lt;-<span class="st"> </span>extraDistr<span class="op">::</span><span class="kw">rinvchisq</span>(</a>
+<a class="sourceLine" id="cb520-34" data-line-number="34">    <span class="dt">n =</span> n_samples, </a>
+<a class="sourceLine" id="cb520-35" data-line-number="35">    <span class="dt">nu =</span> n <span class="op">-</span><span class="st"> </span>k, </a>
+<a class="sourceLine" id="cb520-36" data-line-number="36">    <span class="dt">tau =</span> s_squared</a>
+<a class="sourceLine" id="cb520-37" data-line-number="37">  )</a>
+<a class="sourceLine" id="cb520-38" data-line-number="38">  </a>
+<a class="sourceLine" id="cb520-39" data-line-number="39">  <span class="co"># sample full joint posterior triples</span></a>
+<a class="sourceLine" id="cb520-40" data-line-number="40">  samples_posterior &lt;-<span class="st"> </span><span class="kw">map_df</span>(</a>
+<a class="sourceLine" id="cb520-41" data-line-number="41">    <span class="kw">seq</span>(n_samples), </a>
+<a class="sourceLine" id="cb520-42" data-line-number="42">    <span class="cf">function</span>(i) {</a>
+<a class="sourceLine" id="cb520-43" data-line-number="43">      s &lt;-<span class="st">  </span>mvtnorm<span class="op">::</span><span class="kw">rmvnorm</span>(<span class="dv">1</span>, beta_hat, V_beta <span class="op">*</span><span class="st"> </span>samples_sigma_squared[i]) </a>
+<a class="sourceLine" id="cb520-44" data-line-number="44">      <span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb520-45" data-line-number="45">        <span class="dt">intercept =</span> s[<span class="dv">1</span>],</a>
+<a class="sourceLine" id="cb520-46" data-line-number="46">        <span class="dt">slope =</span> s[<span class="dv">2</span>],</a>
+<a class="sourceLine" id="cb520-47" data-line-number="47">        <span class="dt">sigma =</span> samples_sigma_squared[i] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sqrt</span>()</a>
+<a class="sourceLine" id="cb520-48" data-line-number="48">      )</a>
+<a class="sourceLine" id="cb520-49" data-line-number="49">    }</a>
+<a class="sourceLine" id="cb520-50" data-line-number="50">  )  </a>
+<a class="sourceLine" id="cb520-51" data-line-number="51">  <span class="kw">return</span>(samples_posterior)</a>
+<a class="sourceLine" id="cb520-52" data-line-number="52">}</a>
+<a class="sourceLine" id="cb520-53" data-line-number="53"></a>
+<a class="sourceLine" id="cb520-54" data-line-number="54">samples_Bayes_regression &lt;-<span class="st"> </span><span class="kw">get_samples_regression_noninormative</span>(X,y, <span class="dv">10000</span>)</a></code></pre></div>
 <p>The tibble <code>samples_Bayes_regression</code> contains 10,000 samples from the posterior. Let’s have a look at the first couple of samples:</p>
-<div class="sourceCode" id="cb520"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb520-1" data-line-number="1"><span class="kw">head</span>(samples_Bayes_regression)</a></code></pre></div>
+<div class="sourceCode" id="cb521"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb521-1" data-line-number="1"><span class="kw">head</span>(samples_Bayes_regression)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 3
 ##   intercept slope sigma
 ##       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
@@ -641,11 +641,11 @@ What is interesting to note is that the mean of the posterior distribution of re
 ## 6     -29.8  7.73  6.91</code></pre>
 <p>Remember that each sample is a triple, one value for each of the model’s parameters.</p>
 <p>We can also look at some summary statistics, using the convenience function from the <code>aida</code> package:</p>
-<div class="sourceCode" id="cb522"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb522-1" data-line-number="1"><span class="kw">rbind</span>(</a>
-<a class="sourceLine" id="cb522-2" data-line-number="2">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(samples_Bayes_regression<span class="op">$</span>intercept, <span class="st">&quot;intercept&quot;</span>),</a>
-<a class="sourceLine" id="cb522-3" data-line-number="3">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(samples_Bayes_regression<span class="op">$</span>slope, <span class="st">&quot;slope&quot;</span>),</a>
-<a class="sourceLine" id="cb522-4" data-line-number="4">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(samples_Bayes_regression<span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>)</a>
-<a class="sourceLine" id="cb522-5" data-line-number="5">)</a></code></pre></div>
+<div class="sourceCode" id="cb523"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb523-1" data-line-number="1"><span class="kw">rbind</span>(</a>
+<a class="sourceLine" id="cb523-2" data-line-number="2">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(samples_Bayes_regression<span class="op">$</span>intercept, <span class="st">&quot;intercept&quot;</span>),</a>
+<a class="sourceLine" id="cb523-3" data-line-number="3">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(samples_Bayes_regression<span class="op">$</span>slope, <span class="st">&quot;slope&quot;</span>),</a>
+<a class="sourceLine" id="cb523-4" data-line-number="4">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(samples_Bayes_regression<span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>)</a>
+<a class="sourceLine" id="cb523-5" data-line-number="5">)</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 4
 ##   Parameter `|95%`   mean `95%|`
 ##   &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
@@ -653,13 +653,13 @@ What is interesting to note is that the mean of the posterior distribution of re
 ## 2 slope       5.01   7.09   9.09
 ## 3 sigma       3.72   5.33   7.30</code></pre>
 <p>Here’s a density plot of the (marginal) posteriors for each parameter value:</p>
-<div class="sourceCode" id="cb524"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb524-1" data-line-number="1">samples_Bayes_regression <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb524-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">everything</span>(), <span class="dt">values_to =</span> <span class="st">&quot;sample&quot;</span>, <span class="dt">names_to =</span> <span class="st">&quot;parameter&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb524-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">parameter =</span> <span class="kw">factor</span>(parameter, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&#39;intercept&#39;</span>, <span class="st">&#39;slope&#39;</span>, <span class="st">&#39;sigma&#39;</span>))) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb524-4" data-line-number="4"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sample)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb524-5" data-line-number="5"><span class="st">    </span><span class="kw">geom_density</span>(<span class="dt">fill=</span><span class="st">&quot;lightgray&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb524-6" data-line-number="6"><span class="st">    </span><span class="kw">facet_wrap</span>(<span class="op">~</span>parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-370-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb525"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb525-1" data-line-number="1">samples_Bayes_regression <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb525-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">everything</span>(), <span class="dt">values_to =</span> <span class="st">&quot;sample&quot;</span>, <span class="dt">names_to =</span> <span class="st">&quot;parameter&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb525-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">parameter =</span> <span class="kw">factor</span>(parameter, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&#39;intercept&#39;</span>, <span class="st">&#39;slope&#39;</span>, <span class="st">&#39;sigma&#39;</span>))) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb525-4" data-line-number="4"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sample)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb525-5" data-line-number="5"><span class="st">    </span><span class="kw">geom_density</span>(<span class="dt">fill=</span><span class="st">&quot;lightgray&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb525-6" data-line-number="6"><span class="st">    </span><span class="kw">facet_wrap</span>(<span class="op">~</span>parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-363-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>While these results are approximate, because they are affected by random sampling, they also convey a sense of uncertainty: given the data and the model, how certain should we be that, say, the slope is really at 7.08?
 We could, for instance, now test the hypothesis that the factor <code>unemployment</code> does not contribute at all to predicting the value of the variable <code>murder_rate</code>.
 This could be addressed as the point-valued hypothesis that the slope coefficient is exactly equal to zero.

@@ -543,52 +543,52 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="ch-03-04-parameter-estimation-normal" class="section level2">
 <h2><span class="header-section-number">9.4</span> Estimating the parameters of a Normal distribution</h2>
 <p>To keep matters simple and the sample size low (so as to better see effects of different priors; more on this below), we look at a (boring) fictitious data set, which we imagine to be measurements of height of two species of flowers, unflowerly named species ‘A’ and ‘B’.</p>
-<div class="sourceCode" id="cb445"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb445-1" data-line-number="1"><span class="co"># fictitious data from height measurements (25 flowers of two species each in cm)</span></a>
-<a class="sourceLine" id="cb445-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb445-3" data-line-number="3">heights_A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">6.94</span>, <span class="fl">11.77</span>, <span class="fl">8.97</span>, <span class="fl">12.2</span>, <span class="fl">8.48</span>, </a>
-<a class="sourceLine" id="cb445-4" data-line-number="4">               <span class="fl">9.29</span>, <span class="fl">13.03</span>, <span class="fl">13.58</span>, <span class="fl">7.63</span>, <span class="fl">11.47</span>, </a>
-<a class="sourceLine" id="cb445-5" data-line-number="5">               <span class="fl">10.24</span>, <span class="fl">8.99</span>, <span class="fl">8.29</span>, <span class="fl">10.01</span>, <span class="fl">9.47</span>, </a>
-<a class="sourceLine" id="cb445-6" data-line-number="6">               <span class="fl">9.92</span>, <span class="fl">6.83</span>, <span class="fl">11.6</span>, <span class="fl">10.29</span>, <span class="fl">10.7</span>, </a>
-<a class="sourceLine" id="cb445-7" data-line-number="7">               <span class="dv">11</span>, <span class="fl">8.68</span>, <span class="fl">11.71</span>, <span class="fl">10.09</span>, <span class="fl">9.7</span>)</a>
-<a class="sourceLine" id="cb445-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb445-9" data-line-number="9">heights_B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">11.45</span>, <span class="fl">11.89</span>, <span class="fl">13.35</span>, <span class="fl">11.56</span>, <span class="fl">13.78</span>, </a>
-<a class="sourceLine" id="cb445-10" data-line-number="10">               <span class="fl">12.12</span>, <span class="fl">10.41</span>, <span class="fl">11.99</span>, <span class="fl">12.27</span>, <span class="fl">13.43</span>, </a>
-<a class="sourceLine" id="cb445-11" data-line-number="11">               <span class="fl">10.91</span>, <span class="fl">9.13</span>, <span class="fl">9.25</span>, <span class="fl">9.94</span>, <span class="fl">13.5</span>, </a>
-<a class="sourceLine" id="cb445-12" data-line-number="12">               <span class="fl">11.26</span>, <span class="fl">10.38</span>, <span class="fl">13.78</span>, <span class="fl">9.35</span>, <span class="fl">11.67</span>, </a>
-<a class="sourceLine" id="cb445-13" data-line-number="13">               <span class="fl">11.32</span>, <span class="fl">11.98</span>, <span class="fl">12.92</span>, <span class="fl">12.03</span>, <span class="fl">12.02</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb444"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb444-1" data-line-number="1"><span class="co"># fictitious data from height measurements (25 flowers of two species each in cm)</span></a>
+<a class="sourceLine" id="cb444-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb444-3" data-line-number="3">heights_A &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">6.94</span>, <span class="fl">11.77</span>, <span class="fl">8.97</span>, <span class="fl">12.2</span>, <span class="fl">8.48</span>, </a>
+<a class="sourceLine" id="cb444-4" data-line-number="4">               <span class="fl">9.29</span>, <span class="fl">13.03</span>, <span class="fl">13.58</span>, <span class="fl">7.63</span>, <span class="fl">11.47</span>, </a>
+<a class="sourceLine" id="cb444-5" data-line-number="5">               <span class="fl">10.24</span>, <span class="fl">8.99</span>, <span class="fl">8.29</span>, <span class="fl">10.01</span>, <span class="fl">9.47</span>, </a>
+<a class="sourceLine" id="cb444-6" data-line-number="6">               <span class="fl">9.92</span>, <span class="fl">6.83</span>, <span class="fl">11.6</span>, <span class="fl">10.29</span>, <span class="fl">10.7</span>, </a>
+<a class="sourceLine" id="cb444-7" data-line-number="7">               <span class="dv">11</span>, <span class="fl">8.68</span>, <span class="fl">11.71</span>, <span class="fl">10.09</span>, <span class="fl">9.7</span>)</a>
+<a class="sourceLine" id="cb444-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb444-9" data-line-number="9">heights_B &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">11.45</span>, <span class="fl">11.89</span>, <span class="fl">13.35</span>, <span class="fl">11.56</span>, <span class="fl">13.78</span>, </a>
+<a class="sourceLine" id="cb444-10" data-line-number="10">               <span class="fl">12.12</span>, <span class="fl">10.41</span>, <span class="fl">11.99</span>, <span class="fl">12.27</span>, <span class="fl">13.43</span>, </a>
+<a class="sourceLine" id="cb444-11" data-line-number="11">               <span class="fl">10.91</span>, <span class="fl">9.13</span>, <span class="fl">9.25</span>, <span class="fl">9.94</span>, <span class="fl">13.5</span>, </a>
+<a class="sourceLine" id="cb444-12" data-line-number="12">               <span class="fl">11.26</span>, <span class="fl">10.38</span>, <span class="fl">13.78</span>, <span class="fl">9.35</span>, <span class="fl">11.67</span>, </a>
+<a class="sourceLine" id="cb444-13" data-line-number="13">               <span class="fl">11.32</span>, <span class="fl">11.98</span>, <span class="fl">12.92</span>, <span class="fl">12.03</span>, <span class="fl">12.02</span>)</a></code></pre></div>
 <p>On the assumption that the metric measurements for flower ‘A’ come from a normal distribution, the goal is to estimate credible values for that normal distribution’s parameters <span class="math inline">\(\mu_{A}\)</span> and <span class="math inline">\(\sigma_{A}\)</span>; and similarly for flower ‘B’.
 The ``research question’‘of interest is whether it is credible that the mean of heights for flower ’A’ is smaller than that of ‘B’ - or, in other words, whether the difference in means <span class="math inline">\(\delta = \mu_{B} - \mu_{A}\)</span> is credibly positive.</p>
 <p>Here are relevant summary statistics for this case, and a plot, both of which seem to support the conjecture that flower ‘A’ is smaller, on average, than flower ‘B’.</p>
-<div class="sourceCode" id="cb446"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb446-1" data-line-number="1"><span class="co"># bring data into a more practical format</span></a>
-<a class="sourceLine" id="cb446-2" data-line-number="2">ffm_data &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb446-3" data-line-number="3">  <span class="dt">A =</span> heights_A,</a>
-<a class="sourceLine" id="cb446-4" data-line-number="4">  <span class="dt">B =</span> heights_B</a>
-<a class="sourceLine" id="cb446-5" data-line-number="5">) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb446-6" data-line-number="6"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
-<a class="sourceLine" id="cb446-7" data-line-number="7">    <span class="dt">cols      =</span> <span class="kw">everything</span>(),</a>
-<a class="sourceLine" id="cb446-8" data-line-number="8">    <span class="dt">names_to  =</span> <span class="st">&#39;species&#39;</span>,</a>
-<a class="sourceLine" id="cb446-9" data-line-number="9">    <span class="dt">values_to =</span> <span class="st">&#39;height&#39;</span></a>
-<a class="sourceLine" id="cb446-10" data-line-number="10">    )</a>
-<a class="sourceLine" id="cb446-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb446-12" data-line-number="12"><span class="co"># some summary statistics</span></a>
-<a class="sourceLine" id="cb446-13" data-line-number="13">ffm_data <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb446-14" data-line-number="14"><span class="st">  </span><span class="kw">group_by</span>(species) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb446-15" data-line-number="15"><span class="st">  </span><span class="kw">summarise</span>(</a>
-<a class="sourceLine" id="cb446-16" data-line-number="16">    <span class="dt">mean     =</span> <span class="kw">mean</span>(height),</a>
-<a class="sourceLine" id="cb446-17" data-line-number="17">    <span class="dt">std_dev  =</span> <span class="kw">sd</span>(height)</a>
-<a class="sourceLine" id="cb446-18" data-line-number="18">  )</a></code></pre></div>
+<div class="sourceCode" id="cb445"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb445-1" data-line-number="1"><span class="co"># bring data into a more practical format</span></a>
+<a class="sourceLine" id="cb445-2" data-line-number="2">ffm_data &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb445-3" data-line-number="3">  <span class="dt">A =</span> heights_A,</a>
+<a class="sourceLine" id="cb445-4" data-line-number="4">  <span class="dt">B =</span> heights_B</a>
+<a class="sourceLine" id="cb445-5" data-line-number="5">) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb445-6" data-line-number="6"><span class="st">  </span><span class="kw">pivot_longer</span>(</a>
+<a class="sourceLine" id="cb445-7" data-line-number="7">    <span class="dt">cols      =</span> <span class="kw">everything</span>(),</a>
+<a class="sourceLine" id="cb445-8" data-line-number="8">    <span class="dt">names_to  =</span> <span class="st">&#39;species&#39;</span>,</a>
+<a class="sourceLine" id="cb445-9" data-line-number="9">    <span class="dt">values_to =</span> <span class="st">&#39;height&#39;</span></a>
+<a class="sourceLine" id="cb445-10" data-line-number="10">    )</a>
+<a class="sourceLine" id="cb445-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb445-12" data-line-number="12"><span class="co"># some summary statistics</span></a>
+<a class="sourceLine" id="cb445-13" data-line-number="13">ffm_data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb445-14" data-line-number="14"><span class="st">  </span><span class="kw">group_by</span>(species) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb445-15" data-line-number="15"><span class="st">  </span><span class="kw">summarise</span>(</a>
+<a class="sourceLine" id="cb445-16" data-line-number="16">    <span class="dt">mean     =</span> <span class="kw">mean</span>(height),</a>
+<a class="sourceLine" id="cb445-17" data-line-number="17">    <span class="dt">std_dev  =</span> <span class="kw">sd</span>(height)</a>
+<a class="sourceLine" id="cb445-18" data-line-number="18">  )</a></code></pre></div>
 <pre><code>## # A tibble: 2 x 3
 ##   species  mean std_dev
 ##   &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt;
 ## 1 A        10.0    1.76
 ## 2 B        11.7    1.38</code></pre>
-<div class="sourceCode" id="cb448"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb448-1" data-line-number="1">ffm_data <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb448-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> height)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb448-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_density</span>(<span class="kw">aes</span>(<span class="dt">color =</span> species), <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb448-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_rug</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb448-5" data-line-number="5"><span class="st">  </span><span class="kw">facet_grid</span>(<span class="op">~</span>species, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb448-6" data-line-number="6"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&#39;none&#39;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-296-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb447"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb447-1" data-line-number="1">ffm_data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb447-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> height)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb447-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_density</span>(<span class="kw">aes</span>(<span class="dt">color =</span> species), <span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb447-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_rug</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb447-5" data-line-number="5"><span class="st">  </span><span class="kw">facet_grid</span>(<span class="op">~</span>species, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb447-6" data-line-number="6"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&#39;none&#39;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-290-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The remainder of this chapter will introduce two models for inferring the parameters of a (single) normal distribution, both of which are set-up in such a way that it is possible to compute a closed-form solution for the posterior distributions over <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>:
 (i) a model with uninformative priors, and
 (ii) a model with conjugate priors.
@@ -614,32 +614,32 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 \end{align*}
 \]</span></p>
 <p>Here is a convenience function that takes a vector <code>data_vector</code> (like <code>height_A</code>) of metric observations as input and returns <code>n_samples</code> samples from the posterior.</p>
-<div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb449-1" data-line-number="1">get_samples_single_noninformative &lt;-<span class="st"> </span><span class="cf">function</span>(data_vector, <span class="dt">n_samples =</span> <span class="dv">1000</span>) {</a>
-<a class="sourceLine" id="cb449-2" data-line-number="2">  <span class="co"># determine sample variance</span></a>
-<a class="sourceLine" id="cb449-3" data-line-number="3">  s_squared &lt;-<span class="st"> </span><span class="kw">var</span>(data_vector)</a>
-<a class="sourceLine" id="cb449-4" data-line-number="4">  <span class="co"># posterior samples of the variance</span></a>
-<a class="sourceLine" id="cb449-5" data-line-number="5">  var_samples &lt;-<span class="st"> </span>extraDistr<span class="op">::</span><span class="kw">rinvchisq</span>(</a>
-<a class="sourceLine" id="cb449-6" data-line-number="6">    <span class="dt">n =</span> n_samples,</a>
-<a class="sourceLine" id="cb449-7" data-line-number="7">    <span class="dt">nu =</span> <span class="kw">length</span>(data_vector)<span class="op">-</span><span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb449-8" data-line-number="8">    <span class="dt">tau =</span> s_squared</a>
-<a class="sourceLine" id="cb449-9" data-line-number="9">  )</a>
-<a class="sourceLine" id="cb449-10" data-line-number="10">  <span class="co"># posterior samples of the mean given the sampled variance</span></a>
-<a class="sourceLine" id="cb449-11" data-line-number="11">  mu_samples &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(</a>
-<a class="sourceLine" id="cb449-12" data-line-number="12">    var_samples,</a>
-<a class="sourceLine" id="cb449-13" data-line-number="13">    <span class="cf">function</span>(var) <span class="kw">rnorm</span>(</a>
-<a class="sourceLine" id="cb449-14" data-line-number="14">      <span class="dt">n=</span><span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb449-15" data-line-number="15">      <span class="dt">mean =</span> <span class="kw">mean</span>(data_vector),</a>
-<a class="sourceLine" id="cb449-16" data-line-number="16">      <span class="dt">sd =</span> <span class="kw">sqrt</span>(var<span class="op">/</span><span class="kw">length</span>(data_vector))</a>
-<a class="sourceLine" id="cb449-17" data-line-number="17">    )</a>
-<a class="sourceLine" id="cb449-18" data-line-number="18">  )</a>
-<a class="sourceLine" id="cb449-19" data-line-number="19">  <span class="co"># return pairs of values</span></a>
-<a class="sourceLine" id="cb449-20" data-line-number="20">  <span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb449-21" data-line-number="21">    <span class="dt">mu    =</span> mu_samples,</a>
-<a class="sourceLine" id="cb449-22" data-line-number="22">    <span class="dt">sigma =</span> <span class="kw">sqrt</span>(var_samples)</a>
-<a class="sourceLine" id="cb449-23" data-line-number="23">  )</a>
-<a class="sourceLine" id="cb449-24" data-line-number="24">}</a></code></pre></div>
+<div class="sourceCode" id="cb448"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb448-1" data-line-number="1">get_samples_single_noninformative &lt;-<span class="st"> </span><span class="cf">function</span>(data_vector, <span class="dt">n_samples =</span> <span class="dv">1000</span>) {</a>
+<a class="sourceLine" id="cb448-2" data-line-number="2">  <span class="co"># determine sample variance</span></a>
+<a class="sourceLine" id="cb448-3" data-line-number="3">  s_squared &lt;-<span class="st"> </span><span class="kw">var</span>(data_vector)</a>
+<a class="sourceLine" id="cb448-4" data-line-number="4">  <span class="co"># posterior samples of the variance</span></a>
+<a class="sourceLine" id="cb448-5" data-line-number="5">  var_samples &lt;-<span class="st"> </span>extraDistr<span class="op">::</span><span class="kw">rinvchisq</span>(</a>
+<a class="sourceLine" id="cb448-6" data-line-number="6">    <span class="dt">n =</span> n_samples,</a>
+<a class="sourceLine" id="cb448-7" data-line-number="7">    <span class="dt">nu =</span> <span class="kw">length</span>(data_vector)<span class="op">-</span><span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb448-8" data-line-number="8">    <span class="dt">tau =</span> s_squared</a>
+<a class="sourceLine" id="cb448-9" data-line-number="9">  )</a>
+<a class="sourceLine" id="cb448-10" data-line-number="10">  <span class="co"># posterior samples of the mean given the sampled variance</span></a>
+<a class="sourceLine" id="cb448-11" data-line-number="11">  mu_samples &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(</a>
+<a class="sourceLine" id="cb448-12" data-line-number="12">    var_samples,</a>
+<a class="sourceLine" id="cb448-13" data-line-number="13">    <span class="cf">function</span>(var) <span class="kw">rnorm</span>(</a>
+<a class="sourceLine" id="cb448-14" data-line-number="14">      <span class="dt">n=</span><span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb448-15" data-line-number="15">      <span class="dt">mean =</span> <span class="kw">mean</span>(data_vector),</a>
+<a class="sourceLine" id="cb448-16" data-line-number="16">      <span class="dt">sd =</span> <span class="kw">sqrt</span>(var<span class="op">/</span><span class="kw">length</span>(data_vector))</a>
+<a class="sourceLine" id="cb448-17" data-line-number="17">    )</a>
+<a class="sourceLine" id="cb448-18" data-line-number="18">  )</a>
+<a class="sourceLine" id="cb448-19" data-line-number="19">  <span class="co"># return pairs of values</span></a>
+<a class="sourceLine" id="cb448-20" data-line-number="20">  <span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb448-21" data-line-number="21">    <span class="dt">mu    =</span> mu_samples,</a>
+<a class="sourceLine" id="cb448-22" data-line-number="22">    <span class="dt">sigma =</span> <span class="kw">sqrt</span>(var_samples)</a>
+<a class="sourceLine" id="cb448-23" data-line-number="23">  )</a>
+<a class="sourceLine" id="cb448-24" data-line-number="24">}</a></code></pre></div>
 <p>If we apply this function for the data of flower ‘A’, we get samples of likely pairs consisting of means <em>and</em> standard deviations (each row is one pair of associated samples):</p>
-<div class="sourceCode" id="cb450"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb450-1" data-line-number="1"><span class="kw">get_samples_single_noninformative</span>(heights_A, <span class="dt">n_samples =</span> <span class="dv">5</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb449-1" data-line-number="1"><span class="kw">get_samples_single_noninformative</span>(heights_A, <span class="dt">n_samples =</span> <span class="dv">5</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 5 x 2
 ##      mu sigma
 ##   &lt;dbl&gt; &lt;dbl&gt;
@@ -649,26 +649,26 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 ## 4  9.87  2.62
 ## 5  9.33  1.56</code></pre>
 <p>By taking more samples from this 2-dimensional (joint) posterior distribution a scatter point reveals its approximate shape.</p>
-<div class="sourceCode" id="cb452"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb452-1" data-line-number="1"><span class="co"># take 10,000 samples from the posterior</span></a>
-<a class="sourceLine" id="cb452-2" data-line-number="2">post_samples_A_noninfo &lt;-<span class="st"> </span><span class="kw">get_samples_single_noninformative</span>(<span class="dt">data_vector =</span> heights_A, <span class="dt">n_samples =</span> <span class="dv">10000</span>)</a>
-<a class="sourceLine" id="cb452-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb452-4" data-line-number="4"><span class="co"># look at a scatter plot</span></a>
-<a class="sourceLine" id="cb452-5" data-line-number="5">post_samples_A_noninfo <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb452-6" data-line-number="6"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sigma, <span class="dt">y =</span> mu)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb452-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.4</span>, <span class="dt">color =</span> <span class="st">&quot;lightblue&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-299-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb451-1" data-line-number="1"><span class="co"># take 10,000 samples from the posterior</span></a>
+<a class="sourceLine" id="cb451-2" data-line-number="2">post_samples_A_noninfo &lt;-<span class="st"> </span><span class="kw">get_samples_single_noninformative</span>(<span class="dt">data_vector =</span> heights_A, <span class="dt">n_samples =</span> <span class="dv">10000</span>)</a>
+<a class="sourceLine" id="cb451-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb451-4" data-line-number="4"><span class="co"># look at a scatter plot</span></a>
+<a class="sourceLine" id="cb451-5" data-line-number="5">post_samples_A_noninfo <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb451-6" data-line-number="6"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> sigma, <span class="dt">y =</span> mu)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb451-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.4</span>, <span class="dt">color =</span> <span class="st">&quot;lightblue&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-293-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The plot below shows the marginal distributions of each variable, <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>, separately:</p>
-<div class="sourceCode" id="cb453"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb453-1" data-line-number="1">post_samples_A_noninfo <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb453-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">everything</span>(), <span class="dt">names_to =</span> <span class="st">&quot;parameter&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb453-3" data-line-number="3"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb453-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_density</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb453-5" data-line-number="5"><span class="st">  </span><span class="kw">facet_grid</span>(<span class="op">~</span><span class="st"> </span>parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-300-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb452"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb452-1" data-line-number="1">post_samples_A_noninfo <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb452-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">everything</span>(), <span class="dt">names_to =</span> <span class="st">&quot;parameter&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb452-3" data-line-number="3"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb452-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_density</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb452-5" data-line-number="5"><span class="st">  </span><span class="kw">facet_grid</span>(<span class="op">~</span><span class="st"> </span>parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-294-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>As usual, we can also produce the relevant Bayesian summary statistics for our samples, like so:</p>
-<div class="sourceCode" id="cb454"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb454-1" data-line-number="1"><span class="kw">rbind</span>(</a>
-<a class="sourceLine" id="cb454-2" data-line-number="2">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(post_samples_A_noninfo<span class="op">$</span>mu,    <span class="st">&quot;mu&quot;</span>),</a>
-<a class="sourceLine" id="cb454-3" data-line-number="3">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(post_samples_A_noninfo<span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>)</a>
-<a class="sourceLine" id="cb454-4" data-line-number="4">)</a></code></pre></div>
+<div class="sourceCode" id="cb453"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb453-1" data-line-number="1"><span class="kw">rbind</span>(</a>
+<a class="sourceLine" id="cb453-2" data-line-number="2">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(post_samples_A_noninfo<span class="op">$</span>mu,    <span class="st">&quot;mu&quot;</span>),</a>
+<a class="sourceLine" id="cb453-3" data-line-number="3">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(post_samples_A_noninfo<span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>)</a>
+<a class="sourceLine" id="cb453-4" data-line-number="4">)</a></code></pre></div>
 <pre><code>## # A tibble: 2 x 4
 ##   Parameter `|95%`  mean `95%|`
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
@@ -702,55 +702,74 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 <div class="exercises">
 <p><strong>Exercise 9.7</strong></p>
 <p>Here is a convenience function to sample from the ‘normal inverse-<span class="math inline">\(\chi^2\)</span>’ prior.</p>
-<div class="sourceCode" id="cb456"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb456-1" data-line-number="1">sample_Norm_inv_chisq &lt;-<span class="st">  </span><span class="cf">function</span>(</a>
-<a class="sourceLine" id="cb456-2" data-line-number="2">  <span class="dt">n_samples =</span> <span class="dv">10000</span>,</a>
+<div class="sourceCode" id="cb455"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb455-1" data-line-number="1">sample_Norm_inv_chisq &lt;-<span class="st">  </span><span class="cf">function</span>(</a>
+<a class="sourceLine" id="cb455-2" data-line-number="2">  <span class="dt">n_samples =</span> <span class="dv">10000</span>,</a>
+<a class="sourceLine" id="cb455-3" data-line-number="3">  <span class="dt">nu =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb455-4" data-line-number="4">  <span class="dt">var =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb455-5" data-line-number="5">  <span class="dt">mu =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb455-6" data-line-number="6">  <span class="dt">kappa =</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb455-7" data-line-number="7">  )</a>
+<a class="sourceLine" id="cb455-8" data-line-number="8">{</a>
+<a class="sourceLine" id="cb455-9" data-line-number="9">  var_samples &lt;-<span class="st"> </span>extraDistr<span class="op">::</span><span class="kw">rinvchisq</span>(</a>
+<a class="sourceLine" id="cb455-10" data-line-number="10">    <span class="dt">n   =</span> n_samples,</a>
+<a class="sourceLine" id="cb455-11" data-line-number="11">    <span class="dt">nu  =</span> nu,</a>
+<a class="sourceLine" id="cb455-12" data-line-number="12">    <span class="dt">tau =</span> var</a>
+<a class="sourceLine" id="cb455-13" data-line-number="13">  )</a>
+<a class="sourceLine" id="cb455-14" data-line-number="14">  mu_samples &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(</a>
+<a class="sourceLine" id="cb455-15" data-line-number="15">    var_samples,</a>
+<a class="sourceLine" id="cb455-16" data-line-number="16">    <span class="cf">function</span>(s) <span class="kw">rnorm</span>(</a>
+<a class="sourceLine" id="cb455-17" data-line-number="17">      <span class="dt">n    =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb455-18" data-line-number="18">      <span class="dt">mean =</span> mu,</a>
+<a class="sourceLine" id="cb455-19" data-line-number="19">      <span class="dt">sd   =</span> <span class="kw">sqrt</span>(s<span class="op">/</span>kappa)</a>
+<a class="sourceLine" id="cb455-20" data-line-number="20">    )</a>
+<a class="sourceLine" id="cb455-21" data-line-number="21">  )</a>
+<a class="sourceLine" id="cb455-22" data-line-number="22">  <span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb455-23" data-line-number="23">    <span class="dt">sigma =</span> <span class="kw">sqrt</span>(var_samples),</a>
+<a class="sourceLine" id="cb455-24" data-line-number="24">    <span class="dt">mu    =</span> mu_samples</a>
+<a class="sourceLine" id="cb455-25" data-line-number="25">  )</a>
+<a class="sourceLine" id="cb455-26" data-line-number="26">}</a></code></pre></div>
+<p>In the code below, we use this function to plot 10,000 samples from the prior with a particular set of parameter values. Notice the line <code>filter(abs(value) &lt;= 10)</code> which is useful for an informative plot (try commenting it out: what does that tell you about the range of values reasonably likely to get sampled?).</p>
+<div class="sourceCode" id="cb456"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb456-1" data-line-number="1"><span class="co"># samples from the prior</span></a>
+<a class="sourceLine" id="cb456-2" data-line-number="2">samples_prior_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">sample_Norm_inv_chisq</span>(</a>
 <a class="sourceLine" id="cb456-3" data-line-number="3">  <span class="dt">nu =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb456-4" data-line-number="4">  <span class="dt">var =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb456-4" data-line-number="4">  <span class="dt">var =</span> <span class="dv">1</span>, <span class="co"># a priori &quot;variance of the variance&quot;</span></a>
 <a class="sourceLine" id="cb456-5" data-line-number="5">  <span class="dt">mu =</span> <span class="dv">0</span>,</a>
 <a class="sourceLine" id="cb456-6" data-line-number="6">  <span class="dt">kappa =</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb456-7" data-line-number="7">  )</a>
-<a class="sourceLine" id="cb456-8" data-line-number="8">{</a>
-<a class="sourceLine" id="cb456-9" data-line-number="9">  var_samples &lt;-<span class="st"> </span>extraDistr<span class="op">::</span><span class="kw">rinvchisq</span>(</a>
-<a class="sourceLine" id="cb456-10" data-line-number="10">    <span class="dt">n   =</span> n_samples,</a>
-<a class="sourceLine" id="cb456-11" data-line-number="11">    <span class="dt">nu  =</span> nu,</a>
-<a class="sourceLine" id="cb456-12" data-line-number="12">    <span class="dt">tau =</span> var</a>
-<a class="sourceLine" id="cb456-13" data-line-number="13">  )</a>
-<a class="sourceLine" id="cb456-14" data-line-number="14">  mu_samples &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(</a>
-<a class="sourceLine" id="cb456-15" data-line-number="15">    var_samples,</a>
-<a class="sourceLine" id="cb456-16" data-line-number="16">    <span class="cf">function</span>(s) <span class="kw">rnorm</span>(</a>
-<a class="sourceLine" id="cb456-17" data-line-number="17">      <span class="dt">n    =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb456-18" data-line-number="18">      <span class="dt">mean =</span> mu,</a>
-<a class="sourceLine" id="cb456-19" data-line-number="19">      <span class="dt">sd   =</span> <span class="kw">sqrt</span>(s<span class="op">/</span>kappa)</a>
-<a class="sourceLine" id="cb456-20" data-line-number="20">    )</a>
-<a class="sourceLine" id="cb456-21" data-line-number="21">  )</a>
-<a class="sourceLine" id="cb456-22" data-line-number="22">  <span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb456-23" data-line-number="23">    <span class="dt">sigma =</span> <span class="kw">sqrt</span>(var_samples),</a>
-<a class="sourceLine" id="cb456-24" data-line-number="24">    <span class="dt">mu    =</span> mu_samples</a>
-<a class="sourceLine" id="cb456-25" data-line-number="25">  )</a>
-<a class="sourceLine" id="cb456-26" data-line-number="26">}</a></code></pre></div>
-<p>In the code below, we use this function to plot 10,000 samples from the prior with a particular set of parameter values. Notice the line <code>filter(abs(value) &lt;= 10)</code> which is useful for an informative plot (try commenting it out: what does that tell you about the range of values reasonably likely to get sampled?).</p>
-<div class="sourceCode" id="cb457"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb457-1" data-line-number="1"><span class="co"># samples from the prior</span></a>
-<a class="sourceLine" id="cb457-2" data-line-number="2">samples_prior_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">sample_Norm_inv_chisq</span>(</a>
-<a class="sourceLine" id="cb457-3" data-line-number="3">  <span class="dt">nu =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb457-4" data-line-number="4">  <span class="dt">var =</span> <span class="dv">1</span>, <span class="co"># a priori &quot;variance of the variance&quot;</span></a>
-<a class="sourceLine" id="cb457-5" data-line-number="5">  <span class="dt">mu =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb457-6" data-line-number="6">  <span class="dt">kappa =</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb457-7" data-line-number="7">)</a>
-<a class="sourceLine" id="cb457-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb457-9" data-line-number="9">samples_prior_<span class="dv">1</span> <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb457-10" data-line-number="10"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">everything</span>(), <span class="dt">names_to =</span> <span class="st">&quot;parameter&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb457-11" data-line-number="11"><span class="st">  </span><span class="kw">filter</span>(<span class="kw">abs</span>(value) <span class="op">&lt;=</span><span class="st"> </span><span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb457-12" data-line-number="12"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb457-13" data-line-number="13"><span class="st">  </span><span class="kw">geom_density</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-303-1.png" width="672" style="display: block; margin: auto;" /></p>
+<a class="sourceLine" id="cb456-7" data-line-number="7">)</a>
+<a class="sourceLine" id="cb456-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb456-9" data-line-number="9">samples_prior_<span class="dv">1</span> <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb456-10" data-line-number="10"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">everything</span>(), <span class="dt">names_to =</span> <span class="st">&quot;parameter&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb456-11" data-line-number="11"><span class="st">  </span><span class="kw">filter</span>(<span class="kw">abs</span>(value) <span class="op">&lt;=</span><span class="st"> </span><span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb456-12" data-line-number="12"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb456-13" data-line-number="13"><span class="st">  </span><span class="kw">geom_density</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-297-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>To get comfortable with this ‘normal inverse-<span class="math inline">\(\chi^2\)</span>’ distribution, fill in the <code>XXX</code> in the following code box (possibly removing or altering parts of the plotting code if you need to) to find parameter values that encode a prior belief according to which credible values of <span class="math inline">\(\sigma\)</span> are not much bigger than (very roughly) 7.5, and credible values of <span class="math inline">\(\mu\)</span> lie (very roughly) in the range of 15 to 25. (Hint: intuit what the meaning of each parameter value is by a trial-error-think method.) The plot you generate could look roughly like the one below.</p>
 <p>(Motivation for the exercise: you should get familiar with this distribution, and also realize that it is clunky and that you might want to use a different prior structure in order to encode specific beliefs … which is exactly why we might want to be more flexible and go beyond conjugate priors in some cases.)</p>
+<div class="sourceCode" id="cb457"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb457-1" data-line-number="1"><span class="co"># samples from the prior</span></a>
+<a class="sourceLine" id="cb457-2" data-line-number="2">samples_prior_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">sample_Norm_inv_chisq</span>(</a>
+<a class="sourceLine" id="cb457-3" data-line-number="3">  <span class="dt">nu    =</span> XXX,</a>
+<a class="sourceLine" id="cb457-4" data-line-number="4">  <span class="dt">var   =</span> XXX,</a>
+<a class="sourceLine" id="cb457-5" data-line-number="5">  <span class="dt">mu    =</span> XXX,</a>
+<a class="sourceLine" id="cb457-6" data-line-number="6">  <span class="dt">kappa =</span> XXX</a>
+<a class="sourceLine" id="cb457-7" data-line-number="7">)</a>
+<a class="sourceLine" id="cb457-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb457-9" data-line-number="9">samples_prior_<span class="dv">2</span> <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb457-10" data-line-number="10"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">everything</span>(), <span class="dt">names_to =</span> <span class="st">&quot;parameter&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb457-11" data-line-number="11"><span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span>(parameter <span class="op">==</span><span class="st"> &quot;mu&quot;</span> <span class="op">&amp;</span><span class="st"> </span>(value <span class="op">&gt;=</span><span class="st"> </span><span class="dv">40</span> <span class="op">|</span><span class="st"> </span>value <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>))) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb457-12" data-line-number="12"><span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span>(parameter <span class="op">==</span><span class="st"> &quot;sigma&quot;</span> <span class="op">&amp;</span><span class="st"> </span>value <span class="op">&gt;=</span><span class="st"> </span><span class="dv">10</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb457-13" data-line-number="13"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb457-14" data-line-number="14"><span class="st">  </span><span class="kw">geom_density</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
+<div class="collapsibleSolution">
+<button class="trigger">
+Solution
+</button>
+<div class="content">
 <div class="sourceCode" id="cb458"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb458-1" data-line-number="1"><span class="co"># samples from the prior</span></a>
 <a class="sourceLine" id="cb458-2" data-line-number="2">samples_prior_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">sample_Norm_inv_chisq</span>(</a>
-<a class="sourceLine" id="cb458-3" data-line-number="3">  <span class="dt">nu    =</span> XXX,</a>
-<a class="sourceLine" id="cb458-4" data-line-number="4">  <span class="dt">var   =</span> XXX,</a>
-<a class="sourceLine" id="cb458-5" data-line-number="5">  <span class="dt">mu    =</span> XXX,</a>
-<a class="sourceLine" id="cb458-6" data-line-number="6">  <span class="dt">kappa =</span> XXX</a>
+<a class="sourceLine" id="cb458-3" data-line-number="3">  <span class="dt">nu =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb458-4" data-line-number="4">  <span class="dt">var =</span> <span class="dv">1</span>, <span class="co"># a priori &quot;variance of the variance&quot;</span></a>
+<a class="sourceLine" id="cb458-5" data-line-number="5">  <span class="dt">mu =</span> <span class="dv">20</span>,</a>
+<a class="sourceLine" id="cb458-6" data-line-number="6">  <span class="dt">kappa =</span> <span class="dv">1</span></a>
 <a class="sourceLine" id="cb458-7" data-line-number="7">)</a>
 <a class="sourceLine" id="cb458-8" data-line-number="8"></a>
 <a class="sourceLine" id="cb458-9" data-line-number="9">samples_prior_<span class="dv">2</span> <span class="op">%&gt;%</span></a>
@@ -759,77 +778,58 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 <a class="sourceLine" id="cb458-12" data-line-number="12"><span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span>(parameter <span class="op">==</span><span class="st"> &quot;sigma&quot;</span> <span class="op">&amp;</span><span class="st"> </span>value <span class="op">&gt;=</span><span class="st"> </span><span class="dv">10</span>)) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb458-13" data-line-number="13"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb458-14" data-line-number="14"><span class="st">  </span><span class="kw">geom_density</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
-<div class="collapsibleSolution">
-<button class="trigger">
-Solution
-</button>
-<div class="content">
-<div class="sourceCode" id="cb459"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb459-1" data-line-number="1"><span class="co"># samples from the prior</span></a>
-<a class="sourceLine" id="cb459-2" data-line-number="2">samples_prior_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">sample_Norm_inv_chisq</span>(</a>
-<a class="sourceLine" id="cb459-3" data-line-number="3">  <span class="dt">nu =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb459-4" data-line-number="4">  <span class="dt">var =</span> <span class="dv">1</span>, <span class="co"># a priori &quot;variance of the variance&quot;</span></a>
-<a class="sourceLine" id="cb459-5" data-line-number="5">  <span class="dt">mu =</span> <span class="dv">20</span>,</a>
-<a class="sourceLine" id="cb459-6" data-line-number="6">  <span class="dt">kappa =</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb459-7" data-line-number="7">)</a>
-<a class="sourceLine" id="cb459-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb459-9" data-line-number="9">samples_prior_<span class="dv">2</span> <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb459-10" data-line-number="10"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">everything</span>(), <span class="dt">names_to =</span> <span class="st">&quot;parameter&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb459-11" data-line-number="11"><span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span>(parameter <span class="op">==</span><span class="st"> &quot;mu&quot;</span> <span class="op">&amp;</span><span class="st"> </span>(value <span class="op">&gt;=</span><span class="st"> </span><span class="dv">40</span> <span class="op">|</span><span class="st"> </span>value <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>))) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb459-12" data-line-number="12"><span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span>(parameter <span class="op">==</span><span class="st"> &quot;sigma&quot;</span> <span class="op">&amp;</span><span class="st"> </span>value <span class="op">&gt;=</span><span class="st"> </span><span class="dv">10</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb459-13" data-line-number="13"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb459-14" data-line-number="14"><span class="st">  </span><span class="kw">geom_density</span>() <span class="op">+</span><span class="st"> </span><span class="kw">facet_grid</span>(<span class="op">~</span>parameter, <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-305-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-299-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 </div>
 <p>Here is a convenience function for obtaining posterior samples for the conjugate prior model, taking as input a specification of the prior beliefs.</p>
-<div class="sourceCode" id="cb460"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb460-1" data-line-number="1">get_samples_single_normal_conjugate &lt;-<span class="st"> </span><span class="cf">function</span>(</a>
-<a class="sourceLine" id="cb460-2" data-line-number="2">  data_vector,</a>
-<a class="sourceLine" id="cb460-3" data-line-number="3">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb460-4" data-line-number="4">  <span class="dt">var   =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb460-5" data-line-number="5">  <span class="dt">mu    =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb460-6" data-line-number="6">  <span class="dt">kappa =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb460-7" data-line-number="7">  <span class="dt">n_samples =</span> <span class="dv">1000</span></a>
-<a class="sourceLine" id="cb460-8" data-line-number="8">)</a>
-<a class="sourceLine" id="cb460-9" data-line-number="9">{</a>
-<a class="sourceLine" id="cb460-10" data-line-number="10">  n &lt;-<span class="st"> </span><span class="kw">length</span>(data_vector)</a>
-<a class="sourceLine" id="cb460-11" data-line-number="11">  <span class="kw">sample_Norm_inv_chisq</span>(</a>
-<a class="sourceLine" id="cb460-12" data-line-number="12">    <span class="dt">n_samples =</span> n_samples,</a>
-<a class="sourceLine" id="cb460-13" data-line-number="13">    <span class="dt">nu        =</span> nu <span class="op">+</span><span class="st"> </span>n,</a>
-<a class="sourceLine" id="cb460-14" data-line-number="14">    <span class="dt">var       =</span> (nu <span class="op">*</span><span class="st"> </span>var <span class="op">+</span><span class="st"> </span>(n<span class="dv">-1</span>)<span class="op">*</span><span class="kw">var</span>(data_vector) <span class="op">+</span><span class="st"> </span>(kappa <span class="op">*</span><span class="st"> </span>n)<span class="op">/</span><span class="st"> </span>(kappa <span class="op">+</span><span class="st"> </span>n)) <span class="op">/</span><span class="st"> </span>(nu <span class="op">+</span><span class="st"> </span>n),</a>
-<a class="sourceLine" id="cb460-15" data-line-number="15">    <span class="dt">mu        =</span> kappa <span class="op">/</span><span class="st"> </span>(kappa <span class="op">+</span><span class="st"> </span>n) <span class="op">*</span><span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>n <span class="op">/</span><span class="st"> </span>(kappa <span class="op">+</span><span class="st"> </span>n) <span class="op">*</span><span class="st"> </span><span class="kw">mean</span>(data_vector),</a>
-<a class="sourceLine" id="cb460-16" data-line-number="16">    <span class="dt">kappa     =</span> kappa <span class="op">+</span><span class="st"> </span>n</a>
-<a class="sourceLine" id="cb460-17" data-line-number="17">  )</a>
-<a class="sourceLine" id="cb460-18" data-line-number="18">}</a></code></pre></div>
+<div class="sourceCode" id="cb459"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb459-1" data-line-number="1">get_samples_single_normal_conjugate &lt;-<span class="st"> </span><span class="cf">function</span>(</a>
+<a class="sourceLine" id="cb459-2" data-line-number="2">  data_vector,</a>
+<a class="sourceLine" id="cb459-3" data-line-number="3">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb459-4" data-line-number="4">  <span class="dt">var   =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb459-5" data-line-number="5">  <span class="dt">mu    =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb459-6" data-line-number="6">  <span class="dt">kappa =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb459-7" data-line-number="7">  <span class="dt">n_samples =</span> <span class="dv">1000</span></a>
+<a class="sourceLine" id="cb459-8" data-line-number="8">)</a>
+<a class="sourceLine" id="cb459-9" data-line-number="9">{</a>
+<a class="sourceLine" id="cb459-10" data-line-number="10">  n &lt;-<span class="st"> </span><span class="kw">length</span>(data_vector)</a>
+<a class="sourceLine" id="cb459-11" data-line-number="11">  <span class="kw">sample_Norm_inv_chisq</span>(</a>
+<a class="sourceLine" id="cb459-12" data-line-number="12">    <span class="dt">n_samples =</span> n_samples,</a>
+<a class="sourceLine" id="cb459-13" data-line-number="13">    <span class="dt">nu        =</span> nu <span class="op">+</span><span class="st"> </span>n,</a>
+<a class="sourceLine" id="cb459-14" data-line-number="14">    <span class="dt">var       =</span> (nu <span class="op">*</span><span class="st"> </span>var <span class="op">+</span><span class="st"> </span>(n<span class="dv">-1</span>)<span class="op">*</span><span class="kw">var</span>(data_vector) <span class="op">+</span><span class="st"> </span>(kappa <span class="op">*</span><span class="st"> </span>n)<span class="op">/</span><span class="st"> </span>(kappa <span class="op">+</span><span class="st"> </span>n)) <span class="op">/</span><span class="st"> </span>(nu <span class="op">+</span><span class="st"> </span>n),</a>
+<a class="sourceLine" id="cb459-15" data-line-number="15">    <span class="dt">mu        =</span> kappa <span class="op">/</span><span class="st"> </span>(kappa <span class="op">+</span><span class="st"> </span>n) <span class="op">*</span><span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>n <span class="op">/</span><span class="st"> </span>(kappa <span class="op">+</span><span class="st"> </span>n) <span class="op">*</span><span class="st"> </span><span class="kw">mean</span>(data_vector),</a>
+<a class="sourceLine" id="cb459-16" data-line-number="16">    <span class="dt">kappa     =</span> kappa <span class="op">+</span><span class="st"> </span>n</a>
+<a class="sourceLine" id="cb459-17" data-line-number="17">  )</a>
+<a class="sourceLine" id="cb459-18" data-line-number="18">}</a></code></pre></div>
 <p>The code below calls this function to obtain samples from the posterior for two different models.
 This will help illustrate the effect of priors on the posterior once more, especially for a case like the one at hand where we have only rather few data observations.</p>
-<div class="sourceCode" id="cb461"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb461-1" data-line-number="1"><span class="co"># posterior samples for prior 1</span></a>
-<a class="sourceLine" id="cb461-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb461-3" data-line-number="3">post_samples_A_conjugate_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
-<a class="sourceLine" id="cb461-4" data-line-number="4">  heights_A,</a>
-<a class="sourceLine" id="cb461-5" data-line-number="5">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb461-6" data-line-number="6">  <span class="dt">var   =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb461-7" data-line-number="7">  <span class="dt">mu    =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb461-8" data-line-number="8">  <span class="dt">kappa =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb461-9" data-line-number="9">  <span class="dt">n_samples =</span> <span class="dv">10000</span></a>
-<a class="sourceLine" id="cb461-10" data-line-number="10">)</a>
-<a class="sourceLine" id="cb461-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb461-12" data-line-number="12"><span class="co"># posterior samples for prior 2</span></a>
-<a class="sourceLine" id="cb461-13" data-line-number="13">post_samples_A_conjugate_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
-<a class="sourceLine" id="cb461-14" data-line-number="14">  heights_A,</a>
-<a class="sourceLine" id="cb461-15" data-line-number="15">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb461-16" data-line-number="16">  <span class="dt">var   =</span> <span class="dv">1</span><span class="op">/</span><span class="dv">1000</span>,</a>
-<a class="sourceLine" id="cb461-17" data-line-number="17">  <span class="dt">mu    =</span> <span class="dv">40</span>,</a>
-<a class="sourceLine" id="cb461-18" data-line-number="18">  <span class="dt">kappa =</span> <span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb461-19" data-line-number="19">  <span class="dt">n_samples =</span> <span class="dv">10000</span></a>
-<a class="sourceLine" id="cb461-20" data-line-number="20">)</a>
-<a class="sourceLine" id="cb461-21" data-line-number="21"></a>
-<a class="sourceLine" id="cb461-22" data-line-number="22"><span class="kw">rbind</span>(</a>
-<a class="sourceLine" id="cb461-23" data-line-number="23">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">1</span><span class="op">$</span>mu,    <span class="st">&quot;mu&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb461-24" data-line-number="24">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">1</span><span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb461-25" data-line-number="25">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">2</span><span class="op">$</span>mu,    <span class="st">&quot;mu&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb461-26" data-line-number="26">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">2</span><span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb461-27" data-line-number="27">)</a></code></pre></div>
+<div class="sourceCode" id="cb460"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb460-1" data-line-number="1"><span class="co"># posterior samples for prior 1</span></a>
+<a class="sourceLine" id="cb460-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb460-3" data-line-number="3">post_samples_A_conjugate_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
+<a class="sourceLine" id="cb460-4" data-line-number="4">  heights_A,</a>
+<a class="sourceLine" id="cb460-5" data-line-number="5">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb460-6" data-line-number="6">  <span class="dt">var   =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb460-7" data-line-number="7">  <span class="dt">mu    =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb460-8" data-line-number="8">  <span class="dt">kappa =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb460-9" data-line-number="9">  <span class="dt">n_samples =</span> <span class="dv">10000</span></a>
+<a class="sourceLine" id="cb460-10" data-line-number="10">)</a>
+<a class="sourceLine" id="cb460-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb460-12" data-line-number="12"><span class="co"># posterior samples for prior 2</span></a>
+<a class="sourceLine" id="cb460-13" data-line-number="13">post_samples_A_conjugate_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
+<a class="sourceLine" id="cb460-14" data-line-number="14">  heights_A,</a>
+<a class="sourceLine" id="cb460-15" data-line-number="15">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb460-16" data-line-number="16">  <span class="dt">var   =</span> <span class="dv">1</span><span class="op">/</span><span class="dv">1000</span>,</a>
+<a class="sourceLine" id="cb460-17" data-line-number="17">  <span class="dt">mu    =</span> <span class="dv">40</span>,</a>
+<a class="sourceLine" id="cb460-18" data-line-number="18">  <span class="dt">kappa =</span> <span class="dv">10</span>,</a>
+<a class="sourceLine" id="cb460-19" data-line-number="19">  <span class="dt">n_samples =</span> <span class="dv">10000</span></a>
+<a class="sourceLine" id="cb460-20" data-line-number="20">)</a>
+<a class="sourceLine" id="cb460-21" data-line-number="21"></a>
+<a class="sourceLine" id="cb460-22" data-line-number="22"><span class="kw">rbind</span>(</a>
+<a class="sourceLine" id="cb460-23" data-line-number="23">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">1</span><span class="op">$</span>mu,    <span class="st">&quot;mu&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb460-24" data-line-number="24">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">1</span><span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb460-25" data-line-number="25">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">2</span><span class="op">$</span>mu,    <span class="st">&quot;mu&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb460-26" data-line-number="26">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">2</span><span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb460-27" data-line-number="27">)</a></code></pre></div>
 <pre><code>## # A tibble: 4 x 5
 ##   Parameter `|95%`  mean `95%|` model
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
@@ -848,17 +848,17 @@ The credible values of <span class="math inline">\(\mu\)</span> are rather high.
 To address this question, it suffices to take samples for <span class="math inline">\(\mu_{A}\)</span> and <span class="math inline">\(\mu_{B}\)</span>, obtained by one of the methods introduced in the previous sections (using the same model for both flower types, unless we have a good reason not to), and then to inspect the vector of differences between samples <span class="math inline">\(\delta = \mu_{B} - \mu_{A}\)</span>.
 If the derived samples of <span class="math inline">\(\delta\)</span> are credible bigger than zero, there is reason to believe that there is a difference between flower types such that ’B’ is bigger than ‘A’.</p>
 <p>So, let’s use the (conjugate) prior of model 1 from above to also take 10,000 samples from the posterior when conditioning with the data in <code>heights_B</code>. Store the results in a vector called <code>post_samples_B_conjugate_1</code>.</p>
-<div class="sourceCode" id="cb463"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb463-1" data-line-number="1">post_samples_B_conjugate_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
-<a class="sourceLine" id="cb463-2" data-line-number="2">  heights_B,</a>
-<a class="sourceLine" id="cb463-3" data-line-number="3">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb463-4" data-line-number="4">  <span class="dt">var   =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb463-5" data-line-number="5">  <span class="dt">mu    =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb463-6" data-line-number="6">  <span class="dt">kappa =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb463-7" data-line-number="7">  <span class="dt">n_samples =</span> <span class="dv">10000</span></a>
-<a class="sourceLine" id="cb463-8" data-line-number="8">)</a></code></pre></div>
+<div class="sourceCode" id="cb462"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb462-1" data-line-number="1">post_samples_B_conjugate_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
+<a class="sourceLine" id="cb462-2" data-line-number="2">  heights_B,</a>
+<a class="sourceLine" id="cb462-3" data-line-number="3">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb462-4" data-line-number="4">  <span class="dt">var   =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb462-5" data-line-number="5">  <span class="dt">mu    =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb462-6" data-line-number="6">  <span class="dt">kappa =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb462-7" data-line-number="7">  <span class="dt">n_samples =</span> <span class="dv">10000</span></a>
+<a class="sourceLine" id="cb462-8" data-line-number="8">)</a></code></pre></div>
 <p>The summary of the difference vector gives us information about credible values of <span class="math inline">\(\delta = \mu_{B} - \mu_{A}\)</span>.</p>
-<div class="sourceCode" id="cb464"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb464-1" data-line-number="1">delta_flower_heights &lt;-<span class="st"> </span>post_samples_B_conjugate_<span class="dv">1</span><span class="op">$</span>mu <span class="op">-</span><span class="st"> </span>post_samples_A_conjugate_<span class="dv">1</span><span class="op">$</span>mu</a>
-<a class="sourceLine" id="cb464-2" data-line-number="2">aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(delta_flower_heights, <span class="dt">name =</span> <span class="st">&#39;delta&#39;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb463"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb463-1" data-line-number="1">delta_flower_heights &lt;-<span class="st"> </span>post_samples_B_conjugate_<span class="dv">1</span><span class="op">$</span>mu <span class="op">-</span><span class="st"> </span>post_samples_A_conjugate_<span class="dv">1</span><span class="op">$</span>mu</a>
+<a class="sourceLine" id="cb463-2" data-line-number="2">aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(delta_flower_heights, <span class="dt">name =</span> <span class="st">&#39;delta&#39;</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 4
 ##   Parameter `|95%`  mean `95%|`
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;

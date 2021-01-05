@@ -566,7 +566,7 @@ If a categorical decision rule is needed, we can:</p>
 <h3><span class="header-section-number">11.3.1</span> Example: 24/7</h3>
 <p>For the Binomial model and the 24/7 data, we know that the posterior is of the form <span class="math inline">\(\text{Beta}(8,18)\)</span>.
 Here is a plot of the posterior (repeated from before) which also includes the 95% credible interval for the coin bias <span class="math inline">\(\theta_c\)</span>.</p>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-331-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-324-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>To address our point-valued hypothesis of <span class="math inline">\(\theta_{c} = 0.5\)</span> that the coin is fair, we just have to check if the critical value of 0.5 is inside or outside the 95% credible interval.
 In the case at hand, it is not.
 We would therefore, by the binary decision logic of this approach, <em>reject</em> the hypothesis <span class="math inline">\(\theta_{c} = 0.5\)</span> that the coin is fair.
@@ -582,12 +582,12 @@ We would therefore, following the ternary decision logic, <em>accept</em> this h
 <h3><span class="header-section-number">11.3.2</span> Example: Simon Task</h3>
 <p>We use <code>Stan</code> to draw samples from the posterior distribution.
 We start with assembling the data:</p>
-<div class="sourceCode" id="cb489"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb489-1" data-line-number="1">simon_data_<span class="dv">4</span>_Stan &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
-<a class="sourceLine" id="cb489-2" data-line-number="2">  <span class="dt">y1 =</span> data_simon_cleaned <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;incongruent&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT),</a>
-<a class="sourceLine" id="cb489-3" data-line-number="3">  <span class="dt">N1 =</span> <span class="kw">nrow</span>(data_simon_cleaned <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;incongruent&quot;</span>)),</a>
-<a class="sourceLine" id="cb489-4" data-line-number="4">  <span class="dt">y2 =</span> data_simon_cleaned <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;congruent&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT),</a>
-<a class="sourceLine" id="cb489-5" data-line-number="5">  <span class="dt">N2 =</span> <span class="kw">nrow</span>(data_simon_cleaned <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;congruent&quot;</span>))</a>
-<a class="sourceLine" id="cb489-6" data-line-number="6">)</a></code></pre></div>
+<div class="sourceCode" id="cb488"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb488-1" data-line-number="1">simon_data_<span class="dv">4</span>_Stan &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb488-2" data-line-number="2">  <span class="dt">y1 =</span> data_simon_cleaned <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;incongruent&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT),</a>
+<a class="sourceLine" id="cb488-3" data-line-number="3">  <span class="dt">N1 =</span> <span class="kw">nrow</span>(data_simon_cleaned <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;incongruent&quot;</span>)),</a>
+<a class="sourceLine" id="cb488-4" data-line-number="4">  <span class="dt">y2 =</span> data_simon_cleaned <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;congruent&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT),</a>
+<a class="sourceLine" id="cb488-5" data-line-number="5">  <span class="dt">N2 =</span> <span class="kw">nrow</span>(data_simon_cleaned <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;congruent&quot;</span>))</a>
+<a class="sourceLine" id="cb488-6" data-line-number="6">)</a></code></pre></div>
 <p>Here is the model from Figure <a href="data-and-models-for-this-chapter.html#fig:ch-03-06-comparison-t-test-ST">11.4</a> implemented in <code>Stan</code>.</p>
 <pre class="mystan"><code>data {
 int&lt;lower=1&gt; N1 ;
@@ -612,24 +612,24 @@ y2 ~ normal(mu - sigma*delta/2, sigma^2) ;
 <link rel="stylesheet" href="hljs.css">
 <script src="stan.js"></script>
 <script>$('pre.mystan code').each(function(i, block) {hljs.highlightBlock(block);});</script>
-<div class="sourceCode" id="cb491"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb491-1" data-line-number="1"><span class="co"># sampling</span></a>
-<a class="sourceLine" id="cb491-2" data-line-number="2">stan_fit_ttest &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
-<a class="sourceLine" id="cb491-3" data-line-number="3">  <span class="co"># where is the Stan code</span></a>
-<a class="sourceLine" id="cb491-4" data-line-number="4">  <span class="dt">file =</span> <span class="st">&#39;models_stan/ttest_model.stan&#39;</span>,</a>
-<a class="sourceLine" id="cb491-5" data-line-number="5">  <span class="co"># data to supply to the Stan program</span></a>
-<a class="sourceLine" id="cb491-6" data-line-number="6">  <span class="dt">data =</span> simon_data_<span class="dv">4</span>_Stan,</a>
-<a class="sourceLine" id="cb491-7" data-line-number="7">  <span class="co"># how many iterations of MCMC </span></a>
-<a class="sourceLine" id="cb491-8" data-line-number="8">  <span class="co">#   more samples b/c of following approximations</span></a>
-<a class="sourceLine" id="cb491-9" data-line-number="9">  <span class="dt">iter =</span> <span class="dv">20000</span>,</a>
-<a class="sourceLine" id="cb491-10" data-line-number="10">  <span class="co"># how many warmup steps</span></a>
-<a class="sourceLine" id="cb491-11" data-line-number="11">  <span class="dt">warmup =</span> <span class="dv">1000</span></a>
-<a class="sourceLine" id="cb491-12" data-line-number="12">)</a></code></pre></div>
+<div class="sourceCode" id="cb490"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb490-1" data-line-number="1"><span class="co"># sampling</span></a>
+<a class="sourceLine" id="cb490-2" data-line-number="2">stan_fit_ttest &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
+<a class="sourceLine" id="cb490-3" data-line-number="3">  <span class="co"># where is the Stan code</span></a>
+<a class="sourceLine" id="cb490-4" data-line-number="4">  <span class="dt">file =</span> <span class="st">&#39;models_stan/ttest_model.stan&#39;</span>,</a>
+<a class="sourceLine" id="cb490-5" data-line-number="5">  <span class="co"># data to supply to the Stan program</span></a>
+<a class="sourceLine" id="cb490-6" data-line-number="6">  <span class="dt">data =</span> simon_data_<span class="dv">4</span>_Stan,</a>
+<a class="sourceLine" id="cb490-7" data-line-number="7">  <span class="co"># how many iterations of MCMC </span></a>
+<a class="sourceLine" id="cb490-8" data-line-number="8">  <span class="co">#   more samples b/c of following approximations</span></a>
+<a class="sourceLine" id="cb490-9" data-line-number="9">  <span class="dt">iter =</span> <span class="dv">20000</span>,</a>
+<a class="sourceLine" id="cb490-10" data-line-number="10">  <span class="co"># how many warmup steps</span></a>
+<a class="sourceLine" id="cb490-11" data-line-number="11">  <span class="dt">warmup =</span> <span class="dv">1000</span></a>
+<a class="sourceLine" id="cb490-12" data-line-number="12">)</a></code></pre></div>
 <p>Here is a concise summary of the relevant parameters:</p>
-<div class="sourceCode" id="cb492"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb492-1" data-line-number="1">Bayes_estimates_ST &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">As.mcmc.list</span>(</a>
-<a class="sourceLine" id="cb492-2" data-line-number="2">  stan_fit_ttest, <span class="dt">pars =</span> <span class="kw">c</span>(<span class="st">&#39;delta&#39;</span>, <span class="st">&#39;mu&#39;</span>, <span class="st">&#39;sigma&#39;</span>)</a>
-<a class="sourceLine" id="cb492-3" data-line-number="3">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb492-4" data-line-number="4"><span class="st">  </span>aida<span class="op">::</span><span class="kw">summarize_mcmc_list</span>()</a>
-<a class="sourceLine" id="cb492-5" data-line-number="5">Bayes_estimates_ST</a></code></pre></div>
+<div class="sourceCode" id="cb491"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb491-1" data-line-number="1">Bayes_estimates_ST &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">As.mcmc.list</span>(</a>
+<a class="sourceLine" id="cb491-2" data-line-number="2">  stan_fit_ttest, <span class="dt">pars =</span> <span class="kw">c</span>(<span class="st">&#39;delta&#39;</span>, <span class="st">&#39;mu&#39;</span>, <span class="st">&#39;sigma&#39;</span>)</a>
+<a class="sourceLine" id="cb491-3" data-line-number="3">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb491-4" data-line-number="4"><span class="st">  </span>aida<span class="op">::</span><span class="kw">summarize_mcmc_list</span>()</a>
+<a class="sourceLine" id="cb491-5" data-line-number="5">Bayes_estimates_ST</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 4
 ##   Parameter `|95%`   mean `95|%`
 ##   &lt;fct&gt;      &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
@@ -663,7 +663,7 @@ Solution
 </button>
 <div class="content">
 <p>One solution to this exercise might look as follows.</p>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-336-1.png" width="80%" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-329-1.png" width="80%" style="display: block; margin: auto;" /></p>
 <p>The red shaded area under the curves shows the 95% credible interval. The black dots represent (arbitrary) point values of interest, and the horizontal bars in panels (c)-(e) depict the ROPE around a given point value.</p>
 </div>
 </div>

@@ -623,15 +623,15 @@ Figure 9.7: Difference between a 95% credible interval and a 95% inner-quantile 
 <h3><span class="header-section-number">9.2.3</span> Computing Bayesian estimates</h3>
 <p>As mentioned, the most common (and arguably best) summaries to report for a Bayesian posterior are the posterior mean and a credible interval. The <code>aida</code> package which accompanies this book, has a convenience function called <code>aida::summarize_sample_vector()</code> that gives the mean and 95% credible interval for a vector of samples.
 You can use it like so:</p>
-<div class="sourceCode" id="cb432"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb432-1" data-line-number="1"><span class="co"># take samples from a posterior (24/7 example with flat priors)</span></a>
-<a class="sourceLine" id="cb432-2" data-line-number="2">posterior_samples &lt;-<span class="st"> </span><span class="kw">rbeta</span>(<span class="dv">100000</span>, <span class="dv">8</span>, <span class="dv">18</span>)</a>
-<a class="sourceLine" id="cb432-3" data-line-number="3"><span class="co"># get summaries</span></a>
-<a class="sourceLine" id="cb432-4" data-line-number="4">aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(</a>
-<a class="sourceLine" id="cb432-5" data-line-number="5">  <span class="co"># vector of samples </span></a>
-<a class="sourceLine" id="cb432-6" data-line-number="6">  <span class="dt">samples =</span> posterior_samples,</a>
-<a class="sourceLine" id="cb432-7" data-line-number="7">  <span class="co"># name of output column</span></a>
-<a class="sourceLine" id="cb432-8" data-line-number="8">  <span class="dt">name =</span> <span class="st">&quot;theta&quot;</span></a>
-<a class="sourceLine" id="cb432-9" data-line-number="9">)</a></code></pre></div>
+<div class="sourceCode" id="cb431"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb431-1" data-line-number="1"><span class="co"># take samples from a posterior (24/7 example with flat priors)</span></a>
+<a class="sourceLine" id="cb431-2" data-line-number="2">posterior_samples &lt;-<span class="st"> </span><span class="kw">rbeta</span>(<span class="dv">100000</span>, <span class="dv">8</span>, <span class="dv">18</span>)</a>
+<a class="sourceLine" id="cb431-3" data-line-number="3"><span class="co"># get summaries</span></a>
+<a class="sourceLine" id="cb431-4" data-line-number="4">aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(</a>
+<a class="sourceLine" id="cb431-5" data-line-number="5">  <span class="co"># vector of samples </span></a>
+<a class="sourceLine" id="cb431-6" data-line-number="6">  <span class="dt">samples =</span> posterior_samples,</a>
+<a class="sourceLine" id="cb431-7" data-line-number="7">  <span class="co"># name of output column</span></a>
+<a class="sourceLine" id="cb431-8" data-line-number="8">  <span class="dt">name =</span> <span class="st">&quot;theta&quot;</span></a>
+<a class="sourceLine" id="cb431-9" data-line-number="9">)</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 4
 ##   Parameter `|95%`  mean `95%|`
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
@@ -641,22 +641,22 @@ You can use it like so:</p>
 <h3><span class="header-section-number">9.2.4</span> Excursion: Computing MLEs and MAPs in R</h3>
 <p>Computing the maximum or minimum of a function, such as an MLE or MAP estimate, is a common problem. R has a built-in function <code>optim</code> that is useful for finding the minimum of a function. (If a maximum is needed, just multiply by <span class="math inline">\(-1\)</span> and search the minimum with <code>optim</code>.)</p>
 <p>We can use the <code>optim</code> function to retrieve an MLE for 24/7 data and the Binomial Model (with flat priors) using conjugacy like so:</p>
-<div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb434-1" data-line-number="1"><span class="co"># perform optimization</span></a>
-<a class="sourceLine" id="cb434-2" data-line-number="2">MLE &lt;-<span class="st"> </span><span class="kw">optim</span>(</a>
-<a class="sourceLine" id="cb434-3" data-line-number="3">  <span class="co"># starting value for optimization</span></a>
-<a class="sourceLine" id="cb434-4" data-line-number="4">  <span class="dt">par =</span> <span class="fl">0.2</span>,</a>
-<a class="sourceLine" id="cb434-5" data-line-number="5">  <span class="co"># funtion to minimize (= optimize)</span></a>
-<a class="sourceLine" id="cb434-6" data-line-number="6">  <span class="dt">fn =</span> <span class="cf">function</span>(par){</a>
-<a class="sourceLine" id="cb434-7" data-line-number="7">    <span class="op">-</span><span class="kw">dbeta</span>(par, <span class="dv">8</span>, <span class="dv">18</span>)</a>
-<a class="sourceLine" id="cb434-8" data-line-number="8">  },</a>
-<a class="sourceLine" id="cb434-9" data-line-number="9">  <span class="co"># method of optimization (for 1-d cases)</span></a>
-<a class="sourceLine" id="cb434-10" data-line-number="10">  <span class="dt">method =</span> <span class="st">&quot;Brent&quot;</span>,</a>
-<a class="sourceLine" id="cb434-11" data-line-number="11">  <span class="co"># lower and upper bound of possible parameter values</span></a>
-<a class="sourceLine" id="cb434-12" data-line-number="12">  <span class="dt">lower =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb434-13" data-line-number="13">  <span class="dt">upper =</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb434-14" data-line-number="14">)</a>
-<a class="sourceLine" id="cb434-15" data-line-number="15"><span class="co"># retrieve MLE</span></a>
-<a class="sourceLine" id="cb434-16" data-line-number="16">MLE<span class="op">$</span>par</a></code></pre></div>
+<div class="sourceCode" id="cb433"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb433-1" data-line-number="1"><span class="co"># perform optimization</span></a>
+<a class="sourceLine" id="cb433-2" data-line-number="2">MLE &lt;-<span class="st"> </span><span class="kw">optim</span>(</a>
+<a class="sourceLine" id="cb433-3" data-line-number="3">  <span class="co"># starting value for optimization</span></a>
+<a class="sourceLine" id="cb433-4" data-line-number="4">  <span class="dt">par =</span> <span class="fl">0.2</span>,</a>
+<a class="sourceLine" id="cb433-5" data-line-number="5">  <span class="co"># funtion to minimize (= optimize)</span></a>
+<a class="sourceLine" id="cb433-6" data-line-number="6">  <span class="dt">fn =</span> <span class="cf">function</span>(par){</a>
+<a class="sourceLine" id="cb433-7" data-line-number="7">    <span class="op">-</span><span class="kw">dbeta</span>(par, <span class="dv">8</span>, <span class="dv">18</span>)</a>
+<a class="sourceLine" id="cb433-8" data-line-number="8">  },</a>
+<a class="sourceLine" id="cb433-9" data-line-number="9">  <span class="co"># method of optimization (for 1-d cases)</span></a>
+<a class="sourceLine" id="cb433-10" data-line-number="10">  <span class="dt">method =</span> <span class="st">&quot;Brent&quot;</span>,</a>
+<a class="sourceLine" id="cb433-11" data-line-number="11">  <span class="co"># lower and upper bound of possible parameter values</span></a>
+<a class="sourceLine" id="cb433-12" data-line-number="12">  <span class="dt">lower =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb433-13" data-line-number="13">  <span class="dt">upper =</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb433-14" data-line-number="14">)</a>
+<a class="sourceLine" id="cb433-15" data-line-number="15"><span class="co"># retrieve MLE</span></a>
+<a class="sourceLine" id="cb433-16" data-line-number="16">MLE<span class="op">$</span>par</a></code></pre></div>
 <pre><code>## [1] 0.2916667</code></pre>
 <p>Indeed, the value obtained by computationally approximating the maximum likelihood estimate for this likelihood function coincides with the true value of <span class="math inline">\(\frac{7}{24}\)</span></p>
 </div>
