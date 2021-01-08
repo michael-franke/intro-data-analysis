@@ -1,68 +1,113 @@
-# More on predictors {#Chap-04-03-predictors}
+# Categorical predictors {#Chap-04-03-predictors}
 
 <hr>
 
-This chapter showcases how linear regression models can be applied flexibly to a variety of data analysis problems. In particular, we will look at how linear regression can be used to compute the mean differences between different groups.
+The previous chapters applied linear regression models to cases where we wanted to predict a metric variable $y$ based on the values of associated metric measurements $x_i$ ($1 \le i \le n$).
+In this chapter we are generalizing this approach to also deal with the case where a predictor $x_i$ is a categorical variable, such as an indicator value showing which group or experimental condition a measurement of $y$ belongs to.
+In this way, at the end of the chapter we will be able to apply linear regression modeling to the analysis of (metric) measurements, for instance, from a factorial design - a common design type of psychological experiments (see Chapter \@ref(Chap-02-01-data)).
 
-- categorical predictors
-  - two-groups (eco-sensitivity data)
-  - more groups (mental chronometry)
-  - interactions (Winter data)
-- metric and categorical predictors combined
-  - avocado data
-<!-- - logistic regression -->
-<!--   - KoF data -->
+As we will see in this chapter, the only "trick" to generalizing linear regression modeling to also cover **categorical predictors**, as we will call them, is to map levels of a categorical variable onto numbers.
+For example, if we have two groups in a predictor variable $x$, say group $A$ and $B$, we could just encode group $A$ as a value of $x = 0$ and group $B$ as a value of $x = 1$.
+But there are many sensible mappings of this kind, and many helplessly ridiculous ones.
+The relevant technical term here is **contract coding**, i.e., a scheme of mapping categorical distinctions onto numeric representations in such a way that the theoretically interesting *contrasts* (i.e., the distinctions between groups that we want to test) can be easily tested with the resulting regression model. 
 
+The chapter is structured as follows.
+Section \@ref(Chap-04-03-predictors-two-levels) uses the [Simon task data](app-93-data-sets-simon-task) to cover the case of a single categorical predictor with just two category levels (e.g., just groups $A$ and $B$).
+Section \@ref(Chap-04-03-predictors-multi-levels) then uses data from the [Mental Chronometry experiment](app-93-data-sets-mental-chronometry) to look at the more general case of a single categorical predictor with more than two category levels (e.g., just groups $A$, $B$ and $C$). 
+Section \@ref(Chap-04-03-predictors-multiple-predictors) considers cases with several categorical predictors, including their **interaction**, based on the [politeness data set]().
 
-## Two categorical predictors
+The video below provides a dense coverage of single-predictor contrast coding, i.e., the contents of Sections \@ref(Chap-04-03-predictors-two-levels) and \@ref(Chap-04-03-predictors-multi-levels).
 
-Let's revisit the (fictitious) eco-sensitivity data from Chapter \@ref(ch-03-07-hypothesis-testing-Bayes):
+<iframe src="https://player.vimeo.com/video/422832571" width="640" height="360" frameborder="0" allow="fullscreen" allowfullscreen></iframe>
+
+```{block, type='infobox'}
+The learning goals for this chapter are:
+
+- understand the basic idea behind *contrast coding*
+- be able to interpret the results of a regression analysis which uses *treatment coding*
+- be able to interpret inferences for models including an *interaction coefficient* for two categorical predictors
+
+```
+
+## Single two-level predictor {#Chap-04-03-predictors-two-levels}
+
+Let's revisit the data from the [Simon task](app-93-data-sets-simon-task).
+Just like in chapter \@ref(), we will be looking at the hypothesis that, among all correct responses, the mean reaction times for the congruent condition are lower than those of the incongruent condition.
 
 ```{r}
-x_A <- c(
-  104, 105, 100, 91, 105, 118, 164, 168, 111, 107, 136, 149, 104, 114, 107, 95, 
-  83, 114, 171, 176, 117, 107, 108, 107, 119, 126, 105, 119, 107, 131
-)
-x_B <- c(
-  133, 115, 84, 79, 127, 103, 109, 128, 127, 107, 94, 95, 90, 118, 124, 108, 
-  87, 111, 96, 89, 106, 121, 99, 86, 115, 136, 114
-)
+# extract just the currently relevant columns 
+#  from the data set
+data_ST_excerpt <- aida::data_ST %>% 
+  filter(correctness == "correct") %>% 
+  select(RT, condition)
+
+# show the first couple of lines
+head(data_ST_excerpt, 5)
 ```
 
-Remember that we are interested in the question of whether there is a difference in means of group A and group B. Previously, we used a $t$-test for this two-group comparison (frequentist or Bayesian). But we can also cast this as a regression problem. Here is how.
+Notice that this tibble contains the data in a tidy format, i.e., each row contains a pair of associated measurements. 
+We want to explain or predict the variable `RT` in terms of the variable `condition`.
+The variable `RT` is a metric measurement.
+But the variable `condition` is categorical variable with two category levels.
 
-Let's first squeeze the data into a tibble:
+Before we head on, let's look at the data (again).
+Here's a visualization of the distribution of RTs in each condition:
 
 ```{r}
-eco_sensitivity_data <- tibble(
-  group = c(rep("A", length(x_A)), rep("B", length(x_B))),
-  measurement = c(x_A, x_B)
-) 
-eco_sensitivity_data
+data_ST_excerpt %>% 
+  ggplot(aes(x = condition, y = RT, color = condition, fill = condition)) +
+  geom_violin() +
+  theme(legend.position = "none")
 ```
 
-Notice that this tibble contains the data in a tidy format, i.e., each row contains a tuple of associated measurements. We want to explain or predict the variable `measurement` in terms of the variable `group`.We can then run a regression model with the formula `measurement ~ group`. Here's such a model using the Bayesian approach:
+The means for both conditions are:
 
-```{r, eval = F}
-fit_brms_eco_sensitivity <- brm(
-  # specify what to explain in terms of what
-  # using the formula syntax
-  formula = measurement ~ group,
-  # which data to use
-  data = eco_sensitivity_data
+```{r}
+data_ST_excerpt %>% 
+  group_by(condition) %>% 
+  summarize(mean_RT = mean(RT))
+```
+
+The difference between the means of conditions is:
+
+```{r}
+data_ST_excerpt %>% filter(condition == "incongruent") %>% pull(RT) %>% mean() -
+  data_ST_excerpt %>% filter(condition == "congruent") %>% pull(RT) %>% mean()
+```
+
+While numerically this difference seems high, the question remains whether this difference is, say, big enough to earn our trust.
+We address this question here using posterior inference based on a regression model. 
+Notice that we simply use the same formula syntax as before: we want a model that explains `RT` in terms of `condition`.
+
+```{r}
+fit_brms_ST <- brm(
+  formula = RT ~ condition,
+  data = data_ST_excerpt
 )
 ```
 
-```{r, echo = F}
-fit_brms_eco_sensitivity <- readRDS('models_brms/fit_brms_eco_sensitivity.rds')
-```
-
-Let's inspect the summary information for the posterior samples:
+Let's inspect the summary information for the posterior samples, which we do here using the `summary` function for the `brms_fit` object from which we extract information only about the `fixed` effects, showing the mean (here called "Estimate") and indicators of the lower and upper 95% inner quantile.
 
 ```{r}
-# just showing the currently most relevant information
-summary(fit_brms_eco_sensitivity)$fixed[,c("Estimate","l-95% CI", "u-95% CI")]
+summary(fit_brms_ST)$fixed[,c("l-95% CI", "Estimate", "u-95% CI")]
 ```
+
+We see that the model inferred a value for an "Intercept" variable and for another variable called "conditionincongruent".
+What could these be?
+If you look back at the empirically inferred means, you will see that the mean estimate for "Intercept" corresponds to the mean of RTs in the "congruent" condition and that the mean estimate for the variable "conditionincongruent" closely matches the computed difference between the means of the two conditions.
+This is great!
+Using a uniform formula syntax `brms` has set up a regression model in which a predictor, given as a character (string) column, was internally coerced somehow into a format that produced an estimate the for the mean of one condition and an estimate for the difference between conditions.
+
+UP TO HERE
+
+
+
+
+
+
+
+
+
 
 Compare this with the summary of the posterior estimates we obtained from the Bayesian $t$-test model for this data which we implemented in `Stan` and ran in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
 
@@ -148,7 +193,7 @@ For $\hat{y}_i  = \beta_0 + \beta_1 x_i$, let $x_i =0$ if the data point if from
 </div>
 </div>
 
-## More than two categorical predictors
+## Single multi-level predictors {#Chap-04-03-predictors-multi-levels}
 
 <div style = "float:right; width:15%;">
 <img src="visuals/badge-mental-chronometry.png" alt="badge-mental-chronometry">  
@@ -233,11 +278,11 @@ The summary of the model fit reveals $p$-values for both slope coefficients, whi
 summary(fit_glm_mc)
 ```
 
-## Interaction terms in factorial designs
+## Multiple predictors {#Chap-04-03-predictors-multiple-predictors}
 
 <div style = "float:right; width:15%;">
-<img src="visuals/badge-politeness.png" alt="badge-politeness">  
-</div>  
+<img src="visuals/badge-politeness.png" alt="badge-politeness">
+</div>
 
 The following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs [@FrankeRoettger2019:Bayesian-regres], which can be downloaded [here](https://psyarxiv.com/cdxv3). We consider data on voice pitch in a $2 \times 2$ factorial design, with factors `gender` and `context`. This is laboratory data measuring the voice pitch of male and female speakers (factor `gender`) in two different kinds of linguistic contexts, namely a polite and an informal situation (factor `context`).
 
