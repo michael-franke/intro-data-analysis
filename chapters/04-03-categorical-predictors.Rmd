@@ -93,102 +93,59 @@ summary(fit_brms_ST)$fixed[,c("l-95% CI", "Estimate", "u-95% CI")]
 ```
 
 We see that the model inferred a value for an "Intercept" variable and for another variable called "conditionincongruent".
-What could these be?
+What are these?
 If you look back at the empirically inferred means, you will see that the mean estimate for "Intercept" corresponds to the mean of RTs in the "congruent" condition and that the mean estimate for the variable "conditionincongruent" closely matches the computed difference between the means of the two conditions.
-This is great!
+And, indeed, that is what this regression model is doing for us.
 Using a uniform formula syntax `brms` has set up a regression model in which a predictor, given as a character (string) column, was internally coerced somehow into a format that produced an estimate the for the mean of one condition and an estimate for the difference between conditions.
 
-UP TO HERE
+How does this results come about?
+And why are the variables returned by `brms` called "Intercept" and "conditionincongruent"?
+In order to use the simply linear regression model, the categorical predictor $x$ has been coded as either $0$ or $1$.
+Concretely, `brms` has introduced a new predictor variable, call it `new_predictor`, which has value $0$ for the "congruent" condition and $1$ for the "incongruent" condition.
+Per default `brms` chooses the level that is alphanumerically first as the so-called **reference level**, assigning to it the value $0$.
+Here, that's "congruent".
 
-
-
-
-
-
-
-
-
-
-Compare this with the summary of the posterior estimates we obtained from the Bayesian $t$-test model for this data which we implemented in `Stan` and ran in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
-
-```{r echo = F, eval = F}
-draws_t_test_2 <- readRDS('models_greta/ttest_2_draws.rds')
-```
+The result would look like this:
 
 ```{r}
-# cast results (type 'mcmc.list') into tidy tibble
-tidy_draws_tt2 = ggmcmc::ggs(stan_fit_ttest)
-
-# get means and 95% HDI
-Bayes_estimates_eco <- tidy_draws_tt2 %>% 
-  group_by(Parameter) %>%
-  summarise(
-    '|95%' = HDInterval::hdi(value)[1],
-    mean = mean(value),
-    '95|%' = HDInterval::hdi(value)[2]
-  )
-
-Bayes_estimates_eco
+data_ST_excerpt %>% 
+  mutate(new_predictor = ifelse(condition == "congruent", 0, 1)) %>% 
+  head(5)
 ```
-
-```{r echo = F}
-delta <- Bayes_estimates_eco$mean[1] %>% signif(digits = 3)
-mu <- Bayes_estimates_eco$mean[2] %>% signif(digits = 3)
-sigma <- Bayes_estimates_eco$mean[3] %>% signif(digits = 3)
-
-groupA <- mu+sigma*delta/2
-groupB <- mu-sigma*delta/2 
-```
-
-At first glance, both outputs do not seem to be related in any way, but appearances are deceptive! Recall that the mean of group $A$ in the $t$-test model from Chapter \@ref(ch-03-07-hypothesis-testing-Bayes) is the sum of the grand mean $\mu$ and $\frac{\sigma \cdot \delta}{2}$. If we plug in the mean values from the summary of the posterior samples above, we get $\mu_A = `r groupA`$. Similarly, the mean of group $B$ can be calculated like so:
-
-$$\mu_B = \mu - \frac{\sigma \cdot \delta}{2} = `r mu` - \frac{`r sigma*delta`}{2} = `r groupB`$$
-
-We get an equivalent result for $\mu_B$ if we subtract $\sigma \cdot \delta$ not from the grand mean, but from the mean of group $A$ instead:
-
-$$\mu_B = \mu_A - \sigma \cdot \delta = `r groupA` - `r sigma*delta` = `r groupA - sigma*delta`$$
-
-Well, that looks familiar. The result for $\mu_A$ looks similar to the mean estimate for the `Intercept` parameter from the `brms` model fit. Multiplying the mean of the $\sigma$ parameter with the mean of the $\delta$ parameter yields a suspiciously similar result as the ominous `groupB` parameter shown in the output of the `brms` model fit. The 95% HDI of the estimated posterior for $\sigma \cdot \delta$ also looks suspiciously like the values of the 95% inter-quantile range for the `groupB` parameter. This is no coincidence! In fact, the regression model that `brms` calculates here is essentially the same as the $t$-test model we implemented in `Stan` by hand except for slight differences in the choice of the priors and inessential differences in the mathematical formulation of the group mean comparison. 
-
-The call to `brm` above implicitly computed a linear regression model of the following form:
+Now, with this new numeric coding of the predictor, we can calculate the linear regression model as ususal:
 
 $$
 \begin{aligned}
-\hat{y}_i & = \beta_0 + \beta_1 x_i & y_i & \sim \text{Normal}(\mu = \hat{y}_i, \sigma)
+\xi_i & = \beta_0 + \beta_1 x_i & y_i & \sim \text{Normal}(\mu = \xi_i, \sigma)
 \end{aligned}
 $$
 
-The only important point is that the vector $x$, which corresponds to the group information in the column `group` (which contains entries of strings `"A"` and `"B"`), is implicitly treated as a vector of zeros and ones. Implicitly, `brm` has chosen the string `"A"` as the **reference category** which is encoded as zero. The string `"B"` is the other category, encoded as number 1. As a consequence, the linear model's intercept parameter $\beta_0$ can be interpreted as the predicted mean of the reference category: if for some $i$ we have $x_i = 0$, then the predictor $\hat{y}_i$ will just be $\hat{y}_i = \beta_0$; whence that the intercept $\beta_0$ will be fitted to the mean of the reference category. If for some $i$ we have $x_i = 1$ instead, the predicted value will be computed as $\hat{y}_i = \beta_0 + \beta_1$, so that the slope term $\beta_1$ will effectively play the role of the difference $\delta$ between the mean of the groups. Modulo choice of priors and variable naming, the `brm` model encodes a Bayesian $t$-test model similarly like we previously did using `Stan`. The upshot is that we can conceive of a **$t$-test as a special case of a linear regression model!**
+As a consequence, the linear model's intercept parameter $\beta_0$ can be interpreted as the predicted mean of the reference level: if for some $i$ we have $x_i = 0$, then the predictor $\xi_i$ will just be $\xi_i = \beta_0$; whence that the intercept $\beta_0$ will be fitted to the mean of the reference level If for some $i$ we have $x_i = 1$ instead, the predicted value will be computed as $\xi_i = \beta_0 + \beta_1$, so that the slope term $\beta_1$ will effectively play the role of the difference $\delta$ between the mean of the groups.
+The upshot is that we can conceive of a **$t$-test as a special case of a linear regression model!**
 
-Of course, nothing in this correspondence depends on a Bayesian analysis in particular. Let's look at the frequentist version:
-
-```{r}
-fit_glm_eco <- glm(
-  # specify what to explain in terms of what
-  #  using the formula syntax
-  formula = measurement ~ group,
-  # which data to use
-  data = eco_sensitivity_data
+Schematically, we can represent this coding scheme for coefficients like so:
+```{r, echo = F}
+tribble(
+  ~"condition", ~"beta_0", ~"betat_1",
+  "congruent", 1, 0,
+  "incongruent", 1, 1
 )
-summary(fit_glm_eco)
 ```
 
-The $p$-value associated with the test of whether the slope coefficient (the difference between means) is plausibly zero corresponds to the result we get from a $t$-test (when assuming equal variance in groups; an assumption that the linear modeling approach makes per default).
-
-```{r}
-t.test(x_A, x_B, paired = F, var.equal = T)
-```
 
 <div class = "exercises">
 **Exercise 14.1**
-For the given data below, compute the coefficients of linear regression by hand. Choose the appropriate encoding of group information.
+For the given data below, compute (or guess) the MLEs of the regression coefficients. Choose the appropriate 0/1 encoding of group information.
+We have two groups, and three measurements of $y$ for each:
 
 groupA: (1,0,2) and groupB: (10,13,7)
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
-For $\hat{y}_i  = \beta_0 + \beta_1 x_i$, let $x_i =0$ if the data point if from groupA and $x_i=1$ if it's from groupB. Then the mean of groupA is computed by the intercept $\mu_A  = \beta_0$ and the mean of groupB is computed as the sum of the intercept and the slope $\mu_B  = \beta_0 + \beta_1$. Since $\mu_A = 1$ and $\mu_B = 10$, we can guess that $\beta_0 = 1$ and $\beta_1 = 10 - 1 = 9$.
+
+For $\xi_i  = \beta_0 + \beta_1 x_i$, let $x_i =0$ if the data point if from groupA and $x_i=1$ if it's from groupB. Then the mean of groupA is computed by the intercept $\mu_A  = \beta_0$ and the mean of groupB is computed as the sum of the intercept and the slope $\mu_B  = \beta_0 + \beta_1$. Since $\mu_A = 1$ and $\mu_B = 10$, we can guess that $\beta_0 = 1$ and $\beta_1 = 10 - 1 = 9$.
+
 </div>
 </div>
 </div>
@@ -199,84 +156,151 @@ For $\hat{y}_i  = \beta_0 + \beta_1 x_i$, let $x_i =0$ if the data point if from
 <img src="visuals/badge-mental-chronometry.png" alt="badge-mental-chronometry">  
 </div>  
 
-A $t$-test is only applicable to at most two groups. The classical approach to generalizing frequentist testing to the comparison of more than two groups is to use ANOVA, as briefly discussed in Chapter \@ref(ch-03-05-hypothesis-testing-ANOVA). But we can also use a linear regression approach for this, as demonstrated here based on the [mental chronometry data](#app-93-data-sets-mental-chronometry). 
+The 0/1 coding scheme above works fine for a single categorical predictor value with two levels.
+It is possible to use linear regression also for categorical predictors with more that two levels.
+Only, in that case, there are quite a few more reasonable **contrast coding** schemes, i.e., ways to choose numbers to encode the levels of the predictor.
 
-We load the data as usual, but also immediately mutate the column `block` (which captures the experimental manipulation we want to use to explain the dependent variable `RT` (= reaction times)) so that the "goNoGo" condition will come first in alphabetic order. This has the effect that, later in regression modeling, the "goNoGo" condition will be treated as the reference level to compare other groups against. This makes sense because our main question of interest is whether these inequalities are supported by the data:
+The [mental chronometry data](#app-93-data-sets-mental-chronometry) has a single categorical predictor, called `block`, with three levels, called "reaction", "goNoGo" and "discrimination".
+We are interested in regression reactions time, stored in variable `RT`, against `block`.
+Our main question of interest is whether these inequalities are supported by the data:
 
 $$
 \text{RT in 'reaction'} < 
 \text{RT in 'goNoGo'} <
 \text{RT in 'discrimination'}
 $$
-
 So we are interested in the $\delta$s, so to speak, between 'reaction' and 'goNoGo' and between 'discrimination' and 'goNoGo'.
 
+
+Let's consider only the data relevant for our current purposes:
+
 ```{r}
-mc_data_cleaned <- aida::data_MC_cleaned %>% 
-  # renaming to make 'goNoGo' the reference level 
-  # (dirty hack, but simpler than messing with contrast coding)
-  mutate(
-    block = case_when(
-      block == "reaction"         ~ "B_reaction",
-      block == "goNoGo"           ~ "A_goNoGo",
-      block == "discrimination"   ~ "C_discrimination"
-    )
-  )
+# select the relevant columns
+data_MC_excerpt <- aida::data_MC_cleaned %>% 
+  select(RT, block)
+
+# show the first couple of lines
+data_MC_excerpt %>% 
+  head(5)
 ```
 
-To fit this model with `brm` we then just need a simple function call with the formula `RT ~ block` that precisely describes what we are interested in: to explain reaction times as a function of the experimental condition:
+Here are the means of the reaction times for different `block levels:
 
-```{r eval = F}
+```{r}
+data_MC_excerpt %>% 
+  group_by(block) %>% 
+  summarize(mean_RT = mean(RT))
+```
+
+To fit this model with `brms` we need a simple function call with the formula `RT ~ block` that precisely describes what we are interested in: to explain reaction times as a function of the experimental condition:
+
+```{r eval = T}
 fit_brms_mc <- brm(
-  # model 'RT' as a function of 'block'
   formula = RT ~ block,
-  data = mc_data_cleaned
+  data = data_MC_excerpt
 )
 ```
 
-
-```{r echo = F}
-fit_brms_mc <- readRDS('models_brms/mc_data_fit.rds')
-```
 
 To inspect the posterior fits of this model, we can extract the relevant summary statistics as before:
 
 ```{r}
-summary(fit_brms_mc)$fixed[,c("Estimate","l-95% CI", "u-95% CI")]
+summary(fit_brms_mc)$fixed[,c("l-95% CI", "Estimate", "u-95% CI")]
 ```
 
-Notice that there is an intercept term, as before. This corresponds to the mean reaction time of the reference level (here: 'goNoGo'). There are two slope coefficients, one for the difference between the 'goNoGo' and the 'reaction' condition ('blockB_reaction') and another for the difference between the 'goNoGo' and the 'discrimination' condition ('blockC_discrimination'). In formula, $\hat{y}_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}$, whereas $\beta_0$: Intercept, $\beta_1$: blockB_reaction and $\beta_2$: blockC_discrimination. $x_{i1} = 1$ iff the data point is from the 'reaction' condition and $x_{i2} = 1$ iff it's from the 'discrimination' condition.
+Notice that there is an intercept term, as before. 
+This corresponds to the mean reaction time of the reference level, which is again set based on alphanumeric ordering, so corresponding to "discrimination".
+There are two slope coefficients, one for the difference between the reference level and "goNoGo" and another for the difference between the reference level and the "reaction" condition.
 
-As we may have expected, the 95% inter-quantile range for both slope coefficients (which, given the amount of data we have, is almost surely almost identical to the 95% HDI) does not include 0 by a very wide margin. We could, therefore, conclude, based on a Bayesian approach to hypothesis testing in terms of posterior estimation, that the reaction times of conditions are credibly different.
+These intercepts are estimated to be credibly negative, suggesting that the "discrimination" condition indeed had the highest mean reaction times.
+This answer one half of the comparisons we are interested in:
+
+$$
+\text{RT in 'reaction'} < 
+\text{RT in 'goNoGo'} <
+\text{RT in 'discrimination'}
+$$
+Unfortunately, it is not directly possible to read-off information about the second comparison we care about, namely the comparison between "reaction" and "goNoGO".
+And here is where we see the point of **contrast coding** pup up for the first time.
+We would like to encode predictor levels ideally in such a way that we can read off (test) the hypotheses we care about directly.
+In other words, if possible we would like to have parameters in our model, in the form of slope coeffiencts, which directly encode the $\delta$s, so to speak, that we want to test.^[To be precise, it is possible to also test derived random variables from the posterior samples. So, it is not *necessary* to encode the contrasts of interests directly. But, most often, in Bayesian analyses it will make sense to put priors on exactly these $\delta$s (e.g., skeptical priors biased against a hypothesis to be tested) and for *that* purpose it is (almost) practically necessary to have the relevant contrasts expressed as slope coeffients in the model.]
+
+In the case at hand, all we need to do is change the reference level.
+If the reference level is the "middle category" (as per our ordered hypothesis), the two slopes will express the contrasts we care about.
+To change the reference level, we only need to make `block` a factor and order its levels manually, like so:
+
+```{r}
+data_MC_excerpt <- data_MC_excerpt %>% 
+  mutate(block_reordered = factor(block, levels = c("goNoGo", "reaction", "discrimination")))
+```
+
+We then run another Bayesian regression model, regressing `RT` agains `block_reordered`.
+
+```{r}
+fit_brms_mc_reordered <- brm(
+  formula = RT ~ block_reordered,
+  data = data_MC_excerpt
+)
+```
+
+And inspect the summary of the posterior samples for the relevant coefficients:
+
+```{r}
+summary(fit_brms_mc_reordered)$fixed[,c("l-95% CI", "Estimate", "u-95% CI")]
+```
+Now the "Intercept" corresponds to the new reference level "goNoGo".
+And the two slope coefficients give the differences to the other two levels.
+
+Which numeric encoding leads to this result?
+In formulaic terms, we have three coefficients $\beta_0, \dots, \beta_2$.
+The predicted mean value for observation $i$ is $\xi_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}$. 
+We assign numeric value $1$ for predictor $x_1$ when the observation is from the "reaction" block.
+We assign numeric value $1$ for predictor $x_2$ when the observation is from the "discrimination" block.
+Schematically, what we now have is:
+```{r, echo = F}
+tribble(
+  ~"block", ~"beta_0", ~"betat_1", ~"beta_2",
+  "goNoGo", 1, 0, 0,
+  "reaction", 1, 1, 0,
+  "discrimination", 1, 0, 1
+)
+```
+
+
+
+
+As we may have expected, the 95% inter-quantile range for both slope coefficients (which, given the amount of data we have, is almost surely almost identical to the 95% HDI) does not include 0 by a very wide margin.
+We could, therefore, conclude, based on a Bayesian approach to hypothesis testing in terms of posterior estimation, that the reaction times of conditions are credibly different.
+
+The coding of levels in terms of a reference level is called *treatment coding*, or also *dummy coding*.
+The video included at the beginning of this chapter discusses further contrast coding schemes, and also shows in more detail how a coding scheme translates into "directly testable" hypotheses.
 
 <div class = "exercises">
 **Exercise 14.2**
 
-Suppose that $\beta_2$ encodes the difference in reaction time between group B and group C. What should be the value of $(x_{i1}, x_{i2})$ to get the mean reaction time of group A, group B and group C?
+Suppose that there are three groups, A, B, and C as levels of your predictor. You want the regression intercept to be the mean of group A. You want the first slope to be the difference between the means of group B and group A. And, you want the second slope to the difference between the mean of C and B. How do you numerically encode these contrasts in terms of numeric predictor values?
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
-As group A is a reference category, $\beta_0$ expresses the mean reaction time of group A. The mean reaction time of group B is $\beta_0 + \beta_1$, so we need $(x_{i1} =1 , x_{i2} = 0)$. In the text above, the mean reaction time of group C is given by $\beta_0 + \beta_2$. However, now the value is given by $\beta_0 + \beta_1 + \beta_2$, so $(x_{i1} =1 , x_{i2} = 1)$ will give us the value we need.
-</div>
-</div>
-</div>
 
-The function call for a frequentist analysis with `glm` is almost identical:
+Schematically, like this:
 
-```{r}
-fit_glm_mc <- glm(
-  # model 'RT' as a function of 'block'
-  formula = RT ~ block,
-  data = mc_data_cleaned
+```{r, echo = F}
+tribble(
+  ~"group", ~"beta_0", ~"betat_1", ~"beta_2",
+  "A", 1, 0, 0,
+  "B", 1, 1, 0,
+  "C", 1, 1, 1
 )
 ```
 
-The summary of the model fit reveals $p$-values for both slope coefficients, which indicate (unsurprisingly) that there is very strong evidence against the null hypothesis of no difference between the means of the two pairs of conditions we compare with this model:
 
-```{r}
-summary(fit_glm_mc)
-```
+As group A is a reference category, $\beta_0$ expresses the mean reaction time of group A. The mean reaction time of group B is $\beta_0 + \beta_1$, so we need $(x_{i1} =1 , x_{i2} = 0)$ for any $i$ which is of group B. In the text above, the mean reaction time of group C is given by $\beta_0 + \beta_2$. However, now the value is given by $\beta_0 + \beta_1 + \beta_2$, so $(x_{i1} =1 , x_{i2} = 1)$ will give us the value we need.
+
+</div>
+</div>
+</div>
 
 ## Multiple predictors {#Chap-04-03-predictors-multiple-predictors}
 
