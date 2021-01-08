@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2.1 First steps | Introduction to Data Analysis</title>
+  <title>14.1 Single two-level predictor | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
   <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2.1 First steps | Introduction to Data Analysis" />
+  <meta property="og:title" content="14.1 Single two-level predictor | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2.1 First steps | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="14.1 Single two-level predictor | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Introductory text for statistics and data analysis (using R)" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Chap-01-01-R.html"/>
-<link rel="next" href="ch1-data-types.html"/>
+<link rel="prev" href="Chap-04-03-predictors.html"/>
+<link rel="next" href="Chap-04-03-predictors-multi-levels.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -543,197 +543,121 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="ch1-first-steps" class="section level2">
-<h2><span class="header-section-number">2.1</span> First steps</h2>
-<p>R is an interpreted language. This means that you do not have to compile it. You can just evaluate it line by line, in a so-called <strong>session</strong>. The session stores the current values of all variables. Usually, code is stored in a <strong>script</strong>, so one does not have to retype it when starting a new session.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
-<p>Try this out by either typing <code>r</code> to open an R session in a terminal or load RStudio.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> You can immediately calculate stuff:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="dv">6</span> <span class="op">*</span><span class="st"> </span><span class="dv">7</span></a></code></pre></div>
-<pre><code>## [1] 42</code></pre>
+<div id="Chap-04-03-predictors-two-levels" class="section level2">
+<h2><span class="header-section-number">14.1</span> Single two-level predictor</h2>
+<p>Let’s revisit the data from the <a href="app-93-data-sets-simon-task">Simon task</a>.
+Just like in chapter @ref(), we will be looking at the hypothesis that, among all correct responses, the mean reaction times for the congruent condition are lower than those of the incongruent condition.</p>
+<div class="sourceCode" id="cb556"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb556-1" data-line-number="1"><span class="co"># extract just the currently relevant columns </span></a>
+<a class="sourceLine" id="cb556-2" data-line-number="2"><span class="co">#  from the data set</span></a>
+<a class="sourceLine" id="cb556-3" data-line-number="3">data_ST_excerpt &lt;-<span class="st"> </span>aida<span class="op">::</span>data_ST <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb556-4" data-line-number="4"><span class="st">  </span><span class="kw">filter</span>(correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb556-5" data-line-number="5"><span class="st">  </span><span class="kw">select</span>(RT, condition)</a>
+<a class="sourceLine" id="cb556-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb556-7" data-line-number="7"><span class="co"># show the first couple of lines</span></a>
+<a class="sourceLine" id="cb556-8" data-line-number="8"><span class="kw">head</span>(data_ST_excerpt, <span class="dv">5</span>)</a></code></pre></div>
+<pre><code>## # A tibble: 5 x 2
+##      RT condition  
+##   &lt;dbl&gt; &lt;chr&gt;      
+## 1   735 incongruent
+## 2   557 incongruent
+## 3   455 congruent  
+## 4   376 congruent  
+## 5   626 incongruent</code></pre>
+<p>Notice that this tibble contains the data in a tidy format, i.e., each row contains a pair of associated measurements.
+We want to explain or predict the variable <code>RT</code> in terms of the variable <code>condition</code>.
+The variable <code>RT</code> is a metric measurement.
+But the variable <code>condition</code> is categorical variable with two category levels.</p>
+<p>Before we head on, let’s look at the data (again).
+Here’s a visualization of the distribution of RTs in each condition:</p>
+<div class="sourceCode" id="cb558"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb558-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb558-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> condition, <span class="dt">y =</span> RT, <span class="dt">color =</span> condition, <span class="dt">fill =</span> condition)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb558-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_violin</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb558-4" data-line-number="4"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-384-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The means for both conditions are:</p>
+<div class="sourceCode" id="cb559"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb559-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb559-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb559-3" data-line-number="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT))</a></code></pre></div>
+<pre><code>## # A tibble: 2 x 2
+##   condition   mean_RT
+##   &lt;chr&gt;         &lt;dbl&gt;
+## 1 congruent      453.
+## 2 incongruent    477.</code></pre>
+<p>The difference between the means of conditions is:</p>
+<div class="sourceCode" id="cb561"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb561-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;incongruent&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>() <span class="op">-</span></a>
+<a class="sourceLine" id="cb561-2" data-line-number="2"><span class="st">  </span>data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;congruent&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>()</a></code></pre></div>
+<pre><code>## [1] 23.63348</code></pre>
+<p>While numerically this difference seems high, the question remains whether this difference is, say, big enough to earn our trust.
+We address this question here using posterior inference based on a regression model.
+Notice that we simply use the same formula syntax as before: we want a model that explains <code>RT</code> in terms of <code>condition</code>.</p>
+<div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb563-1" data-line-number="1">fit_brms_ST &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb563-2" data-line-number="2">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>condition,</a>
+<a class="sourceLine" id="cb563-3" data-line-number="3">  <span class="dt">data =</span> data_ST_excerpt</a>
+<a class="sourceLine" id="cb563-4" data-line-number="4">)</a></code></pre></div>
+<p>Let’s inspect the summary information for the posterior samples, which we do here using the <code>summary</code> function for the <code>brms_fit</code> object from which we extract information only about the <code>fixed</code> effects, showing the mean (here called “Estimate”) and indicators of the lower and upper 95% inner quantile.</p>
+<div class="sourceCode" id="cb564"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb564-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_ST)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<pre><code>##                       l-95% CI  Estimate  u-95% CI
+## Intercept            451.02810 452.87640 454.68453
+## conditionincongruent  21.07431  23.64385  26.15692</code></pre>
+<p>We see that the model inferred a value for an “Intercept” variable and for another variable called “conditionincongruent”.
+What are these?
+If you look back at the empirically inferred means, you will see that the mean estimate for “Intercept” corresponds to the mean of RTs in the “congruent” condition and that the mean estimate for the variable “conditionincongruent” closely matches the computed difference between the means of the two conditions.
+And, indeed, that is what this regression model is doing for us.
+Using a uniform formula syntax <code>brms</code> has set up a regression model in which a predictor, given as a character (string) column, was internally coerced somehow into a format that produced an estimate the for the mean of one condition and an estimate for the difference between conditions.</p>
+<p>How does this results come about?
+And why are the variables returned by <code>brms</code> called “Intercept” and “conditionincongruent”?
+In order to use the simply linear regression model, the categorical predictor <span class="math inline">\(x\)</span> has been coded as either <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span>.
+Concretely, <code>brms</code> has introduced a new predictor variable, call it <code>new_predictor</code>, which has value <span class="math inline">\(0\)</span> for the “congruent” condition and <span class="math inline">\(1\)</span> for the “incongruent” condition.
+Per default <code>brms</code> chooses the level that is alphanumerically first as the so-called <strong>reference level</strong>, assigning to it the value <span class="math inline">\(0\)</span>.
+Here, that’s “congruent”.</p>
+<p>The result would look like this:</p>
+<div class="sourceCode" id="cb566"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb566-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb566-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">new_predictor =</span> <span class="kw">ifelse</span>(condition <span class="op">==</span><span class="st"> &quot;congruent&quot;</span>, <span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb566-3" data-line-number="3"><span class="st">  </span><span class="kw">head</span>(<span class="dv">5</span>)</a></code></pre></div>
+<pre><code>## # A tibble: 5 x 3
+##      RT condition   new_predictor
+##   &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt;
+## 1   735 incongruent             1
+## 2   557 incongruent             1
+## 3   455 congruent               0
+## 4   376 congruent               0
+## 5   626 incongruent             1</code></pre>
+<p>Now, with this new numeric coding of the predictor, we can calculate the linear regression model as ususal:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\xi_i &amp; = \beta_0 + \beta_1 x_i &amp; y_i &amp; \sim \text{Normal}(\mu = \xi_i, \sigma)
+\end{aligned}
+\]</span></p>
+<p>As a consequence, the linear model’s intercept parameter <span class="math inline">\(\beta_0\)</span> can be interpreted as the predicted mean of the reference level: if for some <span class="math inline">\(i\)</span> we have <span class="math inline">\(x_i = 0\)</span>, then the predictor <span class="math inline">\(\xi_i\)</span> will just be <span class="math inline">\(\xi_i = \beta_0\)</span>; whence that the intercept <span class="math inline">\(\beta_0\)</span> will be fitted to the mean of the reference level If for some <span class="math inline">\(i\)</span> we have <span class="math inline">\(x_i = 1\)</span> instead, the predicted value will be computed as <span class="math inline">\(\xi_i = \beta_0 + \beta_1\)</span>, so that the slope term <span class="math inline">\(\beta_1\)</span> will effectively play the role of the difference <span class="math inline">\(\delta\)</span> between the mean of the groups.
+The upshot is that we can conceive of a <strong><span class="math inline">\(t\)</span>-test as a special case of a linear regression model!</strong></p>
+<p>Schematically, we can represent this coding scheme for coefficients like so:</p>
+<pre><code>## # A tibble: 2 x 3
+##   condition   beta_0 betat_1
+##   &lt;chr&gt;        &lt;dbl&gt;   &lt;dbl&gt;
+## 1 congruent        1       0
+## 2 incongruent      1       1</code></pre>
 <div class="exercises">
-<p><strong>Exercise 2.1</strong>
-Use R to calculate 5 times the result of 659 minus 34.</p>
+<p><strong>Exercise 14.1</strong>
+For the given data below, compute (or guess) the MLEs of the regression coefficients. Choose the appropriate 0/1 encoding of group information.
+We have two groups, and three measurements of <span class="math inline">\(y\)</span> for each:</p>
+<p>groupA: (1,0,2) and groupB: (10,13,7)</p>
 <div class="collapsibleSolution">
 <button class="trigger">
 Solution
 </button>
 <div class="content">
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="dv">5</span> <span class="op">*</span><span class="st"> </span>(<span class="dv">659</span> <span class="op">-</span><span class="st"> </span><span class="dv">34</span>)</a></code></pre></div>
-<pre><code>## [1] 3125</code></pre>
+<p>For <span class="math inline">\(\xi_i = \beta_0 + \beta_1 x_i\)</span>, let <span class="math inline">\(x_i =0\)</span> if the data point if from groupA and <span class="math inline">\(x_i=1\)</span> if it’s from groupB. Then the mean of groupA is computed by the intercept <span class="math inline">\(\mu_A = \beta_0\)</span> and the mean of groupB is computed as the sum of the intercept and the slope <span class="math inline">\(\mu_B = \beta_0 + \beta_1\)</span>. Since <span class="math inline">\(\mu_A = 1\)</span> and <span class="math inline">\(\mu_B = 10\)</span>, we can guess that <span class="math inline">\(\beta_0 = 1\)</span> and <span class="math inline">\(\beta_1 = 10 - 1 = 9\)</span>.</p>
 </div>
 </div>
 </div>
-<div id="functions" class="section level3">
-<h3><span class="header-section-number">2.1.1</span> Functions</h3>
-<p>R has many built-in functions. The most common situation is that the function is called by its name using <strong>prefix notation</strong>, followed by round brackets that enclose the function’s arguments (separated by commata if there are multiple arguments). For example, the function <code>round</code> takes a number and, per default, returns the closest integer:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># the function `round` takes a number as an argument and </span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co"># returns the closest integer (default)</span></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="kw">round</span>(<span class="fl">0.6</span>)</a></code></pre></div>
-<pre><code>## [1] 1</code></pre>
-<p>Actually, <code>round</code> allows several arguments. It takes as input the number <code>x</code> to be rounded and another integer number <code>digits</code> which gives the number of digits after the comma to which <code>x</code> should be rounded. We can then specify these arguments in a function call of <code>round</code> by providing the named arguments.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co"># rounds the number `x` to the number `digits` of digits</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="kw">round</span>(<span class="dt">x =</span> <span class="fl">0.138</span>, <span class="dt">digits =</span> <span class="dv">2</span>)</a></code></pre></div>
-<pre><code>## [1] 0.14</code></pre>
-<p>If all of the parsed arguments are named, then their order does not matter. But all non-named arguments have to be presented in the positions expected by the function after subtracting the named arguments from the ordered list of arguments (to find out the right order one should use <code>help</code>, as explained below in <a href="ch1-first-steps.html#Chap-01-01-R-help">2.1.6</a>). Here are examples for illustration:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">round</span>(<span class="dt">x =</span> <span class="fl">0.138</span>, <span class="dt">digits =</span> <span class="dv">2</span>)  <span class="co"># works as intended</span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="kw">round</span>(<span class="dt">digits =</span> <span class="dv">2</span>, <span class="dt">x =</span> <span class="fl">0.138</span>)  <span class="co"># works as intended</span></a>
-<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="kw">round</span>(<span class="fl">0.138</span>, <span class="dt">digits =</span> <span class="dv">2</span>)      <span class="co"># works as intended</span></a>
-<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="kw">round</span>(<span class="fl">0.138</span>, <span class="dv">2</span>)               <span class="co"># works as intended</span></a>
-<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="kw">round</span>(<span class="dt">x =</span> <span class="fl">0.138</span>, <span class="dv">2</span>)           <span class="co"># works as intended</span></a>
-<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="kw">round</span>(<span class="dt">digits =</span> <span class="dv">2</span>, <span class="fl">0.138</span>)      <span class="co"># works as intended</span></a>
-<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="kw">round</span>(<span class="dv">2</span>, <span class="dt">x =</span> <span class="fl">0.138</span>)           <span class="co"># works as intended</span></a>
-<a class="sourceLine" id="cb10-8" data-line-number="8"><span class="kw">round</span>(<span class="dv">2</span>, <span class="fl">0.138</span>)               <span class="co"># does not work as intended (returns 2)</span></a></code></pre></div>
-<p>Functions can have default values for some or for all of their arguments. In the case of <code>round</code>, the default is <code>digits = 0</code>. There is obviously no default for <code>x</code> in the function <code>round</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">round</span>(<span class="dt">x =</span> <span class="fl">6.138</span>) <span class="co"># returns 6</span></a></code></pre></div>
-<pre><code>## [1] 6</code></pre>
-<p>Some functions can take an arbitrary number of arguments. The function <code>sum</code>, which sums up numbers is a point in case.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co"># adds all of its arguments together</span></a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="kw">sum</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</a></code></pre></div>
-<pre><code>## [1] 6</code></pre>
-<p>Selected functions can also be expressed as operators in <strong>infix notation</strong>. This applies to frequently recurring operations, such as mathematical operations or logical comparisons.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="co"># both of these calls sum 1, 2, and 3 together</span></a>
-<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="kw">sum</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)   <span class="co"># prefix notation</span></a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">+</span><span class="st"> </span><span class="dv">3</span>      <span class="co"># infix notation</span></a></code></pre></div>
-<p>An expression like <code>3 + 5</code> is internally processed as the function <code>`+`(3, 5)</code> which is equivalent to <code>sum(3, 5)</code>.</p>
-<p>Section <a href="Chap-01-01-functions.html#Chap-01-01-functions">2.3</a> will list some of the most important built-in functions. It will also explain how to define your own functions.</p>
-</div>
-<div id="variables" class="section level3">
-<h3><span class="header-section-number">2.1.2</span> Variables</h3>
-<p>You can assign values to variables using three assignment operators: <code>-&gt;</code>, <code>&lt;-</code> and <code>=</code>, like so:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">x &lt;-<span class="st"> </span><span class="dv">6</span>       <span class="co"># assigns 6 to variable x</span></a>
-<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="dv">7</span> -&gt;<span class="st"> </span>y       <span class="co"># assigns 7 to variable y</span></a>
-<a class="sourceLine" id="cb16-3" data-line-number="3">z =<span class="st"> </span><span class="dv">3</span>        <span class="co"># assigns 3 to variable z</span></a>
-<a class="sourceLine" id="cb16-4" data-line-number="4">x <span class="op">*</span><span class="st"> </span>y <span class="op">/</span><span class="st"> </span>z    <span class="co"># returns 6 * 7 / 3 = 14</span></a></code></pre></div>
-<pre><code>## [1] 14</code></pre>
-<p>Use of <code>=</code> is discouraged.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
-<p>It is good practice to use a consistent naming scheme for variables. This book uses <code>snake_case_variable_names</code> and tends towards using <code>long_and_excessively_informative_names</code> for important variables, and short variable names, like <code>i</code>, <code>j</code> or <code>x</code>, for local variables, indices etc.</p>
-<div class="exercises">
-<p><strong>Exercise 2.2</strong></p>
-<p>Create two variables, <code>a</code> and <code>b</code>, and assign the values 103 and 14 to them, respectively. Next, divide variable <code>a</code> by variable <code>b</code> and produce an output with three digits after the comma.</p>
-<div class="collapsibleSolution">
-<button class="trigger">
-Solution
-</button>
-<div class="content">
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">a &lt;-<span class="st"> </span><span class="dv">103</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2">b &lt;-<span class="st"> </span><span class="dv">14</span></a>
-<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="kw">round</span>(<span class="dt">x =</span> a<span class="op">/</span>b, <span class="dt">digits =</span> <span class="dv">3</span>)</a></code></pre></div>
-<pre><code>## [1] 7.357</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div id="literate-coding" class="section level3">
-<h3><span class="header-section-number">2.1.3</span> Literate coding</h3>
-<p>It is good practice to document code with short but informative comments. Comments in R are demarcated with <code>#</code>.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">x &lt;-<span class="st"> </span><span class="dv">4711</span> <span class="co"># a nice number from Cologne</span></a></code></pre></div>
-<p>Since everything on a line after an occurrence of <code>#</code> is treated as a comment, it is possible to break long function calls across several lines, and to add comments to each line:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw">round</span>(            <span class="co"># call the function `round`</span></a>
-<a class="sourceLine" id="cb21-2" data-line-number="2">  <span class="dt">x =</span> <span class="fl">0.138</span>,      <span class="co"># number to be rounded</span></a>
-<a class="sourceLine" id="cb21-3" data-line-number="3">  <span class="dt">digits =</span> <span class="dv">2</span>      <span class="co"># number of after-comma digits to round to</span></a>
-<a class="sourceLine" id="cb21-4" data-line-number="4">)  </a></code></pre></div>
-<p>In RStudio, you can use <code>Command+Shift+C</code> (on Mac) and <code>Ctrl+Shift+C</code> (on Windows/Linux) to comment or uncomment code, and you can use comments to structure your scripts. Any comment followed by <code>----</code> is treated as a (foldable) section in RStudio.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="co"># SECTION: variable assignments ----</span></a>
-<a class="sourceLine" id="cb22-2" data-line-number="2">x &lt;-<span class="st"> </span><span class="dv">6</span></a>
-<a class="sourceLine" id="cb22-3" data-line-number="3">y &lt;-<span class="st"> </span><span class="dv">7</span></a>
-<a class="sourceLine" id="cb22-4" data-line-number="4"><span class="co"># SECTION: some calculations ----</span></a>
-<a class="sourceLine" id="cb22-5" data-line-number="5">x <span class="op">*</span><span class="st"> </span>y</a></code></pre></div>
-<div class="exercises">
-<p><strong>Exercise 2.3</strong></p>
-<p>Provide extensive comments to all operations in the solution code of the previous exercise.</p>
-<div class="collapsibleSolution">
-<button class="trigger">
-Solution
-</button>
-<div class="content">
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">a &lt;-<span class="st"> </span><span class="dv">103</span>   <span class="co"># assign value 103 to variable `a`</span></a>
-<a class="sourceLine" id="cb23-2" data-line-number="2">b &lt;-<span class="st"> </span><span class="dv">14</span>    <span class="co"># assign value 14 to variable `b`</span></a>
-<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="kw">round</span>(     <span class="co"># produce a rounded number</span></a>
-<a class="sourceLine" id="cb23-4" data-line-number="4">  <span class="dt">x =</span> a<span class="op">/</span>b,     <span class="co"># number to be rounded is a/b</span></a>
-<a class="sourceLine" id="cb23-5" data-line-number="5">  <span class="dt">digits =</span> <span class="dv">3</span>   <span class="co"># show three digits after the comma</span></a>
-<a class="sourceLine" id="cb23-6" data-line-number="6">)</a></code></pre></div>
-<pre><code>## [1] 7.357</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div id="objects" class="section level3">
-<h3><span class="header-section-number">2.1.4</span> Objects</h3>
-<p>Strictly speaking, all entities in R are <em>objects</em> but that is not always apparent or important for everyday practical purposes (<a href="https://colinfay.me/intro-to-r/objects-their-modes-and-attributes.html">see the manual for more information</a>). R supports an object-oriented programming style, but we will not make (explicit) use of this functionality. In fact, this book heavily uses and encourages a functional programming style (see Section <a href="ch-01-01-loops-and-maps.html#ch-01-01-loops-and-maps">2.4</a>).</p>
-<p>However, some functions (e.g., optimizers or fitting functions for statistical models) return objects, and we will use this output in various ways. For example, if we run some model on a data set the output is an object. Here, for example, we run a regression model, that will be discussed later on in the book, on a dataset called <code>cars</code>.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="co"># you do not need to understand this code</span></a>
-<a class="sourceLine" id="cb25-2" data-line-number="2">model_fit =<span class="st"> </span><span class="kw">lm</span>(<span class="dt">formula =</span> speed<span class="op">~</span>dist, <span class="dt">data =</span> cars)</a>
-<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="co"># just notice that the function `lm` returns an object</span></a>
-<a class="sourceLine" id="cb25-4" data-line-number="4"><span class="kw">is.object</span>(model_fit)</a></code></pre></div>
-<pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="co"># printing an object on the screen usually gives you summary information</span></a>
-<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="kw">print</span>(model_fit)</a></code></pre></div>
-<pre><code>## 
-## Call:
-## lm(formula = speed ~ dist, data = cars)
-## 
-## Coefficients:
-## (Intercept)         dist  
-##      8.2839       0.1656</code></pre>
-</div>
-<div id="packages" class="section level3">
-<h3><span class="header-section-number">2.1.5</span> Packages</h3>
-<p>Much of R’s charm unfolds through the use of packages. <a href="https://cran.r-project.org">CRAN</a> has the official package repository. To install a new package from a CRAN mirror use the <code>install.packages</code> function. For example, to install the package <code>remotes</code>, you would use:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw">install.packages</span>(<span class="st">&quot;remotes&quot;</span>)</a></code></pre></div>
-<p>Once installed, you need to load your desired packages for each fresh session, using a command like the following:<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="kw">library</span>(remotes)</a></code></pre></div>
-<p>Once loaded, all functions, data, etc. that ship with a package are available without additional reference to the package name. If you want to be careful or courteous to an admirer of your code, you can reference a function from a package also by explicitly referring to that package. For example, the following code calls the function <code>install_github</code> from the package <code>remotes</code> explicitly.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a></p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1">remotes<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;SOME-URL&quot;</span>)</a></code></pre></div>
-<p>Indeed, the <code>install_github</code> function allows you to install bleeding-edge packages from Github. You can install all packages relevant for this book using the following code (after installing the <code>remotes</code> package):</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">remotes<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;michael-franke/aida-package&quot;</span>)</a></code></pre></div>
-<p>After this installation, you can load all packages for this book simply by using:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw">library</span>(aida)</a></code></pre></div>
-<p>In RStudio, there is a special tab in the pane with information on “files”, “plots” etc. to show all installed packages. This also shows which packages are currently loaded.</p>
-</div>
-<div id="Chap-01-01-R-help" class="section level3">
-<h3><span class="header-section-number">2.1.6</span> Getting help</h3>
-<p>If you encounter a function like <code>lm</code> that you do not know about, you can access its documentation with the <code>help</code> function or just typing <code>?lm</code>. For example, the following call summons the documentation for <code>lm</code>, the first parts of which are shown in Figure <a href="ch1-first-steps.html#fig:R-doc-example">2.2</a>.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="kw">help</span>(lm)</a></code></pre></div>
-<div class="figure" style="text-align: center"><span id="fig:R-doc-example"></span>
-<img src="visuals/R-doc-example.png" alt="Excerpt from the documentation of the `lm` function."  />
-<p class="caption">
-Figure 2.2: Excerpt from the documentation of the <code>lm</code> function.
-</p>
-</div>
-<p>If you are looking for help on a more general topic, use the function <code>help.search</code>. It takes a regular expression as input and outputs a list of occurrences in the available documentation. A useful shortcut for <code>help.search</code> is just to type <code>??</code> followed by the (unquoted) string to search for. For example, calling either of the following lines might produce a display like in Figure <a href="ch1-first-steps.html#fig:R-doc-search-example">2.3</a>.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="co"># two equivalent ways for obtaining help on search term &#39;linear&#39;</span></a>
-<a class="sourceLine" id="cb35-2" data-line-number="2"><span class="kw">help.search</span>(<span class="st">&quot;linear&quot;</span>)</a>
-<a class="sourceLine" id="cb35-3" data-line-number="3">??linear</a></code></pre></div>
-<div class="figure" style="text-align: center"><span id="fig:R-doc-search-example"></span>
-<img src="visuals/R-doc-search-example.png" alt="Result of calling `help.search` for the term 'linear'."  />
-<p class="caption">
-Figure 2.3: Result of calling <code>help.search</code> for the term ‘linear’.
-</p>
-</div>
-<p>The top entries in Figure <a href="ch1-first-steps.html#fig:R-doc-search-example">2.3</a> are <strong>vignettes</strong>. These are compact manuals or tutorials on particular topics or functions, and they are directly available in R. If you want to browse through the vignettes available on your machine (which depend on which packages you have installed), go ahead with:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw">browseVignettes</span>()</a></code></pre></div>
-<div class="exercises">
-<p><strong>Exercise 2.4</strong></p>
-<p>Look up the help page for the command <code>round</code>. As you know about this function already, focus on getting a feeling for how the help text is structured and the most important bits of information are conveyed. Try to understand what the other functions covered in this entry do and when which one would be most useful.</p>
-</div>
-</div>
-</div>
-<div class="footnotes">
-<hr />
-<ol start="2">
-<li id="fn2"><p>Line-by-line execution of code is useful for quick development and debugging. Make sure to learn about keyboard shortcuts to execute single lines or chunks of code in your favorite editor, e.g., check the <a href="https://rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf">RStudio Cheat Sheet</a> for information on its keyboard shortcuts.<a href="ch1-first-steps.html#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>You might need to add R to the PATH variables of your operating system to let the terminal know where R was installed (e.g. <code>C:\Program Files\R\R-4.0.3\bin\x64</code>). Also, when starting a session in a terminal, you can exit a running R session by typing <code>quit()</code> or <code>q()</code>.<a href="ch1-first-steps.html#fnref3" class="footnote-back">↩</a></p></li>
-<li id="fn4"><p>You can produce <code>&lt;-</code> in RStudio with Option-<code>-</code> (on Mac) and Alt-<code>-</code> (on Windows/Linux). For other useful keyboard shortcuts, see <a href="https://support.rstudio.com/hc/en-us/articles/200711853-Keyboard-Shortcuts">here</a>.<a href="ch1-first-steps.html#fnref4" class="footnote-back">↩</a></p></li>
-<li id="fn5"><p>You need to make sure that <em>all</em> packages you need for a session are loaded, so you would need to supply several commands like <code>library(PCKG_NAME)</code> for all required packages.<a href="ch1-first-steps.html#fnref5" class="footnote-back">↩</a></p></li>
-<li id="fn6"><p>Calling functions in this explicit way also dispenses the need to load the package first (though you need to have installed it before), and it might help with naming conflicts, when different packages define identically named functions.<a href="ch1-first-steps.html#fnref6" class="footnote-back">↩</a></p></li>
-</ol>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="Chap-01-01-R.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="ch1-data-types.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="Chap-04-03-predictors.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="Chap-04-03-predictors-multi-levels.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
