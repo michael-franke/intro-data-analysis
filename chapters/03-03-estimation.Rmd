@@ -8,9 +8,9 @@
 
 Based on a model $M$ with parameters $\theta$, parameter estimation addresses the question of which values of $\theta$ are good estimates, given some data $D$. 
 This chapter deals specifically with _Bayesian_ parameter estimation. 
-Given a Bayesian model $M$, we can use Bayes rule to update prior beliefs about $\theta$ to obtain so-called _posterior beliefs_ $P_M(\theta \mid D)$, which represent the new beliefs after observing D and updating in a conservative, rational manner based on the assumptions spelled out in $M$, which represent the new beliefs after observing D and updating in a conservative, rational manner based on the assumptions spelled out in $M$.
-We will see two different methods of computing posterior distributions $P_M(\theta \mid D)$, a precise mathematical derivation with limited applicability in terms of so-called **conjugate priors**, and an efficient but approximate, sampling method based on so-called **Markov Chain Monte Carlo algorithms**.
-The chapter also introduces common **point-valued and interval-ranged estimates** for parameters, in particular the Baysian measures of **posterior mean** and **credible intervals**.
+Given a Bayesian model $M$, we can use Bayes rule to update prior beliefs about $\theta$ to obtain so-called _posterior beliefs_ $P_M(\theta \mid D)$, which represent the new beliefs after observing $D$ and updating in a conservative, rational manner based on the assumptions spelled out in $M$.
+We will see two different methods of computing posterior distributions $P_M(\theta \mid D)$, a precise mathematical derivation with limited applicability in terms of so-called **conjugate priors**, and an efficient but approximate sampling method based on so-called **Markov Chain Monte Carlo algorithms**.
+The chapter also introduces common **point-valued and interval-ranged estimates** for parameters, in particular the Bayesian measures of **posterior mean** and **credible intervals**.
 We will also learn about the **posterior predictive distribution** and how to draw inferences about hypotheses about specific parameter values. 
 
 
@@ -33,7 +33,7 @@ The learning goals for this chapter are:
 
 ### Definitions and terminology
 
-Fix a Bayesian model $M$ with likelihood $P(D \mid \theta)$ for observed data $D$ and prior over parameters $P(\theta)$. We then update our prior beliefs $P(\theta)$ to obtained posterior beliefs by Bayes rule:^[Since parameter estimation is only about one model, it is harmless to omit the index $M$ in the probability notation.]
+Fix a Bayesian model $M$ with likelihood $P(D \mid \theta)$ for observed data $D$ and prior over parameters $P(\theta)$. We then update our prior beliefs $P(\theta)$ to obtain posterior beliefs by Bayes rule:^[Since parameter estimation is only about one model, it is harmless to omit the index $M$ in the probability notation.]
 
 $$P(\theta \mid D) = \frac{P(D \mid \theta) \ P(\theta)}{P(D)}$$
 
@@ -52,7 +52,7 @@ where the "proportional to" sign $\propto$ indicates that the probabilities on t
 
 ### The effects of prior and likelihood on the posterior
 
-The shorthand notation for the posterior $P(\theta \, | \, D) \propto P(\theta) \ P(D \, | \, \theta) makes it particularly clear that the posterior distribution is a "mix" of prior and likelihood.
+The shorthand notation for the posterior $P(\theta \, | \, D) \propto P(\theta) \ P(D \, | \, \theta)$ makes it particularly clear that the posterior distribution is a "mix" of prior and likelihood.
 Let's first explore this "mixing property" of the posterior before worrying about how to compute posteriors concretely.
 
 We consider the case of flipping a coin with unknown bias $\theta$ a total of $N$ times and observing $k$ heads (= successes). This is modeled with the  **Binomial Model** (see Section \@ref(Chap-03-03-models-general)), using priors expressed with a [Beta distribution](#app-91-distributions-beta), giving us a model specification as: 
@@ -270,7 +270,7 @@ Bayesian posterior distributions can be hard to compute. Almost always, the prio
 
 $$\underbrace{P(\theta \, | \, D)}_{posterior} \propto \underbrace{P(\theta)}_{prior} \ \underbrace{P(D \, | \, \theta)}_{likelihood}$$
 
-But the real pain is the normalizing constant, i.e., the marginalize likelihood a.k.a. the "integral of doom", which to compute can be intractable, especially if the parameter space is large and not well-behaved:
+But the real pain is the normalizing constant, i.e., the marginalized likelihood a.k.a. the "integral of doom", which to compute can be intractable, especially if the parameter space is large and not well-behaved:
 
 $$P(D) = \int P(D \mid \theta) \ P(\theta) \ \text{d}\theta$$
 
@@ -628,7 +628,7 @@ ggplot(aes(x = x, y = density)) +
 
 ### Computing Bayesian estimates
 
-As mentioned, the most common (and arguably best) summaries to report for a Bayesian posterior are the posterior mean and a credible interval. The `aida` package which accompanies this book, has a convenience function called `aida::summarize_sample_vector()` that gives the mean and 95% credible interval for a vector of samples. 
+As mentioned, the most common (and arguably best) summaries to report for a Bayesian posterior are the posterior mean and a credible interval. The `aida` package which accompanies this book has a convenience function called `aida::summarize_sample_vector()` that gives the mean and 95% credible interval for a vector of samples. 
 You can use it like so:
 
 ```{r }
@@ -668,9 +668,9 @@ MLE <- optim(
 MLE$par
 ```
 
-Indeed, the value obtained by computationally approximating the maximum likelihood estimate for this likelihood function coincides with the true value of $\frac{7}{24}$
+Indeed, the value obtained by computationally approximating the maximum likelihood estimate for this likelihood function coincides with the true value of $\frac{7}{24}$.
 
-## Approximating the posterior
+## Approximating the posterior {#Ch-03-03-estimation-algorithms}
 
 There are several methods of computing approximations of Bayesian posteriors. **Variational inference**, for example, hinges on the fact that under very general conditions, Bayesian posterior distributions are well approximated by (multi-variate) normal distributions. The more data, the better the approximation. We can then reduce the approximation of a Bayesian posterior to a problem of optimizing parameter values: we simply look for the parameter values that yield the "best" parametric approximation to the Bayesian posterior. (Here, "best" is usually expressed in terms of minimizing a measure of divergence between probability distributions, such as [Kullback-Leibler divergence](https://en.wikipedia.org/wiki/Kullback–Leibler_divergence).) Another prominent method of approximating Bayesian posteriors is [rejection sampling](https://en.wikipedia.org/wiki/Rejection_sampling).
 
@@ -857,6 +857,10 @@ model {
   k ~ binomial(N, theta) ;
 }
 ```
+
+<link rel="stylesheet" href="hljs.css">
+<script src="stan.js"></script>
+<script>$('pre.mystan code').each(function(i, block) {hljs.highlightBlock(block);});</script>
 
 We save this Stan code in a file `binomial_model.stan` (which you can download [here](https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/models_stan/binomial_model.stan)) in a folder `models_stan` and then use the function `rstan::stan` to run the Stan code from within R.
 
@@ -1183,7 +1187,7 @@ heights_B <- c(11.45, 11.89, 13.35, 11.56, 13.78,
 ```
 
 On the assumption that the metric measurements for flower 'A' come from a normal distribution, the goal is to estimate credible values for that normal distribution's parameters $\mu_{A}$ and $\sigma_{A}$; and similarly for flower 'B'.
-The ``research question'' of interest is whether it is credible that the mean of heights for flower 'A' is smaller than that of 'B' - or, in other words, whether the difference in means $\delta = \mu_{B} - \mu_{A}$ is credibly positive.
+The "research question" of interest is whether it is credible that the mean of heights for flower 'A' is smaller than that of 'B' - or, in other words, whether the difference in means $\delta = \mu_{B} - \mu_{A}$ is credibly positive.
 
 Here are relevant summary statistics for this case, and a plot, both of which seem to support the conjecture that flower 'A' is smaller, on average, than flower 'B'.
 
@@ -1228,7 +1232,7 @@ These two models are also explained in the video below.
 
 The model with uninformative priors is shown in Figure \@ref(fig:ch-03-03-estimation-normal-uninformative-model).
 
-```{r ch-03-03-estimation-normal-uninformative-model, echo = F, fig.align= "center", fig.cap="A model to infer the parameter of a normal distribution with non-informative priors."}
+```{r ch-03-03-estimation-normal-uninformative-model, echo = F, fig.align = "center", out.width = '60%', fig.cap="A model to infer the parameter of a normal distribution with non-informative priors."}
 knitr::include_graphics("visuals/inferring-gaussian-uninformative-prior-model.png")
 ```
 
@@ -1315,7 +1319,7 @@ The model with uninformative priors is useful when modellers have no or wish to 
 When prior assumptions are relevant, we can use a slightly more complex model with conjugate priors.
 The model is shown in Figure \@ref(fig:ch-03-03-estimation-normal-conjugate).
 
-```{r ch-03-03-estimation-normal-conjugate, echo = F, fig.align = "center", fig.cap="Model with conjugate priors."}
+```{r ch-03-03-estimation-normal-conjugate, echo = F, fig.align = "center", out.width = '60%', fig.cap="Model with conjugate priors."}
 knitr::include_graphics("visuals/inferring-gaussian-conjugate-prior-model.png")
 ```
 
@@ -1528,7 +1532,7 @@ The credible values of $\mu$ are rather high.
 
 ### Estimating the difference between group means
 
-The ulterior ``research question'' to address is: should we believe that flowers of type B are higher, on average, than flowers of type A?
+The ulterior "research question" to address is: should we believe that flowers of type B are higher, on average, than flowers of type A?
 To address this question, it suffices to take samples for $\mu_{A}$ and $\mu_{B}$, obtained by one of the methods introduced in the previous sections (using the same model for both flower types, unless we have a good reason not to), and then to inspect the vector of differences between samples $\delta = \mu_{B} - \mu_{A}$.
 If the derived samples of $\delta$ are credible bigger than zero, there is reason to believe that there is a difference between flower types such that 'B' is bigger than 'A'.
 
