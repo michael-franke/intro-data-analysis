@@ -7,4 +7,80 @@
 <img src="visuals/badge-politeness.png" alt="badge-politeness">
 </div>
 
-TBD
+The politeness data is borrowed from [@WinterGrawunder2012:The-Phonetic-Pr].^[The politeness data is also discussed in two tutorial papers, namely by [@FrankeRoettger2019:Bayesian-regres] and by [@Winter2013:Linear-models-a].]
+The data set contains measurements of voice pitch obtained from a $2 \times 2$ factorial design, with factors `gender` and `context`. 
+The data is from Korean speakers.
+
+Here is a glimpse of the data:
+
+```{r}
+politeness_data <- aida::data_polite
+glimpse(politeness_data)
+```
+
+The variables contained here are:
+
+- `subject`: an indicator for each experimental participant
+- `gender`: an indicator of each participants gender (only binary)
+- `sentence`: an indicator of the sentence spoken by the participant
+- `context`: the main manipulation of whether the context was a "polite" or "informal" setting
+- `pitch`: the measure voice pitch (presumably: average over the sentence spoken)
+
+### Hypotheses
+
+The main research question of interest here is whether voice pitch is higher in "polite" contexts than in "informal", and whether this effect is more or less present for male or female speakers.
+
+### Summary statistics
+
+Here are the mean pitch values for the four relevant design cells:
+
+```{r, echo = F}
+data_polite %>% 
+  group_by(gender, context) %>% 
+  summarize(mean_pitch = mean(pitch))
+```
+
+
+### Visualization
+
+Here is a plot showing the distribution of pitch measures in each group (small semi-transparent points), as well the cell means (big solid points):
+
+```{r, echo = F}
+politedata <- politeness_data 
+politedata.agg <- 
+  politedata %>% 
+    group_by(gender, context, sentence) %>% 
+    summarize(mean_frequency = mean(pitch))
+
+politedata.agg2 <- 
+  politedata %>%
+  group_by(gender, context) %>% 
+  summarize(mean_frequency = round(mean(pitch), 0))
+
+ggplot(data = politedata.agg, 
+       aes(x = gender, 
+           y = mean_frequency, 
+           colour = context)) + 
+  geom_point(position = position_dodge(0.5), 
+             alpha = 0.3, 
+             size = 3) +
+  geom_point(data = politedata.agg2, 
+             aes(x = gender, 
+                 y = mean_frequency, 
+                 #colour = context,
+                 fill = context),
+             position = position_dodge(0.5), 
+             pch = 21, 
+             colour = "black",
+             size = 5) +
+  scale_x_discrete(breaks = c("F", "M"),
+                  labels = c("female", "male")) +
+  scale_y_continuous(expand = c(0, 0), breaks = (c(50,100,150,200,250,300)), limits = c(50,300)) +
+  scale_colour_manual(breaks = c("inf", "pol"),
+                      labels = c("informal", "polite"),
+                      values = c("#f1a340", "#998ec3")) +
+  scale_fill_manual(breaks = c("inf", "pol"),
+                      labels = c("informal", "polite"),
+                      values = c("#f1a340", "#998ec3")) +
+  ylab("pitch in Hz\n") +
+  xlab("\ngender")
