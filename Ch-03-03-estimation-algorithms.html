@@ -327,9 +327,9 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="9.2.3" data-path="ch-03-04-parameter-estimation-points-intervals.html"><a href="ch-03-04-parameter-estimation-points-intervals.html#computing-bayesian-estimates"><i class="fa fa-check"></i><b>9.2.3</b> Computing Bayesian estimates</a></li>
 <li class="chapter" data-level="9.2.4" data-path="ch-03-04-parameter-estimation-points-intervals.html"><a href="ch-03-04-parameter-estimation-points-intervals.html#excursion-computing-mles-and-maps-in-r"><i class="fa fa-check"></i><b>9.2.4</b> Excursion: Computing MLEs and MAPs in R</a></li>
 </ul></li>
-<li class="chapter" data-level="9.3" data-path="approximating-the-posterior.html"><a href="approximating-the-posterior.html"><i class="fa fa-check"></i><b>9.3</b> Approximating the posterior</a><ul>
-<li class="chapter" data-level="9.3.1" data-path="approximating-the-posterior.html"><a href="approximating-the-posterior.html#ch-03-03-MCMC"><i class="fa fa-check"></i><b>9.3.1</b> Of apples and trees: Markov Chain Monte Carlo sampling</a></li>
-<li class="chapter" data-level="9.3.2" data-path="approximating-the-posterior.html"><a href="approximating-the-posterior.html#ch-03-03-estimation-Stan"><i class="fa fa-check"></i><b>9.3.2</b> Excursion: Probabilistic modeling with Stan</a></li>
+<li class="chapter" data-level="9.3" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html"><i class="fa fa-check"></i><b>9.3</b> Approximating the posterior</a><ul>
+<li class="chapter" data-level="9.3.1" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#ch-03-03-MCMC"><i class="fa fa-check"></i><b>9.3.1</b> Of apples and trees: Markov Chain Monte Carlo sampling</a></li>
+<li class="chapter" data-level="9.3.2" data-path="Ch-03-03-estimation-algorithms.html"><a href="Ch-03-03-estimation-algorithms.html#ch-03-03-estimation-Stan"><i class="fa fa-check"></i><b>9.3.2</b> Excursion: Probabilistic modeling with Stan</a></li>
 </ul></li>
 <li class="chapter" data-level="9.4" data-path="ch-03-04-parameter-estimation-normal.html"><a href="ch-03-04-parameter-estimation-normal.html"><i class="fa fa-check"></i><b>9.4</b> Estimating the parameters of a Normal distribution</a><ul>
 <li class="chapter" data-level="9.4.1" data-path="ch-03-04-parameter-estimation-normal.html"><a href="ch-03-04-parameter-estimation-normal.html#uninformative-priors"><i class="fa fa-check"></i><b>9.4.1</b> Uninformative priors</a></li>
@@ -546,7 +546,7 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="approximating-the-posterior" class="section level2">
+<div id="Ch-03-03-estimation-algorithms" class="section level2">
 <h2><span class="header-section-number">9.3</span> Approximating the posterior</h2>
 <p>There are several methods of computing approximations of Bayesian posteriors. <strong>Variational inference</strong>, for example, hinges on the fact that under very general conditions, Bayesian posterior distributions are well approximated by (multi-variate) normal distributions. The more data, the better the approximation. We can then reduce the approximation of a Bayesian posterior to a problem of optimizing parameter values: we simply look for the parameter values that yield the “best” parametric approximation to the Bayesian posterior. (Here, “best” is usually expressed in terms of minimizing a measure of divergence between probability distributions, such as <a href="https://en.wikipedia.org/wiki/Kullback–Leibler_divergence">Kullback-Leibler divergence</a>.) Another prominent method of approximating Bayesian posteriors is <a href="https://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a>.</p>
 <p>The most prominent class of methods to approximate Bayesian posteriors are Markov Chain Monte Carlo methods. We will describe the most basic version of such MCMC algorithms below. For most applications in the context of this introductory book, it suffices to accept that there are black boxes (with some knobs for fine-tuning) that, if you supply a model description, priors and data, will return samples from the posterior distribution.</p>
@@ -702,7 +702,7 @@ Still, a short peek at how Stan works is interesting if only to get a rough feel
 </div>
 <div id="binomial-model" class="section level4">
 <h4><span class="header-section-number">9.3.2.2</span> Binomial Model</h4>
-<p>Figure <a href="approximating-the-posterior.html#fig:ch-03-03-Binomial-Model-repeated">9.8</a> shows the Binomial model for coin flips, as discussed before. We are going to implement it in Stan.</p>
+<p>Figure <a href="Ch-03-03-estimation-algorithms.html#fig:ch-03-03-Binomial-Model-repeated">9.8</a> shows the Binomial model for coin flips, as discussed before. We are going to implement it in Stan.</p>
 <div class="figure" style="text-align: center"><span id="fig:ch-03-03-Binomial-Model-repeated"></span>
 <img src="visuals/binomial-model.png" alt="The Binomial Model (repeated from before)." width="40%" />
 <p class="caption">
@@ -729,6 +729,9 @@ model {
   # likelihood
   k ~ binomial(N, theta) ;
 }</code></pre>
+<link rel="stylesheet" href="hljs.css">
+<script src="stan.js"></script>
+<script>$('pre.mystan code').each(function(i, block) {hljs.highlightBlock(block);});</script>
 <p>We save this Stan code in a file <code>binomial_model.stan</code> (which you can download <a href="https://raw.githubusercontent.com/michael-franke/intro-data-analysis/master/models_stan/binomial_model.stan">here</a>) in a folder <code>models_stan</code> and then use the function <code>rstan::stan</code> to run the Stan code from within R.</p>
 <div class="sourceCode" id="cb437"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb437-1" data-line-number="1">stan_fit_binomial &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
 <a class="sourceLine" id="cb437-2" data-line-number="2">  <span class="co"># where is the Stan code</span></a>
@@ -781,7 +784,7 @@ model {
 ##   Parameter `|95%`  mean `95%|`
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
 ## 1 theta      0.299 0.351  0.403</code></pre>
-<p>Figure <a href="approximating-the-posterior.html#fig:ch-03-03-binomial-posterior">9.9</a> moreover shows a density plot derived from the MCMC samples, together with the estimated 95% HDI and the true posterior distribution (in back), as derived by conjugacy.</p>
+<p>Figure <a href="Ch-03-03-estimation-algorithms.html#fig:ch-03-03-binomial-posterior">9.9</a> moreover shows a density plot derived from the MCMC samples, together with the estimated 95% HDI and the true posterior distribution (in back), as derived by conjugacy.</p>
 <div class="figure" style="text-align: center"><span id="fig:ch-03-03-binomial-posterior"></span>
 <img src="I2DA_files/figure-html/ch-03-03-binomial-posterior-1.png" alt="Posterior over bias $\theta$ given $k=109$ and $N=311$ approximated by samples from Stan, with estimated 95% credible interval (red area). The black curve shows the true posterior, derived through conjugacy." width="672" />
 <p class="caption">
@@ -985,7 +988,7 @@ Figure 9.9: Posterior over bias <span class="math inline">\(\theta\)</span> give
 <div class="footnotes">
 <hr />
 <ol start="52">
-<li id="fn52"><p>RStudio provides syntax highlighting for Stan code. Use the file ending <code>*.stan</code>.<a href="approximating-the-posterior.html#fnref52" class="footnote-back">↩</a></p></li>
+<li id="fn52"><p>RStudio provides syntax highlighting for Stan code. Use the file ending <code>*.stan</code>.<a href="Ch-03-03-estimation-algorithms.html#fnref52" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>
