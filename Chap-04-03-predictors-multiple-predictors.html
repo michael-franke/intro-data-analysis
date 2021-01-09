@@ -509,6 +509,9 @@ code span.wa { color: #bf0303; } /* Warning */
 </ul></li>
 <li class="chapter" data-level="D.9" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html"><i class="fa fa-check"></i><b>D.9</b> Politeness data</a><ul>
 <li class="chapter" data-level="D.9.1" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#nature-origin-and-rationale-of-the-data-6"><i class="fa fa-check"></i><b>D.9.1</b> Nature, origin and rationale of the data</a></li>
+<li class="chapter" data-level="D.9.2" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#hypotheses-1"><i class="fa fa-check"></i><b>D.9.2</b> Hypotheses</a></li>
+<li class="chapter" data-level="D.9.3" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#summary-statistics-1"><i class="fa fa-check"></i><b>D.9.3</b> Summary statistics</a></li>
+<li class="chapter" data-level="D.9.4" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#visualization-1"><i class="fa fa-check"></i><b>D.9.4</b> Visualization</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="E" data-path="app-94-open-science.html"><a href="app-94-open-science.html"><i class="fa fa-check"></i><b>E</b> Open science practices</a><ul>
@@ -545,10 +548,28 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="Chap-04-03-predictors-multiple-predictors" class="section level2">
 <h2><span class="header-section-number">14.3</span> Multiple predictors</h2>
+<p>Factorial designs, which have more than one categorical predictor variable, are common in experimental psychology.
+Any contrast coding scheme usable for encoding a single categorical predictor can, in principle, also be used when there are multiple categorical predictors.
+But multiple categorical predictors also require some additional considerations relating to how (the model assumes that) different predictors might or might not interact with another.</p>
+<p>Here is an informal example.
+Suppose that we have metric measurements of how tasty a snack is perceived to be.
+There are two categorical factors which we want to use to predict the average tastiness of a snack.
+The first predictor is <code>mayo</code> and we encode it numerically as: 0 if the dish does not contain mayonnaise and 1 if it does.
+The second predictor is <code>chocolate</code> and we encode it similarly as: 0 if the dish does not contain chocolate and 1 if it does.
+Suppose we estimate the two (!) slope coefficients for <code>mayo</code> and <code>chocolate</code> for our imaginary data set and find that both are credibly positive.
+That means that there is reason to believe that, all else equal, when we find <code>mayo</code> in a snack we may expect it to be rated as more tasty, and, all else equal, when we find <code>chocolate</code> in a snack we may also expect it to be rated as more tasty.<a href="#fn65" class="footnote-ref" id="fnref65"><sup>65</sup></a>
+But what about a dish with <em>both</em> <code>mayo</code> <em>and</em> <code>chocolate</code>?
+Maybe we can agree to assume for the sake of argument that, on average, snacks containing both <code>mayo</code> and <code>chocolate</code> are <em>not</em> rated as tasty at all.
+Or at least, we might want to include in our model the possibility that the combination of <code>mayo</code> and <code>chocolate</code> has a different effect than the sum of the contributions of <code>mayo</code> on its own and that of <code>chocolate</code> of its own.
+That is why, when we have multiple categorical predictors, we also often want to include yet another type of slope coefficients, so-called <strong>interaction terms</strong>, that capture how the combination of different factor levels from different categorical predictors, well, interact.
+If you like a more precise characterization at this moment already (although an example below will make things hopefully much clearer), we could say that, in the context of a linear regression model, an interaction between levels of several predictors is a (potential) deviation from the sum of all of the additive effects of the individual predictor levels in isolation.</p>
 <div style="float:right; width:15%;">
 <p><img src="visuals/badge-politeness.png" alt="badge-politeness"></p>
 </div>
-<p>The following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs <span class="citation">(Franke and Roettger <a href="#ref-FrankeRoettger2019:Bayesian-regres">2019</a>)</span>, which can be downloaded <a href="https://psyarxiv.com/cdxv3">here</a>. We consider data on voice pitch in a <span class="math inline">\(2 \times 2\)</span> factorial design, with factors <code>gender</code> and <code>context</code>. This is laboratory data measuring the voice pitch of male and female speakers (factor <code>gender</code>) in two different kinds of linguistic contexts, namely a polite and an informal situation (factor <code>context</code>).</p>
+<p>To make this more precise, let us consider the example of the <a href="app-93-data-sets-politeness">politeness data</a>.<a href="#fn66" class="footnote-ref" id="fnref66"><sup>66</sup></a>
+The to-be-predicted data are measurements of voice pitch in a <span class="math inline">\(2 \times 2\)</span> factorial design, with factors <code>gender</code> and <code>context</code>.
+The factor <code>gender</code> has (sadly only) two levels: “male” and “female”.
+The factor <code>context</code> has two levels, namely “informal” for informal speech situations and “polite” for polite speech situations.</p>
 <p>We load the data, inspect and plot it.</p>
 <div class="sourceCode" id="cb582"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb582-1" data-line-number="1">politeness_data &lt;-<span class="st"> </span>aida<span class="op">::</span>data_polite</a>
 <a class="sourceLine" id="cb582-2" data-line-number="2">politeness_data</a></code></pre></div>
@@ -567,14 +588,21 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 10 F1      F      S5       inf      252.
 ## # … with 73 more rows</code></pre>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-401-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>In a <span class="math inline">\(2 \times 2\)</span> factorial design like this, there are essentially four pairs of factor levels (so-called <strong>design cells</strong>): female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts. Different schemes exist by means of which different comparisons of means of design cells (or single factors) can be probed. A simple coding scheme for differences in our <span class="math inline">\(2 \times 2\)</span> design is shown in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>. We consider the cell “female+informal” as the reference level and therefore model its mean as intercept <span class="math inline">\(\beta_0\)</span>. We then have a slope term <span class="math inline">\(\beta_{\text{pol}}\)</span> which encodes the difference between female pitch in informal and female pitch in polite contexts. Analogous reasoning holds for <span class="math inline">\(\beta_{\text{male}}\)</span>. Finally, we also include a so-called <strong>interaction term</strong>, denoted as <span class="math inline">\(\beta_{\text{pol\&amp;male}}\)</span> in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>. The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.</p>
+<p>In a <span class="math inline">\(2 \times 2\)</span> factorial design like this, there are essentially four pairs of factor levels (so-called <strong>design cells</strong>): female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts.
+Different schemes exist by means of which different comparisons of means of design cells (or single factors) can be probed.
+A simple coding scheme for differences in our <span class="math inline">\(2 \times 2\)</span> design is shown in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>.
+This is a straightforward extension of <em>treatment coding</em> for the single predictors, while also catering to their potential interaction.
+Concretely, we consider the cell “female+informal” as the reference level and therefore model its mean as intercept <span class="math inline">\(\beta_0\)</span>.
+We then have a slope term <span class="math inline">\(\beta_{\text{pol}}\)</span> which encodes the difference between female pitch in informal and female pitch in polite contexts.
+Analogous reasoning holds for <span class="math inline">\(\beta_{\text{male}}\)</span>. Finally, we also include a so-called <strong>interaction term</strong>, denoted as <span class="math inline">\(\beta_{\text{pol+male}}\)</span> in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>.
+The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.</p>
 <div class="figure" style="text-align: center"><span id="fig:Chap-04-02-beyond-simple-regression-factorial-coefficients"></span>
 <img src="visuals/coefficients_factorial_design.png" alt="Regression coefficients for a factorial design (using so-called 'treatment coding')."  />
 <p class="caption">
 Figure 14.1: Regression coefficients for a factorial design (using so-called ‘treatment coding’).
 </p>
 </div>
-<p>We can fit a regression model with this coding scheme using the formula <code>pitch ~ gender * context</code>. Importantly the star <code>*</code> between explanatory variables <code>gender</code> and <code>context</code> indicates that we also want to include the interaction term.</p>
+<p>We can fit a regression model with this coding scheme using the formula <code>pitch ~ gender * context</code>. Importantly the star <code>*</code> between explanatory variables <code>gender</code> and <code>context</code> indicates that we also want to include the interaction term.<a href="#fn67" class="footnote-ref" id="fnref67"><sup>67</sup></a></p>
 <div class="sourceCode" id="cb584"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb584-1" data-line-number="1">fit_brms_politeness &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
 <a class="sourceLine" id="cb584-2" data-line-number="2">  <span class="co"># model &#39;pitch&#39; as a function of &#39;gender&#39; and &#39;context&#39;,</span></a>
 <a class="sourceLine" id="cb584-3" data-line-number="3">  <span class="co">#  also including the interaction between `gender` and `context`</span></a>
@@ -582,13 +610,13 @@ Figure 14.1: Regression coefficients for a factorial design (using so-called ‘
 <a class="sourceLine" id="cb584-5" data-line-number="5">  <span class="dt">data =</span> politeness_data</a>
 <a class="sourceLine" id="cb584-6" data-line-number="6">)</a></code></pre></div>
 <p>The summary statistics below lists the model parameters indicated in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>.</p>
-<div class="sourceCode" id="cb585"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb585-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;Estimate&quot;</span>,<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
-<pre><code>##                      Estimate   l-95% CI   u-95% CI
-## Intercept           261.02993  245.65872 276.800178
-## genderM            -116.53009 -138.41661 -93.764509
-## contextpol          -27.69013  -49.44973  -4.936747
-## genderM:contextpol   16.16356  -15.79220  46.823184</code></pre>
-<p>We could conclude from this that, given model and data, it is plausible to think that male speakers had lower voices than female speakers in informal contexts: this shows in the exclusion of 0 in the 95% inter-quantile range for parameter <code>genderM</code>. We may also conclude that given model and data, it is plausible to think that female speakers used lower voices in polite contexts than in formal ones (parameter <code>contextpol</code>).
+<div class="sourceCode" id="cb585"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb585-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<pre><code>##                      l-95% CI   Estimate   u-95% CI
+## Intercept           245.65872  261.02993 276.800178
+## genderM            -138.41661 -116.53009 -93.764509
+## contextpol          -49.44973  -27.69013  -4.936747
+## genderM:contextpol  -15.79220   16.16356  46.823184</code></pre>
+<p>We can interpret this as saying that, given model and data, it is plausible to think that male speakers had lower voices than female speakers in informal contexts: this shows in the exclusion of 0 in the 95% inter-quantile range for parameter <code>genderM</code>. We may also conclude that given model and data, it is plausible to think that female speakers used lower voices in polite contexts than in formal ones (parameter <code>contextpol</code>).
 The posterior of the interaction term <code>genderM:contextpol</code> does not give any indication to think that 0, or any value near it, is not plausible. This can be interpreted as saying that there is no indication, given model and data, to believe that male speakers’ voice pitch changes differently from informal to polite contexts than female speakers’ voice pitch does.</p>
 <div class="exercises">
 <p><strong>Exercise 14.3</strong></p>
@@ -605,11 +633,13 @@ Solution
 
 </div>
 <!-- </div> -->
-<h3>References</h3>
-<div id="refs" class="references">
-<div id="ref-FrankeRoettger2019:Bayesian-regres">
-<p>Franke, Michael, and Timo B. Roettger. 2019. “Bayesian Regression Modeling (for Factorial Designs): A Tutorial.”</p>
-</div>
+<div class="footnotes">
+<hr />
+<ol start="65">
+<li id="fn65"><p>Notice the deliberate avoidance of causal terminology. We should not say that there is reason to believe that <em>adding</em> <code>mayo</code> to any dish will make it more tasty, just that, epistemically put, observing it in a dish should alter our expectations.<a href="Chap-04-03-predictors-multiple-predictors.html#fnref65" class="footnote-back">↩</a></p></li>
+<li id="fn66"><p>The following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs <span class="citation">(Franke and Roettger <a href="#ref-FrankeRoettger2019:Bayesian-regres">2019</a>)</span>, which can be downloaded <a href="https://psyarxiv.com/cdxv3">here</a><a href="Chap-04-03-predictors-multiple-predictors.html#fnref66" class="footnote-back">↩</a></p></li>
+<li id="fn67"><p>If the interaction term should be excluded, the formula <code>pitch ~ gender + context</code> can be used, so with <code>+</code> instead of <code>*</code>.<a href="Chap-04-03-predictors-multiple-predictors.html#fnref67" class="footnote-back">↩</a></p></li>
+</ol>
 </div>
             </section>
 
