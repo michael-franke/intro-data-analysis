@@ -489,29 +489,31 @@ knitr::include_graphics("visuals/coefficients_factorial_design.png")
 The coding scheme in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients) considers the cell "female+informal" as the reference level and therefore models its mean as intercept $\beta_0$.
 We then have a slope term $\beta_{\text{pol}}$ which encodes the difference between female pitch in informal and female pitch in polite contexts. 
 Analogous reasoning holds for $\beta_{\text{male}}$. 
-Finally, we also include a so-called **interaction term**, denoted as $\beta_{\text{pol+male}}$ in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients). 
+Finally, we also include a so-called **interaction term**, denoted as $\beta_{\text{pol&male}}$ in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients). 
 The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.
 
 Another way of describing what the interaction term $\beta_{\text{pol&male}}$ captures is that it represents the difference which the manipulation of context has on female and male speakers.
-To see this, notice that the impact of polite contexts on pitch for female speakers is:
+To see this, notice that the "extent of the effect of context", i.e., the decrease in pitch between informal and polite contexts, for female speakers is:
 
 $$
-\text{eff_context_on_female} = (\beta_0 + \beta_\text{pol}) - \beta_0 = \beta_\text{pol}
+\text{eff_context_on_female} = \beta_0 - (\beta_0 + \beta_\text{pol})  = - \beta_\text{pol}
 $$
-The effect of polite contexts on male speaker's pitch is:
+The bigger this number, the larger, so to speak, "the effect of context on female speakers".
+
+The effect of context on male speaker's pitch is correspondingly:
 
 $$
-\text{eff_context_on_male} = (\beta_\text{pol} + \beta_\text{male}) - (\beta_0 + \beta_\text{male} + \beta_{\text{pol}} + \beta_\text{pol&male}) = \beta_{\text{pol}} + \beta_\text{pol&male}
+\text{eff_context_on_male} = (\beta_0 + \beta_\text{male} + \beta_{\text{pol}} + \beta_\text{pol&male}) - (\beta_\text{pol} + \beta_\text{male}) = - \beta_{\text{pol}} - \beta_\text{pol&male}
 $$
 
-Therefore, the difference -comparing male and female speakers0- of the impact of the context manipulation (going from informal to polite contexts) is:
-$$\text{eff_context_on_male} - \text{eff_context_on_female} = \beta_\text{pol&male}$$
+Therefore, the difference -comparing female and male speakers- of the effect of context is:
+$$\text{eff_context_on_female} - \text{eff_context_on_male} = \beta_\text{pol&male}$$
 
 How do these model coefficients help address the research hypotheses we formulated above? - 
-The interaction term directly encodes what we had formulated as hypothesis 3 above.
+The interaction term $\beta_\text{pol&male}$ directly relates to hypothesis 3 above, namely that the context-effect is larger for female speakers than for male speakers.
 In other words, we can express H3 as the parameter-based hypothesis that:
 
-$$\textbf{H3:} \ \ \ \ \beta_\text{pol&male} < 0$$
+$$\textbf{H3 (interaction:} \ \ \ \ \beta_\text{pol&male} > 0$$
 The other two hypotheses are not directly expressible as a statement involving a single coefficient.
 But they can be expressed as a complex hypothesis involving more than one coefficient of the model.
 The hypothesis H1 states that the pitch of male speakers (averaging over context types) is lower than that of female speakers (averaging over context types).
@@ -524,13 +526,13 @@ $$
 This can be simplified to:
 
 $$
-\textbf{H1:} \ \ \ \ 2 \beta_\text{male} + \beta_\text{pol&male} < 0
+\textbf{H1: (gender)} \ \ \ \ \beta_\text{male} + \frac{1}{2} \beta_\text{pol&male} < 0
 $$
 
-Similar reasoning leads to the following formulation of hypothesis H2 concerning a main effect of factor gender:
+Similar reasoning leads to the following formulation of hypothesis H2 concerning a main effect of factor context:
 
 $$
-\textbf{H2:} \ \ \ \ 2 \beta_\text{pol} + \beta_\text{pol&male} < 0
+\textbf{H2: (context)} \ \ \ \ \beta_\text{pol} + \frac{1}{2} \beta_\text{pol&male} < 0
 $$
 
 To test these hypotheses, we can fit a regression model with this coding scheme using the formula `pitch ~ gender * context`. 
@@ -549,21 +551,35 @@ fit_brms_politeness <- brm(
 fit_brms_politeness <- readRDS('models_brms/politeness_fit.rds')
 ```
 
-The summary statistics below lists the model parameters indicated in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients).
+The summary statistics below lists Bayesian summary statistics for the (marginal) posteriors of the model parameters indicated in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients).
 
 ```{r}
 summary(fit_brms_politeness)$fixed[,c("l-95% CI", "Estimate", "u-95% CI")]
 ```
 
-We can then use the function `brms::hypothesis` to test the hypotheses in question.
+The function `brms::hypothesis` can test the relevant hypotheses based on the `brms_fit` object stored in `fiit_brms_politeness`.
+Starting with H1, we find very strong support for a main effect of gender:
 
 ```{r}
-# fill me
+brms::hypothesis(fit_brms_politeness, "genderM + 0.5 * genderM:contextpol < 0")
 ```
 
+As for H2, we also find very strong evidence in support of a belief in a main effect of context:
 
-We can interpret this as saying that, given model and data, it is plausible to think that male speakers had lower voices than female speakers in informal contexts: this shows in the exclusion of 0 in the 95% inter-quantile range for parameter `genderM`. We may also conclude that given model and data, it is plausible to think that female speakers used lower voices in polite contexts than in formal ones  (parameter `contextpol`).
-The posterior of the interaction term `genderM:contextpol` does not give any indication to think that 0, or any value near it, is not plausible. This can be interpreted as saying that there is no indication, given model and data, to believe that male speakers' voice pitch changes differently from informal to polite contexts than female speakers' voice pitch does.
+```{r}
+brms::hypothesis(fit_brms_politeness, "contextpol + 0.5 * genderM:contextpol < 0")
+```
+
+In contrast, based on the data and the model, there is at best very mildly suggestive evidence in favor of the third hypothesis according to which female speakers are more susceptible to pitch differences induced by different context types.
+
+```{r}
+brms::hypothesis(fit_brms_politeness, "genderM:contextpol > 0")
+```
+
+We can interpret this as saying that, given model and data, it is plausible to think that male speakers had lower voice pitch than female speakers (averaging over both context types).
+We may also conclude that given model and data, it is plausible to think that voice pitch was lower in polite contexts than informal contexts (averaged over both levels of factor `gender`).
+The posterior of the interaction term `genderM:contextpol` does not give any indication to think that 0, or any value near it, is not plausible. 
+This can be interpreted as saying that there is no indication, given model and data, to believe that male speakers' voice pitch changes differently from informal to polite contexts than female speakers' voice pitch does.
 
 <div class = "exercises">
 **Exercise 14.3**
@@ -580,6 +596,97 @@ The mean estimate for male speakers speaking in informal contexts is given by $\
 
 ### Sum coding
 
+Treatment coding allowed us to *directly* test H3 in terms of a single coefficient, but testing of hypotheses about so-called "main effects" (H1 and H2) cannot be directly read-off a single coefficient's posterior.
+As hypotheses about main effects are natural and common in experimental psychology, another coding scheme is very popular, namely **sum coding**.^[The comparisons tested by sum coding are the same contrasts also addressed by analysis of variance (ANOVA), a special case of regression modeling which was very popular and is still the standard method of statistical analysis for factorial designs in some areas of experimental psychology, despite good arguments in favor of (hierarchical) generalized regression analyses [@Jaeger2008:Categorical-dat].]
+
+Figure \@ref(fig:Chap-04-03-coefficients-sum-coding) shows how the mean of each design cell in our $2\times2$ design is expressed in terms of four regression coefficients.
+Parameter $\beta_0$ is called "intercept" as usual, but encodes the so-called **grand mean**, i.e. the mean value of all data observations.
+To see this, just sum all of the four terms in Figure \@ref(fig:Chap-04-03-coefficients-sum-coding) and divide by 4: the result is $\beta_0$.
+The parameters $\beta_\text{male}$ and $\beta_\text{pol}$ are slope coefficients, but they now encode the deviance from the grand mean.
+For example, $\beta_\text{male}$ encodes the difference between (i) the average pitch of all measurements taken from male participants and (ii) the grand mean.
+Finally, the interaction coefficient $\beta_\text{pol&male}$ serves the same function as before in treatment coding, namely to make room for a difference in the strength of one main effect, e.g., of context, on the levels of the other predictor, e.g., gender.
+
+
 ```{r Chap-04-03-coefficients-sum-coding, echo = F, fig.cap="Regression coefficients for a factorial design (using so-called 'sum coding').", fig.width=4}
 knitr::include_graphics("visuals/coefficients_factorial_design_sum-coding.png")
 ```
+
+It is clear, then that under treatment coding the hypotheses H1 and H2, targeting main effects, can be straightforwardly states as inequalities concerning singular coefficients, namely:
+
+$$
+\textbf{H1: (gender)} \ \ \ \ \beta_\text{male} < 0
+$$
+
+$$
+\textbf{H2: (context)} \ \ \ \ \beta_\text{pol} < 0
+$$
+
+What is less obvious is that the interaction term, as defined under sum coding, still directly expresses the interaction hypothesis H3.
+To see this, calculate as before:
+
+$$
+\begin{align*}
+& \text{eff_context_on_female} \\
+& = (\beta_0 - \beta_\text{male} - \beta_\text{pol} + \beta_\text{pol&male}) -   (\beta_0 - \beta_\text{male} + \beta_\text{pol} - \beta_\text{pol&male})  \\
+& = - 2 \beta_\text{pol} + 2 \beta_\text{pol&male}
+\end{align*}
+$$
+
+The effect of context on male speaker's pitch is:
+
+$$
+\begin{align*}
+& \text{eff_context_on_male} \\ 
+& = (\beta_0 + \beta_\text{male} - \beta_\text{pol} - \beta_\text{pol&male}) -   (\beta_0 + \beta_\text{male} + \beta_\text{pol} + \beta_\text{pol&male})  \\
+& = - 2 \beta_\text{male} - 2 \beta_\text{pol&male}
+\end{align*}
+$$
+
+Consequently, the difference -comparing female and male speakers- of the effect of context under sum coding is expressed as:
+$$\text{eff_context_on_female} - \text{eff_context_on_male} = 4 \beta_\text{pol&male}$$
+To implement sum coding for use in `brms`, R provides functions `contrasts` and `contr.sum`.
+Here is an example.
+
+```{r}
+# make predictors 'factors' b/c that's required for contrast coding
+#   also: change order to match coding assumed in the main text
+data_polite <- aida::data_polite %>% 
+  mutate(
+    gender = factor(gender, levels = c('M', 'F')),
+    context = factor(context, levels = c('pol', 'inf'))
+  )
+
+# apply 'sum' contrasts
+contrasts(data_polite$context) <- contr.sum(2)
+contrasts(data_polite$gender) <- contr.sum(2)
+
+# add intelligible name to the new contrast coding
+colnames(contrasts(data_polite$context)) <- ":polite"
+colnames(contrasts(data_polite$gender)) <- ":male"
+
+# run brms as usual
+fit_brms_politeness_sum <- brm(
+  pitch ~ gender * context,
+  data_polite
+)
+```
+
+We can inspect the coefficients as usual:
+
+```{r}
+summary(fit_brms_politeness_sum)$fixed[, c("l-95% CI", "Estimate" ,"u-95% CI")]
+```
+
+The summary statistics for the posterior already directly address all three hypotheses in question, but we should compare our previous results to the full results of using `brms::hypothesis` also for the sum-coded analysis.
+
+```{r}
+# testing H1
+brms::hypothesis(fit_brms_politeness_sum, "gender:male < 0")
+# testing H2
+brms::hypothesis(fit_brms_politeness_sum, "context:polite < 0")
+# testing H3
+brms::hypothesis(fit_brms_politeness_sum, "gender:male:context:polite > 0")
+```
+
+Since we didn't use any priors, which could have altered results slightly between treatment- and sum-coded regression modeling, we find (modulo sampling imprecision) the same "evidence ratios" and posterior probabilities of these hypotheses.
+The overall conclusions are therefore the exact same: evidence for both main effects; no evidence for interaction.
