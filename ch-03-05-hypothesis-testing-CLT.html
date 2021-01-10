@@ -389,7 +389,10 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="14" data-path="Chap-04-03-predictors.html"><a href="Chap-04-03-predictors.html"><i class="fa fa-check"></i><b>14</b> Categorical predictors</a><ul>
 <li class="chapter" data-level="14.1" data-path="Chap-04-03-predictors-two-levels.html"><a href="Chap-04-03-predictors-two-levels.html"><i class="fa fa-check"></i><b>14.1</b> Single two-level predictor</a></li>
 <li class="chapter" data-level="14.2" data-path="Chap-04-03-predictors-multi-levels.html"><a href="Chap-04-03-predictors-multi-levels.html"><i class="fa fa-check"></i><b>14.2</b> Single multi-level predictors</a></li>
-<li class="chapter" data-level="14.3" data-path="Chap-04-03-predictors-multiple-predictors.html"><a href="Chap-04-03-predictors-multiple-predictors.html"><i class="fa fa-check"></i><b>14.3</b> Multiple predictors</a></li>
+<li class="chapter" data-level="14.3" data-path="Chap-04-03-predictors-multiple-predictors.html"><a href="Chap-04-03-predictors-multiple-predictors.html"><i class="fa fa-check"></i><b>14.3</b> Multiple predictors</a><ul>
+<li class="chapter" data-level="14.3.1" data-path="Chap-04-03-predictors-multiple-predictors.html"><a href="Chap-04-03-predictors-multiple-predictors.html#treatment-coding"><i class="fa fa-check"></i><b>14.3.1</b> Treatment coding</a></li>
+<li class="chapter" data-level="14.3.2" data-path="Chap-04-03-predictors-multiple-predictors.html"><a href="Chap-04-03-predictors-multiple-predictors.html#sum-coding"><i class="fa fa-check"></i><b>14.3.2</b> Sum coding</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="15" data-path="Chap-04-04-GLM.html"><a href="Chap-04-04-GLM.html"><i class="fa fa-check"></i><b>15</b> Generalized linear model</a></li>
 <li class="part"><span><b>V Frequentist statistics</b></span></li>
@@ -560,19 +563,19 @@ code span.wa { color: #bf0303; } /* Warning */
 </div>
 
 <p>Computer simulations make the point and usefulness of this fact easier to appreciate:</p>
-<div class="sourceCode" id="cb597"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb597-1" data-line-number="1"><span class="co"># sample from a standard normal distribution (mean = 0, sd = 1)</span></a>
-<a class="sourceLine" id="cb597-2" data-line-number="2">samples &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100000</span>)</a>
-<a class="sourceLine" id="cb597-3" data-line-number="3"><span class="co"># collect the mean after each 10 samples &amp; plot</span></a>
-<a class="sourceLine" id="cb597-4" data-line-number="4"><span class="kw">tibble</span>(</a>
-<a class="sourceLine" id="cb597-5" data-line-number="5">  <span class="dt">n =</span> <span class="kw">seq</span>(<span class="dv">100</span>, <span class="kw">length</span>(samples), <span class="dt">by =</span> <span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb597-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb597-7" data-line-number="7"><span class="st">  </span><span class="kw">group_by</span>(n) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb597-8" data-line-number="8"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb597-9" data-line-number="9">  <span class="dt">mu =</span> <span class="kw">mean</span>(samples[<span class="dv">1</span><span class="op">:</span>n])</a>
-<a class="sourceLine" id="cb597-10" data-line-number="10">)  <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb597-11" data-line-number="11"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> n, <span class="dt">y =</span> mu)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb597-12" data-line-number="12"><span class="st">  </span><span class="kw">geom_line</span>()</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-413-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb598"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb598-1" data-line-number="1"><span class="co"># sample from a standard normal distribution (mean = 0, sd = 1)</span></a>
+<a class="sourceLine" id="cb598-2" data-line-number="2">samples &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100000</span>)</a>
+<a class="sourceLine" id="cb598-3" data-line-number="3"><span class="co"># collect the mean after each 10 samples &amp; plot</span></a>
+<a class="sourceLine" id="cb598-4" data-line-number="4"><span class="kw">tibble</span>(</a>
+<a class="sourceLine" id="cb598-5" data-line-number="5">  <span class="dt">n =</span> <span class="kw">seq</span>(<span class="dv">100</span>, <span class="kw">length</span>(samples), <span class="dt">by =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb598-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb598-7" data-line-number="7"><span class="st">  </span><span class="kw">group_by</span>(n) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb598-8" data-line-number="8"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb598-9" data-line-number="9">  <span class="dt">mu =</span> <span class="kw">mean</span>(samples[<span class="dv">1</span><span class="op">:</span>n])</a>
+<a class="sourceLine" id="cb598-10" data-line-number="10">)  <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb598-11" data-line-number="11"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> n, <span class="dt">y =</span> mu)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb598-12" data-line-number="12"><span class="st">  </span><span class="kw">geom_line</span>()</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-414-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>For practical purposes, think of the Central Limit Theorem as an extension of the Law of Large Numbers. While the latter tells us that, as <span class="math inline">\(n \rightarrow \infty\)</span>, the mean of repeated samples from a random variable <span class="math inline">\(X\)</span> converges to the mean of <span class="math inline">\(X\)</span>, the Central Limit Theorem tells us something about the distribution of our estimate of <span class="math inline">\(X\)</span>’s mean. The Central Limit Theorem tells us that the sampling distribution of the mean approximates a normal distribution for a large enough sample size.</p>
 
 <div class="theorem">

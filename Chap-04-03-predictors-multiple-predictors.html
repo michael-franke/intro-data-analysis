@@ -389,7 +389,10 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="14" data-path="Chap-04-03-predictors.html"><a href="Chap-04-03-predictors.html"><i class="fa fa-check"></i><b>14</b> Categorical predictors</a><ul>
 <li class="chapter" data-level="14.1" data-path="Chap-04-03-predictors-two-levels.html"><a href="Chap-04-03-predictors-two-levels.html"><i class="fa fa-check"></i><b>14.1</b> Single two-level predictor</a></li>
 <li class="chapter" data-level="14.2" data-path="Chap-04-03-predictors-multi-levels.html"><a href="Chap-04-03-predictors-multi-levels.html"><i class="fa fa-check"></i><b>14.2</b> Single multi-level predictors</a></li>
-<li class="chapter" data-level="14.3" data-path="Chap-04-03-predictors-multiple-predictors.html"><a href="Chap-04-03-predictors-multiple-predictors.html"><i class="fa fa-check"></i><b>14.3</b> Multiple predictors</a></li>
+<li class="chapter" data-level="14.3" data-path="Chap-04-03-predictors-multiple-predictors.html"><a href="Chap-04-03-predictors-multiple-predictors.html"><i class="fa fa-check"></i><b>14.3</b> Multiple predictors</a><ul>
+<li class="chapter" data-level="14.3.1" data-path="Chap-04-03-predictors-multiple-predictors.html"><a href="Chap-04-03-predictors-multiple-predictors.html#treatment-coding"><i class="fa fa-check"></i><b>14.3.1</b> Treatment coding</a></li>
+<li class="chapter" data-level="14.3.2" data-path="Chap-04-03-predictors-multiple-predictors.html"><a href="Chap-04-03-predictors-multiple-predictors.html#sum-coding"><i class="fa fa-check"></i><b>14.3.2</b> Sum coding</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="15" data-path="Chap-04-04-GLM.html"><a href="Chap-04-04-GLM.html"><i class="fa fa-check"></i><b>15</b> Generalized linear model</a></li>
 <li class="part"><span><b>V Frequentist statistics</b></span></li>
@@ -585,7 +588,7 @@ The factor <code>context</code> has two levels, namely “informal” for inform
 ## 5 F1      F      S3       pol      204.</code></pre>
 <p>The research hypotheses of interest are:</p>
 <ol style="list-style-type: decimal">
-<li><strong>H1: (gender)</strong>: the voice pitch of male speakers is lower than that of female speakers.</li>
+<li><strong>H1: (gender)</strong>: the voice pitch of male speakers is lower than that of female speakers;</li>
 <li><strong>H2: (context)</strong>: the voice pitch of speech in polite contexts is lower than in informal contexts; and</li>
 <li><strong>H3: (interaction)</strong>: the effect of context (= the difference of voice pitch between polite and informal context; as mentioned in the second hypothesis) is larger for female speakers than for male speakers.</li>
 </ol>
@@ -602,29 +605,73 @@ Concretely, the panels in Figure <a href="Chap-04-03-predictors-multiple-predict
 <li><strong>E</strong>: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category; and</li>
 <li><strong>F</strong>: as in E but with a different kind interaction (effect reversal).</li>
 </ul>
-<p>Notice that the type of situation shown in panel E is the overal expectation made by the conjunction of the hypotheses H1-H3 formulated above: we predict/expect main effects for both predictors (in the direction shown in panel E) and we expect the effect of context to be stronger for female speakers than for male speakers.</p>
+<p>Notice that the type of situation shown in panel E is the expectation derivable from the conjunction of the hypotheses H1-H3 formulated above: we predict/expect main effects for both predictors (in the direction shown in panel E) and we expect the effect of context to be stronger for female speakers than for male speakers.</p>
 <div class="figure" style="text-align: center"><span id="fig:04-03-2x2-hypotheses"></span>
 <img src="I2DA_files/figure-html/04-03-2x2-hypotheses-1.png" alt="Schematic representation of presence/absence of main effects and (different kinds of) interactions. Situations shown are as follows: A no main effect (neither gender nor context) an no interaction; B: main effect of gender only w/ no interaction; C: main effect of context only w/ no interaction; D: main effects of both context and gender but no interaction; E: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category (this is the situation envisaged by hypotheses 1-3 from the main text); F: as in E but with a different kind interaction (effect reversal)." width="672" />
 <p class="caption">
 Figure 14.1: Schematic representation of presence/absence of main effects and (different kinds of) interactions. Situations shown are as follows: A no main effect (neither gender nor context) an no interaction; B: main effect of gender only w/ no interaction; C: main effect of context only w/ no interaction; D: main effects of both context and gender but no interaction; E: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category (this is the situation envisaged by hypotheses 1-3 from the main text); F: as in E but with a different kind interaction (effect reversal).
 </p>
 </div>
+<p>Let us now take a look at the actual data:</p>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-401-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>In a <span class="math inline">\(2 \times 2\)</span> factorial design like this, there are essentially four pairs of factor levels (so-called <strong>design cells</strong>): female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts.
-Different schemes exist by means of which different comparisons of means of design cells (or single factors) can be probed.
+<p>Judging from visual inspection, we might say that the empirical data most resembles panel D in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:04-03-2x2-hypotheses">14.1</a>.
+It looks as if there might be a rather strong effect of gender.
+The measurements in the female category seem (on average) higher than in the male category.
+Also, there might well be a main effect of context.
+Probably the voice pitch in informal contexts is higher than in polite contexts, but we cannot be as sure as for a potential main effect of gender.
+It is very difficult to discern whether the data supports the hypothesized interaction.</p>
+<p>In the following we are therefore going to test these hypotheses (more or less directly) with two different kinds of coding schemes: treatment coding and sum coding.</p>
+<div id="treatment-coding" class="section level3">
+<h3><span class="header-section-number">14.3.1</span> Treatment coding</h3>
+<p>In a <span class="math inline">\(2 \times 2\)</span> factorial design there are essentially four pairs of factor levels (so-called <strong>design cells</strong>).
+For the politeness data these are female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts.
+Different coding schemes exist by means of which different comparisons of means of design cells (or single factors) can be probed.
 A simple coding scheme for differences in our <span class="math inline">\(2 \times 2\)</span> design is shown in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.
-This is a straightforward extension of <em>treatment coding</em> for the single predictors, while also catering to their potential interaction.
-Concretely, we consider the cell “female+informal” as the reference level and therefore model its mean as intercept <span class="math inline">\(\beta_0\)</span>.
-We then have a slope term <span class="math inline">\(\beta_{\text{pol}}\)</span> which encodes the difference between female pitch in informal and female pitch in polite contexts.
-Analogous reasoning holds for <span class="math inline">\(\beta_{\text{male}}\)</span>. Finally, we also include a so-called <strong>interaction term</strong>, denoted as <span class="math inline">\(\beta_{\text{pol+male}}\)</span> in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.
-The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.</p>
+This is a straightforward extension of <em>treatment coding</em> for the single predictors introduced previously which additionally includes a potential interaction.</p>
 <div class="figure" style="text-align: center"><span id="fig:Chap-04-02-beyond-simple-regression-factorial-coefficients"></span>
 <img src="visuals/coefficients_factorial_design.png" alt="Regression coefficients for a factorial design (using so-called 'treatment coding')."  />
 <p class="caption">
 Figure 14.2: Regression coefficients for a factorial design (using so-called ‘treatment coding’).
 </p>
 </div>
-<p>We can fit a regression model with this coding scheme using the formula <code>pitch ~ gender * context</code>. Importantly the star <code>*</code> between explanatory variables <code>gender</code> and <code>context</code> indicates that we also want to include the interaction term.<a href="#fn67" class="footnote-ref" id="fnref67"><sup>67</sup></a></p>
+<p>The coding scheme in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a> considers the cell “female+informal” as the reference level and therefore models its mean as intercept <span class="math inline">\(\beta_0\)</span>.
+We then have a slope term <span class="math inline">\(\beta_{\text{pol}}\)</span> which encodes the difference between female pitch in informal and female pitch in polite contexts.
+Analogous reasoning holds for <span class="math inline">\(\beta_{\text{male}}\)</span>.
+Finally, we also include a so-called <strong>interaction term</strong>, denoted as <span class="math inline">\(\beta_{\text{pol+male}}\)</span> in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.
+The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.</p>
+<p>Another way of describing what the interaction term <span class="math inline">\(\beta_{\text{pol&amp;male}}\)</span> captures is that it represents the difference which the manipulation of context has on female and male speakers.
+To see this, notice that the impact of polite contexts on pitch for female speakers is:</p>
+<p><span class="math display">\[
+\text{eff_context_on_female} = (\beta_0 + \beta_\text{pol}) - \beta_0 = \beta_\text{pol}
+\]</span>
+The effect of polite contexts on male speaker’s pitch is:</p>
+<p><span class="math display">\[
+\text{eff_context_on_male} = (\beta_\text{pol} + \beta_\text{male}) - (\beta_0 + \beta_\text{male} + \beta_{\text{pol}} + \beta_\text{pol&amp;male}) = \beta_{\text{pol}} + \beta_\text{pol&amp;male}
+\]</span></p>
+<p>Therefore, the difference -comparing male and female speakers0- of the impact of the context manipulation (going from informal to polite contexts) is:
+<span class="math display">\[\text{eff_context_on_male} - \text{eff_context_on_female} = \beta_\text{pol&amp;male}\]</span></p>
+<p>How do these model coefficients help address the research hypotheses we formulated above? -
+The interaction term directly encodes what we had formulated as hypothesis 3 above.
+In other words, we can express H3 as the parameter-based hypothesis that:</p>
+<p><span class="math display">\[\textbf{H3:} \ \ \ \ \beta_\text{pol&amp;male} &lt; 0\]</span>
+The other two hypotheses are not directly expressible as a statement involving a single coefficient.
+But they can be expressed as a complex hypothesis involving more than one coefficient of the model.
+The hypothesis H1 states that the pitch of male speakers (averaging over context types) is lower than that of female speakers (averaging over context types).
+This translates directly into the following statement (where the LHS/RHS is the average pitch of male/female speakers):</p>
+<p><span class="math display">\[
+\frac{1}{2} (\beta_0 + \beta_\text{male} + \beta_0 + \beta_\text{male} + \beta_\text{pol} + \beta_\text{pol&amp;male}) &lt; 
+\frac{1}{2} (\beta_0 + \beta_0 + \beta_\text{pol})
+\]</span>
+This can be simplified to:</p>
+<p><span class="math display">\[
+\textbf{H1:} \ \ \ \ 2 \beta_\text{male} + \beta_\text{pol&amp;male} &lt; 0
+\]</span></p>
+<p>Similar reasoning leads to the following formulation of hypothesis H2 concerning a main effect of factor gender:</p>
+<p><span class="math display">\[
+\textbf{H2:} \ \ \ \ 2 \beta_\text{pol} + \beta_\text{pol&amp;male} &lt; 0
+\]</span></p>
+<p>To test these hypotheses, we can fit a regression model with this coding scheme using the formula <code>pitch ~ gender * context</code>.
+Importantly the star <code>*</code> between explanatory variables <code>gender</code> and <code>context</code> indicates that we also want to include the interaction term.<a href="#fn67" class="footnote-ref" id="fnref67"><sup>67</sup></a></p>
 <div class="sourceCode" id="cb584"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb584-1" data-line-number="1">fit_brms_politeness &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
 <a class="sourceLine" id="cb584-2" data-line-number="2">  <span class="co"># model &#39;pitch&#39; as a function of &#39;gender&#39; and &#39;context&#39;,</span></a>
 <a class="sourceLine" id="cb584-3" data-line-number="3">  <span class="co">#  also including the interaction between `gender` and `context`</span></a>
@@ -638,6 +685,8 @@ Figure 14.2: Regression coefficients for a factorial design (using so-called ‘
 ## genderM            -138.41661 -116.53009 -93.764509
 ## contextpol          -49.44973  -27.69013  -4.936747
 ## genderM:contextpol  -15.79220   16.16356  46.823184</code></pre>
+<p>We can then use the function <code>brms::hypothesis</code> to test the hypotheses in question.</p>
+<div class="sourceCode" id="cb587"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb587-1" data-line-number="1"><span class="co"># fill me</span></a></code></pre></div>
 <p>We can interpret this as saying that, given model and data, it is plausible to think that male speakers had lower voices than female speakers in informal contexts: this shows in the exclusion of 0 in the 95% inter-quantile range for parameter <code>genderM</code>. We may also conclude that given model and data, it is plausible to think that female speakers used lower voices in polite contexts than in formal ones (parameter <code>contextpol</code>).
 The posterior of the interaction term <code>genderM:contextpol</code> does not give any indication to think that 0, or any value near it, is not plausible. This can be interpreted as saying that there is no indication, given model and data, to believe that male speakers’ voice pitch changes differently from informal to polite contexts than female speakers’ voice pitch does.</p>
 <div class="exercises">
@@ -652,7 +701,17 @@ Solution
 </div>
 </div>
 </div>
+</div>
+<div id="sum-coding" class="section level3">
+<h3><span class="header-section-number">14.3.2</span> Sum coding</h3>
+<div class="figure" style="text-align: center"><span id="fig:Chap-04-03-coefficients-sum-coding"></span>
+<img src="visuals/coefficients_factorial_design_sum-coding.png" alt="Regression coefficients for a factorial design (using so-called 'sum coding')."  />
+<p class="caption">
+Figure 14.3: Regression coefficients for a factorial design (using so-called ‘sum coding’).
+</p>
+</div>
 
+</div>
 </div>
 <!-- </div> -->
 <div class="footnotes">
