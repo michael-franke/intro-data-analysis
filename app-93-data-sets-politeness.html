@@ -512,6 +512,8 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="D.9.2" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#hypotheses-1"><i class="fa fa-check"></i><b>D.9.2</b> Hypotheses</a></li>
 <li class="chapter" data-level="D.9.3" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#summary-statistics-1"><i class="fa fa-check"></i><b>D.9.3</b> Summary statistics</a></li>
 <li class="chapter" data-level="D.9.4" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#visualization-1"><i class="fa fa-check"></i><b>D.9.4</b> Visualization</a></li>
+<li class="chapter" data-level="D.9.5" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#analysis-1"><i class="fa fa-check"></i><b>D.9.5</b> Analysis</a></li>
+<li class="chapter" data-level="D.9.6" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#anova"><i class="fa fa-check"></i><b>D.9.6</b> ANOVA</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="E" data-path="app-94-open-science.html"><a href="app-94-open-science.html"><i class="fa fa-check"></i><b>E</b> Open science practices</a><ul>
@@ -595,6 +597,63 @@ The data is from Korean speakers.</p>
 <h3><span class="header-section-number">D.9.4</span> Visualization</h3>
 <p>Here is a plot showing the distribution of pitch measures in each group (small semi-transparent points), as well the cell means (big solid points):</p>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-515-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="analysis-1" class="section level3">
+<h3><span class="header-section-number">D.9.5</span> Analysis</h3>
+<div class="sourceCode" id="cb736"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb736-1" data-line-number="1"><span class="co"># make predictors &#39;factors&#39; so we can change contrast coding</span></a>
+<a class="sourceLine" id="cb736-2" data-line-number="2">data_polite &lt;-<span class="st"> </span>aida<span class="op">::</span>data_polite <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb736-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb736-4" data-line-number="4">    <span class="dt">gender =</span> <span class="kw">factor</span>(gender, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&#39;M&#39;</span>, <span class="st">&#39;F&#39;</span>)),</a>
+<a class="sourceLine" id="cb736-5" data-line-number="5">    <span class="dt">context =</span> <span class="kw">factor</span>(context, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&#39;pol&#39;</span>, <span class="st">&#39;inf&#39;</span>))</a>
+<a class="sourceLine" id="cb736-6" data-line-number="6">  )</a>
+<a class="sourceLine" id="cb736-7" data-line-number="7"><span class="co"># apply &#39;sum&#39; contrasts</span></a>
+<a class="sourceLine" id="cb736-8" data-line-number="8"><span class="kw">contrasts</span>(data_polite<span class="op">$</span>context) &lt;-<span class="st"> </span><span class="kw">contr.sum</span>(<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb736-9" data-line-number="9"><span class="kw">colnames</span>(<span class="kw">contrasts</span>(data_polite<span class="op">$</span>context)) &lt;-<span class="st"> &quot;:polite&quot;</span></a>
+<a class="sourceLine" id="cb736-10" data-line-number="10"><span class="kw">contrasts</span>(data_polite<span class="op">$</span>gender) &lt;-<span class="st"> </span><span class="kw">contr.sum</span>(<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb736-11" data-line-number="11"><span class="kw">colnames</span>(<span class="kw">contrasts</span>(data_polite<span class="op">$</span>gender)) &lt;-<span class="st"> &quot;:male&quot;</span></a>
+<a class="sourceLine" id="cb736-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb736-13" data-line-number="13">fit_brms_politeness_sum &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb736-14" data-line-number="14">  pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
+<a class="sourceLine" id="cb736-15" data-line-number="15">  data_polite,</a>
+<a class="sourceLine" id="cb736-16" data-line-number="16">  <span class="dt">iter =</span> <span class="dv">4000</span></a>
+<a class="sourceLine" id="cb736-17" data-line-number="17">)</a></code></pre></div>
+<div class="sourceCode" id="cb737"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb737-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness_sum)<span class="op">$</span>fixed[, <span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span> ,<span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<pre><code>##                              l-95% CI   Estimate   u-95% CI
+## Intercept                  185.071798 192.937107 200.789404
+## gender:male                -61.817286 -54.085729 -46.343009
+## context:polite             -17.269486  -9.737492  -2.097373
+## gender:male:context:polite  -3.814538   3.980704  11.876466</code></pre>
+<p>Intercept is the grand mean:</p>
+<div class="sourceCode" id="cb739"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb739-1" data-line-number="1">grand_mean &lt;-<span class="st"> </span>politeness_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(pitch) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>()</a>
+<a class="sourceLine" id="cb739-2" data-line-number="2">grand_mean</a></code></pre></div>
+<pre><code>## [1] 193.5819</code></pre>
+<p>Slope “gender1” gives the deviation of the average pitch for category “female” from the grand mean, so that it intuitively encodes what is often called the “<strong>main effect</strong> of gender” (given that the deviation from the grand mean of the “male” category is just -1 times that for “female”:</p>
+<div class="sourceCode" id="cb741"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb741-1" data-line-number="1">mean_female &lt;-<span class="st"> </span>politeness_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(gender <span class="op">==</span><span class="st"> &quot;F&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(pitch) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>()</a>
+<a class="sourceLine" id="cb741-2" data-line-number="2">main_eff_gender &lt;-<span class="st"> </span>mean_female <span class="op">-</span><span class="st"> </span>grand_mean</a>
+<a class="sourceLine" id="cb741-3" data-line-number="3">main_eff_gender</a></code></pre></div>
+<pre><code>## [1] 53.40379</code></pre>
+<p>Slope “context1” gives the deviation of the average pitch for category “polite” from the grand mean, so that it intuitively captures the “main effect of context”:</p>
+<div class="sourceCode" id="cb743"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb743-1" data-line-number="1">mean_informal &lt;-<span class="st"> </span>politeness_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(context <span class="op">==</span><span class="st"> &quot;inf&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(pitch) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>()</a>
+<a class="sourceLine" id="cb743-2" data-line-number="2">main_eff_context &lt;-<span class="st"> </span>mean_informal <span class="op">-</span><span class="st"> </span>grand_mean</a>
+<a class="sourceLine" id="cb743-3" data-line-number="3">main_eff_context</a></code></pre></div>
+<pre><code>## [1] 9.006168</code></pre>
+<p>The interaction term “gender1:context1” specifies how much the mean of the design cell “female-polite” deviates from the predictions based on only main effects:</p>
+<div class="sourceCode" id="cb745"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb745-1" data-line-number="1">mean_informal_female &lt;-<span class="st"> </span>politeness_data <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb745-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(context <span class="op">==</span><span class="st"> &quot;inf&quot;</span>, gender <span class="op">==</span><span class="st"> &quot;F&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb745-3" data-line-number="3"><span class="st">  </span><span class="kw">pull</span>(pitch) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>()</a>
+<a class="sourceLine" id="cb745-4" data-line-number="4">mean_informal_female <span class="op">-</span>(grand_mean <span class="op">+</span><span class="st"> </span>main_eff_gender <span class="op">+</span><span class="st"> </span>main_eff_context)</a></code></pre></div>
+<pre><code>## [1] 4.693832</code></pre>
+</div>
+<div id="anova" class="section level3">
+<h3><span class="header-section-number">D.9.6</span> ANOVA</h3>
+<div class="sourceCode" id="cb747"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb747-1" data-line-number="1"><span class="kw">aov</span>(pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context, politeness_data) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summary</span>()</a></code></pre></div>
+<pre><code>##                Df Sum Sq Mean Sq F value Pr(&gt;F)    
+## gender          1 242487  242487 190.591 &lt;2e-16 ***
+## context         1   7931    7931   6.234 0.0146 *  
+## gender:context  1   1309    1309   1.029 0.3135    
+## Residuals      79 100511    1272                   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 
 </div>
 </div>

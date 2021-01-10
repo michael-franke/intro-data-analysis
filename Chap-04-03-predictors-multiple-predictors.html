@@ -512,6 +512,8 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="D.9.2" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#hypotheses-1"><i class="fa fa-check"></i><b>D.9.2</b> Hypotheses</a></li>
 <li class="chapter" data-level="D.9.3" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#summary-statistics-1"><i class="fa fa-check"></i><b>D.9.3</b> Summary statistics</a></li>
 <li class="chapter" data-level="D.9.4" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#visualization-1"><i class="fa fa-check"></i><b>D.9.4</b> Visualization</a></li>
+<li class="chapter" data-level="D.9.5" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#analysis-1"><i class="fa fa-check"></i><b>D.9.5</b> Analysis</a></li>
+<li class="chapter" data-level="D.9.6" data-path="app-93-data-sets-politeness.html"><a href="app-93-data-sets-politeness.html#anova"><i class="fa fa-check"></i><b>D.9.6</b> ANOVA</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="E" data-path="app-94-open-science.html"><a href="app-94-open-science.html"><i class="fa fa-check"></i><b>E</b> Open science practices</a><ul>
@@ -550,18 +552,18 @@ code span.wa { color: #bf0303; } /* Warning */
 <h2><span class="header-section-number">14.3</span> Multiple predictors</h2>
 <p>Factorial designs, which have more than one categorical predictor variable, are common in experimental psychology.
 Any contrast coding scheme usable for encoding a single categorical predictor can, in principle, also be used when there are multiple categorical predictors.
-But multiple categorical predictors also require some additional considerations relating to how (the model assumes that) different predictors might or might not interact with another.</p>
+But having multiple categorical predictors also requires some additional considerations relating to how (the model assumes that) different predictors might or might not interact with another.</p>
 <p>Here is an informal example.
 Suppose that we have metric measurements of how tasty a snack is perceived to be.
 There are two categorical factors which we want to use to predict the average tastiness of a snack.
 The first predictor is <code>mayo</code> and we encode it numerically as: 0 if the dish does not contain mayonnaise and 1 if it does.
 The second predictor is <code>chocolate</code> and we encode it similarly as: 0 if the dish does not contain chocolate and 1 if it does.
-Suppose we estimate the two (!) slope coefficients for <code>mayo</code> and <code>chocolate</code> for our imaginary data set and find that both are credibly positive.
+Suppose we estimate these two slope coefficients (one for <code>mayo</code> and one for <code>chocolate</code>) for our imaginary data set and find that both are credibly positive.
 That means that there is reason to believe that, all else equal, when we find <code>mayo</code> in a snack we may expect it to be rated as more tasty, and, all else equal, when we find <code>chocolate</code> in a snack we may also expect it to be rated as more tasty.<a href="#fn65" class="footnote-ref" id="fnref65"><sup>65</sup></a>
 But what about a dish with <em>both</em> <code>mayo</code> <em>and</em> <code>chocolate</code>?
 Maybe we can agree to assume for the sake of argument that, on average, snacks containing both <code>mayo</code> and <code>chocolate</code> are <em>not</em> rated as tasty at all.
-Or at least, we might want to include in our model the possibility that the combination of <code>mayo</code> and <code>chocolate</code> has a different effect than the sum of the contributions of <code>mayo</code> on its own and that of <code>chocolate</code> of its own.
-That is why, when we have multiple categorical predictors, we also often want to include yet another type of slope coefficients, so-called <strong>interaction terms</strong>, that capture how the combination of different factor levels from different categorical predictors, well, interact.
+Or, at least, we might want to include in our model the possibility that the combination of <code>mayo</code> and <code>chocolate</code> has a different effect than the sum of the contributions of (i) <code>mayo</code> on its own and that of (ii) <code>chocolate</code> of its own.
+That is why, when we have multiple categorical predictors, we also often want to include yet another type of slope coefficient, so-called <strong>interaction terms</strong>, that capture how the combination of different factor levels from different categorical predictors, well, interact.
 If you like a more precise characterization at this moment already (although an example below will make things hopefully much clearer), we could say that, in the context of a linear regression model, an interaction between levels of several predictors is a (potential) deviation from the sum of all of the additive effects of the individual predictor levels in isolation.</p>
 <div style="float:right; width:15%;">
 <p><img src="visuals/badge-politeness.png" alt="badge-politeness"></p>
@@ -570,36 +572,56 @@ If you like a more precise characterization at this moment already (although an 
 The to-be-predicted data are measurements of voice pitch in a <span class="math inline">\(2 \times 2\)</span> factorial design, with factors <code>gender</code> and <code>context</code>.
 The factor <code>gender</code> has (sadly only) two levels: “male” and “female”.
 The factor <code>context</code> has two levels, namely “informal” for informal speech situations and “polite” for polite speech situations.</p>
-<p>We load the data, inspect and plot it.</p>
+<p>Let us first load the data &amp; inspect it.</p>
 <div class="sourceCode" id="cb582"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb582-1" data-line-number="1">politeness_data &lt;-<span class="st"> </span>aida<span class="op">::</span>data_polite</a>
-<a class="sourceLine" id="cb582-2" data-line-number="2">politeness_data</a></code></pre></div>
-<pre><code>## # A tibble: 83 x 5
-##    subject gender sentence context pitch
-##    &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
-##  1 F1      F      S1       pol      213.
-##  2 F1      F      S1       inf      204.
-##  3 F1      F      S2       pol      285.
-##  4 F1      F      S2       inf      260.
-##  5 F1      F      S3       pol      204.
-##  6 F1      F      S3       inf      287.
-##  7 F1      F      S4       pol      251.
-##  8 F1      F      S4       inf      277.
-##  9 F1      F      S5       pol      232.
-## 10 F1      F      S5       inf      252.
-## # … with 73 more rows</code></pre>
+<a class="sourceLine" id="cb582-2" data-line-number="2">politeness_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">5</span>)</a></code></pre></div>
+<pre><code>## # A tibble: 5 x 5
+##   subject gender sentence context pitch
+##   &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
+## 1 F1      F      S1       pol      213.
+## 2 F1      F      S1       inf      204.
+## 3 F1      F      S2       pol      285.
+## 4 F1      F      S2       inf      260.
+## 5 F1      F      S3       pol      204.</code></pre>
+<p>The research hypotheses of interest are:</p>
+<ol style="list-style-type: decimal">
+<li><strong>H1: (gender)</strong>: the voice pitch of male speakers is lower than that of female speakers.</li>
+<li><strong>H2: (context)</strong>: the voice pitch of speech in polite contexts is lower than in informal contexts; and</li>
+<li><strong>H3: (interaction)</strong>: the effect of context (= the difference of voice pitch between polite and informal context; as mentioned in the second hypothesis) is larger for female speakers than for male speakers.</li>
+</ol>
+<p>The first two hypotheses are statements related to what is often called <strong>main effects</strong>, namely differences between levels of a single categorical predictor, averaging over all levels of any other categorical predictor.
+Consequently, we could also reprhase this as saying: “We expect a main effect of gender (H1) and a main effect of context (H2).” only thereby omitting the direction of the difference between respective factor levels.
+The third hypothesis is a more convoluted formulation about the interaction of the two categorical predictors.</p>
+<p>To understand hypotheses about main effects and interactions better, at least in the easiest case of a <span class="math inline">\(2 \times 2\)</span> factorial design, it is useful to consider stylized diagrams, like in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:04-03-2x2-hypotheses">14.1</a>, which show how the data would look like if main effects or various interaction relations are present or absent.
+Concretely, the panels in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:04-03-2x2-hypotheses">14.1</a> depict the following types of situations:</p>
+<ul>
+<li><strong>A</strong>: no main effect (neither gender nor context) an no interaction;</li>
+<li><strong>B</strong>: main effect of gender, no main effect of context and no interaction;</li>
+<li><strong>C</strong>: main effect of context, no main effect of gender and no interaction;</li>
+<li><strong>D</strong>: main effects of both context and gender but no interaction;</li>
+<li><strong>E</strong>: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category; and</li>
+<li><strong>F</strong>: as in E but with a different kind interaction (effect reversal).</li>
+</ul>
+<p>Notice that the type of situation shown in panel E is the overal expectation made by the conjunction of the hypotheses H1-H3 formulated above: we predict/expect main effects for both predictors (in the direction shown in panel E) and we expect the effect of context to be stronger for female speakers than for male speakers.</p>
+<div class="figure" style="text-align: center"><span id="fig:04-03-2x2-hypotheses"></span>
+<img src="I2DA_files/figure-html/04-03-2x2-hypotheses-1.png" alt="Schematic representation of presence/absence of main effects and (different kinds of) interactions. Situations shown are as follows: A no main effect (neither gender nor context) an no interaction; B: main effect of gender only w/ no interaction; C: main effect of context only w/ no interaction; D: main effects of both context and gender but no interaction; E: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category (this is the situation envisaged by hypotheses 1-3 from the main text); F: as in E but with a different kind interaction (effect reversal)." width="672" />
+<p class="caption">
+Figure 14.1: Schematic representation of presence/absence of main effects and (different kinds of) interactions. Situations shown are as follows: A no main effect (neither gender nor context) an no interaction; B: main effect of gender only w/ no interaction; C: main effect of context only w/ no interaction; D: main effects of both context and gender but no interaction; E: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category (this is the situation envisaged by hypotheses 1-3 from the main text); F: as in E but with a different kind interaction (effect reversal).
+</p>
+</div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-401-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>In a <span class="math inline">\(2 \times 2\)</span> factorial design like this, there are essentially four pairs of factor levels (so-called <strong>design cells</strong>): female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts.
 Different schemes exist by means of which different comparisons of means of design cells (or single factors) can be probed.
-A simple coding scheme for differences in our <span class="math inline">\(2 \times 2\)</span> design is shown in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>.
+A simple coding scheme for differences in our <span class="math inline">\(2 \times 2\)</span> design is shown in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.
 This is a straightforward extension of <em>treatment coding</em> for the single predictors, while also catering to their potential interaction.
 Concretely, we consider the cell “female+informal” as the reference level and therefore model its mean as intercept <span class="math inline">\(\beta_0\)</span>.
 We then have a slope term <span class="math inline">\(\beta_{\text{pol}}\)</span> which encodes the difference between female pitch in informal and female pitch in polite contexts.
-Analogous reasoning holds for <span class="math inline">\(\beta_{\text{male}}\)</span>. Finally, we also include a so-called <strong>interaction term</strong>, denoted as <span class="math inline">\(\beta_{\text{pol+male}}\)</span> in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>.
+Analogous reasoning holds for <span class="math inline">\(\beta_{\text{male}}\)</span>. Finally, we also include a so-called <strong>interaction term</strong>, denoted as <span class="math inline">\(\beta_{\text{pol+male}}\)</span> in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.
 The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.</p>
 <div class="figure" style="text-align: center"><span id="fig:Chap-04-02-beyond-simple-regression-factorial-coefficients"></span>
 <img src="visuals/coefficients_factorial_design.png" alt="Regression coefficients for a factorial design (using so-called 'treatment coding')."  />
 <p class="caption">
-Figure 14.1: Regression coefficients for a factorial design (using so-called ‘treatment coding’).
+Figure 14.2: Regression coefficients for a factorial design (using so-called ‘treatment coding’).
 </p>
 </div>
 <p>We can fit a regression model with this coding scheme using the formula <code>pitch ~ gender * context</code>. Importantly the star <code>*</code> between explanatory variables <code>gender</code> and <code>context</code> indicates that we also want to include the interaction term.<a href="#fn67" class="footnote-ref" id="fnref67"><sup>67</sup></a></p>
@@ -609,7 +631,7 @@ Figure 14.1: Regression coefficients for a factorial design (using so-called ‘
 <a class="sourceLine" id="cb584-4" data-line-number="4">  <span class="dt">formula =</span> pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
 <a class="sourceLine" id="cb584-5" data-line-number="5">  <span class="dt">data =</span> politeness_data</a>
 <a class="sourceLine" id="cb584-6" data-line-number="6">)</a></code></pre></div>
-<p>The summary statistics below lists the model parameters indicated in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.1</a>.</p>
+<p>The summary statistics below lists the model parameters indicated in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.</p>
 <div class="sourceCode" id="cb585"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb585-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                      l-95% CI   Estimate   u-95% CI
 ## Intercept           245.65872  261.02993 276.800178
@@ -637,7 +659,7 @@ Solution
 <hr />
 <ol start="65">
 <li id="fn65"><p>Notice the deliberate avoidance of causal terminology. We should not say that there is reason to believe that <em>adding</em> <code>mayo</code> to any dish will make it more tasty, just that, epistemically put, observing it in a dish should alter our expectations.<a href="Chap-04-03-predictors-multiple-predictors.html#fnref65" class="footnote-back">↩</a></p></li>
-<li id="fn66"><p>The following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs <span class="citation">(Franke and Roettger <a href="#ref-FrankeRoettger2019:Bayesian-regres">2019</a>)</span>, which can be downloaded <a href="https://psyarxiv.com/cdxv3">here</a><a href="Chap-04-03-predictors-multiple-predictors.html#fnref66" class="footnote-back">↩</a></p></li>
+<li id="fn66"><p>Part of the following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs <span class="citation">(Franke and Roettger <a href="#ref-FrankeRoettger2019:Bayesian-regres">2019</a>)</span>, which can be downloaded <a href="https://psyarxiv.com/cdxv3">here</a>.<a href="Chap-04-03-predictors-multiple-predictors.html#fnref66" class="footnote-back">↩</a></p></li>
 <li id="fn67"><p>If the interaction term should be excluded, the formula <code>pitch ~ gender + context</code> can be used, so with <code>+</code> instead of <code>*</code>.<a href="Chap-04-03-predictors-multiple-predictors.html#fnref67" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
