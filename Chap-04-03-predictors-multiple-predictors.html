@@ -637,23 +637,24 @@ Figure 14.2: Regression coefficients for a factorial design (using so-called ‘
 <p>The coding scheme in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a> considers the cell “female+informal” as the reference level and therefore models its mean as intercept <span class="math inline">\(\beta_0\)</span>.
 We then have a slope term <span class="math inline">\(\beta_{\text{pol}}\)</span> which encodes the difference between female pitch in informal and female pitch in polite contexts.
 Analogous reasoning holds for <span class="math inline">\(\beta_{\text{male}}\)</span>.
-Finally, we also include a so-called <strong>interaction term</strong>, denoted as <span class="math inline">\(\beta_{\text{pol+male}}\)</span> in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.
+Finally, we also include a so-called <strong>interaction term</strong>, denoted as <span class="math inline">\(\beta_{\text{pol&amp;male}}\)</span> in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.
 The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.</p>
 <p>Another way of describing what the interaction term <span class="math inline">\(\beta_{\text{pol&amp;male}}\)</span> captures is that it represents the difference which the manipulation of context has on female and male speakers.
-To see this, notice that the impact of polite contexts on pitch for female speakers is:</p>
+To see this, notice that the “extent of the effect of context”, i.e., the decrease in pitch between informal and polite contexts, for female speakers is:</p>
 <p><span class="math display">\[
-\text{eff_context_on_female} = (\beta_0 + \beta_\text{pol}) - \beta_0 = \beta_\text{pol}
+\text{eff_context_on_female} = \beta_0 - (\beta_0 + \beta_\text{pol})  = - \beta_\text{pol}
 \]</span>
-The effect of polite contexts on male speaker’s pitch is:</p>
+The bigger this number, the larger, so to speak, “the effect of context on female speakers”.</p>
+<p>The effect of context on male speaker’s pitch is correspondingly:</p>
 <p><span class="math display">\[
-\text{eff_context_on_male} = (\beta_\text{pol} + \beta_\text{male}) - (\beta_0 + \beta_\text{male} + \beta_{\text{pol}} + \beta_\text{pol&amp;male}) = \beta_{\text{pol}} + \beta_\text{pol&amp;male}
+\text{eff_context_on_male} = (\beta_0 + \beta_\text{male} + \beta_{\text{pol}} + \beta_\text{pol&amp;male}) - (\beta_\text{pol} + \beta_\text{male}) = - \beta_{\text{pol}} - \beta_\text{pol&amp;male}
 \]</span></p>
-<p>Therefore, the difference -comparing male and female speakers0- of the impact of the context manipulation (going from informal to polite contexts) is:
-<span class="math display">\[\text{eff_context_on_male} - \text{eff_context_on_female} = \beta_\text{pol&amp;male}\]</span></p>
+<p>Therefore, the difference -comparing female and male speakers- of the effect of context is:
+<span class="math display">\[\text{eff_context_on_female} - \text{eff_context_on_male} = \beta_\text{pol&amp;male}\]</span></p>
 <p>How do these model coefficients help address the research hypotheses we formulated above? -
-The interaction term directly encodes what we had formulated as hypothesis 3 above.
+The interaction term <span class="math inline">\(\beta_\text{pol&amp;male}\)</span> directly relates to hypothesis 3 above, namely that the context-effect is larger for female speakers than for male speakers.
 In other words, we can express H3 as the parameter-based hypothesis that:</p>
-<p><span class="math display">\[\textbf{H3:} \ \ \ \ \beta_\text{pol&amp;male} &lt; 0\]</span>
+<p><span class="math display">\[\textbf{H3 (interaction:} \ \ \ \ \beta_\text{pol&amp;male} &gt; 0\]</span>
 The other two hypotheses are not directly expressible as a statement involving a single coefficient.
 But they can be expressed as a complex hypothesis involving more than one coefficient of the model.
 The hypothesis H1 states that the pitch of male speakers (averaging over context types) is lower than that of female speakers (averaging over context types).
@@ -664,11 +665,11 @@ This translates directly into the following statement (where the LHS/RHS is the 
 \]</span>
 This can be simplified to:</p>
 <p><span class="math display">\[
-\textbf{H1:} \ \ \ \ 2 \beta_\text{male} + \beta_\text{pol&amp;male} &lt; 0
+\textbf{H1: (gender)} \ \ \ \ \beta_\text{male} + \frac{1}{2} \beta_\text{pol&amp;male} &lt; 0
 \]</span></p>
-<p>Similar reasoning leads to the following formulation of hypothesis H2 concerning a main effect of factor gender:</p>
+<p>Similar reasoning leads to the following formulation of hypothesis H2 concerning a main effect of factor context:</p>
 <p><span class="math display">\[
-\textbf{H2:} \ \ \ \ 2 \beta_\text{pol} + \beta_\text{pol&amp;male} &lt; 0
+\textbf{H2: (context)} \ \ \ \ \beta_\text{pol} + \frac{1}{2} \beta_\text{pol&amp;male} &lt; 0
 \]</span></p>
 <p>To test these hypotheses, we can fit a regression model with this coding scheme using the formula <code>pitch ~ gender * context</code>.
 Importantly the star <code>*</code> between explanatory variables <code>gender</code> and <code>context</code> indicates that we also want to include the interaction term.<a href="#fn67" class="footnote-ref" id="fnref67"><sup>67</sup></a></p>
@@ -678,17 +679,54 @@ Importantly the star <code>*</code> between explanatory variables <code>gender</
 <a class="sourceLine" id="cb584-4" data-line-number="4">  <span class="dt">formula =</span> pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
 <a class="sourceLine" id="cb584-5" data-line-number="5">  <span class="dt">data =</span> politeness_data</a>
 <a class="sourceLine" id="cb584-6" data-line-number="6">)</a></code></pre></div>
-<p>The summary statistics below lists the model parameters indicated in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.</p>
+<p>The summary statistics below lists Bayesian summary statistics for the (marginal) posteriors of the model parameters indicated in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.</p>
 <div class="sourceCode" id="cb585"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb585-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                      l-95% CI   Estimate   u-95% CI
 ## Intercept           245.65872  261.02993 276.800178
 ## genderM            -138.41661 -116.53009 -93.764509
 ## contextpol          -49.44973  -27.69013  -4.936747
 ## genderM:contextpol  -15.79220   16.16356  46.823184</code></pre>
-<p>We can then use the function <code>brms::hypothesis</code> to test the hypotheses in question.</p>
-<div class="sourceCode" id="cb587"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb587-1" data-line-number="1"><span class="co"># fill me</span></a></code></pre></div>
-<p>We can interpret this as saying that, given model and data, it is plausible to think that male speakers had lower voices than female speakers in informal contexts: this shows in the exclusion of 0 in the 95% inter-quantile range for parameter <code>genderM</code>. We may also conclude that given model and data, it is plausible to think that female speakers used lower voices in polite contexts than in formal ones (parameter <code>contextpol</code>).
-The posterior of the interaction term <code>genderM:contextpol</code> does not give any indication to think that 0, or any value near it, is not plausible. This can be interpreted as saying that there is no indication, given model and data, to believe that male speakers’ voice pitch changes differently from informal to polite contexts than female speakers’ voice pitch does.</p>
+<p>The function <code>brms::hypothesis</code> can test the relevant hypotheses based on the <code>brms_fit</code> object stored in <code>fiit_brms_politeness</code>.
+Starting with H1, we find very strong support for a main effect of gender:</p>
+<div class="sourceCode" id="cb587"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb587-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness, <span class="st">&quot;genderM + 0.5 * genderM:contextpol &lt; 0&quot;</span>)</a></code></pre></div>
+<pre><code>## Hypothesis Tests for class b:
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (genderM+0.5*gend... &lt; 0  -108.28      7.87  -121.07   -95.63        Inf
+##   Post.Prob Star
+## 1         1    *
+## ---
+## &#39;CI&#39;: 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## &#39;*&#39;: For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
+<p>As for H2, we also find very strong evidence in support of a belief in a main effect of context:</p>
+<div class="sourceCode" id="cb589"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb589-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness, <span class="st">&quot;contextpol + 0.5 * genderM:contextpol &lt; 0&quot;</span>)</a></code></pre></div>
+<pre><code>## Hypothesis Tests for class b:
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (contextpol+0.5*g... &lt; 0   -19.52      8.01   -32.59    -6.34     152.85
+##   Post.Prob Star
+## 1      0.99    *
+## ---
+## &#39;CI&#39;: 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## &#39;*&#39;: For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
+<p>In contrast, based on the data and the model, there is at best very mildly suggestive evidence in favor of the third hypothesis according to which female speakers are more susceptible to pitch differences induced by different context types.</p>
+<div class="sourceCode" id="cb591"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb591-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness, <span class="st">&quot;genderM:contextpol &gt; 0&quot;</span>)</a></code></pre></div>
+<pre><code>## Hypothesis Tests for class b:
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (genderM:contextpol) &gt; 0    16.32     15.91     -9.2    42.58       5.91
+##   Post.Prob Star
+## 1      0.86     
+## ---
+## &#39;CI&#39;: 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## &#39;*&#39;: For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
+<p>We can interpret this as saying that, given model and data, it is plausible to think that male speakers had lower voice pitch than female speakers (averaging over both context types).
+We may also conclude that given model and data, it is plausible to think that voice pitch was lower in polite contexts than informal contexts (averaged over both levels of factor <code>gender</code>).
+The posterior of the interaction term <code>genderM:contextpol</code> does not give any indication to think that 0, or any value near it, is not plausible.
+This can be interpreted as saying that there is no indication, given model and data, to believe that male speakers’ voice pitch changes differently from informal to polite contexts than female speakers’ voice pitch does.</p>
 <div class="exercises">
 <p><strong>Exercise 14.3</strong></p>
 <p>Based on the estimate given above, what is the mean estimate for male speakers speaking in informal contexts?</p>
@@ -704,12 +742,115 @@ Solution
 </div>
 <div id="sum-coding" class="section level3">
 <h3><span class="header-section-number">14.3.2</span> Sum coding</h3>
+<p>Treatment coding allowed us to <em>directly</em> test H3 in terms of a single coefficient, but testing of hypotheses about so-called “main effects” (H1 and H2) cannot be directly read-off a single coefficient’s posterior.
+As hypotheses about main effects are natural and common in experimental psychology, another coding scheme is very popular, namely <strong>sum coding</strong>.<a href="#fn68" class="footnote-ref" id="fnref68"><sup>68</sup></a></p>
+<p>Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-03-coefficients-sum-coding">14.3</a> shows how the mean of each design cell in our <span class="math inline">\(2\times2\)</span> design is expressed in terms of four regression coefficients.
+Parameter <span class="math inline">\(\beta_0\)</span> is called “intercept” as usual, but encodes the so-called <strong>grand mean</strong>, i.e. the mean value of all data observations.
+To see this, just sum all of the four terms in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-03-coefficients-sum-coding">14.3</a> and divide by 4: the result is <span class="math inline">\(\beta_0\)</span>.
+The parameters <span class="math inline">\(\beta_\text{male}\)</span> and <span class="math inline">\(\beta_\text{pol}\)</span> are slope coefficients, but they now encode the deviance from the grand mean.
+For example, <span class="math inline">\(\beta_\text{male}\)</span> encodes the difference between (i) the average pitch of all measurements taken from male participants and (ii) the grand mean.
+Finally, the interaction coefficient <span class="math inline">\(\beta_\text{pol&amp;male}\)</span> serves the same function as before in treatment coding, namely to make room for a difference in the strength of one main effect, e.g., of context, on the levels of the other predictor, e.g., gender.</p>
 <div class="figure" style="text-align: center"><span id="fig:Chap-04-03-coefficients-sum-coding"></span>
 <img src="visuals/coefficients_factorial_design_sum-coding.png" alt="Regression coefficients for a factorial design (using so-called 'sum coding')."  />
 <p class="caption">
 Figure 14.3: Regression coefficients for a factorial design (using so-called ‘sum coding’).
 </p>
 </div>
+<p>It is clear, then that under treatment coding the hypotheses H1 and H2, targeting main effects, can be straightforwardly states as inequalities concerning singular coefficients, namely:</p>
+<p><span class="math display">\[
+\textbf{H1: (gender)} \ \ \ \ \beta_\text{male} &lt; 0
+\]</span></p>
+<p><span class="math display">\[
+\textbf{H2: (context)} \ \ \ \ \beta_\text{pol} &lt; 0
+\]</span></p>
+<p>What is less obvious is that the interaction term, as defined under sum coding, still directly expresses the interaction hypothesis H3.
+To see this, calculate as before:</p>
+<p><span class="math display">\[
+\begin{align*}
+&amp; \text{eff_context_on_female} \\
+&amp; = (\beta_0 - \beta_\text{male} - \beta_\text{pol} + \beta_\text{pol&amp;male}) -   (\beta_0 - \beta_\text{male} + \beta_\text{pol} - \beta_\text{pol&amp;male})  \\
+&amp; = - 2 \beta_\text{pol} + 2 \beta_\text{pol&amp;male}
+\end{align*}
+\]</span></p>
+<p>The effect of context on male speaker’s pitch is:</p>
+<p><span class="math display">\[
+\begin{align*}
+&amp; \text{eff_context_on_male} \\ 
+&amp; = (\beta_0 + \beta_\text{male} - \beta_\text{pol} - \beta_\text{pol&amp;male}) -   (\beta_0 + \beta_\text{male} + \beta_\text{pol} + \beta_\text{pol&amp;male})  \\
+&amp; = - 2 \beta_\text{male} - 2 \beta_\text{pol&amp;male}
+\end{align*}
+\]</span></p>
+<p>Consequently, the difference -comparing female and male speakers- of the effect of context under sum coding is expressed as:
+<span class="math display">\[\text{eff_context_on_female} - \text{eff_context_on_male} = 4 \beta_\text{pol&amp;male}\]</span>
+To implement sum coding for use in <code>brms</code>, R provides functions <code>contrasts</code> and <code>contr.sum</code>.
+Here is an example.</p>
+<div class="sourceCode" id="cb593"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb593-1" data-line-number="1"><span class="co"># make predictors &#39;factors&#39; b/c that&#39;s required for contrast coding</span></a>
+<a class="sourceLine" id="cb593-2" data-line-number="2"><span class="co">#   also: change order to match coding assumed in the main text</span></a>
+<a class="sourceLine" id="cb593-3" data-line-number="3">data_polite &lt;-<span class="st"> </span>aida<span class="op">::</span>data_polite <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb593-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb593-5" data-line-number="5">    <span class="dt">gender =</span> <span class="kw">factor</span>(gender, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&#39;M&#39;</span>, <span class="st">&#39;F&#39;</span>)),</a>
+<a class="sourceLine" id="cb593-6" data-line-number="6">    <span class="dt">context =</span> <span class="kw">factor</span>(context, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&#39;pol&#39;</span>, <span class="st">&#39;inf&#39;</span>))</a>
+<a class="sourceLine" id="cb593-7" data-line-number="7">  )</a>
+<a class="sourceLine" id="cb593-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb593-9" data-line-number="9"><span class="co"># apply &#39;sum&#39; contrasts</span></a>
+<a class="sourceLine" id="cb593-10" data-line-number="10"><span class="kw">contrasts</span>(data_polite<span class="op">$</span>context) &lt;-<span class="st"> </span><span class="kw">contr.sum</span>(<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb593-11" data-line-number="11"><span class="kw">contrasts</span>(data_polite<span class="op">$</span>gender) &lt;-<span class="st"> </span><span class="kw">contr.sum</span>(<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb593-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb593-13" data-line-number="13"><span class="co"># add intelligible name to the new contrast coding</span></a>
+<a class="sourceLine" id="cb593-14" data-line-number="14"><span class="kw">colnames</span>(<span class="kw">contrasts</span>(data_polite<span class="op">$</span>context)) &lt;-<span class="st"> &quot;:polite&quot;</span></a>
+<a class="sourceLine" id="cb593-15" data-line-number="15"><span class="kw">colnames</span>(<span class="kw">contrasts</span>(data_polite<span class="op">$</span>gender)) &lt;-<span class="st"> &quot;:male&quot;</span></a>
+<a class="sourceLine" id="cb593-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb593-17" data-line-number="17"><span class="co"># run brms as usual</span></a>
+<a class="sourceLine" id="cb593-18" data-line-number="18">fit_brms_politeness_sum &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb593-19" data-line-number="19">  pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
+<a class="sourceLine" id="cb593-20" data-line-number="20">  data_polite</a>
+<a class="sourceLine" id="cb593-21" data-line-number="21">)</a></code></pre></div>
+<p>We can inspect the coefficients as usual:</p>
+<div class="sourceCode" id="cb594"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb594-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness_sum)<span class="op">$</span>fixed[, <span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span> ,<span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<pre><code>##                              l-95% CI   Estimate   u-95% CI
+## Intercept                  185.117435 192.872794 200.396807
+## gender:male                -61.750428 -54.011236 -46.141100
+## context:polite             -17.340632  -9.795341  -2.424989
+## gender:male:context:polite  -3.759688   3.961472  11.661447</code></pre>
+<p>The summary statistics for the posterior already directly address all three hypotheses in question, but we should compare our previous results to the full results of using <code>brms::hypothesis</code> also for the sum-coded analysis.</p>
+<div class="sourceCode" id="cb596"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb596-1" data-line-number="1"><span class="co"># testing H1</span></a>
+<a class="sourceLine" id="cb596-2" data-line-number="2">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness_sum, <span class="st">&quot;gender:male &lt; 0&quot;</span>)</a></code></pre></div>
+<pre><code>## Hypothesis Tests for class b:
+##          Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio Post.Prob
+## 1 (gender:male) &lt; 0   -54.01      3.91   -60.43   -47.54        Inf         1
+##   Star
+## 1    *
+## ---
+## &#39;CI&#39;: 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## &#39;*&#39;: For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
+<div class="sourceCode" id="cb598"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb598-1" data-line-number="1"><span class="co"># testing H2</span></a>
+<a class="sourceLine" id="cb598-2" data-line-number="2">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness_sum, <span class="st">&quot;context:polite &lt; 0&quot;</span>)</a></code></pre></div>
+<pre><code>## Hypothesis Tests for class b:
+##             Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (context:polite) &lt; 0     -9.8      3.81   -15.92    -3.62        199
+##   Post.Prob Star
+## 1         1    *
+## ---
+## &#39;CI&#39;: 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## &#39;*&#39;: For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
+<div class="sourceCode" id="cb600"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb600-1" data-line-number="1"><span class="co"># testing H3</span></a>
+<a class="sourceLine" id="cb600-2" data-line-number="2">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness_sum, <span class="st">&quot;gender:male:context:polite &gt; 0&quot;</span>)</a></code></pre></div>
+<pre><code>## Hypothesis Tests for class b:
+##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1 (gender:male:cont... &gt; 0     3.96      3.93     -2.6    10.39       5.17
+##   Post.Prob Star
+## 1      0.84     
+## ---
+## &#39;CI&#39;: 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## &#39;*&#39;: For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
+<p>Since we didn’t use any priors, which could have altered results slightly between treatment- and sum-coded regression modeling, we find (modulo sampling imprecision) the same “evidence ratios” and posterior probabilities of these hypotheses.
+The overall conclusions are therefore the exact same: evidence for both main effects; no evidence for interaction.</p>
 
 </div>
 </div>
@@ -720,6 +861,7 @@ Figure 14.3: Regression coefficients for a factorial design (using so-called ‘
 <li id="fn65"><p>Notice the deliberate avoidance of causal terminology. We should not say that there is reason to believe that <em>adding</em> <code>mayo</code> to any dish will make it more tasty, just that, epistemically put, observing it in a dish should alter our expectations.<a href="Chap-04-03-predictors-multiple-predictors.html#fnref65" class="footnote-back">↩</a></p></li>
 <li id="fn66"><p>Part of the following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs <span class="citation">(Franke and Roettger <a href="#ref-FrankeRoettger2019:Bayesian-regres">2019</a>)</span>, which can be downloaded <a href="https://psyarxiv.com/cdxv3">here</a>.<a href="Chap-04-03-predictors-multiple-predictors.html#fnref66" class="footnote-back">↩</a></p></li>
 <li id="fn67"><p>If the interaction term should be excluded, the formula <code>pitch ~ gender + context</code> can be used, so with <code>+</code> instead of <code>*</code>.<a href="Chap-04-03-predictors-multiple-predictors.html#fnref67" class="footnote-back">↩</a></p></li>
+<li id="fn68"><p>The comparisons tested by sum coding are the same contrasts also addressed by analysis of variance (ANOVA), a special case of regression modeling which was very popular and is still the standard method of statistical analysis for factorial designs in some areas of experimental psychology, despite good arguments in favor of (hierarchical) generalized regression analyses <span class="citation">(Jaeger <a href="#ref-Jaeger2008:Categorical-dat">2008</a>)</span>.<a href="Chap-04-03-predictors-multiple-predictors.html#fnref68" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>
