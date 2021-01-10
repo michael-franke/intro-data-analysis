@@ -339,7 +339,7 @@ politeness_data %>% head(5)
 
 The research hypotheses of interest are:
 
-1. **H1: (gender)**: the voice pitch of male speakers is lower than that of female speakers.
+1. **H1: (gender)**: the voice pitch of male speakers is lower than that of female speakers;
 2. **H2: (context)**: the voice pitch of speech in polite contexts is lower than in informal contexts; and
 3. **H3: (interaction)**: the effect of context (= the difference of voice pitch between polite and informal context; as mentioned in the second hypothesis) is larger for female speakers than for male speakers.
 
@@ -357,9 +357,9 @@ Concretely, the panels in Figure \@ref(fig:04-03-2x2-hypotheses) depict the foll
 - **E**: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category; and 
 - **F**: as in E but with a different kind interaction (effect reversal).
 
-Notice that the type of situation shown in panel E is the overal expectation made by the conjunction of the hypotheses H1-H3 formulated above: we predict/expect main effects for both predictors (in the direction shown in panel E) and we expect the effect of context to be stronger for female speakers than for male speakers.
+Notice that the type of situation shown in panel E is the expectation derivable from the conjunction of the hypotheses H1-H3 formulated above: we predict/expect main effects for both predictors (in the direction shown in panel E) and we expect the effect of context to be stronger for female speakers than for male speakers.
 
-```{r 04-03-2x2-hypotheses, echo = F, fig.cap="Schematic representation of presence/absence of main effects and (different kinds of) interactions. Situations shown are as follows: A no main effect (neither gender nor context) an no interaction; B: main effect of gender only w/ no interaction; C: main effect of context only w/ no interaction; D: main effects of both context and gender but no interaction; E: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category (this is the situation envisaged by hypotheses 1-3 from the main text); F: as in E but with a different kind interaction (effect reversal).", fig.height=4}
+```{r 04-03-2x2-hypotheses, echo = F, fig.cap="Schematic representation of presence/absence of main effects and (different kinds of) interactions. Situations shown are as follows: A no main effect (neither gender nor context) an no interaction; B: main effect of gender only w/ no interaction; C: main effect of context only w/ no interaction; D: main effects of both context and gender but no interaction; E: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category (this is the situation envisaged by hypotheses 1-3 from the main text); F: as in E but with a different kind interaction (effect reversal).", fig.height=8}
 data_2x2_hypotheses <- tribble(
   ~'situation', ~'gender', ~'context', ~'pitch',
   # no main effects
@@ -412,10 +412,16 @@ data_2x2_hypotheses %>%
     axis.ticks = element_blank()
   ) +
   ylim(1.5, 6.5) +
+  scale_colour_manual(breaks = c("informal", "polite"),
+                      labels = c("informal", "polite"),
+                      values = c("#f1a340", "#998ec3")) +
+  scale_fill_manual(breaks = c("informal", "polite"),
+                      labels = c("informal", "polite"),
+                      values = c("#f1a340", "#998ec3")) +
   facet_wrap(.~situation, ncol = 2, scales = "free") 
 ```
 
-
+Let us now take a look at the actual data:
 
 ```{r, echo = F}
 # this code is copy pasted from tutorial paper
@@ -459,22 +465,78 @@ ggplot(data = politedata.agg,
   xlab("\ngender")
 ```
 
-In a $2 \times 2$ factorial design like this, there are essentially four pairs of factor levels (so-called **design cells**): female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts. 
-Different schemes exist by means of which different comparisons of means of design cells (or single factors) can be probed. 
+Judging from visual inspection, we might say that the empirical data most resembles panel D in Figure \@ref(fig:04-03-2x2-hypotheses).
+It looks as if there might be a rather strong effect of gender.
+The measurements in the female category seem (on average) higher than in the male category.
+Also, there might well be a main effect of context.
+Probably the voice pitch in informal contexts is higher than in polite contexts, but we cannot be as sure as for a potential main effect of gender.
+It is very difficult to discern whether the data supports the hypothesized interaction.
+
+In the following we are therefore going to test these hypotheses (more or less directly) with two different kinds of coding schemes: treatment coding and sum coding.
+
+### Treatment coding
+
+In a $2 \times 2$ factorial design there are essentially four pairs of factor levels (so-called **design cells**).
+For the politeness data these are female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts. 
+Different coding schemes exist by means of which different comparisons of means of design cells (or single factors) can be probed. 
 A simple coding scheme for differences in our $2 \times 2$ design is shown in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients).
-This is a straightforward extension of *treatment coding* for the single predictors, while also catering to their potential interaction.
-Concretely, we consider the cell "female+informal" as the reference level and therefore model its mean as intercept $\beta_0$.
-We then have a slope term $\beta_{\text{pol}}$ which encodes the difference between female pitch in informal and female pitch in polite contexts. 
-Analogous reasoning holds for $\beta_{\text{male}}$. Finally, we also include a so-called **interaction term**, denoted as $\beta_{\text{pol+male}}$ in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients). 
-The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.
+This is a straightforward extension of *treatment coding* for the single predictors introduced previously which additionally includes a potential interaction.
 
 ```{r Chap-04-02-beyond-simple-regression-factorial-coefficients, echo = F, fig.cap="Regression coefficients for a factorial design (using so-called 'treatment coding').", fig.width=4}
 knitr::include_graphics("visuals/coefficients_factorial_design.png")
 ```
 
-We can fit a regression model with this coding scheme using the formula `pitch ~ gender * context`. Importantly the star `*` between explanatory variables `gender` and `context` indicates that we also want to include the interaction term.^[If the interaction term should be excluded, the formula `pitch ~ gender + context` can be used, so with `+` instead of `*`.]
+The coding scheme in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients) considers the cell "female+informal" as the reference level and therefore models its mean as intercept $\beta_0$.
+We then have a slope term $\beta_{\text{pol}}$ which encodes the difference between female pitch in informal and female pitch in polite contexts. 
+Analogous reasoning holds for $\beta_{\text{male}}$. 
+Finally, we also include a so-called **interaction term**, denoted as $\beta_{\text{pol+male}}$ in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients). 
+The interaction term quantifies how much a change away from the reference level in both variables differs from the sum of unilateral changes.
 
-```{r eval = F}
+Another way of describing what the interaction term $\beta_{\text{pol&male}}$ captures is that it represents the difference which the manipulation of context has on female and male speakers.
+To see this, notice that the impact of polite contexts on pitch for female speakers is:
+
+$$
+\text{eff_context_on_female} = (\beta_0 + \beta_\text{pol}) - \beta_0 = \beta_\text{pol}
+$$
+The effect of polite contexts on male speaker's pitch is:
+
+$$
+\text{eff_context_on_male} = (\beta_\text{pol} + \beta_\text{male}) - (\beta_0 + \beta_\text{male} + \beta_{\text{pol}} + \beta_\text{pol&male}) = \beta_{\text{pol}} + \beta_\text{pol&male}
+$$
+
+Therefore, the difference -comparing male and female speakers0- of the impact of the context manipulation (going from informal to polite contexts) is:
+$$\text{eff_context_on_male} - \text{eff_context_on_female} = \beta_\text{pol&male}$$
+
+How do these model coefficients help address the research hypotheses we formulated above? - 
+The interaction term directly encodes what we had formulated as hypothesis 3 above.
+In other words, we can express H3 as the parameter-based hypothesis that:
+
+$$\textbf{H3:} \ \ \ \ \beta_\text{pol&male} < 0$$
+The other two hypotheses are not directly expressible as a statement involving a single coefficient.
+But they can be expressed as a complex hypothesis involving more than one coefficient of the model.
+The hypothesis H1 states that the pitch of male speakers (averaging over context types) is lower than that of female speakers (averaging over context types).
+This translates directly into the following statement (where the LHS/RHS is the average pitch of male/female speakers):
+
+$$
+\frac{1}{2} (\beta_0 + \beta_\text{male} + \beta_0 + \beta_\text{male} + \beta_\text{pol} + \beta_\text{pol&male}) < 
+\frac{1}{2} (\beta_0 + \beta_0 + \beta_\text{pol})
+$$
+This can be simplified to:
+
+$$
+\textbf{H1:} \ \ \ \ 2 \beta_\text{male} + \beta_\text{pol&male} < 0
+$$
+
+Similar reasoning leads to the following formulation of hypothesis H2 concerning a main effect of factor gender:
+
+$$
+\textbf{H2:} \ \ \ \ 2 \beta_\text{pol} + \beta_\text{pol&male} < 0
+$$
+
+To test these hypotheses, we can fit a regression model with this coding scheme using the formula `pitch ~ gender * context`. 
+Importantly the star `*` between explanatory variables `gender` and `context` indicates that we also want to include the interaction term.^[If the interaction term should be excluded, the formula `pitch ~ gender + context` can be used, so with `+` instead of `*`.]
+
+```{r eval = T}
 fit_brms_politeness <- brm(
   # model 'pitch' as a function of 'gender' and 'context',
   #  also including the interaction between `gender` and `context`
@@ -483,7 +545,7 @@ fit_brms_politeness <- brm(
 )
 ```
 
-```{r echo = F}
+```{r echo = F, eval = F}
 fit_brms_politeness <- readRDS('models_brms/politeness_fit.rds')
 ```
 
@@ -492,6 +554,13 @@ The summary statistics below lists the model parameters indicated in Figure \@re
 ```{r}
 summary(fit_brms_politeness)$fixed[,c("l-95% CI", "Estimate", "u-95% CI")]
 ```
+
+We can then use the function `brms::hypothesis` to test the hypotheses in question.
+
+```{r}
+# fill me
+```
+
 
 We can interpret this as saying that, given model and data, it is plausible to think that male speakers had lower voices than female speakers in informal contexts: this shows in the exclusion of 0 in the 95% inter-quantile range for parameter `genderM`. We may also conclude that given model and data, it is plausible to think that female speakers used lower voices in polite contexts than in formal ones  (parameter `contextpol`).
 The posterior of the interaction term `genderM:contextpol` does not give any indication to think that 0, or any value near it, is not plausible. This can be interpreted as saying that there is no indication, given model and data, to believe that male speakers' voice pitch changes differently from informal to polite contexts than female speakers' voice pitch does.
@@ -508,3 +577,9 @@ The mean estimate for male speakers speaking in informal contexts is given by $\
 </div>
 </div>
 </div>
+
+### Sum coding
+
+```{r Chap-04-03-coefficients-sum-coding, echo = F, fig.cap="Regression coefficients for a factorial design (using so-called 'sum coding').", fig.width=4}
+knitr::include_graphics("visuals/coefficients_factorial_design_sum-coding.png")
+```
