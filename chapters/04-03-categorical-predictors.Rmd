@@ -306,36 +306,116 @@ As group A is a reference category, $\beta_0$ expresses the mean reaction time o
 
 Factorial designs, which have more than one categorical predictor variable, are common in experimental psychology.
 Any contrast coding scheme usable for encoding a single categorical predictor can, in principle, also be used when there are multiple categorical predictors.
-But multiple categorical predictors also require some additional considerations relating to how (the model assumes that) different predictors might or might not interact with another.
+But having multiple categorical predictors also requires some additional considerations relating to how (the model assumes that) different predictors might or might not interact with another.
 
 Here is an informal example.
 Suppose that we have metric measurements of how tasty a snack is perceived to be.
 There are two categorical factors which we want to use to predict the average tastiness of a snack.
 The first predictor is `mayo` and we encode it numerically as: 0 if the dish does not contain mayonnaise and 1 if it does.
 The second predictor is `chocolate` and we encode it similarly as: 0 if the dish does not contain chocolate and 1 if it does.
-Suppose we estimate the two (!) slope coefficients for `mayo` and `chocolate` for our imaginary data set and find that both are credibly positive.
+Suppose we estimate these two  slope coefficients (one for `mayo` and one for `chocolate`) for our imaginary data set and find that both are credibly positive.
 That means that there is reason to believe that, all else equal, when we find `mayo` in a snack we may expect it to be rated as more tasty, and, all else equal, when we find `chocolate` in a snack we may also expect it to be rated as more tasty.^[Notice the deliberate avoidance of causal terminology. We should not say that there is reason to believe that *adding* `mayo` to any dish will make it more tasty, just that, epistemically put, observing it in a dish should alter our expectations.] 
 But what about a dish with *both* `mayo` *and* `chocolate`?
 Maybe we can agree to assume for the sake of argument that, on average, snacks containing both `mayo` and `chocolate` are *not* rated as tasty at all.
-Or at least, we might want to include in our model the possibility that the combination of `mayo` and `chocolate` has a different effect than the sum of the contributions of `mayo` on its own and that of `chocolate` of its own.
-That is why, when we have multiple categorical predictors, we also often want to include yet another type of slope coefficients, so-called **interaction terms**, that capture how the combination of different factor levels from different categorical predictors, well, interact.
+Or, at least, we might want to include in our model the possibility that the combination of `mayo` and `chocolate` has a different effect than the sum of the contributions of (i) `mayo` on its own and that of (ii) `chocolate` of its own.
+That is why, when we have multiple categorical predictors, we also often want to include yet another type of slope coefficient, so-called **interaction terms**, that capture how the combination of different factor levels from different categorical predictors, well, interact.
 If you like a more precise characterization at this moment already (although an example below will make things hopefully much clearer), we could say that, in the context of a linear regression model, an interaction between levels of several predictors is a (potential) deviation from the sum of all of the additive effects of the individual predictor levels in isolation.
 
 <div style = "float:right; width:15%;">
 <img src="visuals/badge-politeness.png" alt="badge-politeness">
 </div>
 
-To make this more precise, let us consider the example of the [politeness data](app-93-data-sets-politeness).^[The following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs [@FrankeRoettger2019:Bayesian-regres], which can be downloaded [here](https://psyarxiv.com/cdxv3)]
+To make this more precise, let us consider the example of the [politeness data](app-93-data-sets-politeness).^[Part of the following content is a distilled version of a short tutorial on Bayesian regression modeling for factorial designs [@FrankeRoettger2019:Bayesian-regres], which can be downloaded [here](https://psyarxiv.com/cdxv3).]
 The to-be-predicted data are measurements of voice pitch in a $2 \times 2$ factorial design, with factors `gender` and `context`.
 The factor `gender` has (sadly only) two levels: "male" and "female".
 The factor `context` has two levels, namely "informal" for informal speech situations and "polite" for polite speech situations.
 
-We load the data, inspect and plot it.
+Let us first load the data & inspect it.
 
 ```{r}
 politeness_data <- aida::data_polite
-politeness_data
+politeness_data %>% head(5)
 ```
+
+The research hypotheses of interest are:
+
+1. **H1: (gender)**: the voice pitch of male speakers is lower than that of female speakers.
+2. **H2: (context)**: the voice pitch of speech in polite contexts is lower than in informal contexts; and
+3. **H3: (interaction)**: the effect of context (= the difference of voice pitch between polite and informal context; as mentioned in the second hypothesis) is larger for female speakers than for male speakers.
+
+The first two hypotheses are statements related to what is often called **main effects**, namely differences between levels of a single categorical predictor, averaging over all levels of any other categorical predictor.
+Consequently, we could also reprhase this as saying: "We expect a main effect of gender (H1) and a main effect of context (H2)." only thereby omitting the direction of the difference between respective factor levels.
+The third hypothesis is a more convoluted formulation about the interaction of the two categorical predictors.
+
+To understand hypotheses about main effects and interactions better, at least in the easiest case of a $2 \times 2$ factorial design, it is useful to consider stylized diagrams, like in Figure \@ref(fig:04-03-2x2-hypotheses), which show how the data would look like if main effects or various interaction relations are present or absent.
+Concretely, the panels in Figure \@ref(fig:04-03-2x2-hypotheses) depict the following types of situations:
+
+- **A**: no main effect (neither gender nor context) an no interaction; 
+- **B**: main effect of gender, no main effect of context and no interaction; 
+- **C**: main effect of context, no main effect of gender and no interaction; 
+- **D**: main effects of both context and gender but no interaction; 
+- **E**: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category; and 
+- **F**: as in E but with a different kind interaction (effect reversal).
+
+Notice that the type of situation shown in panel E is the overal expectation made by the conjunction of the hypotheses H1-H3 formulated above: we predict/expect main effects for both predictors (in the direction shown in panel E) and we expect the effect of context to be stronger for female speakers than for male speakers.
+
+```{r 04-03-2x2-hypotheses, echo = F, fig.cap="Schematic representation of presence/absence of main effects and (different kinds of) interactions. Situations shown are as follows: A no main effect (neither gender nor context) an no interaction; B: main effect of gender only w/ no interaction; C: main effect of context only w/ no interaction; D: main effects of both context and gender but no interaction; E: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category (this is the situation envisaged by hypotheses 1-3 from the main text); F: as in E but with a different kind interaction (effect reversal).", fig.height=4}
+data_2x2_hypotheses <- tribble(
+  ~'situation', ~'gender', ~'context', ~'pitch',
+  # no main effects
+  "A: no main effects", 'male', 'polite',  5,
+  "A: no main effects", 'male', 'informal',  5,
+  "A: no main effects", 'female', 'polite',  5,
+  "A: no main effects", 'female', 'informal',  5,
+  # gender
+  "B: main eff. gender", 'male', 'polite', 4,
+  "B: main eff. gender", 'male', 'informal', 4,
+  "B: main eff. gender", 'female', 'polite', 5,
+  "B: main eff. gender", 'female', 'informal', 5,
+  # context
+  "C: main eff. context", 'male', 'polite', 5,
+  "C: main eff. context", 'male', 'informal', 4,
+  "C: main eff. context", 'female', 'polite', 5,
+  "C: main eff. context", 'female', 'informal', 4,
+  # main effect both 
+  "D: both main eff.s", 'male', 'polite', 4,
+  "D: both main eff.s", 'male', 'informal', 3,
+  "D: both main eff.s", 'female', 'polite', 6,
+  "D: both main eff.s", 'female', 'informal', 5,
+  # interaction (strength)
+  "E: interaction (strength)", 'male', 'polite', 4,
+  "E: interaction (strength)", 'male', 'informal', 3,
+  "E: interaction (strength)", 'female', 'polite', 6,
+  "E: interaction (strength)", 'female', 'informal', 3.5,
+  # interaction (direction)
+  "F: interaction (direction)", 'male', 'polite', 4,
+  "F: interaction (direction)", 'male', 'informal', 2,
+  "F: interaction (direction)", 'female', 'polite', 4,
+  "F: interaction (direction)", 'female', 'informal', 6
+)
+
+data_2x2_hypotheses %>% 
+  ggplot(aes(y = pitch, x = gender, fill = context)) +
+  geom_line(
+    aes(group = context, color = context), 
+    # alpha = 0.3,
+    position = position_dodge(0.1)
+  ) + 
+  geom_point(
+    position = position_dodge(0.1), 
+    pch = 21, 
+    colour = "black",
+    size = 5
+  ) +
+  theme(
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank()
+  ) +
+  ylim(1.5, 6.5) +
+  facet_wrap(.~situation, ncol = 2, scales = "free") 
+```
+
+
 
 ```{r, echo = F}
 # this code is copy pasted from tutorial paper

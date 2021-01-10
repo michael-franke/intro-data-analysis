@@ -84,3 +84,70 @@ ggplot(data = politedata.agg,
                       values = c("#f1a340", "#998ec3")) +
   ylab("pitch in Hz\n") +
   xlab("\ngender")
+```
+
+### Analysis
+
+```{r}
+# make predictors 'factors' so we can change contrast coding
+data_polite <- aida::data_polite %>% 
+  mutate(
+    gender = factor(gender, levels = c('M', 'F')),
+    context = factor(context, levels = c('pol', 'inf'))
+  )
+# apply 'sum' contrasts
+contrasts(data_polite$context) <- contr.sum(2)
+colnames(contrasts(data_polite$context)) <- ":polite"
+contrasts(data_polite$gender) <- contr.sum(2)
+colnames(contrasts(data_polite$gender)) <- ":male"
+
+fit_brms_politeness_sum <- brm(
+  pitch ~ gender * context,
+  data_polite,
+  iter = 4000
+)
+```
+
+
+```{r}
+summary(fit_brms_politeness_sum)$fixed[, c("l-95% CI", "Estimate" ,"u-95% CI")]
+```
+
+Intercept is the grand mean:
+
+```{r}
+grand_mean <- politeness_data %>% pull(pitch) %>% mean()
+grand_mean
+```
+
+Slope "gender1" gives the deviation of the average pitch for category "female" from the grand mean, so that it intuitively encodes what is often called the "**main effect** of gender" (given that the deviation from the grand mean of the "male" category is just -1 times that for "female":
+
+```{r}
+mean_female <- politeness_data %>% filter(gender == "F") %>% pull(pitch) %>% mean()
+main_eff_gender <- mean_female - grand_mean
+main_eff_gender
+```
+
+Slope "context1" gives the deviation of the average pitch for category "polite" from the grand mean, so that it intuitively captures the "main effect of context":
+
+```{r}
+mean_informal <- politeness_data %>% filter(context == "inf") %>% pull(pitch) %>% mean()
+main_eff_context <- mean_informal - grand_mean
+main_eff_context
+```
+
+The interaction term "gender1:context1" specifies how much the mean of the design cell "female-polite" deviates from the predictions based on only main effects:
+
+```{r}
+mean_informal_female <- politeness_data %>% 
+  filter(context == "inf", gender == "F") %>% 
+  pull(pitch) %>% mean()
+mean_informal_female -(grand_mean + main_eff_gender + main_eff_context)
+```
+
+### ANOVA
+
+```{r}
+aov(pitch ~ gender * context, politeness_data) %>% summary()
+```
+
