@@ -80,14 +80,14 @@ The main part of the experiment presented each participant with five critical se
 
 The experiment was realized using [_magpie](https://magpie-ea.github.io/magpie-site/index.html) and can be tried out [here](https://magpie-king-of-france.netlify.com).
 
-#### Theoretical motivation & hypotheses
+#### Hypotheses
 
 We will be concerned with the following two research questions:^[These research questions are a compromise between actual theoretical relevance and practical (= educational) considerations.]
 
-1. Is the overall rate (= aggregating over all vignettes & conditions) of "TRUE" judgements for sentences with presupposition failure different from pure guessing chance of 0.5?
-2. Is there a difference in (binary) truth-value judgements (aggregated over all vignettes) between C0 (with presupposition) and C1 (where the presupposition is part of the at-issue / asserted content)?
-3. Is there a difference in (binary) truth-value judgements (aggregated over all vignettes) between C0 (the positive sentence) and C6 (the negative sentence)? 
-4. Is there a difference in (binary) truth-value judgements (aggregated over all vignettes) between C9 (where the presupposition is topical) and C10 (where the presupposition is not topical and occurs under negation)?
+- **H1**: Is the overall rate (= aggregating over all vignettes & conditions) of "TRUE" judgements for sentences with presupposition failure different from pure guessing chance of 0.5?
+- **H2**: Is there a difference in (binary) truth-value judgements (aggregated over all vignettes) between C0 (with presupposition) and C1 (where the presupposition is part of the at-issue / asserted content)?
+- **H3**: Is there a difference in (binary) truth-value judgements (aggregated over all vignettes) between C0 (the positive sentence) and C6 (the negative sentence)? 
+- **H4**: Is there a difference in (binary) truth-value judgements (aggregated over all vignettes) between C9 (where the presupposition is topical) and C10 (where the presupposition is not topical and occurs under negation)?
 
 ### Loading and preprocessing the data
 
@@ -253,5 +253,75 @@ data_KoF_processed %>%
   ylab("") + xlab("") + ggtitle("Proportion of 'TRUE' responses per condition & vignette")
 ```
 
+Plot for each condition:
+
+```{r}
+data_KoF_processed %>% 
+  filter(trial_type == "main") %>%
+  droplevels() %>% 
+  group_by(condition) %>% 
+  nest() %>% 
+  summarise(
+    CIs = map(data, function(d) bootstrapped_CI(d$response == "TRUE"))
+  ) %>% 
+  unnest(CIs) %>% 
+  ggplot(aes(x = condition, y = mean)) + 
+  geom_bar(stat = "identity", position = "dodge2") +
+  geom_errorbar(
+    aes(ymin = lower, ymax = upper),
+    width = 0.3,
+    position = position_dodge(width = 0.9)
+  ) +
+  ylim(0,1) +
+  ylab("") + xlab("") + ggtitle("Proportion of 'TRUE' responses per condition & vignette")
+```
+
 ### Data analysis 
 
+Since the repsonse variable is binary, we are going to use a logistic regression.
+We choose weakly informative priors to allow `brms::hypothesis` to estimate "evidence ratios".
+That requires setting the flag `sample_prior = 'yes'`.
+Since some hypotheses imply comparison against the intercept we must also, for technical reasons, specify the intercept coefficient explicitly in the formula.
+
+```{r}
+fit_brms_KoF <- brm(
+  # predict `response` in terms of `condition`
+  #   explicitly ensuring prior samples from the intercept (with `0 + Intercept`)
+  formula = response ~ 0 + Intercept + condition,
+  # specify which data to use
+  #   expluding the 'fillers' and 'background checks'
+  data_KoF_preprocessed %>% filter(str_detect(condition, "Condition")),
+  # use a Bernoulli LH function after applying
+  #   a logit transformation to the linear predictor
+  family = bernoulli(link = "logit"),
+  # weakly informative priors (slightly conservative)
+  #   for `class = 'b'` (i.e., all slopes)
+  prior = prior(student_t(1, 0, 2),  class = 'b'),
+  # also collect samples from the prior (for point-valued testing)
+  sample_prior = 'yes',
+  # take more than the usual samples (for numerical stability of testing)
+  iter = 20000
+)
+```
+
+```{r}
+summary(fit_brms_KoF)$fixed[, c("l-95% CI", "Estimate", "u-95% CI")]
+```
+
+Data and model provide no ground for rejecting the point-valued hypothesis H2 (C0 = C1), but we also do not obtain evidence in favor of the point-valued hypotheses (see "evidence ratio").
+
+```{r}
+brms::hypothesis(fit_brms_KoF, "Intercept = conditionCondition1")
+```
+
+Data and model do provide strong evidence against the assumed equalities in H3 and H4:
+
+```{r}
+# testing H3 (C0 = C6)
+brms::hypothesis(fit_brms_KoF, "Intercept = conditionCondition6")
+```
+
+```{r}
+# testing H4 (C9 = C10)
+brms::hypothesis(fit_brms_KoF, "conditionCondition9 = conditionCondition10")
+```
