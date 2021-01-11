@@ -558,7 +558,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <h2><span class="header-section-number">13.4</span> Setting priors</h2>
 <p>Bayesian models require priors for all parameters.
 The function <code>brms::prior_summary</code> shows which priors a model fitted with <code>brms</code> has (implicitly) assumed.</p>
-<div class="sourceCode" id="cb536"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb536-1" data-line-number="1"><span class="kw">prior_summary</span>(fit_temperature)</a></code></pre></div>
+<div class="sourceCode" id="cb537"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb537-1" data-line-number="1"><span class="kw">prior_summary</span>(fit_temperature)</a></code></pre></div>
 <pre><code>##                   prior     class coef group resp dpar nlpar bound       source
 ##                  (flat)         b                                       default
 ##                  (flat)         b year                             (vectorized)
@@ -569,19 +569,19 @@ It also shows us that all slope coefficients (abbreviated here as “b”) have 
 <p>If we want to change the prior for any model parameter, or family of model parameters, we can use the <code>prior</code> argument in the <code>brm</code> function, which requires a special type of input using <code>brms</code>’ <code>prior()</code> function.
 The syntax for distributions inside the <code>prior()</code> follows that of Stan, as documented in the <a href="https://mc-stan.org/docs/2_25/functions-reference/index.html">Stan function reference</a>.
 The example below sets the prior for the slope coefficient to a very narrow Student’s <span class="math inline">\(t\)</span> distribution with mean zero at <code>-0.001</code> and standard deviation <code>0.001</code>.</p>
-<div class="sourceCode" id="cb538"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb538-1" data-line-number="1">fit_temperature_skeptical &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb538-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
-<a class="sourceLine" id="cb538-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
-<a class="sourceLine" id="cb538-4" data-line-number="4">  <span class="dt">formula =</span> avg_temp <span class="op">~</span><span class="st"> </span>year,</a>
-<a class="sourceLine" id="cb538-5" data-line-number="5">  <span class="co"># which data to use</span></a>
-<a class="sourceLine" id="cb538-6" data-line-number="6">  <span class="dt">data =</span> aida<span class="op">::</span>data_WorldTemp,</a>
-<a class="sourceLine" id="cb538-7" data-line-number="7">  <span class="co"># hand-craft priors for slope</span></a>
-<a class="sourceLine" id="cb538-8" data-line-number="8">  <span class="dt">prior =</span> <span class="kw">prior</span>(<span class="kw">student_t</span>(<span class="dv">1</span>, <span class="fl">-0.01</span>, <span class="fl">0.001</span>), <span class="dt">coef =</span> year)</a>
-<a class="sourceLine" id="cb538-9" data-line-number="9">)</a></code></pre></div>
+<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb539-1" data-line-number="1">fit_temperature_skeptical &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb539-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
+<a class="sourceLine" id="cb539-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
+<a class="sourceLine" id="cb539-4" data-line-number="4">  <span class="dt">formula =</span> avg_temp <span class="op">~</span><span class="st"> </span>year,</a>
+<a class="sourceLine" id="cb539-5" data-line-number="5">  <span class="co"># which data to use</span></a>
+<a class="sourceLine" id="cb539-6" data-line-number="6">  <span class="dt">data =</span> aida<span class="op">::</span>data_WorldTemp,</a>
+<a class="sourceLine" id="cb539-7" data-line-number="7">  <span class="co"># hand-craft priors for slope</span></a>
+<a class="sourceLine" id="cb539-8" data-line-number="8">  <span class="dt">prior =</span> <span class="kw">prior</span>(<span class="kw">student_t</span>(<span class="dv">1</span>, <span class="fl">-0.01</span>, <span class="fl">0.001</span>), <span class="dt">coef =</span> year)</a>
+<a class="sourceLine" id="cb539-9" data-line-number="9">)</a></code></pre></div>
 <p>This prior is a <em>skeptical prior</em> in the sense that it assumes a negative slope to be more likely: that the world has been getting colder over the years.
 Comparing the summary statistics for the original fit:</p>
-<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb539-1" data-line-number="1"><span class="kw">map_dfr</span>(post_samples_temperature <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>lp__), aida<span class="op">::</span>summarize_sample_vector) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb539-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Parameter =</span> <span class="kw">colnames</span>(post_samples_temperature[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]))</a></code></pre></div>
+<div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb540-1" data-line-number="1"><span class="kw">map_dfr</span>(post_samples_temperature <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>lp__), aida<span class="op">::</span>summarize_sample_vector) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb540-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Parameter =</span> <span class="kw">colnames</span>(post_samples_temperature[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]))</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 4
 ##   Parameter     `|95%`     mean   `95%|`
 ##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
@@ -589,10 +589,10 @@ Comparing the summary statistics for the original fit:</p>
 ## 2 b_year       0.00566  0.00627  0.00687
 ## 3 sigma        0.371    0.405    0.438</code></pre>
 <p>against those of the new fit using skeptical priors:</p>
-<div class="sourceCode" id="cb541"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb541-1" data-line-number="1">post_samples_temperature_skeptical &lt;-<span class="st"> </span>brms<span class="op">::</span><span class="kw">posterior_samples</span>(fit_temperature_skeptical)</a>
-<a class="sourceLine" id="cb541-2" data-line-number="2"><span class="kw">map_dfr</span>(post_samples_temperature_skeptical <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>lp__),</a>
-<a class="sourceLine" id="cb541-3" data-line-number="3">        aida<span class="op">::</span>summarize_sample_vector) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb541-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Parameter =</span> <span class="kw">colnames</span>(post_samples_temperature_skeptical[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]))</a></code></pre></div>
+<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb542-1" data-line-number="1">post_samples_temperature_skeptical &lt;-<span class="st"> </span>brms<span class="op">::</span><span class="kw">posterior_samples</span>(fit_temperature_skeptical)</a>
+<a class="sourceLine" id="cb542-2" data-line-number="2"><span class="kw">map_dfr</span>(post_samples_temperature_skeptical <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>lp__),</a>
+<a class="sourceLine" id="cb542-3" data-line-number="3">        aida<span class="op">::</span>summarize_sample_vector) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb542-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Parameter =</span> <span class="kw">colnames</span>(post_samples_temperature_skeptical[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]))</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 4
 ##   Parameter     `|95%`     mean   `95%|`
 ##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
@@ -611,19 +611,19 @@ Solution
 <p>We should expect the posterior of the slope for <code>year</code> to be much higher than the original estimate, much closer to 5.
 The reason is that the normal distribution is much less “willing” to allow outliers and so constraints the fit much stronger towards the mean of the prior that the Student’s <span class="math inline">\(t\)</span> distribution.
 Notice that with slope values close to 5, the estimates for the intercept and standard deviation also change (in ridiculous ways).</p>
-<div class="sourceCode" id="cb543"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb543-1" data-line-number="1">fit_temperature_ridiculous &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb543-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
-<a class="sourceLine" id="cb543-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
-<a class="sourceLine" id="cb543-4" data-line-number="4">  <span class="dt">formula =</span> avg_temp <span class="op">~</span><span class="st"> </span>year,</a>
-<a class="sourceLine" id="cb543-5" data-line-number="5">  <span class="co"># which data to use</span></a>
-<a class="sourceLine" id="cb543-6" data-line-number="6">  <span class="dt">data =</span> aida<span class="op">::</span>data_WorldTemp,</a>
-<a class="sourceLine" id="cb543-7" data-line-number="7">  <span class="co"># hand-craft priors for slope</span></a>
-<a class="sourceLine" id="cb543-8" data-line-number="8">  <span class="dt">prior =</span> <span class="kw">prior</span>(<span class="kw">normal</span>(<span class="dv">5</span>, <span class="fl">0.01</span>), <span class="dt">coef =</span> year)</a>
-<a class="sourceLine" id="cb543-9" data-line-number="9">)</a>
-<a class="sourceLine" id="cb543-10" data-line-number="10">post_samples_temperature_ridiculous &lt;-<span class="st"> </span>brms<span class="op">::</span><span class="kw">posterior_samples</span>(fit_temperature_ridiculous)</a>
-<a class="sourceLine" id="cb543-11" data-line-number="11"><span class="kw">map_dfr</span>(post_samples_temperature_ridiculous <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>lp__),</a>
-<a class="sourceLine" id="cb543-12" data-line-number="12">        aida<span class="op">::</span>summarize_sample_vector) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb543-13" data-line-number="13"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Parameter =</span> <span class="kw">colnames</span>(post_samples_temperature_ridiculous[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]))</a></code></pre></div>
+<div class="sourceCode" id="cb544"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb544-1" data-line-number="1">fit_temperature_ridiculous &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb544-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
+<a class="sourceLine" id="cb544-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
+<a class="sourceLine" id="cb544-4" data-line-number="4">  <span class="dt">formula =</span> avg_temp <span class="op">~</span><span class="st"> </span>year,</a>
+<a class="sourceLine" id="cb544-5" data-line-number="5">  <span class="co"># which data to use</span></a>
+<a class="sourceLine" id="cb544-6" data-line-number="6">  <span class="dt">data =</span> aida<span class="op">::</span>data_WorldTemp,</a>
+<a class="sourceLine" id="cb544-7" data-line-number="7">  <span class="co"># hand-craft priors for slope</span></a>
+<a class="sourceLine" id="cb544-8" data-line-number="8">  <span class="dt">prior =</span> <span class="kw">prior</span>(<span class="kw">normal</span>(<span class="dv">5</span>, <span class="fl">0.01</span>), <span class="dt">coef =</span> year)</a>
+<a class="sourceLine" id="cb544-9" data-line-number="9">)</a>
+<a class="sourceLine" id="cb544-10" data-line-number="10">post_samples_temperature_ridiculous &lt;-<span class="st"> </span>brms<span class="op">::</span><span class="kw">posterior_samples</span>(fit_temperature_ridiculous)</a>
+<a class="sourceLine" id="cb544-11" data-line-number="11"><span class="kw">map_dfr</span>(post_samples_temperature_ridiculous <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>lp__),</a>
+<a class="sourceLine" id="cb544-12" data-line-number="12">        aida<span class="op">::</span>summarize_sample_vector) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb544-13" data-line-number="13"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Parameter =</span> <span class="kw">colnames</span>(post_samples_temperature_ridiculous[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]))</a></code></pre></div>
 <pre><code>## # A tibble: 3 x 4
 ##   Parameter     `|95%`     mean   `95%|`
 ##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;

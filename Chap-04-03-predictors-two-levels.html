@@ -558,14 +558,14 @@ code span.wa { color: #bf0303; } /* Warning */
 <h2><span class="header-section-number">14.1</span> Single two-level predictor</h2>
 <p>Let’s revisit the data from the <a href="app-93-data-sets-simon-task">Simon task</a>.
 Just like in chapter @ref(), we will be looking at the hypothesis that, among all correct responses, the mean reaction times for the congruent condition are lower than those of the incongruent condition.</p>
-<div class="sourceCode" id="cb556"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb556-1" data-line-number="1"><span class="co"># extract just the currently relevant columns </span></a>
-<a class="sourceLine" id="cb556-2" data-line-number="2"><span class="co">#  from the data set</span></a>
-<a class="sourceLine" id="cb556-3" data-line-number="3">data_ST_excerpt &lt;-<span class="st"> </span>aida<span class="op">::</span>data_ST <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb556-4" data-line-number="4"><span class="st">  </span><span class="kw">filter</span>(correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb556-5" data-line-number="5"><span class="st">  </span><span class="kw">select</span>(RT, condition)</a>
-<a class="sourceLine" id="cb556-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb556-7" data-line-number="7"><span class="co"># show the first couple of lines</span></a>
-<a class="sourceLine" id="cb556-8" data-line-number="8"><span class="kw">head</span>(data_ST_excerpt, <span class="dv">5</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb557"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb557-1" data-line-number="1"><span class="co"># extract just the currently relevant columns </span></a>
+<a class="sourceLine" id="cb557-2" data-line-number="2"><span class="co">#  from the data set</span></a>
+<a class="sourceLine" id="cb557-3" data-line-number="3">data_ST_excerpt &lt;-<span class="st"> </span>aida<span class="op">::</span>data_ST <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb557-4" data-line-number="4"><span class="st">  </span><span class="kw">filter</span>(correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb557-5" data-line-number="5"><span class="st">  </span><span class="kw">select</span>(RT, condition)</a>
+<a class="sourceLine" id="cb557-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb557-7" data-line-number="7"><span class="co"># show the first couple of lines</span></a>
+<a class="sourceLine" id="cb557-8" data-line-number="8"><span class="kw">head</span>(data_ST_excerpt, <span class="dv">5</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 5 x 2
 ##      RT condition  
 ##   &lt;dbl&gt; &lt;chr&gt;      
@@ -580,33 +580,33 @@ The variable <code>RT</code> is a metric measurement.
 But the variable <code>condition</code> is categorical variable with two category levels.</p>
 <p>Before we head on, let’s look at the data (again).
 Here’s a visualization of the distribution of RTs in each condition:</p>
-<div class="sourceCode" id="cb558"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb558-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb558-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> condition, <span class="dt">y =</span> RT, <span class="dt">color =</span> condition, <span class="dt">fill =</span> condition)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb558-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_violin</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb558-4" data-line-number="4"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb559"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb559-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb559-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> condition, <span class="dt">y =</span> RT, <span class="dt">color =</span> condition, <span class="dt">fill =</span> condition)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb559-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_violin</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb559-4" data-line-number="4"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-384-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The means for both conditions are:</p>
-<div class="sourceCode" id="cb559"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb559-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb559-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb559-3" data-line-number="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT))</a></code></pre></div>
+<div class="sourceCode" id="cb560"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb560-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb560-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb560-3" data-line-number="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT))</a></code></pre></div>
 <pre><code>## # A tibble: 2 x 2
 ##   condition   mean_RT
 ##   &lt;chr&gt;         &lt;dbl&gt;
 ## 1 congruent      453.
 ## 2 incongruent    477.</code></pre>
 <p>The difference between the means of conditions is:</p>
-<div class="sourceCode" id="cb561"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb561-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;incongruent&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>() <span class="op">-</span></a>
-<a class="sourceLine" id="cb561-2" data-line-number="2"><span class="st">  </span>data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;congruent&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb562"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb562-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;incongruent&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>() <span class="op">-</span></a>
+<a class="sourceLine" id="cb562-2" data-line-number="2"><span class="st">  </span>data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(condition <span class="op">==</span><span class="st"> &quot;congruent&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(RT) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mean</span>()</a></code></pre></div>
 <pre><code>## [1] 23.63348</code></pre>
 <p>While numerically this difference seems high, the question remains whether this difference is, say, big enough to earn our trust.
 We address this question here using posterior inference based on a regression model.
 Notice that we simply use the same formula syntax as before: we want a model that explains <code>RT</code> in terms of <code>condition</code>.</p>
-<div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb563-1" data-line-number="1">fit_brms_ST &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb563-2" data-line-number="2">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>condition,</a>
-<a class="sourceLine" id="cb563-3" data-line-number="3">  <span class="dt">data =</span> data_ST_excerpt</a>
-<a class="sourceLine" id="cb563-4" data-line-number="4">)</a></code></pre></div>
+<div class="sourceCode" id="cb564"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb564-1" data-line-number="1">fit_brms_ST &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb564-2" data-line-number="2">  <span class="dt">formula =</span> RT <span class="op">~</span><span class="st"> </span>condition,</a>
+<a class="sourceLine" id="cb564-3" data-line-number="3">  <span class="dt">data =</span> data_ST_excerpt</a>
+<a class="sourceLine" id="cb564-4" data-line-number="4">)</a></code></pre></div>
 <p>Let’s inspect the summary information for the posterior samples, which we do here using the <code>summary</code> function for the <code>brms_fit</code> object from which we extract information only about the <code>fixed</code> effects, showing the mean (here called “Estimate”) and indicators of the lower and upper 95% inner quantile.</p>
-<div class="sourceCode" id="cb564"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb564-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_ST)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb565"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb565-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_ST)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                       l-95% CI  Estimate  u-95% CI
 ## Intercept            451.02810 452.87640 454.68453
 ## conditionincongruent  21.07431  23.64385  26.15692</code></pre>
@@ -622,9 +622,9 @@ Concretely, <code>brms</code> has introduced a new predictor variable, call it <
 Per default <code>brms</code> chooses the level that is alphanumerically first as the so-called <strong>reference level</strong>, assigning to it the value <span class="math inline">\(0\)</span>.
 Here, that’s “congruent”.</p>
 <p>The result would look like this:</p>
-<div class="sourceCode" id="cb566"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb566-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb566-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">new_predictor =</span> <span class="kw">ifelse</span>(condition <span class="op">==</span><span class="st"> &quot;congruent&quot;</span>, <span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb566-3" data-line-number="3"><span class="st">  </span><span class="kw">head</span>(<span class="dv">5</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb567"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb567-1" data-line-number="1">data_ST_excerpt <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb567-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">new_predictor =</span> <span class="kw">ifelse</span>(condition <span class="op">==</span><span class="st"> &quot;congruent&quot;</span>, <span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb567-3" data-line-number="3"><span class="st">  </span><span class="kw">head</span>(<span class="dv">5</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 5 x 3
 ##      RT condition   new_predictor
 ##   &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt;

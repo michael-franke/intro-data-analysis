@@ -627,7 +627,7 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 \mu \mid \sigma^2, \mathbf{y} &amp; \sim \mathrm{Normal} \left (\bar{y} \mid \frac{\sigma}{\sqrt{n}} \right)
 \end{align*}
 \]</span></p>
-<p>Here is a convenience function that takes a vector <code>data_vector</code> (like <code>height_A</code>) of metric observations as input and returns <code>n_samples</code> samples from the posterior.</p>
+<p>The <code>aida</code> package provides the convenience function <code>aida::get_samples_single_noninformative</code>, which we use below but also show explicitly first. It takes a vector <code>data_vector</code> (like <code>height_A</code>) of metric observations as input and returns <code>n_samples</code> samples from the posterior.</p>
 <div class="sourceCode" id="cb448"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb448-1" data-line-number="1">get_samples_single_noninformative &lt;-<span class="st"> </span><span class="cf">function</span>(data_vector, <span class="dt">n_samples =</span> <span class="dv">1000</span>) {</a>
 <a class="sourceLine" id="cb448-2" data-line-number="2">  <span class="co"># determine sample variance</span></a>
 <a class="sourceLine" id="cb448-3" data-line-number="3">  s_squared &lt;-<span class="st"> </span><span class="kw">var</span>(data_vector)</a>
@@ -641,7 +641,7 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 <a class="sourceLine" id="cb448-11" data-line-number="11">  mu_samples &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(</a>
 <a class="sourceLine" id="cb448-12" data-line-number="12">    var_samples,</a>
 <a class="sourceLine" id="cb448-13" data-line-number="13">    <span class="cf">function</span>(var) <span class="kw">rnorm</span>(</a>
-<a class="sourceLine" id="cb448-14" data-line-number="14">      <span class="dt">n=</span><span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb448-14" data-line-number="14">      <span class="dt">n =</span> <span class="dv">1</span>,</a>
 <a class="sourceLine" id="cb448-15" data-line-number="15">      <span class="dt">mean =</span> <span class="kw">mean</span>(data_vector),</a>
 <a class="sourceLine" id="cb448-16" data-line-number="16">      <span class="dt">sd =</span> <span class="kw">sqrt</span>(var<span class="op">/</span><span class="kw">length</span>(data_vector))</a>
 <a class="sourceLine" id="cb448-17" data-line-number="17">    )</a>
@@ -653,7 +653,7 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 <a class="sourceLine" id="cb448-23" data-line-number="23">  )</a>
 <a class="sourceLine" id="cb448-24" data-line-number="24">}</a></code></pre></div>
 <p>If we apply this function for the data of flower ‘A’, we get samples of likely pairs consisting of means <em>and</em> standard deviations (each row is one pair of associated samples):</p>
-<div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb449-1" data-line-number="1"><span class="kw">get_samples_single_noninformative</span>(heights_A, <span class="dt">n_samples =</span> <span class="dv">5</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb449-1" data-line-number="1">aida<span class="op">::</span><span class="kw">get_samples_single_noninformative</span>(heights_A, <span class="dt">n_samples =</span> <span class="dv">5</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 5 x 2
 ##      mu sigma
 ##   &lt;dbl&gt; &lt;dbl&gt;
@@ -664,7 +664,7 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 ## 5  9.33  1.56</code></pre>
 <p>By taking more samples from this 2-dimensional (joint) posterior distribution a scatter point reveals its approximate shape.</p>
 <div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb451-1" data-line-number="1"><span class="co"># take 10,000 samples from the posterior</span></a>
-<a class="sourceLine" id="cb451-2" data-line-number="2">post_samples_A_noninfo &lt;-<span class="st"> </span><span class="kw">get_samples_single_noninformative</span>(<span class="dt">data_vector =</span> heights_A, <span class="dt">n_samples =</span> <span class="dv">10000</span>)</a>
+<a class="sourceLine" id="cb451-2" data-line-number="2">post_samples_A_noninfo &lt;-<span class="st"> </span>aida<span class="op">::</span><span class="kw">get_samples_single_noninformative</span>(<span class="dt">data_vector =</span> heights_A, <span class="dt">n_samples =</span> <span class="dv">10000</span>)</a>
 <a class="sourceLine" id="cb451-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb451-4" data-line-number="4"><span class="co"># look at a scatter plot</span></a>
 <a class="sourceLine" id="cb451-5" data-line-number="5">post_samples_A_noninfo <span class="op">%&gt;%</span></a>
@@ -715,13 +715,13 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 \]</span></p>
 <div class="exercises">
 <p><strong>Exercise 9.7</strong></p>
-<p>Here is a convenience function to sample from the ‘normal inverse-<span class="math inline">\(\chi^2\)</span>’ prior.</p>
-<div class="sourceCode" id="cb455"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb455-1" data-line-number="1">sample_Norm_inv_chisq &lt;-<span class="st">  </span><span class="cf">function</span>(</a>
+<p>The <code>aida</code> package provides the convenience function <code>aida::sample_Norm_inv_chisq</code> for sampling from the ‘normal inverse-<span class="math inline">\(\chi^2\)</span>’ prior. Here is the source code of this function:</p>
+<div class="sourceCode" id="cb455"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb455-1" data-line-number="1">sample_Norm_inv_chisq &lt;-<span class="st"> </span><span class="cf">function</span>(</a>
 <a class="sourceLine" id="cb455-2" data-line-number="2">  <span class="dt">n_samples =</span> <span class="dv">10000</span>,</a>
-<a class="sourceLine" id="cb455-3" data-line-number="3">  <span class="dt">nu =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb455-4" data-line-number="4">  <span class="dt">var =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb455-5" data-line-number="5">  <span class="dt">mu =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb455-6" data-line-number="6">  <span class="dt">kappa =</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb455-3" data-line-number="3">  <span class="dt">nu        =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb455-4" data-line-number="4">  <span class="dt">var       =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb455-5" data-line-number="5">  <span class="dt">mu        =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb455-6" data-line-number="6">  <span class="dt">kappa     =</span> <span class="dv">1</span></a>
 <a class="sourceLine" id="cb455-7" data-line-number="7">  )</a>
 <a class="sourceLine" id="cb455-8" data-line-number="8">{</a>
 <a class="sourceLine" id="cb455-9" data-line-number="9">  var_samples &lt;-<span class="st"> </span>extraDistr<span class="op">::</span><span class="kw">rinvchisq</span>(</a>
@@ -744,7 +744,7 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 <a class="sourceLine" id="cb455-26" data-line-number="26">}</a></code></pre></div>
 <p>In the code below, we use this function to plot 10,000 samples from the prior with a particular set of parameter values. Notice the line <code>filter(abs(value) &lt;= 10)</code> which is useful for an informative plot (try commenting it out: what does that tell you about the range of values reasonably likely to get sampled?).</p>
 <div class="sourceCode" id="cb456"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb456-1" data-line-number="1"><span class="co"># samples from the prior</span></a>
-<a class="sourceLine" id="cb456-2" data-line-number="2">samples_prior_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">sample_Norm_inv_chisq</span>(</a>
+<a class="sourceLine" id="cb456-2" data-line-number="2">samples_prior_<span class="dv">1</span> &lt;-<span class="st"> </span>aida<span class="op">::</span><span class="kw">sample_Norm_inv_chisq</span>(</a>
 <a class="sourceLine" id="cb456-3" data-line-number="3">  <span class="dt">nu =</span> <span class="dv">1</span>,</a>
 <a class="sourceLine" id="cb456-4" data-line-number="4">  <span class="dt">var =</span> <span class="dv">1</span>, <span class="co"># a priori &quot;variance of the variance&quot;</span></a>
 <a class="sourceLine" id="cb456-5" data-line-number="5">  <span class="dt">mu =</span> <span class="dv">0</span>,</a>
@@ -760,7 +760,7 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 <p>To get comfortable with this ‘normal inverse-<span class="math inline">\(\chi^2\)</span>’ distribution, fill in the <code>XXX</code> in the following code box (possibly removing or altering parts of the plotting code if you need to) to find parameter values that encode a prior belief according to which credible values of <span class="math inline">\(\sigma\)</span> are not much bigger than (very roughly) 7.5, and credible values of <span class="math inline">\(\mu\)</span> lie (very roughly) in the range of 15 to 25. (Hint: intuit what the meaning of each parameter value is by a trial-error-think method.) The plot you generate could look roughly like the one below.</p>
 <p>(Motivation for the exercise: you should get familiar with this distribution, and also realize that it is clunky and that you might want to use a different prior structure in order to encode specific beliefs … which is exactly why we might want to be more flexible and go beyond conjugate priors in some cases.)</p>
 <div class="sourceCode" id="cb457"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb457-1" data-line-number="1"><span class="co"># samples from the prior</span></a>
-<a class="sourceLine" id="cb457-2" data-line-number="2">samples_prior_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">sample_Norm_inv_chisq</span>(</a>
+<a class="sourceLine" id="cb457-2" data-line-number="2">samples_prior_<span class="dv">2</span> &lt;-<span class="st"> </span>aida<span class="op">::</span><span class="kw">sample_Norm_inv_chisq</span>(</a>
 <a class="sourceLine" id="cb457-3" data-line-number="3">  <span class="dt">nu    =</span> XXX,</a>
 <a class="sourceLine" id="cb457-4" data-line-number="4">  <span class="dt">var   =</span> XXX,</a>
 <a class="sourceLine" id="cb457-5" data-line-number="5">  <span class="dt">mu    =</span> XXX,</a>
@@ -779,7 +779,7 @@ Solution
 </button>
 <div class="content">
 <div class="sourceCode" id="cb458"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb458-1" data-line-number="1"><span class="co"># samples from the prior</span></a>
-<a class="sourceLine" id="cb458-2" data-line-number="2">samples_prior_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">sample_Norm_inv_chisq</span>(</a>
+<a class="sourceLine" id="cb458-2" data-line-number="2">samples_prior_<span class="dv">2</span> &lt;-<span class="st"> </span>aida<span class="op">::</span><span class="kw">sample_Norm_inv_chisq</span>(</a>
 <a class="sourceLine" id="cb458-3" data-line-number="3">  <span class="dt">nu =</span> <span class="dv">1</span>,</a>
 <a class="sourceLine" id="cb458-4" data-line-number="4">  <span class="dt">var =</span> <span class="dv">1</span>, <span class="co"># a priori &quot;variance of the variance&quot;</span></a>
 <a class="sourceLine" id="cb458-5" data-line-number="5">  <span class="dt">mu =</span> <span class="dv">20</span>,</a>
@@ -796,7 +796,7 @@ Solution
 </div>
 </div>
 </div>
-<p>Here is a convenience function for obtaining posterior samples for the conjugate prior model, taking as input a specification of the prior beliefs.</p>
+<p>Here is another convenience function from the <code>aida</code> package for obtaining posterior samples for the conjugate prior model, taking as input a specification of the prior beliefs. Again, we first show the function explicitly before applying it to the flower data set.</p>
 <div class="sourceCode" id="cb459"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb459-1" data-line-number="1">get_samples_single_normal_conjugate &lt;-<span class="st"> </span><span class="cf">function</span>(</a>
 <a class="sourceLine" id="cb459-2" data-line-number="2">  data_vector,</a>
 <a class="sourceLine" id="cb459-3" data-line-number="3">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
@@ -807,10 +807,10 @@ Solution
 <a class="sourceLine" id="cb459-8" data-line-number="8">)</a>
 <a class="sourceLine" id="cb459-9" data-line-number="9">{</a>
 <a class="sourceLine" id="cb459-10" data-line-number="10">  n &lt;-<span class="st"> </span><span class="kw">length</span>(data_vector)</a>
-<a class="sourceLine" id="cb459-11" data-line-number="11">  <span class="kw">sample_Norm_inv_chisq</span>(</a>
+<a class="sourceLine" id="cb459-11" data-line-number="11">  aida<span class="op">::</span><span class="kw">sample_Norm_inv_chisq</span>(</a>
 <a class="sourceLine" id="cb459-12" data-line-number="12">    <span class="dt">n_samples =</span> n_samples,</a>
 <a class="sourceLine" id="cb459-13" data-line-number="13">    <span class="dt">nu        =</span> nu <span class="op">+</span><span class="st"> </span>n,</a>
-<a class="sourceLine" id="cb459-14" data-line-number="14">    <span class="dt">var       =</span> (nu <span class="op">*</span><span class="st"> </span>var <span class="op">+</span><span class="st"> </span>(n<span class="dv">-1</span>)<span class="op">*</span><span class="kw">var</span>(data_vector) <span class="op">+</span><span class="st"> </span>(kappa <span class="op">*</span><span class="st"> </span>n)<span class="op">/</span><span class="st"> </span>(kappa <span class="op">+</span><span class="st"> </span>n)) <span class="op">/</span><span class="st"> </span>(nu <span class="op">+</span><span class="st"> </span>n),</a>
+<a class="sourceLine" id="cb459-14" data-line-number="14">    <span class="dt">var       =</span> (nu <span class="op">*</span><span class="st"> </span>var <span class="op">+</span><span class="st"> </span>(n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) <span class="op">*</span><span class="st"> </span><span class="kw">var</span>(data_vector) <span class="op">+</span><span class="st"> </span>(kappa <span class="op">*</span><span class="st"> </span>n)<span class="op">/</span><span class="st"> </span>(kappa <span class="op">+</span><span class="st"> </span>n)) <span class="op">/</span><span class="st"> </span>(nu <span class="op">+</span><span class="st"> </span>n),</a>
 <a class="sourceLine" id="cb459-15" data-line-number="15">    <span class="dt">mu        =</span> kappa <span class="op">/</span><span class="st"> </span>(kappa <span class="op">+</span><span class="st"> </span>n) <span class="op">*</span><span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>n <span class="op">/</span><span class="st"> </span>(kappa <span class="op">+</span><span class="st"> </span>n) <span class="op">*</span><span class="st"> </span><span class="kw">mean</span>(data_vector),</a>
 <a class="sourceLine" id="cb459-16" data-line-number="16">    <span class="dt">kappa     =</span> kappa <span class="op">+</span><span class="st"> </span>n</a>
 <a class="sourceLine" id="cb459-17" data-line-number="17">  )</a>
@@ -818,39 +818,38 @@ Solution
 <p>The code below calls this function to obtain samples from the posterior for two different models.
 This will help illustrate the effect of priors on the posterior once more, especially for a case like the one at hand where we have only rather few data observations.</p>
 <div class="sourceCode" id="cb460"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb460-1" data-line-number="1"><span class="co"># posterior samples for prior 1</span></a>
-<a class="sourceLine" id="cb460-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb460-3" data-line-number="3">post_samples_A_conjugate_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
-<a class="sourceLine" id="cb460-4" data-line-number="4">  heights_A,</a>
-<a class="sourceLine" id="cb460-5" data-line-number="5">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb460-6" data-line-number="6">  <span class="dt">var   =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb460-7" data-line-number="7">  <span class="dt">mu    =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb460-8" data-line-number="8">  <span class="dt">kappa =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb460-9" data-line-number="9">  <span class="dt">n_samples =</span> <span class="dv">10000</span></a>
-<a class="sourceLine" id="cb460-10" data-line-number="10">)</a>
-<a class="sourceLine" id="cb460-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb460-12" data-line-number="12"><span class="co"># posterior samples for prior 2</span></a>
-<a class="sourceLine" id="cb460-13" data-line-number="13">post_samples_A_conjugate_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
-<a class="sourceLine" id="cb460-14" data-line-number="14">  heights_A,</a>
-<a class="sourceLine" id="cb460-15" data-line-number="15">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb460-16" data-line-number="16">  <span class="dt">var   =</span> <span class="dv">1</span><span class="op">/</span><span class="dv">1000</span>,</a>
-<a class="sourceLine" id="cb460-17" data-line-number="17">  <span class="dt">mu    =</span> <span class="dv">40</span>,</a>
-<a class="sourceLine" id="cb460-18" data-line-number="18">  <span class="dt">kappa =</span> <span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb460-19" data-line-number="19">  <span class="dt">n_samples =</span> <span class="dv">10000</span></a>
-<a class="sourceLine" id="cb460-20" data-line-number="20">)</a>
-<a class="sourceLine" id="cb460-21" data-line-number="21"></a>
-<a class="sourceLine" id="cb460-22" data-line-number="22"><span class="kw">rbind</span>(</a>
-<a class="sourceLine" id="cb460-23" data-line-number="23">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">1</span><span class="op">$</span>mu,    <span class="st">&quot;mu&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb460-24" data-line-number="24">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">1</span><span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb460-25" data-line-number="25">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">2</span><span class="op">$</span>mu,    <span class="st">&quot;mu&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb460-26" data-line-number="26">  <span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">2</span><span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb460-27" data-line-number="27">)</a></code></pre></div>
+<a class="sourceLine" id="cb460-2" data-line-number="2">post_samples_A_conjugate_<span class="dv">1</span> &lt;-<span class="st"> </span>aida<span class="op">::</span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
+<a class="sourceLine" id="cb460-3" data-line-number="3">  heights_A,</a>
+<a class="sourceLine" id="cb460-4" data-line-number="4">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb460-5" data-line-number="5">  <span class="dt">var   =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb460-6" data-line-number="6">  <span class="dt">mu    =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb460-7" data-line-number="7">  <span class="dt">kappa =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb460-8" data-line-number="8">  <span class="dt">n_samples =</span> <span class="dv">10000</span></a>
+<a class="sourceLine" id="cb460-9" data-line-number="9">)</a>
+<a class="sourceLine" id="cb460-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb460-11" data-line-number="11"><span class="co"># posterior samples for prior 2</span></a>
+<a class="sourceLine" id="cb460-12" data-line-number="12">post_samples_A_conjugate_<span class="dv">2</span> &lt;-<span class="st"> </span>aida<span class="op">::</span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
+<a class="sourceLine" id="cb460-13" data-line-number="13">  heights_A,</a>
+<a class="sourceLine" id="cb460-14" data-line-number="14">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb460-15" data-line-number="15">  <span class="dt">var   =</span> <span class="dv">1</span><span class="op">/</span><span class="dv">1000</span>,</a>
+<a class="sourceLine" id="cb460-16" data-line-number="16">  <span class="dt">mu    =</span> <span class="dv">40</span>,</a>
+<a class="sourceLine" id="cb460-17" data-line-number="17">  <span class="dt">kappa =</span> <span class="dv">10</span>,</a>
+<a class="sourceLine" id="cb460-18" data-line-number="18">  <span class="dt">n_samples =</span> <span class="dv">10000</span></a>
+<a class="sourceLine" id="cb460-19" data-line-number="19">)</a>
+<a class="sourceLine" id="cb460-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb460-21" data-line-number="21"><span class="kw">rbind</span>(</a>
+<a class="sourceLine" id="cb460-22" data-line-number="22">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">1</span><span class="op">$</span>mu,    <span class="st">&quot;mu&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb460-23" data-line-number="23">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">1</span><span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb460-24" data-line-number="24">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">2</span><span class="op">$</span>mu,    <span class="st">&quot;mu&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb460-25" data-line-number="25">  aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>(post_samples_A_conjugate_<span class="dv">2</span><span class="op">$</span>sigma, <span class="st">&quot;sigma&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb460-26" data-line-number="26">)</a></code></pre></div>
 <pre><code>## # A tibble: 4 x 5
 ##   Parameter `|95%`  mean `95%|` model
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
 ## 1 mu          8.95  9.65  10.3      1
 ## 2 sigma       1.31  1.76   2.27     1
 ## 3 mu         18.0  18.6   19.2      2
-## 4 sigma       1.35  1.82   2.34     1</code></pre>
+## 4 sigma       1.35  1.82   2.34     2</code></pre>
 <p>The posterior is a mixture of prior and likelihood.
 The prior for model 1 is rather weak (high variance, low <span class="math inline">\(\kappa\)</span> leading to large range of plausible values for <span class="math inline">\(\mu\)</span>).
 The prior for model 2 is rather biased.
@@ -862,7 +861,7 @@ The credible values of <span class="math inline">\(\mu\)</span> are rather high.
 To address this question, it suffices to take samples for <span class="math inline">\(\mu_{A}\)</span> and <span class="math inline">\(\mu_{B}\)</span>, obtained by one of the methods introduced in the previous sections (using the same model for both flower types, unless we have a good reason not to), and then to inspect the vector of differences between samples <span class="math inline">\(\delta = \mu_{B} - \mu_{A}\)</span>.
 If the derived samples of <span class="math inline">\(\delta\)</span> are credible bigger than zero, there is reason to believe that there is a difference between flower types such that ‘B’ is bigger than ‘A’.</p>
 <p>So, let’s use the (conjugate) prior of model 1 from above to also take 10,000 samples from the posterior when conditioning with the data in <code>heights_B</code>. Store the results in a vector called <code>post_samples_B_conjugate_1</code>.</p>
-<div class="sourceCode" id="cb462"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb462-1" data-line-number="1">post_samples_B_conjugate_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
+<div class="sourceCode" id="cb462"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb462-1" data-line-number="1">post_samples_B_conjugate_<span class="dv">1</span> &lt;-<span class="st"> </span>aida<span class="op">::</span><span class="kw">get_samples_single_normal_conjugate</span>(</a>
 <a class="sourceLine" id="cb462-2" data-line-number="2">  heights_B,</a>
 <a class="sourceLine" id="cb462-3" data-line-number="3">  <span class="dt">nu    =</span> <span class="dv">1</span>,</a>
 <a class="sourceLine" id="cb462-4" data-line-number="4">  <span class="dt">var   =</span> <span class="dv">1</span>,</a>

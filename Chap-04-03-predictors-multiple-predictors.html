@@ -579,8 +579,8 @@ The to-be-predicted data are measurements of voice pitch in a <span class="math 
 The factor <code>gender</code> has (sadly only) two levels: “male” and “female”.
 The factor <code>context</code> has two levels, namely “informal” for informal speech situations and “polite” for polite speech situations.</p>
 <p>Let us first load the data &amp; inspect it.</p>
-<div class="sourceCode" id="cb582"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb582-1" data-line-number="1">politeness_data &lt;-<span class="st"> </span>aida<span class="op">::</span>data_polite</a>
-<a class="sourceLine" id="cb582-2" data-line-number="2">politeness_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">5</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb583"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb583-1" data-line-number="1">politeness_data &lt;-<span class="st"> </span>aida<span class="op">::</span>data_polite</a>
+<a class="sourceLine" id="cb583-2" data-line-number="2">politeness_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">5</span>)</a></code></pre></div>
 <pre><code>## # A tibble: 5 x 5
 ##   subject gender sentence context pitch
 ##   &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;   &lt;dbl&gt;
@@ -676,14 +676,14 @@ This can be simplified to:</p>
 \]</span></p>
 <p>To test these hypotheses, we can fit a regression model with this coding scheme using the formula <code>pitch ~ gender * context</code>.
 Importantly the star <code>*</code> between explanatory variables <code>gender</code> and <code>context</code> indicates that we also want to include the interaction term.<a href="#fn67" class="footnote-ref" id="fnref67"><sup>67</sup></a></p>
-<div class="sourceCode" id="cb584"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb584-1" data-line-number="1">fit_brms_politeness &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb584-2" data-line-number="2">  <span class="co"># model &#39;pitch&#39; as a function of &#39;gender&#39; and &#39;context&#39;,</span></a>
-<a class="sourceLine" id="cb584-3" data-line-number="3">  <span class="co">#  also including the interaction between `gender` and `context`</span></a>
-<a class="sourceLine" id="cb584-4" data-line-number="4">  <span class="dt">formula =</span> pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
-<a class="sourceLine" id="cb584-5" data-line-number="5">  <span class="dt">data =</span> politeness_data</a>
-<a class="sourceLine" id="cb584-6" data-line-number="6">)</a></code></pre></div>
+<div class="sourceCode" id="cb585"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb585-1" data-line-number="1">fit_brms_politeness &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb585-2" data-line-number="2">  <span class="co"># model &#39;pitch&#39; as a function of &#39;gender&#39; and &#39;context&#39;,</span></a>
+<a class="sourceLine" id="cb585-3" data-line-number="3">  <span class="co">#  also including the interaction between `gender` and `context`</span></a>
+<a class="sourceLine" id="cb585-4" data-line-number="4">  <span class="dt">formula =</span> pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
+<a class="sourceLine" id="cb585-5" data-line-number="5">  <span class="dt">data =</span> politeness_data</a>
+<a class="sourceLine" id="cb585-6" data-line-number="6">)</a></code></pre></div>
 <p>The summary statistics below lists Bayesian summary statistics for the (marginal) posteriors of the model parameters indicated in Figure <a href="Chap-04-03-predictors-multiple-predictors.html#fig:Chap-04-02-beyond-simple-regression-factorial-coefficients">14.2</a>.</p>
-<div class="sourceCode" id="cb585"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb585-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb586"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb586-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                      l-95% CI   Estimate   u-95% CI
 ## Intercept           245.13899  260.77238 276.332456
 ## genderM            -138.91421 -116.36293 -94.467468
@@ -691,7 +691,7 @@ Importantly the star <code>*</code> between explanatory variables <code>gender</
 ## genderM:contextpol  -15.33484   15.85449  48.252632</code></pre>
 <p>The function <code>brms::hypothesis</code> can test the relevant hypotheses based on the <code>brms_fit</code> object stored in <code>fiit_brms_politeness</code>.
 Starting with H1, we find very strong support for a main effect of gender:</p>
-<div class="sourceCode" id="cb587"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb587-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness, <span class="st">&quot;genderM + 0.5 * genderM:contextpol &lt; 0&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb588"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb588-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness, <span class="st">&quot;genderM + 0.5 * genderM:contextpol &lt; 0&quot;</span>)</a></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
 ## 1 (genderM+0.5*gend... &lt; 0  -108.44      8.05  -121.51   -95.21        Inf
@@ -703,7 +703,7 @@ Starting with H1, we find very strong support for a main effect of gender:</p>
 ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
 ## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
 <p>As for H2, we also find very strong evidence in support of a belief in a main effect of context:</p>
-<div class="sourceCode" id="cb589"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb589-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness, <span class="st">&quot;contextpol + 0.5 * genderM:contextpol &lt; 0&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb590"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb590-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness, <span class="st">&quot;contextpol + 0.5 * genderM:contextpol &lt; 0&quot;</span>)</a></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
 ## 1 (contextpol+0.5*g... &lt; 0   -19.37      7.97    -32.4    -6.23     128.03
@@ -715,7 +715,7 @@ Starting with H1, we find very strong support for a main effect of gender:</p>
 ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
 ## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
 <p>In contrast, based on the data and the model, there is at best very mildly suggestive evidence in favor of the third hypothesis according to which female speakers are more susceptible to pitch differences induced by different context types.</p>
-<div class="sourceCode" id="cb591"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb591-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness, <span class="st">&quot;genderM:contextpol &gt; 0&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb592"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb592-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness, <span class="st">&quot;genderM:contextpol &gt; 0&quot;</span>)</a></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
 ## 1 (genderM:contextpol) &gt; 0    15.85     15.99   -10.08    42.08       5.17
@@ -787,37 +787,37 @@ To see this, calculate as before:</p>
 <span class="math display">\[\text{eff_context_on_female} - \text{eff_context_on_male} = 4 \beta_\text{pol&amp;male}\]</span>
 To implement sum coding for use in <code>brms</code>, R provides functions <code>contrasts</code> and <code>contr.sum</code>.
 Here is an example.</p>
-<div class="sourceCode" id="cb593"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb593-1" data-line-number="1"><span class="co"># make predictors &#39;factors&#39; b/c that&#39;s required for contrast coding</span></a>
-<a class="sourceLine" id="cb593-2" data-line-number="2"><span class="co">#   also: change order to match coding assumed in the main text</span></a>
-<a class="sourceLine" id="cb593-3" data-line-number="3">data_polite &lt;-<span class="st"> </span>aida<span class="op">::</span>data_polite <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb593-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb593-5" data-line-number="5">    <span class="dt">gender =</span> <span class="kw">factor</span>(gender, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&#39;M&#39;</span>, <span class="st">&#39;F&#39;</span>)),</a>
-<a class="sourceLine" id="cb593-6" data-line-number="6">    <span class="dt">context =</span> <span class="kw">factor</span>(context, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&#39;pol&#39;</span>, <span class="st">&#39;inf&#39;</span>))</a>
-<a class="sourceLine" id="cb593-7" data-line-number="7">  )</a>
-<a class="sourceLine" id="cb593-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb593-9" data-line-number="9"><span class="co"># apply &#39;sum&#39; contrasts</span></a>
-<a class="sourceLine" id="cb593-10" data-line-number="10"><span class="kw">contrasts</span>(data_polite<span class="op">$</span>context) &lt;-<span class="st"> </span><span class="kw">contr.sum</span>(<span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb593-11" data-line-number="11"><span class="kw">contrasts</span>(data_polite<span class="op">$</span>gender) &lt;-<span class="st"> </span><span class="kw">contr.sum</span>(<span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb593-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb593-13" data-line-number="13"><span class="co"># add intelligible name to the new contrast coding</span></a>
-<a class="sourceLine" id="cb593-14" data-line-number="14"><span class="kw">colnames</span>(<span class="kw">contrasts</span>(data_polite<span class="op">$</span>context)) &lt;-<span class="st"> &quot;:polite&quot;</span></a>
-<a class="sourceLine" id="cb593-15" data-line-number="15"><span class="kw">colnames</span>(<span class="kw">contrasts</span>(data_polite<span class="op">$</span>gender)) &lt;-<span class="st"> &quot;:male&quot;</span></a>
-<a class="sourceLine" id="cb593-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb593-17" data-line-number="17"><span class="co"># run brms as usual</span></a>
-<a class="sourceLine" id="cb593-18" data-line-number="18">fit_brms_politeness_sum &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb593-19" data-line-number="19">  pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
-<a class="sourceLine" id="cb593-20" data-line-number="20">  data_polite</a>
-<a class="sourceLine" id="cb593-21" data-line-number="21">)</a></code></pre></div>
+<div class="sourceCode" id="cb594"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb594-1" data-line-number="1"><span class="co"># make predictors &#39;factors&#39; b/c that&#39;s required for contrast coding</span></a>
+<a class="sourceLine" id="cb594-2" data-line-number="2"><span class="co">#   also: change order to match coding assumed in the main text</span></a>
+<a class="sourceLine" id="cb594-3" data-line-number="3">data_polite &lt;-<span class="st"> </span>aida<span class="op">::</span>data_polite <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb594-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb594-5" data-line-number="5">    <span class="dt">gender =</span> <span class="kw">factor</span>(gender, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&#39;M&#39;</span>, <span class="st">&#39;F&#39;</span>)),</a>
+<a class="sourceLine" id="cb594-6" data-line-number="6">    <span class="dt">context =</span> <span class="kw">factor</span>(context, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&#39;pol&#39;</span>, <span class="st">&#39;inf&#39;</span>))</a>
+<a class="sourceLine" id="cb594-7" data-line-number="7">  )</a>
+<a class="sourceLine" id="cb594-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb594-9" data-line-number="9"><span class="co"># apply &#39;sum&#39; contrasts</span></a>
+<a class="sourceLine" id="cb594-10" data-line-number="10"><span class="kw">contrasts</span>(data_polite<span class="op">$</span>context) &lt;-<span class="st"> </span><span class="kw">contr.sum</span>(<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb594-11" data-line-number="11"><span class="kw">contrasts</span>(data_polite<span class="op">$</span>gender) &lt;-<span class="st"> </span><span class="kw">contr.sum</span>(<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb594-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb594-13" data-line-number="13"><span class="co"># add intelligible name to the new contrast coding</span></a>
+<a class="sourceLine" id="cb594-14" data-line-number="14"><span class="kw">colnames</span>(<span class="kw">contrasts</span>(data_polite<span class="op">$</span>context)) &lt;-<span class="st"> &quot;:polite&quot;</span></a>
+<a class="sourceLine" id="cb594-15" data-line-number="15"><span class="kw">colnames</span>(<span class="kw">contrasts</span>(data_polite<span class="op">$</span>gender)) &lt;-<span class="st"> &quot;:male&quot;</span></a>
+<a class="sourceLine" id="cb594-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb594-17" data-line-number="17"><span class="co"># run brms as usual</span></a>
+<a class="sourceLine" id="cb594-18" data-line-number="18">fit_brms_politeness_sum &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb594-19" data-line-number="19">  pitch <span class="op">~</span><span class="st"> </span>gender <span class="op">*</span><span class="st"> </span>context,</a>
+<a class="sourceLine" id="cb594-20" data-line-number="20">  data_polite</a>
+<a class="sourceLine" id="cb594-21" data-line-number="21">)</a></code></pre></div>
 <p>We can inspect the coefficients as usual:</p>
-<div class="sourceCode" id="cb594"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb594-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness_sum)<span class="op">$</span>fixed[, <span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span> ,<span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb595"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb595-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_politeness_sum)<span class="op">$</span>fixed[, <span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span> ,<span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                              l-95% CI   Estimate   u-95% CI
 ## Intercept                  185.214314 192.847146 200.795844
 ## gender:male                -62.442427 -54.225500 -46.494742
 ## context:polite             -17.745009  -9.697432  -1.755093
 ## gender:male:context:polite  -3.614788   4.031338  12.003508</code></pre>
 <p>The summary statistics for the posterior already directly address all three hypotheses in question, but we should compare our previous results to the full results of using <code>brms::hypothesis</code> also for the sum-coded analysis.</p>
-<div class="sourceCode" id="cb596"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb596-1" data-line-number="1"><span class="co"># testing H1</span></a>
-<a class="sourceLine" id="cb596-2" data-line-number="2">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness_sum, <span class="st">&quot;gender:male &lt; 0&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb597"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb597-1" data-line-number="1"><span class="co"># testing H1</span></a>
+<a class="sourceLine" id="cb597-2" data-line-number="2">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness_sum, <span class="st">&quot;gender:male &lt; 0&quot;</span>)</a></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##          Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio Post.Prob
 ## 1 (gender:male) &lt; 0   -54.23      3.99   -60.87   -47.76        Inf         1
@@ -828,8 +828,8 @@ Here is an example.</p>
 ## &#39;*&#39;: For one-sided hypotheses, the posterior probability exceeds 95%;
 ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
 ## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
-<div class="sourceCode" id="cb598"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb598-1" data-line-number="1"><span class="co"># testing H2</span></a>
-<a class="sourceLine" id="cb598-2" data-line-number="2">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness_sum, <span class="st">&quot;context:polite &lt; 0&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb599"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb599-1" data-line-number="1"><span class="co"># testing H2</span></a>
+<a class="sourceLine" id="cb599-2" data-line-number="2">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness_sum, <span class="st">&quot;context:polite &lt; 0&quot;</span>)</a></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##             Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
 ## 1 (context:polite) &lt; 0     -9.7      4.08   -16.43    -3.06     107.11
@@ -840,8 +840,8 @@ Here is an example.</p>
 ## &#39;*&#39;: For one-sided hypotheses, the posterior probability exceeds 95%;
 ## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
 ## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
-<div class="sourceCode" id="cb600"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb600-1" data-line-number="1"><span class="co"># testing H3</span></a>
-<a class="sourceLine" id="cb600-2" data-line-number="2">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness_sum, <span class="st">&quot;gender:male:context:polite &gt; 0&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb601"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb601-1" data-line-number="1"><span class="co"># testing H3</span></a>
+<a class="sourceLine" id="cb601-2" data-line-number="2">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_politeness_sum, <span class="st">&quot;gender:male:context:polite &gt; 0&quot;</span>)</a></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
 ## 1 (gender:male:cont... &gt; 0     4.03         4    -2.58    10.67       5.53
