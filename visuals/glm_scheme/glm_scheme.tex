@@ -1,0 +1,68 @@
+\documentclass[fleqn,reqno,10pt]{article}
+
+\usepackage[]{mypackages}
+
+\usepackage{mycommands}
+
+\usepackage{verbatim}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{5pt}
+
+\usetikzlibrary{calc}
+
+\usepackage{pgfplots}
+
+\begin{document}
+
+
+\begin{tikzpicture}[node distance = 2.75cm, 
+    double distance = 2pt,
+    rounded corners, text width=4cm, 
+    text centered,
+    minimum size=1.25cm,
+    thick]
+    
+    \node[] (anchor)     {};
+
+    \node[rectangle, draw=black, left of = anchor] (x)     {independent variables \\
+    $X  \text{ \ \textcolor{gray}{(observed)}}$};
+
+    \node[rectangle, draw=black, right of = anchor] (beta)     {coefficients \\
+    $\beta \sim \text{ some prior}$};
+
+    \node[rectangle, draw=black, below of = anchor] (eta)     {predictor value \\
+    $\eta = X\beta$};
+
+    \node[rectangle, draw=gray, right of = eta, node distance = 5cm] (thetaLF)     {\textcolor{gray}{parameters
+      link function} \\
+    $\textcolor{gray}{\theta_{LF} \sim \text{some prior}}$};
+
+    \node[rectangle, draw=black, below of = eta] (mu)     {expected value \\
+    $\mu = LF(\eta, \textcolor{gray}{\theta_{LF}})$};
+
+    \node[rectangle, draw=gray, right of = mu, node distance = 5cm] (thetaLH)     {\textcolor{gray}{parameters
+      likelihood} \\
+    $\textcolor{gray}{\theta_{LH} \sim \text{some prior}}$};
+
+    \node[rectangle, draw=black, below of = mu] (LH)     {likelihood of data \\
+    $y \sim LH(\mu, \textcolor{gray}{\theta_{LH}})$};
+
+    \draw[->] (beta)--(eta);
+
+    \draw[->] (x)--(eta);
+
+    \draw[->] (eta)--(mu) node [ pos=0.5, left] {(inverse) link function};
+
+    \draw[->, color = gray] (thetaLF)--(mu);
+
+    \draw[->] (mu)--(LH) node [ pos=0.5, left] {likelihood function};
+
+    \draw[->, color = gray] (thetaLH)--(LH);
+
+  \end{tikzpicture}
+
+
+\printbibliography[heading=bibintoc]
+
+\end{document}
