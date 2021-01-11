@@ -1247,9 +1247,9 @@ P(\mu, \sigma^2 \mid \mathbf{y})
 \end{align*}
 $$
 
-Here is a convenience function that takes a vector `data_vector` (like `height_A`) of metric observations as input and returns `n_samples` samples from the posterior.
+The `aida` package provides the convenience function `aida::get_samples_single_noninformative`, which we use below but also show explicitly first. It takes a vector `data_vector` (like `height_A`) of metric observations as input and returns `n_samples` samples from the posterior.
 
-```{r}
+```{r eval=F}
 get_samples_single_noninformative <- function(data_vector, n_samples = 1000) {
   # determine sample variance
   s_squared <- var(data_vector)
@@ -1263,7 +1263,7 @@ get_samples_single_noninformative <- function(data_vector, n_samples = 1000) {
   mu_samples <- map_dbl(
     var_samples,
     function(var) rnorm(
-      n=1,
+      n = 1,
       mean = mean(data_vector),
       sd = sqrt(var/length(data_vector))
     )
@@ -1279,14 +1279,14 @@ get_samples_single_noninformative <- function(data_vector, n_samples = 1000) {
 If we apply this function for the data of flower 'A', we get samples of likely pairs consisting of means *and* standard deviations (each row is one pair of associated samples):
 
 ```{r}
-get_samples_single_noninformative(heights_A, n_samples = 5)
+aida::get_samples_single_noninformative(heights_A, n_samples = 5)
 ```
 
 By taking more samples from this 2-dimensional (joint) posterior distribution a scatter point reveals its approximate shape.
 
 ```{r}
 # take 10,000 samples from the posterior
-post_samples_A_noninfo <- get_samples_single_noninformative(data_vector = heights_A, n_samples = 10000)
+post_samples_A_noninfo <- aida::get_samples_single_noninformative(data_vector = heights_A, n_samples = 10000)
 
 # look at a scatter plot
 post_samples_A_noninfo %>%
@@ -1342,15 +1342,15 @@ $$
 <div class = "exercises">
 **Exercise 9.7**
 
-Here is a convenience function to sample from the 'normal inverse-$\chi^2$' prior.
+The `aida` package provides the convenience function `aida::sample_Norm_inv_chisq` for sampling from the 'normal inverse-$\chi^2$' prior. Here is the source code of this function:
 
-```{r}
-sample_Norm_inv_chisq <-  function(
+```{r eval=F}
+sample_Norm_inv_chisq <- function(
   n_samples = 10000,
-  nu = 1,
-  var = 1,
-  mu = 0,
-  kappa = 1
+  nu        = 1,
+  var       = 1,
+  mu        = 0,
+  kappa     = 1
   )
 {
   var_samples <- extraDistr::rinvchisq(
@@ -1377,7 +1377,7 @@ In the code below, we use this function to plot 10,000 samples from the prior wi
 
 ```{r}
 # samples from the prior
-samples_prior_1 <- sample_Norm_inv_chisq(
+samples_prior_1 <- aida::sample_Norm_inv_chisq(
   nu = 1,
   var = 1, # a priori "variance of the variance"
   mu = 0,
@@ -1397,7 +1397,7 @@ To get comfortable with this 'normal inverse-$\chi^2$' distribution, fill in the
 
 ```{r, eval = F}
 # samples from the prior
-samples_prior_2 <- sample_Norm_inv_chisq(
+samples_prior_2 <- aida::sample_Norm_inv_chisq(
   nu    = XXX,
   var   = XXX,
   mu    = XXX,
@@ -1418,7 +1418,7 @@ samples_prior_2 %>%
 
 ```{r}
 # samples from the prior
-samples_prior_2 <- sample_Norm_inv_chisq(
+samples_prior_2 <- aida::sample_Norm_inv_chisq(
   nu = 1,
   var = 1, # a priori "variance of the variance"
   mu = 20,
@@ -1438,39 +1438,9 @@ samples_prior_2 %>%
 
 </div>
 
-Here is a convenience function for obtaining posterior samples for the conjugate prior model, taking as input a specification of the prior beliefs.
+Here is another convenience function from the `aida` package for obtaining posterior samples for the conjugate prior model, taking as input a specification of the prior beliefs. Again, we first show the function explicitly before applying it to the flower data set.
 
-```{r, echo = F}
-sample_Norm_inv_chisq <-  function(
-  n_samples = 10000,
-  nu = 1,
-  var = 1,
-  mu = 0,
-  kappa = 1
-  )
-{
-  var_samples <- extraDistr::rinvchisq(
-    n   = n_samples,
-    nu  = nu,
-    tau = var
-  )
-  mu_samples <- map_dbl(
-    var_samples,
-    function(s) rnorm(
-      n    = 1,
-      mean = mu,
-      sd   = sqrt(s/kappa)
-    )
-  )
-  tibble(
-    sigma = sqrt(var_samples),
-    mu    = mu_samples
-  )
-}
-```
-
-
-```{r}
+```{r eval=F}
 get_samples_single_normal_conjugate <- function(
   data_vector,
   nu    = 1,
@@ -1481,10 +1451,10 @@ get_samples_single_normal_conjugate <- function(
 )
 {
   n <- length(data_vector)
-  sample_Norm_inv_chisq(
+  aida::sample_Norm_inv_chisq(
     n_samples = n_samples,
     nu        = nu + n,
-    var       = (nu * var + (n-1)*var(data_vector) + (kappa * n)/ (kappa + n)) / (nu + n),
+    var       = (nu * var + (n - 1) * var(data_vector) + (kappa * n)/ (kappa + n)) / (nu + n),
     mu        = kappa / (kappa + n) * mu + n / (kappa + n) * mean(data_vector),
     kappa     = kappa + n
   )
@@ -1496,8 +1466,7 @@ This will help illustrate the effect of priors on the posterior once more, espec
 
 ```{r}
 # posterior samples for prior 1
-
-post_samples_A_conjugate_1 <- get_samples_single_normal_conjugate(
+post_samples_A_conjugate_1 <- aida::get_samples_single_normal_conjugate(
   heights_A,
   nu    = 1,
   var   = 1,
@@ -1507,7 +1476,7 @@ post_samples_A_conjugate_1 <- get_samples_single_normal_conjugate(
 )
 
 # posterior samples for prior 2
-post_samples_A_conjugate_2 <- get_samples_single_normal_conjugate(
+post_samples_A_conjugate_2 <- aida::get_samples_single_normal_conjugate(
   heights_A,
   nu    = 1,
   var   = 1/1000,
@@ -1517,10 +1486,10 @@ post_samples_A_conjugate_2 <- get_samples_single_normal_conjugate(
 )
 
 rbind(
-  summarize_sample_vector(post_samples_A_conjugate_1$mu,    "mu") %>% mutate(model = 1),
-  summarize_sample_vector(post_samples_A_conjugate_1$sigma, "sigma") %>% mutate(model = 1),
-  summarize_sample_vector(post_samples_A_conjugate_2$mu,    "mu") %>% mutate(model = 2),
-  summarize_sample_vector(post_samples_A_conjugate_2$sigma, "sigma") %>% mutate(model = 1)
+  aida::summarize_sample_vector(post_samples_A_conjugate_1$mu,    "mu") %>% mutate(model = 1),
+  aida::summarize_sample_vector(post_samples_A_conjugate_1$sigma, "sigma") %>% mutate(model = 1),
+  aida::summarize_sample_vector(post_samples_A_conjugate_2$mu,    "mu") %>% mutate(model = 2),
+  aida::summarize_sample_vector(post_samples_A_conjugate_2$sigma, "sigma") %>% mutate(model = 2)
 )
 
 ```
@@ -1539,7 +1508,7 @@ If the derived samples of $\delta$ are credible bigger than zero, there is reaso
 So, let's use the (conjugate) prior of model 1 from above to also take 10,000 samples from the posterior when conditioning with the data in `heights_B`. Store the results in a vector called `post_samples_B_conjugate_1`.
 
 ```{r}
-post_samples_B_conjugate_1 <- get_samples_single_normal_conjugate(
+post_samples_B_conjugate_1 <- aida::get_samples_single_normal_conjugate(
   heights_B,
   nu    = 1,
   var   = 1,

@@ -825,26 +825,10 @@ $$
 
 This is not surprising given that the mean of a normal distribution is also its mode and that the MAP for a non-informative prior coincides with the MLE.
 
-The `aida` package provides a convenience function for sampling from the posterior of the Bayesian non-informative priors model.
+The `aida` package provides the convenience function `aida::get_samples_regression_noninformative` for sampling from the posterior of the Bayesian non-informative priors model. We use this function below but show it explicitly first:
 
-
-```{r}
-
-# variables for regression
-y <- murder_data$murder_rate
-x <- murder_data$unemployment
-
-# the predictor 'intercept' is just a 
-# column vector of ones of the same length as y
-int <- rep(1, length(y))
-
-# create predictor matrix with values of all explanatory variables 
-#    (here only intercept and slope for MAD)
-X <- matrix(c(int, x),  ncol = 2)
-colnames(X) <- c("intercept", "slope")
-
-
-get_samples_regression_noninormative <- function(
+```{r eval=F}
+get_samples_regression_noninformative <- function(
   X, # design matrix
   y, # dependent variable
   n_samples = 1000
@@ -859,7 +843,7 @@ get_samples_regression_noninormative <- function(
   V_beta   <- solve(t(X) %*% X)
   
   # 'sample co-variance matrix'
-  s_squared <- 1 / (n-k) * t(y - (X %*% beta_hat)) %*% (y - (X %*% beta_hat))
+  s_squared <- 1 / (n - k) * t(y - (X %*% beta_hat)) %*% (y - (X %*% beta_hat))
   
   # sample from posterior of variance
   samples_sigma_squared <- extraDistr::rinvchisq(
@@ -883,8 +867,26 @@ get_samples_regression_noninormative <- function(
   return(samples_posterior)
 }
 
-samples_Bayes_regression <- get_samples_regression_noninormative(X,y, 10000)
+```
 
+Let's apply this function to the running example of this chapter:
+
+```{r}
+# variables for regression
+y <- murder_data$murder_rate
+x <- murder_data$unemployment
+
+# the predictor 'intercept' is just a 
+# column vector of ones of the same length as y
+int <- rep(1, length(y))
+
+# create predictor matrix with values of all explanatory variables 
+#    (here only intercept and slope for MAD)
+X <- matrix(c(int, x),  ncol = 2)
+colnames(X) <- c("intercept", "slope")
+
+
+samples_Bayes_regression <- aida::get_samples_regression_noninformative(X, y, 10000)
 ```
 
 The tibble `samples_Bayes_regression` contains 10,000 samples from the posterior. Let's have a look at the first couple of samples:
@@ -895,7 +897,7 @@ head(samples_Bayes_regression)
 
 Remember that each sample is a triple, one value for each of the model's parameters. 
 
-We can also look at some summary statistics, using the convenience function from the `aida` package:
+We can also look at some summary statistics, using another convenience function from the `aida` package:
 
 ```{r}
 rbind(
