@@ -220,29 +220,34 @@ One way of testing this is by running a regression model, which tries to predict
 We include by-participant random slopes and random intercepts, thereby allowing for the plausible idea that some participants might be faster than others irrespective of the condition, and that some participants' RTs might be influenced more by the experimental manipulation (congruent vs incongruent) than others.
 
 ```{r, eval = F}
-model_ST = brm(RT ~ condition + (1 + condition | submission_id), filter(d, correctness == "correct"))
+fit_brms_ST_RT = brm(RT ~ condition, filter(d, correctness == "correct"))
 ```
 
+```{r echo = F, eval = F}
+saveRDS(object = fit_brms_ST_RT, file = "../models_brms/simon-task-RT.rds")
+```
+
+
 ```{r echo = F}
-model_ST <- readRDS("models_brms/simon-task-RT.rds")
+fit_brms_ST_RT <- readRDS("models_brms/simon-task-RT.rds")
 ```
 
 
 A full summary of this model looks like this:
 
 ```{r Simon-Task-Model}
-summary(model_ST)
+summary(fit_brms_ST_RT)
 ```
 
 
 We are, however, most interested in the coefficient coding the difference between conditions.
-Here's an exctracted summary for the posterior of this parameter:
+Here's an extracted summary for the posterior of this parameter:
 
 ```{r}
-posterior_samples(model_ST)$b_conditionincongruent %>% aida::summarize_sample_vector()
+posterior_samples(fit_brms_ST_RT)$b_conditionincongruent %>% aida::summarize_sample_vector()
 ```
 
-According to this analysis, there is reason to believe in a difference in RTs between congruent and incongruent groups. The coefficient estimated for the incongruent group is on average ca. `r posterior_samples(model_ST)$conditionincongruent %>% mean() %>% round(2)` ms higher than that of the congruent group.
+According to this analysis, there is reason to believe in a difference in RTs between congruent and incongruent groups. The coefficient estimated for the incongruent group is on average ca. `r posterior_samples(fit_brms_ST_RT)$conditionincongruent %>% mean() %>% round(2)` ms higher than that of the congruent group.
 The 95% credible interval around this estimate clearly excludes zero.
 
 We can use the encompassing model approach to calculate a Bayes factor in favor of the directed hypothesis 1, compared against its logical negation.
@@ -250,62 +255,97 @@ Notice that the prior assumed for the relevant coefficient is symmetric, so that
 
 ```{r}
 # test the directed hypothesis
-post_samples_delta <- posterior_samples(model_ST)$b_conditionincongruent
+post_samples_delta <- posterior_samples(fit_brms_ST_RT)$b_conditionincongruent
 sum(post_samples_delta > 0) / sum(post_samples_delta <= 0)
 ```
 
 The Bayes factor in favor of the directed hypothesis 1 over its logial negation is `r sum(post_samples_delta > 0) / sum(post_samples_delta <= 0) %>% round(2)`, which is clear evidence for the idea that reaction times are slowed by incongruency of stimulus location and response button location.
 
-#### [Excursion:] Further exploration: Comparing RTs across the diagonal
+<!-- #### [Excursion:] Further exploration: Comparing RTs across the diagonal -->
 
-We can also look at the interaction between correctness and condition.
-As shown in the above graph, there are four different cells in a 2x2 grid.
+<!-- We can also look at the interaction between correctness and condition. -->
+<!-- As shown in the above graph, there are four different cells in a 2x2 grid. -->
 
-In the model below, this is coded with 'dummy coding' such that the top-left cell (congruent-correct) is the intercept, and each other cell is calculated by the addition of offsets.
-We omit random effects here to speed up sampling.
+<!-- In the model below, this is coded with 'dummy coding' such that the top-left cell (congruent-correct) is the intercept, and each other cell is calculated by the addition of offsets. -->
+<!-- We omit random effects here to speed up sampling. -->
 
-```{r, eval = F}
-model_ST_complex <- brm(RT ~ condition * correctness, d)
-```
+<!-- ```{r, eval = F} -->
+<!-- fit_brms_ST_RT <- brm(RT ~ condition * correctness, d) -->
+<!-- ``` -->
 
-We may want to ask the question: are reaction times to correct-congruent responses shorter than reaction times to incorrect-incongruent responses?
+<!-- We may want to ask the question: are reaction times to correct-congruent responses shorter than reaction times to incorrect-incongruent responses? -->
 
-To do this, we first need to extract the posterior samples from our model.
+<!-- To do this, we first need to extract the posterior samples from our model. -->
 
-```{r, eval = F}
-post_samples <- posterior_samples(model_ST_complex) %>% 
-  as_tibble()
-```
+<!-- ```{r, eval = F} -->
+<!-- post_samples <- posterior_samples(fit_brms_ST_RT) %>%  -->
+<!--   as_tibble() -->
+<!-- ``` -->
 
-Then we need to determine the correct offsets to match the correct-congruent and incorrect-incongruent cells in the design matrix.
+<!-- Then we need to determine the correct offsets to match the correct-congruent and incorrect-incongruent cells in the design matrix. -->
 
-```{r, eval = F}
+<!-- ```{r, eval = F} -->
 
-# correct-congruent is the reference cell
-correct_congruent <- post_samples$b_Intercept
+<!-- # correct-congruent is the reference cell -->
+<!-- correct_congruent <- post_samples$b_Intercept -->
 
-# incorrect_incongruent is the bottom-right cell
-incorrect_incongruent <- post_samples$b_Intercept +
-  post_samples$b_conditionincongruent + 
-  post_samples$b_correctnessincorrect + 
-  post_samples$`b_conditionincongruent:correctnessincorrect`
-```
+<!-- # incorrect_incongruent is the bottom-right cell -->
+<!-- incorrect_incongruent <- post_samples$b_Intercept + -->
+<!--   post_samples$b_conditionincongruent +  -->
+<!--   post_samples$b_correctnessincorrect +  -->
+<!--   post_samples$`b_conditionincongruent:correctnessincorrect` -->
+<!-- ``` -->
 
-Once we know these, we can calculate the probability that the comparison is in the correct direction.
- 
-```{r, eval = F}
-mean(correct_congruent < incorrect_incongruent)
-```
+<!-- Once we know these, we can calculate the probability that the comparison is in the correct direction. -->
+
+<!-- ```{r, eval = F} -->
+<!-- mean(correct_congruent < incorrect_incongruent) -->
+<!-- ``` -->
 
 
 #### Hypothesis 2: Acurracy
 
-We test acurracy with a logistic regression:
+We test accuracy with a logistic regression:
 
-```{r}
-# TBD
+```{r, eval = F}
+fit_brms_ST_Acc = brm(
+  # regress 'correctness' against 'condition'
+  formula = correctness ~ condition, 
+  # specify link and likeihood function
+  family = bernoulli(link = "logit"),
+  # which data to use
+  data = aida::data_ST %>% 
+    # 'reorder' answer categories (making 'correct' the target to be explained)
+    mutate(correctness = correctness == 'correct'),
+  # weakly informative priors (slightly conservative)
+  #   for `class = 'b'` (i.e., all slopes)
+  prior = prior(student_t(1, 0, 2),  class = 'b'),
+  # also collect samples from the prior (for point-valued testing)
+  sample_prior = 'yes',
+  # take more than the usual samples (for numerical stability of testing)
+  iter = 20000
+)
 ```
 
+```{r echo = F, eval = F}
+saveRDS(object = fit_brms_ST_Acc, file = "../models_brms/simon-task-Acc.rds")
+```
+
+```{r echo = F}
+fit_brms_ST_Acc <- readRDS("models_brms/simon-task-Acc.rds")
+```
+
+The Bayesian summary statistics of the posterior samples of values for regression coefficients are:
+
+```{r}
+summary(fit_brms_ST_Acc)$fixed[,c("l-95% CI", "Estimate", "u-95% CI")]
+```
+
+Indeed, we find very strong support for hypothesis 2, suggesting that (given model and data), there is reason to belief that the accuracy in incongruent trials is lower than in congruent trials.
+
+```{r}
+brms::hypothesis(fit_brms_ST_Acc, "conditionincongruent < 0")
+```
 
 
 
