@@ -605,8 +605,8 @@ Schematically, our second hypothesis about decision accuracy is therefore:</p>
 <div id="loading-and-inspecting-the-data-1" class="section level4">
 <h4><span class="header-section-number">D.2.3.1</span> Loading and inspecting the data</h4>
 <p>We load the data and show a summary of the variables stored in the tibble:</p>
-<div class="sourceCode" id="cb682"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb682-1" data-line-number="1">d &lt;-<span class="st"> </span>aida<span class="op">::</span>data_ST_raw</a>
-<a class="sourceLine" id="cb682-2" data-line-number="2"><span class="kw">glimpse</span>(d)</a></code></pre></div>
+<div class="sourceCode" id="cb684"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb684-1" data-line-number="1">d &lt;-<span class="st"> </span>aida<span class="op">::</span>data_ST_raw</a>
+<a class="sourceLine" id="cb684-2" data-line-number="2"><span class="kw">glimpse</span>(d)</a></code></pre></div>
 <pre><code>## Rows: 25,560
 ## Columns: 15
 ## $ submission_id   &lt;dbl&gt; 7432, 7432, 7432, 7432, 7432, 7432, 7432, 7432, 7432,…
@@ -640,12 +640,12 @@ Schematically, our second hypothesis about decision accuracy is therefore:</p>
 <h5><span class="header-section-number">D.2.3.2.1</span> Individual-level error rates &amp; reaction times</h5>
 <p>It is conceivable that some participants did not take the task seriously. They may have just fooled around. We will therefore inspect each individual’s response patterns and reaction times. If participants appear to have “misbehaved”, we discard all of their data. (<strong>CAVEAT:</strong> Notice the researcher degrees of freedom in the decision of what counts as “misbehavior”! It is therefore that choices like these are best committed to in advance, e.g., via pre-registration!)</p>
 <p>We can calculate the mean reaction times and the error rates for each participant.</p>
-<div class="sourceCode" id="cb684"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb684-1" data-line-number="1">d_individual_summary &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb684-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span>) <span class="op">%&gt;%</span><span class="st">    </span><span class="co"># look at only data from main trials</span></a>
-<a class="sourceLine" id="cb684-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(submission_id) <span class="op">%&gt;%</span><span class="st">         </span><span class="co"># calculate the following for each individual</span></a>
-<a class="sourceLine" id="cb684-4" data-line-number="4"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT),</a>
-<a class="sourceLine" id="cb684-5" data-line-number="5">            <span class="dt">error_rate =</span> <span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(<span class="kw">ifelse</span>(correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)))</a>
-<a class="sourceLine" id="cb684-6" data-line-number="6"><span class="kw">head</span>(d_individual_summary)</a></code></pre></div>
+<div class="sourceCode" id="cb686"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb686-1" data-line-number="1">d_individual_summary &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb686-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span>) <span class="op">%&gt;%</span><span class="st">    </span><span class="co"># look at only data from main trials</span></a>
+<a class="sourceLine" id="cb686-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(submission_id) <span class="op">%&gt;%</span><span class="st">         </span><span class="co"># calculate the following for each individual</span></a>
+<a class="sourceLine" id="cb686-4" data-line-number="4"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT),</a>
+<a class="sourceLine" id="cb686-5" data-line-number="5">            <span class="dt">error_rate =</span> <span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(<span class="kw">ifelse</span>(correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)))</a>
+<a class="sourceLine" id="cb686-6" data-line-number="6"><span class="kw">head</span>(d_individual_summary)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 3
 ##   submission_id mean_RT error_rate
 ##           &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;
@@ -656,52 +656,52 @@ Schematically, our second hypothesis about decision accuracy is therefore:</p>
 ## 5          7436    748.       0.06
 ## 6          7437    522.       0.12</code></pre>
 <p>Let’s plot this summary information:</p>
-<div class="sourceCode" id="cb686"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb686-1" data-line-number="1">d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb686-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_RT, <span class="dt">y =</span> error_rate)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb686-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>()</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-477-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb688"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb688-1" data-line-number="1">d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb688-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_RT, <span class="dt">y =</span> error_rate)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb688-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>()</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-479-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Here’s a crude way of branding outlier-participants:</p>
-<div class="sourceCode" id="cb687"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb687-1" data-line-number="1">d_individual_summary &lt;-<span class="st"> </span>d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb687-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">outlier =</span> <span class="kw">case_when</span>(mean_RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">350</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb687-3" data-line-number="3">                             mean_RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">750</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb687-4" data-line-number="4">                             error_rate <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb687-5" data-line-number="5">                             <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> </span><span class="ot">FALSE</span>))</a>
-<a class="sourceLine" id="cb687-6" data-line-number="6">d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb687-7" data-line-number="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_RT, <span class="dt">y =</span> error_rate)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb687-8" data-line-number="8"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb687-9" data-line-number="9"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> <span class="kw">filter</span>(d_individual_summary, outlier <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>),</a>
-<a class="sourceLine" id="cb687-10" data-line-number="10">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="dt">shape =</span> <span class="st">&quot;square&quot;</span>, <span class="dt">size =</span> <span class="dv">5</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-478-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb689"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb689-1" data-line-number="1">d_individual_summary &lt;-<span class="st"> </span>d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb689-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">outlier =</span> <span class="kw">case_when</span>(mean_RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">350</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb689-3" data-line-number="3">                             mean_RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">750</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb689-4" data-line-number="4">                             error_rate <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">~</span><span class="st"> </span><span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb689-5" data-line-number="5">                             <span class="ot">TRUE</span> <span class="op">~</span><span class="st"> </span><span class="ot">FALSE</span>))</a>
+<a class="sourceLine" id="cb689-6" data-line-number="6">d_individual_summary <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb689-7" data-line-number="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_RT, <span class="dt">y =</span> error_rate)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb689-8" data-line-number="8"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb689-9" data-line-number="9"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> <span class="kw">filter</span>(d_individual_summary, outlier <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>),</a>
+<a class="sourceLine" id="cb689-10" data-line-number="10">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>, <span class="dt">shape =</span> <span class="st">&quot;square&quot;</span>, <span class="dt">size =</span> <span class="dv">5</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-480-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We then clean the data set in a first step by removing all participants identified as outlier-y:</p>
-<div class="sourceCode" id="cb688"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb688-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">full_join</span>(d, d_individual_summary, <span class="dt">by =</span> <span class="st">&quot;submission_id&quot;</span>) <span class="co"># merge the tibbles</span></a>
-<a class="sourceLine" id="cb688-2" data-line-number="2">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, outlier <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb688-3" data-line-number="3"><span class="kw">message</span>(<span class="st">&quot;We excluded &quot;</span>, <span class="kw">sum</span>(d_individual_summary<span class="op">$</span>outlier) , <span class="st">&quot; participants for suspicious mean RTs and higher error rates.&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb690"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb690-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">full_join</span>(d, d_individual_summary, <span class="dt">by =</span> <span class="st">&quot;submission_id&quot;</span>) <span class="co"># merge the tibbles</span></a>
+<a class="sourceLine" id="cb690-2" data-line-number="2">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, outlier <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb690-3" data-line-number="3"><span class="kw">message</span>(<span class="st">&quot;We excluded &quot;</span>, <span class="kw">sum</span>(d_individual_summary<span class="op">$</span>outlier) , <span class="st">&quot; participants for suspicious mean RTs and higher error rates.&quot;</span>)</a></code></pre></div>
 <pre><code>## We excluded 5 participants for suspicious mean RTs and higher error rates.</code></pre>
 </div>
 <div id="trial-level-reaction-times" class="section level5">
 <h5><span class="header-section-number">D.2.3.2.2</span> Trial-level reaction times</h5>
 <p>It is also conceivable that inidividual trials resulted in early accidental key presses or were interrupted in some way or another. We therefore look at the overall distribution of RTs and determine what to exclude. (Again, it is important that decisions of what to exclude should ideally be publicly preregistered before data analysis.)</p>
 <p>Let’s first plot the overall distribution of RTs.</p>
-<div class="sourceCode" id="cb690"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb690-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb690-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb690-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-480-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Some very long RTs make this graph rather uninformative.
-Let’s therefore exclude all trials that lasted longer than 1 second and also all trials with reaction times under 100 ms.</p>
-<div class="sourceCode" id="cb691"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb691-1" data-line-number="1"><span class="kw">message</span>(</a>
-<a class="sourceLine" id="cb691-2" data-line-number="2">  <span class="st">&quot;We exclude &quot;</span>,</a>
-<a class="sourceLine" id="cb691-3" data-line-number="3">  <span class="kw">nrow</span>(<span class="kw">filter</span>(d, RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">100</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">nrow</span>(<span class="kw">filter</span>(d, RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">1000</span>)),</a>
-<a class="sourceLine" id="cb691-4" data-line-number="4">  <span class="st">&quot; trials based on too fast or too slow RTs.&quot;</span></a>
-<a class="sourceLine" id="cb691-5" data-line-number="5">)</a>
-<a class="sourceLine" id="cb691-6" data-line-number="6"><span class="co"># exclude these trials</span></a>
-<a class="sourceLine" id="cb691-7" data-line-number="7">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">100</span> <span class="op">&amp;</span><span class="st"> </span>RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">1000</span>)</a></code></pre></div>
-<p>Here’s the distribution of RTs after cleaning:</p>
 <div class="sourceCode" id="cb692"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb692-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb692-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb692-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-482-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Some very long RTs make this graph rather uninformative.
+Let’s therefore exclude all trials that lasted longer than 1 second and also all trials with reaction times under 100 ms.</p>
+<div class="sourceCode" id="cb693"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb693-1" data-line-number="1"><span class="kw">message</span>(</a>
+<a class="sourceLine" id="cb693-2" data-line-number="2">  <span class="st">&quot;We exclude &quot;</span>,</a>
+<a class="sourceLine" id="cb693-3" data-line-number="3">  <span class="kw">nrow</span>(<span class="kw">filter</span>(d, RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">100</span>)) <span class="op">+</span><span class="st"> </span><span class="kw">nrow</span>(<span class="kw">filter</span>(d, RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">1000</span>)),</a>
+<a class="sourceLine" id="cb693-4" data-line-number="4">  <span class="st">&quot; trials based on too fast or too slow RTs.&quot;</span></a>
+<a class="sourceLine" id="cb693-5" data-line-number="5">)</a>
+<a class="sourceLine" id="cb693-6" data-line-number="6"><span class="co"># exclude these trials</span></a>
+<a class="sourceLine" id="cb693-7" data-line-number="7">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, RT <span class="op">&gt;</span><span class="st"> </span><span class="dv">100</span> <span class="op">&amp;</span><span class="st"> </span>RT <span class="op">&lt;</span><span class="st"> </span><span class="dv">1000</span>)</a></code></pre></div>
+<p>Here’s the distribution of RTs after cleaning:</p>
+<div class="sourceCode" id="cb694"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb694-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb694-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_histogram</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb694-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT, <span class="dt">y =</span> <span class="dv">1</span>), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">height =</span> <span class="dv">300</span>)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-484-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Finally, we discard the training trials:</p>
-<div class="sourceCode" id="cb693"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb693-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb695"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb695-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">filter</span>(d, trial_type <span class="op">==</span><span class="st"> &quot;main&quot;</span>)</a></code></pre></div>
 </div>
 </div>
 <div id="hypothesis-driven-summary-statistics" class="section level4">
@@ -710,11 +710,11 @@ Let’s therefore exclude all trials that lasted longer than 1 second and also a
 <h5><span class="header-section-number">D.2.3.3.1</span> Hypothesis 1: Reaction times</h5>
 <p>We are mostly interested in the influence of congruency on the reaction times in the trials where participants gave a correct answer. But here we also look at, for comparison, the reaction times for the incongruent trials.</p>
 <p>Here is a summary of the means and standard deviations for each condition:</p>
-<div class="sourceCode" id="cb694"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb694-1" data-line-number="1">d_sum &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb694-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(correctness, condition) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb694-3" data-line-number="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT),</a>
-<a class="sourceLine" id="cb694-4" data-line-number="4">            <span class="dt">sd_RT =</span> <span class="kw">sd</span>(RT))</a>
-<a class="sourceLine" id="cb694-5" data-line-number="5">d_sum</a></code></pre></div>
+<div class="sourceCode" id="cb696"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb696-1" data-line-number="1">d_sum &lt;-<span class="st"> </span>d <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb696-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(correctness, condition) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb696-3" data-line-number="3"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">mean_RT =</span> <span class="kw">mean</span>(RT),</a>
+<a class="sourceLine" id="cb696-4" data-line-number="4">            <span class="dt">sd_RT =</span> <span class="kw">sd</span>(RT))</a>
+<a class="sourceLine" id="cb696-5" data-line-number="5">d_sum</a></code></pre></div>
 <pre><code>## # A tibble: 4 x 4
 ## # Groups:   correctness [2]
 ##   correctness condition   mean_RT sd_RT
@@ -725,21 +725,21 @@ Let’s therefore exclude all trials that lasted longer than 1 second and also a
 ## 4 incorrect   incongruent    393.  78.1</code></pre>
 <p>Numerically, the reaction times for the corrent-congruent trials are indeed faster than for the correct-incongruent trials.</p>
 <p>Here’s a plot of the reaction times split up by whether the answer was correct and whether the trial was congruent or incongruent.</p>
-<div class="sourceCode" id="cb696"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb696-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb696-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="fl">0.0005</span>), <span class="dt">alpha =</span> <span class="fl">0.1</span>, <span class="dt">height =</span> <span class="fl">0.0005</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb696-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">fill =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb696-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">data =</span> d_sum, </a>
-<a class="sourceLine" id="cb696-5" data-line-number="5">             <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">xintercept =</span> mean_RT), </a>
-<a class="sourceLine" id="cb696-6" data-line-number="6">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb696-7" data-line-number="7"><span class="st">  </span><span class="kw">facet_grid</span>(condition <span class="op">~</span><span class="st"> </span>correctness)</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-485-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb698"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb698-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> RT)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb698-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="fl">0.0005</span>), <span class="dt">alpha =</span> <span class="fl">0.1</span>, <span class="dt">height =</span> <span class="fl">0.0005</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb698-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">fill =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb698-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">data =</span> d_sum, </a>
+<a class="sourceLine" id="cb698-5" data-line-number="5">             <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">xintercept =</span> mean_RT), </a>
+<a class="sourceLine" id="cb698-6" data-line-number="6">             <span class="dt">color =</span> <span class="st">&quot;firebrick&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb698-7" data-line-number="7"><span class="st">  </span><span class="kw">facet_grid</span>(condition <span class="op">~</span><span class="st"> </span>correctness)</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-487-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="hypothesis-2-accuracy-1" class="section level5">
 <h5><span class="header-section-number">D.2.3.3.2</span> Hypothesis 2: Accuracy</h5>
 <p>Our second hypothesis is about the proportion of correct answers, comparing the congruent against the incongruent trials.
 Here is a summary statistic for the acurracy in both conditions:</p>
-<div class="sourceCode" id="cb697"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb697-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb697-2" data-line-number="2"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">acurracy =</span> <span class="kw">mean</span>(correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb699"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb699-1" data-line-number="1">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb699-2" data-line-number="2"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">acurracy =</span> <span class="kw">mean</span>(correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>))</a></code></pre></div>
 <pre><code>## # A tibble: 2 x 2
 ##   condition   acurracy
 ##   &lt;chr&gt;          &lt;dbl&gt;
@@ -757,9 +757,9 @@ Here is a summary statistic for the acurracy in both conditions:</p>
 We saw a difference in mean reaction times, but we’d like to know if this difference is meaningful.
 One way of testing this is by running a regression model, which tries to predict RTs as a function of congruency.
 We include by-participant random slopes and random intercepts, thereby allowing for the plausible idea that some participants might be faster than others irrespective of the condition, and that some participants’ RTs might be influenced more by the experimental manipulation (congruent vs incongruent) than others.</p>
-<div class="sourceCode" id="cb699"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb699-1" data-line-number="1">fit_brms_ST_RT =<span class="st"> </span><span class="kw">brm</span>(RT <span class="op">~</span><span class="st"> </span>condition, <span class="kw">filter</span>(d, correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb701"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb701-1" data-line-number="1">fit_brms_ST_RT =<span class="st"> </span><span class="kw">brm</span>(RT <span class="op">~</span><span class="st"> </span>condition, <span class="kw">filter</span>(d, correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>))</a></code></pre></div>
 <p>A full summary of this model looks like this:</p>
-<div class="sourceCode" id="cb700"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb700-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_ST_RT)</a></code></pre></div>
+<div class="sourceCode" id="cb702"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb702-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_ST_RT)</a></code></pre></div>
 <pre><code>##  Family: gaussian 
 ##   Links: mu = identity; sigma = identity 
 ## Formula: RT ~ condition 
@@ -784,7 +784,7 @@ We include by-participant random slopes and random intercepts, thereby allowing 
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <p>We are, however, most interested in the coefficient coding the difference between conditions.
 Here’s an extracted summary for the posterior of this parameter:</p>
-<div class="sourceCode" id="cb702"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb702-1" data-line-number="1"><span class="kw">posterior_samples</span>(fit_brms_ST_RT)<span class="op">$</span>b_conditionincongruent <span class="op">%&gt;%</span><span class="st"> </span>aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb704"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb704-1" data-line-number="1"><span class="kw">posterior_samples</span>(fit_brms_ST_RT)<span class="op">$</span>b_conditionincongruent <span class="op">%&gt;%</span><span class="st"> </span>aida<span class="op">::</span><span class="kw">summarize_sample_vector</span>()</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 4
 ##   Parameter `|95%`  mean `95%|`
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
@@ -793,9 +793,9 @@ Here’s an extracted summary for the posterior of this parameter:</p>
 The 95% credible interval around this estimate clearly excludes zero.</p>
 <p>We can use the encompassing model approach to calculate a Bayes factor in favor of the directed hypothesis 1, compared against its logical negation.
 Notice that the prior assumed for the relevant coefficient is symmetric, so that we do not have to correct for the <em>a priori</em> probability of hypotheses.</p>
-<div class="sourceCode" id="cb704"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb704-1" data-line-number="1"><span class="co"># test the directed hypothesis</span></a>
-<a class="sourceLine" id="cb704-2" data-line-number="2">post_samples_delta &lt;-<span class="st"> </span><span class="kw">posterior_samples</span>(fit_brms_ST_RT)<span class="op">$</span>b_conditionincongruent</a>
-<a class="sourceLine" id="cb704-3" data-line-number="3"><span class="kw">sum</span>(post_samples_delta <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(post_samples_delta <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb706"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb706-1" data-line-number="1"><span class="co"># test the directed hypothesis</span></a>
+<a class="sourceLine" id="cb706-2" data-line-number="2">post_samples_delta &lt;-<span class="st"> </span><span class="kw">posterior_samples</span>(fit_brms_ST_RT)<span class="op">$</span>b_conditionincongruent</a>
+<a class="sourceLine" id="cb706-3" data-line-number="3"><span class="kw">sum</span>(post_samples_delta <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(post_samples_delta <span class="op">&lt;=</span><span class="st"> </span><span class="dv">0</span>)</a></code></pre></div>
 <pre><code>## [1] Inf</code></pre>
 <p>The Bayes factor in favor of the directed hypothesis 1 over its logial negation is , which is clear evidence for the idea that reaction times are slowed by incongruency of stimulus location and response button location.</p>
 <!-- #### [Excursion:] Further exploration: Comparing RTs across the diagonal -->
@@ -830,30 +830,30 @@ Notice that the prior assumed for the relevant coefficient is symmetric, so that
 <div id="hypothesis-2-acurracy" class="section level4">
 <h4><span class="header-section-number">D.2.4.2</span> Hypothesis 2: Acurracy</h4>
 <p>We test accuracy with a logistic regression:</p>
-<div class="sourceCode" id="cb706"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb706-1" data-line-number="1">fit_brms_ST_Acc =<span class="st"> </span><span class="kw">brm</span>(</a>
-<a class="sourceLine" id="cb706-2" data-line-number="2">  <span class="co"># regress &#39;correctness&#39; against &#39;condition&#39;</span></a>
-<a class="sourceLine" id="cb706-3" data-line-number="3">  <span class="dt">formula =</span> correctness <span class="op">~</span><span class="st"> </span>condition, </a>
-<a class="sourceLine" id="cb706-4" data-line-number="4">  <span class="co"># specify link and likeihood function</span></a>
-<a class="sourceLine" id="cb706-5" data-line-number="5">  <span class="dt">family =</span> <span class="kw">bernoulli</span>(<span class="dt">link =</span> <span class="st">&quot;logit&quot;</span>),</a>
-<a class="sourceLine" id="cb706-6" data-line-number="6">  <span class="co"># which data to use</span></a>
-<a class="sourceLine" id="cb706-7" data-line-number="7">  <span class="dt">data =</span> aida<span class="op">::</span>data_ST <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb706-8" data-line-number="8"><span class="st">    </span><span class="co"># &#39;reorder&#39; answer categories (making &#39;correct&#39; the target to be explained)</span></a>
-<a class="sourceLine" id="cb706-9" data-line-number="9"><span class="st">    </span><span class="kw">mutate</span>(<span class="dt">correctness =</span> correctness <span class="op">==</span><span class="st"> &#39;correct&#39;</span>),</a>
-<a class="sourceLine" id="cb706-10" data-line-number="10">  <span class="co"># weakly informative priors (slightly conservative)</span></a>
-<a class="sourceLine" id="cb706-11" data-line-number="11">  <span class="co">#   for `class = &#39;b&#39;` (i.e., all slopes)</span></a>
-<a class="sourceLine" id="cb706-12" data-line-number="12">  <span class="dt">prior =</span> <span class="kw">prior</span>(<span class="kw">student_t</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>),  <span class="dt">class =</span> <span class="st">&#39;b&#39;</span>),</a>
-<a class="sourceLine" id="cb706-13" data-line-number="13">  <span class="co"># also collect samples from the prior (for point-valued testing)</span></a>
-<a class="sourceLine" id="cb706-14" data-line-number="14">  <span class="dt">sample_prior =</span> <span class="st">&#39;yes&#39;</span>,</a>
-<a class="sourceLine" id="cb706-15" data-line-number="15">  <span class="co"># take more than the usual samples (for numerical stability of testing)</span></a>
-<a class="sourceLine" id="cb706-16" data-line-number="16">  <span class="dt">iter =</span> <span class="dv">20000</span></a>
-<a class="sourceLine" id="cb706-17" data-line-number="17">)</a></code></pre></div>
+<div class="sourceCode" id="cb708"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb708-1" data-line-number="1">fit_brms_ST_Acc =<span class="st"> </span><span class="kw">brm</span>(</a>
+<a class="sourceLine" id="cb708-2" data-line-number="2">  <span class="co"># regress &#39;correctness&#39; against &#39;condition&#39;</span></a>
+<a class="sourceLine" id="cb708-3" data-line-number="3">  <span class="dt">formula =</span> correctness <span class="op">~</span><span class="st"> </span>condition, </a>
+<a class="sourceLine" id="cb708-4" data-line-number="4">  <span class="co"># specify link and likeihood function</span></a>
+<a class="sourceLine" id="cb708-5" data-line-number="5">  <span class="dt">family =</span> <span class="kw">bernoulli</span>(<span class="dt">link =</span> <span class="st">&quot;logit&quot;</span>),</a>
+<a class="sourceLine" id="cb708-6" data-line-number="6">  <span class="co"># which data to use</span></a>
+<a class="sourceLine" id="cb708-7" data-line-number="7">  <span class="dt">data =</span> aida<span class="op">::</span>data_ST <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb708-8" data-line-number="8"><span class="st">    </span><span class="co"># &#39;reorder&#39; answer categories (making &#39;correct&#39; the target to be explained)</span></a>
+<a class="sourceLine" id="cb708-9" data-line-number="9"><span class="st">    </span><span class="kw">mutate</span>(<span class="dt">correctness =</span> correctness <span class="op">==</span><span class="st"> &#39;correct&#39;</span>),</a>
+<a class="sourceLine" id="cb708-10" data-line-number="10">  <span class="co"># weakly informative priors (slightly conservative)</span></a>
+<a class="sourceLine" id="cb708-11" data-line-number="11">  <span class="co">#   for `class = &#39;b&#39;` (i.e., all slopes)</span></a>
+<a class="sourceLine" id="cb708-12" data-line-number="12">  <span class="dt">prior =</span> <span class="kw">prior</span>(<span class="kw">student_t</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>),  <span class="dt">class =</span> <span class="st">&#39;b&#39;</span>),</a>
+<a class="sourceLine" id="cb708-13" data-line-number="13">  <span class="co"># also collect samples from the prior (for point-valued testing)</span></a>
+<a class="sourceLine" id="cb708-14" data-line-number="14">  <span class="dt">sample_prior =</span> <span class="st">&#39;yes&#39;</span>,</a>
+<a class="sourceLine" id="cb708-15" data-line-number="15">  <span class="co"># take more than the usual samples (for numerical stability of testing)</span></a>
+<a class="sourceLine" id="cb708-16" data-line-number="16">  <span class="dt">iter =</span> <span class="dv">20000</span></a>
+<a class="sourceLine" id="cb708-17" data-line-number="17">)</a></code></pre></div>
 <p>The Bayesian summary statistics of the posterior samples of values for regression coefficients are:</p>
-<div class="sourceCode" id="cb707"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb707-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_ST_Acc)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
+<div class="sourceCode" id="cb709"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb709-1" data-line-number="1"><span class="kw">summary</span>(fit_brms_ST_Acc)<span class="op">$</span>fixed[,<span class="kw">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</a></code></pre></div>
 <pre><code>##                        l-95% CI   Estimate   u-95% CI
 ## Intercept             3.1067020  3.2042928  3.3059530
 ## conditionincongruent -0.8496013 -0.7260651 -0.6050912</code></pre>
 <p>Indeed, we find very strong support for hypothesis 2, suggesting that (given model and data), there is reason to belief that the accuracy in incongruent trials is lower than in congruent trials.</p>
-<div class="sourceCode" id="cb709"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb709-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_ST_Acc, <span class="st">&quot;conditionincongruent &lt; 0&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb711"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb711-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_ST_Acc, <span class="st">&quot;conditionincongruent &lt; 0&quot;</span>)</a></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
 ## 1 (conditionincongr... &lt; 0    -0.73      0.06    -0.83    -0.62        Inf

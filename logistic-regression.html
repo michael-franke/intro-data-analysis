@@ -556,33 +556,32 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="logistic-regression" class="section level2">
 <h2><span class="header-section-number">15.2</span> Logistic regression</h2>
-<p>Suppose <span class="math inline">\(y \in \{0,1\}^n\)</span> is a <span class="math inline">\(n\)</span>-placed vector of (binary) outcomes, and <span class="math inline">\(X\)</span> a predictor matrix for a linear regression model.
-A (Bayesian) logistic regression model has the following form:</p>
+<p>Suppose <span class="math inline">\(y \in \{0,1\}^n\)</span> is an <span class="math inline">\(n\)</span>-placed vector of binary outcomes, and <span class="math inline">\(X\)</span> a predictor matrix for a linear regression model.
+A Bayesian logistic regression model has the following form:</p>
 <p><span class="math display">\[
 \begin{align*}
 \beta, \sigma &amp; \sim \text{some prior} \\
-\xi  &amp; = X \beta \\ 
-\eta_i  &amp; = \text{logistic}(\xi_i) \\ 
-y_i &amp; \sim \text{Bernoulli}(\eta_i)
+\xi  &amp; = X \beta                            &amp;&amp; \text{[linear predictor]} \\   
+\eta_i  &amp; = \text{logistic}(\xi_i)          &amp;&amp; \text{[predictor of central tendency]} \\  
+y_i &amp; \sim \text{Bernoulli}(\eta_i)         &amp;&amp; \text{[likelihood]} \\ 
 \end{align*}
 \]</span>
 The logistic function used as a link function is a function in <span class="math inline">\(\mathbb{R} \rightarrow [0;1]\)</span>, i.e., from the reals to the unit interval.
 It is defined as:</p>
 <p><span class="math display">\[\text{logistic}(\xi_i) = (1 + \exp(-\xi_i))^{-1}\]</span>
-It’s shape (a sigmoid, or S-shaped) shaped curve, is this:</p>
+It’s shape (a sigmoid, or S-shaped curve) is this:</p>
 <p><img src="I2DA_files/figure-html/unnamed-chunk-413-1.png" width="672" style="display: block; margin: auto;" /></p>
 <div style="float:right; width:20%;">
 <p><img src="visuals/badge-Simon-task.png" alt="badge model comparison"></p>
 </div>
 <p>We use the <a href="app-93-data-sets-simon-task">Simon task data</a> as an example application.
-So far we had only tested the first of two hypotheses about the Simon task data, namely the hypothesis relating to reaction times.
+So far we only tested the first of two hypotheses about the Simon task data, namely the hypothesis relating to reaction times.
 The second hypothesis which arose in the context of the Simon task refers to the accurracy of answers, i.e., the proportion of “correct” choices:</p>
 <p><span class="math display">\[
 \text{Accuracy}_{\text{correct},\ \text{congruent}} &gt; \text{Accuracy}_{\text{correct},\ \text{incongruent}}
 \]</span>
-Notice that this is a binary categorical distinction.
-The dependent variable <span class="math inline">\(y\)</span> is a binary response variable.
-Therefore, we can use logistic regression.</p>
+Notice that <code>correctness</code> is a binary categorical variable.
+Therefore, we use logistic regression to test this hypothesis.</p>
 <p>Here is how to set up a logistic regression model with <code>brms</code>.
 The only thing that is new here is that we specify explicitly the likelihood function and the (inverse!) link function.<a href="#fn69" class="footnote-ref" id="fnref69"><sup>69</sup></a>
 This is done using the syntax <code>family = bernoulli(link = &quot;logit&quot;)</code>.
@@ -609,8 +608,34 @@ For later hypothesis testing we also use proper priors and take samples from the
 <pre><code>##                        l-95% CI   Estimate   u-95% CI
 ## Intercept             3.1067020  3.2042928  3.3059530
 ## conditionincongruent -0.8496013 -0.7260651 -0.6050912</code></pre>
-<p>Indeed, we find very strong support for hypothesis 2, suggesting that (given model and data), there is reason to belief that the accuracy in incongruent trials is lower than in congruent trials.</p>
-<div class="sourceCode" id="cb605"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb605-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_ST_Acc, <span class="st">&quot;conditionincongruent &lt; 0&quot;</span>)</a></code></pre></div>
+<p>What do these specific numerical estimates for coefficients mean?
+The mean estimate for the linear predictor <span class="math inline">\(\xi_\text{cong}\)</span> for the “congruent” condition is roughly 3.204.
+The mean estimate for the linear predictor <span class="math inline">\(\xi_\text{inc}\)</span> for the “incongruent” condition is roughly 3.204 + -0.726, so roughly 2.478.
+The central predictors corresponding to these linear predictors are:</p>
+<p><span class="math display">\[
+\begin{align*}
+\eta_\text{cong} &amp; = \text{logistic}(3.204) \approx 0.961 \\
+\eta_\text{incon} &amp; = \text{logistic}(2.478) \approx 0.923
+\end{align*}
+\]</span></p>
+<p>These central estimates for the latent proportion of “correct” answers in each condition tightly match the empirically observed proportion of “correct” answers in the data:</p>
+<div class="sourceCode" id="cb605"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb605-1" data-line-number="1">proportions_correct_ST &lt;-<span class="st"> </span>data_ST <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb605-2" data-line-number="2"><span class="st">  </span><span class="kw">group_by</span>(condition, correctness) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb605-3" data-line-number="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">count</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb605-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(condition) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb605-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">proportion_correct =</span> (n <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(n)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">3</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb605-6" data-line-number="6"><span class="st">  </span><span class="kw">filter</span>( correctness <span class="op">==</span><span class="st"> &quot;correct&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb605-7" data-line-number="7"><span class="st">    </span><span class="kw">select</span>(<span class="op">-</span>n, <span class="op">-</span><span class="st"> </span>correctness) </a>
+<a class="sourceLine" id="cb605-8" data-line-number="8">proportions_correct_ST</a></code></pre></div>
+<pre><code>## # A tibble: 2 x 2
+## # Groups:   condition [2]
+##   condition   proportion_correct
+##   &lt;chr&gt;                    &lt;dbl&gt;
+## 1 congruent                0.961
+## 2 incongruent              0.923</code></pre>
+<p>Testing hypothesis for a logistic regression model is the exact same as for a standard regression model.
+And so, we find very strong support for hypothesis 2, suggesting that (given model and data), there is reason to believe that the accuracy in incongruent trials is lower than in congruent trials.</p>
+<div class="sourceCode" id="cb607"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb607-1" data-line-number="1">brms<span class="op">::</span><span class="kw">hypothesis</span>(fit_brms_ST_Acc, <span class="st">&quot;conditionincongruent &lt; 0&quot;</span>)</a></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##                 Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
 ## 1 (conditionincongr... &lt; 0    -0.73      0.06    -0.83    -0.62        Inf
