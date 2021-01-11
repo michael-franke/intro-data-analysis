@@ -4,3 +4,94 @@
 
 TBD
 
+## Generalizing the linear regression model
+
+```{r Chap-04-04-GLM-scheme, echo = F, fig.cap="Basic architecture of generalized linear regression models."}
+knitr::include_graphics("visuals/glm_scheme/glm_scheme.png")
+```
+
+| type of $y$ | (inverse) link function | likelihood function | 
+|:---|:---:|:---:|
+| metric |  $\eta = \xi$ | $y \sim \text{Normal}(\mu = \eta, \sigma)$
+| binary | $\eta = \text{logistic}(\xi) = (1 + \exp(-\xi))^{-1}$ | $y \sim \text{Bernoulli}(\eta)$
+| nominal | $\eta_k = \text{soft-max}(\xi_k, \lambda) \propto \exp(\lambda \xi_k)$ | $y \sim \text{Multinomial}({\eta})$
+| ordinal | $\eta_k = \text{threshold-Phi}(\xi_k, \sigma, {\delta})$ | $y \sim \text{Multinomial}({\eta})$
+| count | $\eta = \exp(\xi)$ | $y \sim \text{Poisson}(\eta)$
+
+## Logistic regression
+
+$$\text{logistic}(\xi) = (1 + \exp(-\xi))^{-1}$$
+
+```{r, echo = F}
+
+myFun1 = function(x) return( 1 / (1 + exp(- 1 * (x - 0))) )
+
+ggplot(data.frame(x = c(-5,5)), aes(x)) +
+         stat_function(fun = myFun1, color = project_colors[2], size = 2) +
+  labs(label = "logistic function", x = latex2exp::TeX("$\\eta$"), y = latex2exp::TeX("logistic($\\eta$)"))
+```  
+
+We use the [Simon task data](app-93-data-sets-simon-task) as an example application.
+So far we had only tested the first of two hypotheses about the Simon task data, namely the hypothesis relating to reaction times.
+The second hypothesis which arose in the context of the Simon task refers to the accurracy of answers, i.e., the proportion of "correct" choices:
+
+$$
+\text{Accuracy}_{\text{correct},\ \text{congruent}} > \text{Accuracy}_{\text{correct},\ \text{incongruent}}
+$$
+Notice that this is a binary categorical distinction.
+The dependent variable $y$ is a binary response variable.
+Therefore, we can use logistic regression.
+
+<div style = "float:right; width:20%;">
+<img src="visuals/badge-Simon-task.png" alt="badge model comparison">
+</div>
+
+Here is how to set up a logistic regression model with `brms`.
+The only thing that is new here is that we specify explicity the likelihoof function and the (inverse!) link function.
+This is done using the syntax `family = bernoulli(link = "logit")`.
+For later hypothesis testing we also use proper priors and take samples from the prior as well.
+
+```{r, eval = F}
+fit_brms_ST_Acc = brm(
+  # regress 'correctness' against 'condition'
+  formula = correctness ~ condition, 
+  # specify link and likeihood function
+  family = bernoulli(link = "logit"),
+  # which data to use
+  data = aida::data_ST %>% 
+    # 'reorder' answer categories (making 'correct' the target to be explained)
+    mutate(correctness = correctness == 'correct'),
+  # weakly informative priors (slightly conservative)
+  #   for `class = 'b'` (i.e., all slopes)
+  prior = prior(student_t(1, 0, 2),  class = 'b'),
+  # also collect samples from the prior (for point-valued testing)
+  sample_prior = 'yes',
+  # take more than the usual samples (for numerical stability of testing)
+  iter = 20000
+)
+```
+
+```{r echo = F, eval = F}
+saveRDS(object = fit_brms_ST_Acc, file = "../models_brms/simon-task-Acc.rds")
+```
+
+```{r echo = F}
+fit_brms_ST_Acc <- readRDS("models_brms/simon-task-Acc.rds")
+```
+
+The Bayesian summary statistics of the posterior samples of values for regression coefficients are:
+
+```{r}
+summary(fit_brms_ST_Acc)$fixed[,c("l-95% CI", "Estimate", "u-95% CI")]
+```
+
+Indeed, we find very strong support for hypothesis 2, suggesting that (given model and data), there is reason to belief that the accuracy in incongruent trials is lower than in congruent trials.
+
+```{r}
+brms::hypothesis(fit_brms_ST_Acc, "conditionincongruent < 0")
+```
+
+
+
+
+
