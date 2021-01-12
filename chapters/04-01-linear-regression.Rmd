@@ -832,8 +832,11 @@ get_samples_regression_noninformative <- function(
   X, # design matrix
   y, # dependent variable
   n_samples = 1000
-) {
-  
+)
+{
+  if(is.null(colnames(X))) {
+    stop("Design matrix X must have meaningful column names for coefficients.")
+  }
   n <- length(y)
   k <- ncol(X)
   
@@ -847,8 +850,8 @@ get_samples_regression_noninformative <- function(
   
   # sample from posterior of variance
   samples_sigma_squared <- extraDistr::rinvchisq(
-    n = n_samples, 
-    nu = n - k, 
+    n   = n_samples, 
+    nu  = n - k, 
     tau = s_squared
   )
   
@@ -856,17 +859,14 @@ get_samples_regression_noninformative <- function(
   samples_posterior <- map_df(
     seq(n_samples), 
     function(i) {
-      s <-  mvtnorm::rmvnorm(1, beta_hat, V_beta * samples_sigma_squared[i]) 
-      tibble(
-        intercept = s[1],
-        slope = s[2],
-        sigma = samples_sigma_squared[i] %>% sqrt()
-      )
+      s <-  mvtnorm::rmvnorm(1, beta_hat, V_beta * samples_sigma_squared[i])
+      colnames(s) = colnames(X)
+      as_tibble(s) %>% 
+        mutate(sigma = samples_sigma_squared[i] %>% sqrt())
     }
-  )  
+  ) 
   return(samples_posterior)
 }
-
 ```
 
 Let's apply this function to the running example of this chapter:
@@ -885,7 +885,7 @@ int <- rep(1, length(y))
 X <- matrix(c(int, x),  ncol = 2)
 colnames(X) <- c("intercept", "slope")
 
-
+# collect samples with convenience function
 samples_Bayes_regression <- aida::get_samples_regression_noninformative(X, y, 10000)
 ```
 
