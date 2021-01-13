@@ -82,12 +82,11 @@ The experiment was realized using [_magpie](https://magpie-ea.github.io/magpie-s
 
 #### Hypotheses
 
-We will be concerned with the following two research questions:^[These research questions are a compromise between actual theoretical relevance and practical (= educational) considerations.]
+We will be interested in the following research questions:
 
-- **H1**: Is the overall rate (= aggregating over all vignettes & conditions) of "TRUE" judgements for sentences with presupposition failure different from pure guessing chance of 0.5?
-- **H2**: Is there a difference in (binary) truth-value judgements (aggregated over all vignettes) between C0 (with presupposition) and C1 (where the presupposition is part of the at-issue / asserted content)?
-- **H3**: Is there a difference in (binary) truth-value judgements (aggregated over all vignettes) between C0 (the positive sentence) and C6 (the negative sentence)? 
-- **H4**: Is there a difference in (binary) truth-value judgements (aggregated over all vignettes) between C9 (where the presupposition is topical) and C10 (where the presupposition is not topical and occurs under negation)?
+- **H1**: The latent probability of "TRUE" judgements is higher in C0 (with presupposition) than in C1 (where the presupposition is part of the at-issue / asserted content).
+- **H2**: There is no difference in truth-value judgements between C0 (the positive sentence) and C6 (the negative sentence).
+- **H3**: The disposition towards "TRUE" judgements is lower for C9 (where the presupposition is topical) than for C10 (where the presupposition is not topical and occurs under negation).
 
 ### Loading and preprocessing the data
 
@@ -243,29 +242,6 @@ data_KoF_processed %>%
   ) %>% 
   unnest(CIs) %>% 
   ggplot(aes(x = condition, y = mean, fill = vignette)) + 
-  geom_bar(stat = "identity", position = "dodge2") +
-  geom_errorbar(
-    aes(ymin = lower, ymax = upper),
-    width = 0.3,
-    position = position_dodge(width = 0.9)
-  ) +
-  ylim(0,1) +
-  ylab("") + xlab("") + ggtitle("Proportion of 'TRUE' responses per condition & vignette")
-```
-
-Plot for each condition:
-
-```{r}
-data_KoF_processed %>% 
-  filter(trial_type == "main") %>%
-  droplevels() %>% 
-  group_by(condition) %>% 
-  nest() %>% 
-  summarise(
-    CIs = map(data, function(d) bootstrapped_CI(d$response == "TRUE"))
-  ) %>% 
-  unnest(CIs) %>% 
-  ggplot(aes(x = condition, y = mean)) + 
   geom_bar(stat = "identity", position = "dodge2") +
   geom_errorbar(
     aes(ymin = lower, ymax = upper),
