@@ -9,7 +9,7 @@ In this way, at the end of the chapter we will be able to apply linear regressio
 As we will see in this chapter, the only "trick" to generalizing linear regression modeling to also cover **categorical predictors**, as we will call them, is to map levels of a categorical variable onto numbers.
 For example, if we have two groups in a predictor variable $x$, say group $A$ and $B$, we could just encode group $A$ as a value of $x = 0$ and group $B$ as a value of $x = 1$.
 But there are many sensible mappings of this kind, and many helplessly ridiculous ones.
-The relevant technical term here is **contract coding**, i.e., a scheme of mapping categorical distinctions onto numeric representations in such a way that the theoretically interesting *contrasts* (i.e., the distinctions between groups that we want to test) can be easily tested with the resulting regression model. 
+The relevant technical term here is **contrast coding**, i.e., a scheme of mapping categorical distinctions onto numeric representations in such a way that the theoretically interesting *contrasts* (i.e., the distinctions between groups that we want to test) can be easily tested with the resulting regression model. 
 
 The chapter is structured as follows.
 Section \@ref(Chap-04-03-predictors-two-levels) uses the [Simon task data](app-93-data-sets-simon-task) to cover the case of a single categorical predictor with just two category levels (e.g., just groups $A$ and $B$).
@@ -32,7 +32,7 @@ The learning goals for this chapter are:
 ## Single two-level predictor {#Chap-04-03-predictors-two-levels}
 
 Let's revisit the data from the [Simon task](app-93-data-sets-simon-task).
-Just like in chapter \@ref(), we will be looking at the hypothesis that, among all correct responses, the mean reaction times for the congruent condition are lower than those of the incongruent condition.
+Just like in chapter \@ref(ch-03-07-hypothesis-testing-Bayes), we will be looking at the hypothesis that, among all correct responses, the mean reaction times for the congruent condition are lower than those of the incongruent condition.
 
 ```{r}
 # extract just the currently relevant columns 
@@ -96,13 +96,13 @@ We see that the model inferred a value for an "Intercept" variable and for anoth
 What are these?
 If you look back at the empirically inferred means, you will see that the mean estimate for "Intercept" corresponds to the mean of RTs in the "congruent" condition and that the mean estimate for the variable "conditionincongruent" closely matches the computed difference between the means of the two conditions.
 And, indeed, that is what this regression model is doing for us.
-Using a uniform formula syntax `brms` has set up a regression model in which a predictor, given as a character (string) column, was internally coerced somehow into a format that produced an estimate the for the mean of one condition and an estimate for the difference between conditions.
+Using a uniform formula syntax, `brms` has set up a regression model in which a predictor, given as a character (string) column, was internally coerced somehow into a format that produced an estimate for the mean of one condition and an estimate for the difference between conditions.
 
-How does this results come about?
+How do these results come about?
 And why are the variables returned by `brms` called "Intercept" and "conditionincongruent"?
-In order to use the simply linear regression model, the categorical predictor $x$ has been coded as either $0$ or $1$.
+In order to use the simple linear regression model, the categorical predictor $x$ has been coded as either $0$ or $1$.
 Concretely, `brms` has introduced a new predictor variable, call it `new_predictor`, which has value $0$ for the "congruent" condition and $1$ for the "incongruent" condition.
-Per default `brms` chooses the level that is alphanumerically first as the so-called **reference level**, assigning to it the value $0$.
+Per default, `brms` chooses the level that is alphanumerically first as the so-called **reference level**, assigning to it the value $0$.
 Here, that's "congruent".
 
 The result would look like this:
@@ -112,7 +112,7 @@ data_ST_excerpt %>%
   mutate(new_predictor = ifelse(condition == "congruent", 0, 1)) %>% 
   head(5)
 ```
-Now, with this new numeric coding of the predictor, we can calculate the linear regression model as ususal:
+Now, with this new numeric coding of the predictor, we can calculate the linear regression model as usual:
 
 $$
 \begin{aligned}
@@ -120,13 +120,13 @@ $$
 \end{aligned}
 $$
 
-As a consequence, the linear model's intercept parameter $\beta_0$ can be interpreted as the predicted mean of the reference level: if for some $i$ we have $x_i = 0$, then the predictor $\xi_i$ will just be $\xi_i = \beta_0$; whence that the intercept $\beta_0$ will be fitted to the mean of the reference level If for some $i$ we have $x_i = 1$ instead, the predicted value will be computed as $\xi_i = \beta_0 + \beta_1$, so that the slope term $\beta_1$ will effectively play the role of the difference $\delta$ between the mean of the groups.
+As a consequence, the linear model's intercept parameter $\beta_0$ can be interpreted as the predicted mean of the reference level: if for some $i$ we have $x_i = 0$, then the predictor $\xi_i$ will just be $\xi_i = \beta_0$; whence that the intercept $\beta_0$ will be fitted to the mean of the reference level if for some $i$ we have $x_i = 1$ instead, the predicted value will be computed as $\xi_i = \beta_0 + \beta_1$, so that the slope term $\beta_1$ will effectively play the role of the difference $\delta$ between the mean of the groups.
 The upshot is that we can conceive of a **$t$-test as a special case of a linear regression model!**
 
 Schematically, we can represent this coding scheme for coefficients like so:
 ```{r, echo = F}
 tribble(
-  ~"condition", ~"beta_0", ~"betat_1",
+  ~"condition", ~"beta_0", ~"beta_1",
   "congruent", 1, 0,
   "incongruent", 1, 1
 )
@@ -144,7 +144,7 @@ groupA: (1,0,2) and groupB: (10,13,7)
 <button class="trigger">Solution</button>
 <div class="content">
 
-For $\xi_i  = \beta_0 + \beta_1 x_i$, let $x_i =0$ if the data point if from groupA and $x_i=1$ if it's from groupB. Then the mean of groupA is computed by the intercept $\mu_A  = \beta_0$ and the mean of groupB is computed as the sum of the intercept and the slope $\mu_B  = \beta_0 + \beta_1$. Since $\mu_A = 1$ and $\mu_B = 10$, we can guess that $\beta_0 = 1$ and $\beta_1 = 10 - 1 = 9$.
+For $\xi_i  = \beta_0 + \beta_1 x_i$, let $x_i =0$ if the data point is from groupA and $x_i=1$ if it's from groupB. Then the mean of groupA is computed by the intercept $\mu_A  = \beta_0$ and the mean of groupB is computed as the sum of the intercept and the slope $\mu_B  = \beta_0 + \beta_1$. Since $\mu_A = 1$ and $\mu_B = 10$, we can guess that $\beta_0 = 1$ and $\beta_1 = 10 - 1 = 9$.
 
 </div>
 </div>
@@ -157,11 +157,11 @@ For $\xi_i  = \beta_0 + \beta_1 x_i$, let $x_i =0$ if the data point if from gro
 </div>  
 
 The 0/1 coding scheme above works fine for a single categorical predictor value with two levels.
-It is possible to use linear regression also for categorical predictors with more that two levels.
+It is possible to use linear regression also for categorical predictors with more than two levels.
 Only, in that case, there are quite a few more reasonable **contrast coding** schemes, i.e., ways to choose numbers to encode the levels of the predictor.
 
 The [mental chronometry data](#app-93-data-sets-mental-chronometry) has a single categorical predictor, called `block`, with three levels, called "reaction", "goNoGo" and "discrimination".
-We are interested in regression reactions time, stored in variable `RT`, against `block`.
+We are interested in regressing reaction times, stored in variable `RT`, against `block`.
 Our main question of interest is whether these inequalities are supported by the data:
 
 $$
@@ -184,7 +184,7 @@ data_MC_excerpt %>%
   head(5)
 ```
 
-Here are the means of the reaction times for different `block levels:
+Here are the means of the reaction times for different `block` levels:
 
 ```{r}
 data_MC_excerpt %>% 
@@ -201,7 +201,7 @@ data_MC_excerpt %>%
 ```
 
 
-To fit this model with `brms` we need a simple function call with the formula `RT ~ block` that precisely describes what we are interested in: to explain reaction times as a function of the experimental condition:
+To fit this model with `brms`, we need a simple function call with the formula `RT ~ block` that precisely describes what we are interested in, namely explaining reaction times as a function of the experimental condition:
 
 ```{r eval = T}
 fit_brms_mc <- brm(
@@ -222,7 +222,7 @@ This corresponds to the mean reaction time of the reference level, which is agai
 There are two slope coefficients, one for the difference between the reference level and "goNoGo" and another for the difference between the reference level and the "reaction" condition.
 
 These intercepts are estimated to be credibly negative, suggesting that the "discrimination" condition indeed had the highest mean reaction times.
-This answer one half of the comparisons we are interested in:
+This answers one half of the comparisons we are interested in:
 
 $$
 \text{RT in 'reaction'} < 
@@ -230,9 +230,9 @@ $$
 \text{RT in 'discrimination'}
 $$
 Unfortunately, it is not directly possible to read-off information about the second comparison we care about, namely the comparison between "reaction" and "goNoGO".
-And here is where we see the point of **contrast coding** pup up for the first time.
+And here is where we see the point of **contrast coding** pop up for the first time.
 We would like to encode predictor levels ideally in such a way that we can read off (test) the hypotheses we care about directly.
-In other words, if possible we would like to have parameters in our model, in the form of slope coeffiencts, which directly encode the $\delta$s, so to speak, that we want to test.^[To be precise, it is possible to also test derived random variables from the posterior samples. So, it is not *necessary* to encode the contrasts of interests directly. But, most often, in Bayesian analyses it will make sense to put priors on exactly these $\delta$s (e.g., skeptical priors biased against a hypothesis to be tested) and for *that* purpose it is (almost) practically necessary to have the relevant contrasts expressed as slope coeffients in the model.]
+In other words, if possible, we would like to have parameters in our model in the form of slope coefficients, which directly encode the $\delta$s, so to speak, that we want to test.^[To be precise, it is possible to also test derived random variables from the posterior samples. So, it is not *necessary* to encode the contrasts of interests directly. But, most often, in Bayesian analyses it will make sense to put priors on exactly these $\delta$s (e.g., skeptical priors biased against a hypothesis to be tested) and for *that* purpose it is (almost) practically necessary to have the relevant contrasts expressed as slope coefficients in the model.]
 
 In the case at hand, all we need to do is change the reference level.
 If the reference level is the "middle category" (as per our ordered hypothesis), the two slopes will express the contrasts we care about.
@@ -243,7 +243,7 @@ data_MC_excerpt <- data_MC_excerpt %>%
   mutate(block_reordered = factor(block, levels = c("goNoGo", "reaction", "discrimination")))
 ```
 
-We then run another Bayesian regression model, regressing `RT` agains `block_reordered`.
+We then run another Bayesian regression model, regressing `RT` against `block_reordered`.
 
 ```{r}
 fit_brms_mc_reordered <- brm(
@@ -268,7 +268,7 @@ We assign numeric value $1$ for predictor $x_2$ when the observation is from the
 Schematically, what we now have is:
 ```{r, echo = F}
 tribble(
-  ~"block", ~"beta_0", ~"betat_1", ~"beta_2",
+  ~"block", ~"beta_0", ~"beta_1", ~"beta_2",
   "goNoGo", 1, 0, 0,
   "reaction", 1, 1, 0,
   "discrimination", 1, 0, 1
@@ -287,7 +287,7 @@ The video included at the beginning of this chapter discusses further contrast c
 <div class = "exercises">
 **Exercise 14.2**
 
-Suppose that there are three groups, A, B, and C as levels of your predictor. You want the regression intercept to be the mean of group A. You want the first slope to be the difference between the means of group B and group A. And, you want the second slope to the difference between the mean of C and B. How do you numerically encode these contrasts in terms of numeric predictor values?
+Suppose that there are three groups, A, B, and C as levels of your predictor. You want the regression intercept to be the mean of group A. You want the first slope to be the difference between the means of group B and group A. And, you want the second slope to be the difference between the mean of C and B. How do you numerically encode these contrasts in terms of numeric predictor values?
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
@@ -297,7 +297,7 @@ Schematically, like this:
 
 ```{r, echo = F}
 tribble(
-  ~"group", ~"beta_0", ~"betat_1", ~"beta_2",
+  ~"group", ~"beta_0", ~"beta_1", ~"beta_2",
   "A", 1, 0, 0,
   "B", 1, 1, 0,
   "C", 1, 1, 1
@@ -315,7 +315,7 @@ As group A is a reference category, $\beta_0$ expresses the mean reaction time o
 
 Factorial designs, which have more than one categorical predictor variable, are common in experimental psychology.
 Any contrast coding scheme usable for encoding a single categorical predictor can, in principle, also be used when there are multiple categorical predictors.
-But having multiple categorical predictors also requires some additional considerations relating to how (the model assumes that) different predictors might or might not interact with another.
+But having multiple categorical predictors also requires some additional considerations relating to how (the model assumes that) different predictors might or might not interact with one another.
 
 Here is an informal example.
 Suppose that we have metric measurements of how tasty a snack is perceived to be.
@@ -323,7 +323,7 @@ There are two categorical factors which we want to use to predict the average ta
 The first predictor is `mayo` and we encode it numerically as: 0 if the dish does not contain mayonnaise and 1 if it does.
 The second predictor is `chocolate` and we encode it similarly as: 0 if the dish does not contain chocolate and 1 if it does.
 Suppose we estimate these two  slope coefficients (one for `mayo` and one for `chocolate`) for our imaginary data set and find that both are credibly positive.
-That means that there is reason to believe that, all else equal, when we find `mayo` in a snack we may expect it to be rated as more tasty, and, all else equal, when we find `chocolate` in a snack we may also expect it to be rated as more tasty.^[Notice the deliberate avoidance of causal terminology. We should not say that there is reason to believe that *adding* `mayo` to any dish will make it more tasty, just that, epistemically put, observing it in a dish should alter our expectations.] 
+That means that there is reason to believe that, all else equal, when we find `mayo` in a snack we may expect it to be rated as more tasty, and, all else equal, when we find `chocolate` in a snack we may also expect it to be rated as more tasty.^[Notice the deliberate avoidance of causal terminology. We should not say that there is reason to believe that *adding* `mayo` to any dish will make it taste better, just that, epistemically put, observing it in a dish should alter our expectations.] 
 But what about a dish with *both* `mayo` *and* `chocolate`?
 Maybe we can agree to assume for the sake of argument that, on average, snacks containing both `mayo` and `chocolate` are *not* rated as tasty at all.
 Or, at least, we might want to include in our model the possibility that the combination of `mayo` and `chocolate` has a different effect than the sum of the contributions of (i) `mayo` on its own and that of (ii) `chocolate` of its own.
@@ -353,22 +353,22 @@ The research hypotheses of interest are:
 3. **H3: (interaction)**: the effect of context (= the difference of voice pitch between polite and informal context; as mentioned in the second hypothesis) is larger for female speakers than for male speakers.
 
 The first two hypotheses are statements related to what is often called **main effects**, namely differences between levels of a single categorical predictor, averaging over all levels of any other categorical predictor.
-Consequently, we could also reprhase this as saying: "We expect a main effect of gender (H1) and a main effect of context (H2)." only thereby omitting the direction of the difference between respective factor levels.
+Consequently, we could also rephrase this as saying: "We expect a main effect of gender (H1) and a main effect of context (H2)." only thereby omitting the direction of the difference between respective factor levels.
 The third hypothesis is a more convoluted formulation about the interaction of the two categorical predictors.
 
 To understand hypotheses about main effects and interactions better, at least in the easiest case of a $2 \times 2$ factorial design, it is useful to consider stylized diagrams, like in Figure \@ref(fig:04-03-2x2-hypotheses), which show how the data would look like if main effects or various interaction relations are present or absent.
 Concretely, the panels in Figure \@ref(fig:04-03-2x2-hypotheses) depict the following types of situations:
 
-- **A**: no main effect (neither gender nor context) an no interaction; 
+- **A**: no main effect (neither gender nor context) and no interaction; 
 - **B**: main effect of gender, no main effect of context and no interaction; 
 - **C**: main effect of context, no main effect of gender and no interaction; 
 - **D**: main effects of both context and gender but no interaction; 
 - **E**: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category; and 
-- **F**: as in E but with a different kind interaction (effect reversal).
+- **F**: as in E but with a different kind of interaction (effect reversal).
 
 Notice that the type of situation shown in panel E is the expectation derivable from the conjunction of the hypotheses H1-H3 formulated above: we predict/expect main effects for both predictors (in the direction shown in panel E) and we expect the effect of context to be stronger for female speakers than for male speakers.
 
-```{r 04-03-2x2-hypotheses, echo = F, fig.cap="Schematic representation of presence/absence of main effects and (different kinds of) interactions. Situations shown are as follows: A no main effect (neither gender nor context) an no interaction; B: main effect of gender only w/ no interaction; C: main effect of context only w/ no interaction; D: main effects of both context and gender but no interaction; E: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category (this is the situation envisaged by hypotheses 1-3 from the main text); F: as in E but with a different kind interaction (effect reversal).", fig.height=8}
+```{r 04-03-2x2-hypotheses, echo = F, fig.cap="Schematic representation of the presence/absence of main effects and (different kinds of) interactions. The situations shown are as follows: A: no main effect (neither gender nor context) and no interaction; B: main effect of gender only w/ no interaction; C: main effect of context only w/ no interaction; D: main effects of both context and gender but no interaction; E: main effects of both context and gender with an interaction amplifying the strength of the main effect of context for the female category (this is the situation envisaged by hypotheses 1-3 from the main text); F: as in E but with a different kind of interaction (effect reversal).", fig.height=8}
 data_2x2_hypotheses <- tribble(
   ~'situation', ~'gender', ~'context', ~'pitch',
   # no main effects
@@ -397,9 +397,9 @@ data_2x2_hypotheses <- tribble(
   "E: interaction (strength)", 'female', 'polite', 6,
   "E: interaction (strength)", 'female', 'informal', 3.5,
   # interaction (direction)
-  "F: interaction (direction)", 'male', 'polite', 4,
+  "F: interaction (direction)", 'male', 'polite', 3,
   "F: interaction (direction)", 'male', 'informal', 2,
-  "F: interaction (direction)", 'female', 'polite', 4,
+  "F: interaction (direction)", 'female', 'polite', 3.5,
   "F: interaction (direction)", 'female', 'informal', 6
 )
 
@@ -481,12 +481,12 @@ Also, there might well be a main effect of context.
 Probably the voice pitch in informal contexts is higher than in polite contexts, but we cannot be as sure as for a potential main effect of gender.
 It is very difficult to discern whether the data supports the hypothesized interaction.
 
-In the following we are therefore going to test these hypotheses (more or less directly) with two different kinds of coding schemes: treatment coding and sum coding.
+In the following, we are therefore going to test these hypotheses (more or less directly) with two different kinds of coding schemes: treatment coding and sum coding.
 
 ### Treatment coding
 
 In a $2 \times 2$ factorial design there are essentially four pairs of factor levels (so-called **design cells**).
-For the politeness data these are female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts. 
+For the politeness data, these are female speakers in informal contexts, female speakers in polite contexts, male speakers in informal contexts and male speakers in polite contexts. 
 Different coding schemes exist by means of which different comparisons of means of design cells (or single factors) can be probed. 
 A simple coding scheme for differences in our $2 \times 2$ design is shown in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients).
 This is a straightforward extension of *treatment coding* for the single predictors introduced previously which additionally includes a potential interaction.
@@ -522,7 +522,7 @@ How do these model coefficients help address the research hypotheses we formulat
 The interaction term $\beta_\text{pol&male}$ directly relates to hypothesis 3 above, namely that the context-effect is larger for female speakers than for male speakers.
 In other words, we can express H3 as the parameter-based hypothesis that:
 
-$$\textbf{H3 (interaction:} \ \ \ \ \beta_\text{pol&male} > 0$$
+$$\textbf{H3: (interaction)} \ \ \ \ \beta_\text{pol&male} > 0$$
 The other two hypotheses are not directly expressible as a statement involving a single coefficient.
 But they can be expressed as a complex hypothesis involving more than one coefficient of the model.
 The hypothesis H1 states that the pitch of male speakers (averaging over context types) is lower than that of female speakers (averaging over context types).
@@ -566,7 +566,7 @@ The summary statistics below lists Bayesian summary statistics for the (marginal
 summary(fit_brms_politeness)$fixed[,c("l-95% CI", "Estimate", "u-95% CI")]
 ```
 
-The function `brms::hypothesis` can test the relevant hypotheses based on the `brms_fit` object stored in `fiit_brms_politeness`.
+The function `brms::hypothesis` can test the relevant hypotheses based on the `brms_fit` object stored in `fit_brms_politeness`.
 Starting with H1, we find very strong support for a main effect of gender:
 
 ```{r}
@@ -620,7 +620,7 @@ Finally, the interaction coefficient $\beta_\text{pol&male}$ serves the same fun
 knitr::include_graphics("visuals/coefficients_factorial_design_sum-coding.png")
 ```
 
-It is clear, then that under treatment coding the hypotheses H1 and H2, targeting main effects, can be straightforwardly states as inequalities concerning singular coefficients, namely:
+It is clear, then that under treatment coding the hypotheses H1 and H2, targeting main effects, can be straightforwardly stated as inequalities concerning singular coefficients, namely:
 
 $$
 \textbf{H1: (gender)} \ \ \ \ \beta_\text{male} < 0
@@ -653,7 +653,7 @@ $$
 
 Consequently, the difference -comparing female and male speakers- of the effect of context under sum coding is expressed as:
 $$\text{eff_context_on_female} - \text{eff_context_on_male} = 4 \beta_\text{pol&male}$$
-To implement sum coding for use in `brms`, R provides functions `contrasts` and `contr.sum`.
+To implement sum coding for use in `brms`, R provides the functions `contrasts` and `contr.sum`.
 Here is an example.
 
 ```{r}
