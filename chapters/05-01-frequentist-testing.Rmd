@@ -1624,6 +1624,13 @@ Also, in some areas of empirical science, ANOVAs are still commonly used.
 Here we are just going to cover the most basic type of ANOVA, what is called a *one-way ANOVA*.
 A one-way ANOVA is, in regression jargon, a suitable approach for the case of a single categorical predictor with more than two levels (otherwise a $t$-test would be enough) and a metric dependent variable.
 
+The frequentist model of a one-way ANOVA is shown in Figure \@ref(ch-05-01-ANOVA-onway-model).
+
+```{r ch-05-01-ANOVA-onway-model, echo = F, fig.cap="Graphical representation of the model underlying a one-way ANOVA.", out.width = '60%'}
+knitr::include_graphics("visuals/anova-oneway-model.png")
+```
+
+
 We have $k \ge 2$ groups of metric observations. For group $1 \le j \le k$, there are $n_j$ observations. Let $x_{ij}$ be the observation $1 \le i \le n_j$ for group $1 \le j \le k$. Let $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ be the mean of group $j$ and let $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points. We would like to show that the total sum of squares can be decomposed into two summands: the within-group sum of squares and the between-group sum of squares:
 
 $$ 
@@ -1816,6 +1823,7 @@ plot_grid(
 
 ```
 
+Let's consider some concrete, but fictitious data:
 
 ```{r}
 # fictitious data
@@ -1835,7 +1843,11 @@ anova_data <- tibble(
     ),
   value = c(x_A, x_B, x_C)
 )
+```
 
+Here's a plot of this data:
+
+```{r, echo = F}
 anova_data %>% 
   ggplot(
       aes(x = condition, y = value, color = condition)
@@ -1864,7 +1876,9 @@ anova_data %>%
 ```
 
 
-```{r, echo = F}
+We can calculate the one-way ANOVA explicitly as follows, following the calculations described in Figure XYZ:
+
+```{r, echo = T}
 
 grand_mean <- anova_data %>% pull(value) %>% mean()
 df1 <- 2
@@ -1887,19 +1901,21 @@ within_group_variance <- 1/df2 *
   )
 # test statistic of observed data
 F_observed <-  between_group_variance / within_group_variance
-```
 
-```{r}
+# retrieving the p-value (using the F-distribution)
 p_value_anova <- 1 - pf(F_observed, 2, n_A + n_B + n_C -3)
 p_value_anova %>% round(4)
 ```
+
+Compare this to the result of calling R's built-in function `aov`:
 
 ```{r}
 aov(formula = value ~ condition, anova_data) %>% summary()
 ```
 
-> Based on a one-way ANOVA, we find evidence against the assumption of equal means across all groups ($F(2, `r df2`) \approx 4.485$, $p \approx 0.0172$).
+To report these results, we could use a statement like this:
 
+> Based on a one-way ANOVA, we find evidence against the assumption of equal means across all groups ($F(2, `r df2`) \approx 4.485$, $p \approx 0.0172$).
 
 
 ### Likelihood-Ratio Test {#Chap-05-01-LR-test}
