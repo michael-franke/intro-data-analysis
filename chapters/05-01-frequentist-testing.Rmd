@@ -1,33 +1,12 @@
 # (PART) Frequentist statistics {-}
 
-# Hypothesis Testing {#ch-05-01-frequentist-hypothesis-testing}
+# Null Hypothesis Significance Testing {#ch-05-01-frequentist-hypothesis-testing}
 
 <hr>
 
 <div style = "float:right; width:35%;">
 <img src="visuals/badge-testing.png" alt="badge testing">  
 </div>  
-
-Hypothesis testing is the workhorse of much of frequentist statistics.
-Researchers usually have a **research hypothesis**, such as: 
-
-- "truth-value judgements are at chance level for sentences with false presuppositions" (a claim about data from the [King of France experiment](#app-93-data-sets-king-of-france)); or: 
-- "discrimination takes longer than go/no-go decisions" (a claim about data from the [Mental Chronometry experiment](#app-93-data-sets-mental-chronometry)).
-
-However, the hypothesis that is tested is not necessarily the research hypothesis. 
-What is tested is rather a so-called **null hypothesis** $H_0$.^[The term "null hypothesis" does not want to imply that the hypothesis is that some value of interest is equal to zero (although in practice that is frequently the case). The term rather implicates that this hypothesis is put out there in order to be possibly refuted, i.e., nullified, by the data [@Gigerenzer2004:Mindless-Statis].]
-For technical reasons, the null hypothesis is usually a *point-valued hypothesis* in that it assumes that some model parameter takes a single fixed value (see the earlier chapter "[Expressing hypotheses with models](#Chap-03-03-models-hypotheses)").
-Classical hypothesis testing then looks at whether the null hypothesis is plausible, given some observed data.
-
-Of course, the null hypothesis is chosen in such a way as to give us information on the research question in the background.
-For example, depending on the framework we work in (see below), the null hypothesis can be the research hypothesis, as in the case of the King of France example above.
-Alternatively, the research hypothesis is a statement about the existence of a difference between groups or the effect of an experimental manipulation. In this case, the null hypothesis is opposed to the research hypothesis. E.g., the null hypothesis could state that there is *no* difference in reaction times between discrimination and the go/no-go task.
-
-Unfortunately, there is no single uncontroversially accepted and universally practiced recipe for frequentist hypothesis testing.^[There is no universally accepted Bayesian treatment either. This is why it is important to apply rational deliberation in each case, and not to succumb to the temptation of following easy recipes too quickly.]
-But there are three main approaches: Fisher's approach, the Neyman-Pearson approach and the (modern) hybrid approach, often referred to simply as NHST (= null hypothesis significance testing).
-These approaches differ in the way they relate the null hypothesis to the research question.
-They also differ in several technical details. 
-We will cover the differences and commonalities of these three major approaches in Section \@ref(ch-03-05-hypothesis-testing-3-approaches) at the end of this chapter, after we have covered basic technical notions and seen some applications in terms of some common tests.
 
 More concretely, the chapter is structured as follows: Section \@ref(ch-03-05-hypothesis-p-values) will elaborate on the notion of a $p$-value. 
 In Section \@ref(ch-03-05-hypothesis-testing-CLT), we will then pay a visit to a very important mathematical result, the Central Limit Theorem, which allows us to derive approximations of $p$-values for complex cases.
@@ -49,7 +28,71 @@ The learning goals for this chapter are:
   - binomial test, t-tests, ANOVA, linear regression, $\chi^2$-test
 ```
 
-## *p*-values {#ch-03-05-hypothesis-p-values}
+
+## Frequentist statistics: why & how
+
+Bayesian ideas have been given a solid mathematical treatment starting in the 18th century by French mathematician Pierre-Simon Laplace.
+A rigorous philosophical underpinning of subjective probability has been given in the early 20th century.
+Still, the rise of statistics as a modern, ubiquitous tool for empirical knowledge gain in science took off in the first part of the 20th century in a distinctly non-Bayesian direction.
+Key figures in the early development of statistical ideas, such as Ronald Fisher, Egon Pearson and Jerzy Neyman, were rather opposed to Bayesian ideas.
+While the precise mechanisms of this historical development are very interesting (from the point of view of history and philosophy of science), suffice it to say here that at least the following two (interrelated) objections are very likely to have contributed a lot to how history unfolded:
+
+1. By requiring subjective priors, Bayesian statistical methods have an air of vagueness and non-rigidity.
+2. Bayesian inference is very hard (mathematically and computationally).^[Notice also that Bayesian computation is a very recent field. The MCMC algorithm was only invented in the middle of the 20th century. Before close to the turn of the 21st century, researchers lacked wide-spread access to powerful computers capable of running algorithms that approximate Bayesian inference for complex models.]
+
+As an alternative to Bayesian methods, the dominant method of statistical inference of the 20th century is **frequentist statistics**.
+As a matter of strong philosophical conviction, frequentist statistics makes do entirely without subjective probability: no priors on parameters, no priors on models, no researcher beliefs whatsoever.
+A crude (and certainly simplified) explanation of why frequentist approaches eshew subjective beliefs is this. 
+Extreme frequentism denies that a probability distribution over a latent parameter like $\theta$ is meaningful.
+Whatever we choose, the choice cannot be justified or defended in a scientifically rigorous manner.
+The only statements about probabilities that are conceptually sound, according to a fundamentalist frequentist interpretation, are those that derive from intuitions about limiting frequencies when (hypothetically) performing a random process (like throwing a dice or drawing a ball from an urn).
+Bluntly put, there is no "(thought) experiment" which can be repeated so that its objective results, on average, align with whatever subjective prior beliefs the Bayesian analysis needs. 
+As a result, the frequentist approach to statistical inference needs alternative methods for parameter estimation, inference and model comparison --- methods that do \emph{not} rely on (subjective) priors over parameters or models.
+Of course, the objections to the use of priors could be less fundamentalist. 
+Researchers who have no metaphysical troubles with subjective priors in principle might reject the use of priors in data analysis because they feel that the necessity to specify priors is a burden or a spurious degree of freedom in empirical science. 
+Thus, priors should be avoided to stay as objective, procedurally systematic, and streamlined as possible.
+
+So, after having seen Bayesian inference in action extensively, you may wonder: how -on earth- is inference and hypothesis testing even possible without (subjective) priors, even if assumed to be non-informative? - 
+Frequentist statistics has devised very clever means of working around subjective probability.
+Frequentists do accept probabilities, of course.
+But only of the objective kind: in the form of a likelihood function which can be justified by appeal to repeated executions and limiting frequencies of events.
+In a (simplified) nutshell, you may think of frequentism as squeezing everything (inference, estimation, testing, model comparison) out of suitably constructed likelihood functions, which are constructed around point-valued assumptions about any remaining model parameters. 
+
+Central to frequentist statistics is what is often called **null-hypothesis significance testing**. 
+The general idea (again: simplified) is this.
+Say, we are interested in the question of whether a given coin is fair, so: $\theta_c = 0.5$.
+We refuse to express beliefs about the likely value of $\theta_c$, neither prior nor posterior.
+But we *are* allowed to engage in hypothetical mind games.
+So, let's *assume for the sake of argument* that the coin is fair.
+That's not a belief; it's a thought experiment: nothing wrong with that.
+We build a **frequentist model** around this point-valued assumption, and call it a **null model**.
+The null models assumes that $\theta_c = 0.5$ but also uses the obvious likelihood function, $\text{Binomial}(k, N, \theta_c = 0.5)$, stating how likely it would be to observe $k$ heads in $N$ tosses, for fixed $\theta_c$.
+These probabilities are non-subjective, but grounded in frequentist justification about limiting frequencies of events.
+Now, we also bring into the picture some actual data.
+Unsurprisingly: $k=7$, $N=24$.
+We can now construct a measure of how surprising this data observation would be on the (purely instrumental) assumption that the null model is true.
+In more Bayesian words, we are interested in measuring the perplexity of an agent whose belief is captured by the null model (so an agent who genuinely and inflexibly believes that the coin is fair), when that agent observes $k=7$ and $N=24$.
+If the agent's perplexity is extremely high, that is if the null-model would not have predicted the data at hand to a high enough degree, we take this as **evidence against the null-model**.
+The quantified notion of evidence against a null-model is the $p$-value, famously introduced by Ronald Fisher, which we will discuss in the next section \@ref(ch-03-05-hypothesis-p-values).
+
+Historically, there have been different schools of thought in frequentist statistics, all of which relate in some way or other to a quantified notion of evidence against a null-model, but that differ substantially in other ways.^[There is no universally accepted Bayesian treatment either. This is why it is important to apply rational deliberation in each case, and not to succumb to the temptation of following easy recipes too quickly.]
+The three main approaches, shown in Figure \@ref(fig:ch-03-04-frequenist-flavors), are Fisher's approach, the Neyman-Pearson approach and the (modern) hybrid approach, often referred to simply as NHST (= null hypothesis significance testing).
+In simplified terms, the main difference is that Fisher's approach is epistemic (relating to beliefs), while the Neyman-Pearson approach is alethic (relating to actions).
+Fisher's approach calculates $p$-values of measures of evidence against a model, but does not necessarily prescribe what to do this this quantitative measure.
+The approach championed by Neyman-Pearson calculates a $p$-value and also fixes categorical decision rules relating to whether to accept or reject the null-model (or an alternative model, which is also explicitly featured in the N-P approach).
+The main rationale for the Neyman-Pearson approach is to to have a tight upper bound on certain types of statistical error.
+Section \@ref(ch-03-04-hypothesis-significance-errors) deals with the Neyman-Pearson approach in more detail, where we also introduce the notion of **statistical significance**.
+
+While both Fisher's approach and the Neyman-Pearson approach are intrinsically sound, in actual practice we often see a rather inconsistent mix of ideas and practices.
+That's why Figure \@ref(fig:ch-03-04-frequenist-flavors) characterizes the modern NHST approach more in terms of how we actually find it applied in practice (and, unfortunately, also taught) rather than how it should be.
+
+
+```{r ch-03-04-frequenist-flavors, echo = F, fig.cap="The three most prominent flavors of frequentist statistics.", out.width = '100%'}
+knitr::include_graphics("visuals/frequentist-flavors.png")
+```
+
+
+## Quantifying evidence against a null-model with *p*-values {#ch-03-05-hypothesis-p-values}
 
 All prominent frequentist approaches to statistical hypothesis testing (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)) agree that if empirical observations are sufficiently *un*likely from the point of view of the null hypothesis $H_0$, this should be treated (in some way or other) as evidence *against* the null hypothesis.^[To preview later material (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)), the Neyman-Pearson approach goes further and also looks at evidence in favor of the null hypothesis. It also tries to quantify something like evidence in favor of the research hypothesis. But Fisher's approach and some flavors of the hybrid approach only consider how much the data speak against the null hypothesis.] 
 A measure, perhaps approximate, of how unlikely (some aspect of) the data is in the light of $H_0$ is the $p$-value.
@@ -241,6 +284,8 @@ ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray
     y = latex2exp::TeX("$Binomial(k \\, | \\, n = 24, \\theta = 0.5)$")
   )
 ```
+
+## Statistical decisions and long-term error control {#ch-03-04-hypothesis-significance-errors}
 
 ### Statistical significance
 
