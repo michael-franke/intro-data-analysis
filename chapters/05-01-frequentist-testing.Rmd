@@ -1615,7 +1615,16 @@ The calculated test statistic from b. is smaller than the critical value. We the
 
 ### ANOVA {#ch-03-05-hypothesis-testing-ANOVA}
 
-We have $k$ groups of metric observations. For group $1 \le j \le k$, there are $n_j$ observations. Let $x_{ij}$ be the observation $1 \le i \le n_j$ for group $1 \le j \le k$. Let $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ be the mean of group $j$ and let $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points. We would like to show that the total sum of squares can be decomposed into two summands: the within-group sum of squares and the between-group sum of squares:
+The class of ANOVAs, which is short for "analysis of variance", comprises different models (similar to what we saw for the $t$-tests) to deal with the case of a metric dependent measurement, which is to be analyszed in terms of one or more categorical variable.
+In previous sections, we have summoned regression models for this task.
+This is indeed the more modern and preferred approach, especially when the regression modeling also takes random effects (so-called hierarchical modeling) into account.
+Nonetheless, it is good to have a basic understanding of ANOVA, as they are featured prominently in a lot of published research papers, whose findings are still relevant.
+Also, in some areas of empirical science, ANOVAs are still commonly used.
+
+Here we are just going to cover the most basic type of ANOVA, what is called a *one-way ANOVA*.
+A one-way ANOVA is, in regression jargon, a suitable approach for the case of a single categorical predictor with more than two levels (otherwise a $t$-test would be enough) and a metric dependent variable.
+
+We have $k \ge 2$ groups of metric observations. For group $1 \le j \le k$, there are $n_j$ observations. Let $x_{ij}$ be the observation $1 \le i \le n_j$ for group $1 \le j \le k$. Let $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ be the mean of group $j$ and let $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points. We would like to show that the total sum of squares can be decomposed into two summands: the within-group sum of squares and the between-group sum of squares:
 
 $$ 
 \underbrace{
@@ -1631,6 +1640,8 @@ $$
 
 To show this, we first establish a lemma, which will also be useful later:
 
+<div class = "mathstuff">
+
 ```{lemma, label = "SS-cancellation", name = "Sum of squares cancellation"}
 Let $\vec{x}$ be a vector of $n$ real-valued numbers, and let $\bar{x} = \frac{1}{n} \sum_{i=i}^n x_i$ be its mean. The sum of squares around the mean is zero:
 $$
@@ -1638,6 +1649,10 @@ $$
 $$
   
 ```
+
+<div class="collapsibleProof">
+<button class="trigger">Proof</button>
+<div class="content">
 
 ```{proof}
 $$
@@ -1659,9 +1674,12 @@ $$
 $$
 ```
 
-
 &nbsp;
+</div>
+</div>
+</div>
 
+<div class = "mathstuff">
 
 ```{proposition, label = "ANOVA-SS-decomposition", name = "Sum of squares decomposition (ANOVA)"}
 If $x_{ij}$ is observation $1 \le i \le n_j$ for group $1 \le j \le k$, $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ the mean of group $j$ and $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points, then:
@@ -1679,6 +1697,9 @@ $$
   
 ```
 
+<div class="collapsibleProof">
+<button class="trigger">Proof</button>
+<div class="content">
 
 ```{proof}
 $$
@@ -1721,9 +1742,12 @@ $$
 
 &nbsp;
 
+</div>
+</div>
+</div>
 
 
-```{r, echo = F}
+```{r ch-05-01-examples-F-score, echo = F, fig.cap="Different examples of metric measurements for three groups (A, B, C), shown here together with the a polt of the combined (=pooled) data. We see that, as the means of measurements go apart, so does the ratio of between-group variance and within-group variance."}
 plot_anova_data <- function(mu_A, mu_B, mu_C, sd = 10, n = 20) {
   # create random data
   fict_data <- tibble(
@@ -1840,7 +1864,7 @@ anova_data %>%
 ```
 
 
-```{r}
+```{r, echo = F}
 
 grand_mean <- anova_data %>% pull(value) %>% mean()
 df1 <- 2
