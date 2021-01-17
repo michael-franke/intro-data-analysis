@@ -29,56 +29,61 @@ The learning goals for this chapter are:
 ```
 
 
-## Frequentist statistics: why & how
+## Frequentist statistics: why & how {#ch-05-01-frequentist-testing-overview}
 
-Bayesian ideas have been given a solid mathematical treatment starting in the 18th century by French mathematician Pierre-Simon Laplace.
-A rigorous philosophical underpinning of subjective probability has been given in the early 20th century.
-Still, the rise of statistics as a modern, ubiquitous tool for empirical knowledge gain in science took off in the first part of the 20th century in a distinctly non-Bayesian direction.
+Bayesian ideas first been expressed in the 17th century (by Thomas Bayes) and have been given a solid mathematical treatment starting in the 18th century (by French mathematician Pierre-Simon Laplace).
+A rigorous philosophical underpinning of subjective probability has been given in the early 20th century (by authors like Frank Ramsey or Bruno de Finetti).
+Still, in the first part of the 20th century, the rise of statistics as a modern, ubiquitous tool for empirical knowledge gain in science took off in a distinctly non-Bayesian direction.
 Key figures in the early development of statistical ideas, such as Ronald Fisher, Egon Pearson and Jerzy Neyman, were rather opposed to Bayesian ideas.
 While the precise mechanisms of this historical development are very interesting (from the point of view of history and philosophy of science), suffice it to say here that at least the following two (interrelated) objections are very likely to have contributed a lot to how history unfolded:
 
 1. By requiring subjective priors, Bayesian statistical methods have an air of vagueness and non-rigidity.
-2. Bayesian inference is very hard (mathematically and computationally).^[Notice also that Bayesian computation is a very recent field. The MCMC algorithm was only invented in the middle of the 20th century. Before close to the turn of the 21st century, researchers lacked wide-spread access to powerful computers capable of running algorithms that approximate Bayesian inference for complex models.]
+2. Bayesian inference is very demanding (mathematically and computationally).^[Notice also that Bayesian computation is a very recent field. The MCMC algorithm was only invented in the middle of the 20th century. Before close to the turn of the 21st century, researchers lacked wide-spread access to computers powerful enough to run algorithms that approximate Bayesian inference for complex models.]
 
-As an alternative to Bayesian methods, the dominant method of statistical inference of the 20th century is **frequentist statistics**.
+As an alternative to Bayesian approaches, the dominant method of statistical inference of the 20th century is **frequentist statistics**.
 As a matter of strong philosophical conviction, frequentist statistics makes do entirely without subjective probability: no priors on parameters, no priors on models, no researcher beliefs whatsoever.
 A crude (and certainly simplified) explanation of why frequentist approaches eshew subjective beliefs is this. 
 Extreme frequentism denies that a probability distribution over a latent parameter like $\theta$ is meaningful.
 Whatever we choose, the choice cannot be justified or defended in a scientifically rigorous manner.
-The only statements about probabilities that are conceptually sound, according to a fundamentalist frequentist interpretation, are those that derive from intuitions about limiting frequencies when (hypothetically) performing a random process (like throwing a dice or drawing a ball from an urn).
+The only statements about probabilities that are conceptually sound, according to a fundamentalist frequentist interpretation, are those that derive from intuitions about limiting frequencies when (hypothetically) performing a random process (like throwing a dice or drawing a ball from an urn) repeatedly.
 Bluntly put, there is no "(thought) experiment" which can be repeated so that its objective results, on average, align with whatever subjective prior beliefs the Bayesian analysis needs. 
-As a result, the frequentist approach to statistical inference needs alternative methods for parameter estimation, inference and model comparison --- methods that do \emph{not} rely on (subjective) priors over parameters or models.
-Of course, the objections to the use of priors could be less fundamentalist. 
 Researchers who have no metaphysical troubles with subjective priors in principle might reject the use of priors in data analysis because they feel that the necessity to specify priors is a burden or a spurious degree of freedom in empirical science. 
 Thus, priors should be avoided to stay as objective, procedurally systematic, and streamlined as possible.
 
+As a result of eschewing subjective probability, the frequentist approach to statistical inference needs alternative methods for parameter estimation, inference and model comparison --- methods that do \emph{not} rely on (subjective) priors over parameters or models.
+Of course, the objections to the use of priors could be less fundamentalist. 
 So, after having seen Bayesian inference in action extensively, you may wonder: how -on earth- is inference and hypothesis testing even possible without (subjective) priors, even if assumed to be non-informative? - 
 Frequentist statistics has devised very clever means of working around subjective probability.
 Frequentists do accept probabilities, of course.
 But only of the objective kind: in the form of a likelihood function which can be justified by appeal to repeated executions and limiting frequencies of events.
 In a (simplified) nutshell, you may think of frequentism as squeezing everything (inference, estimation, testing, model comparison) out of suitably constructed likelihood functions, which are constructed around point-valued assumptions about any remaining model parameters. 
 
-Central to frequentist statistics is what is often called **null-hypothesis significance testing**. 
-The general idea (again: simplified) is this.
+Central to frequentist statistics is the notion of a $p$-value, which plays a central role in hypothesis testing.
+Let's consider an example.
+The goal is to get a first idea of how frequentist methods can work without subjective probability.
+More detail will be presented in the following sections.
 Say, we are interested in the question of whether a given coin is fair, so: $\theta_c = 0.5$.
+This assumption $\theta_{c} = 0.5$ is our *null hypothesis* $H_{0}$.
 We refuse to express beliefs about the likely value of $\theta_c$, neither prior nor posterior.
 But we *are* allowed to engage in hypothetical mind games.
 So, let's *assume for the sake of argument* that the coin is fair.
+So, we assume the null hypothesis to be true for the same of argument.
 That's not a belief; it's a thought experiment: nothing wrong with that.
-We build a **frequentist model** around this point-valued assumption, and call it a **null model**.
-The null models assumes that $\theta_c = 0.5$ but also uses the obvious likelihood function, $\text{Binomial}(k, N, \theta_c = 0.5)$, stating how likely it would be to observe $k$ heads in $N$ tosses, for fixed $\theta_c$.
-These probabilities are non-subjective, but grounded in frequentist justification about limiting frequencies of events.
+We build a **frequentist model** around this point-valued assumption, and call it a **null-model**.
+The null-model assumes that $\theta_{c} = 0.5$ but also uses the obvious likelihood function, $\text{Binomial}(k, N, \theta_c = 0.5)$, stating how likely it would be to observe $k$ heads in $N$ tosses, for fixed $\theta_c$.
+These probabilities are not subjective, but grounded in frequentist justification about limiting frequencies of events.
 Now, we also bring into the picture some actual data.
 Unsurprisingly: $k=7$, $N=24$.
-We can now construct a measure of how surprising this data observation would be on the (purely instrumental) assumption that the null model is true.
-In more Bayesian words, we are interested in measuring the perplexity of an agent whose belief is captured by the null model (so an agent who genuinely and inflexibly believes that the coin is fair), when that agent observes $k=7$ and $N=24$.
-If the agent's perplexity is extremely high, that is if the null-model would not have predicted the data at hand to a high enough degree, we take this as **evidence against the null-model**.
+We can now construct a measure of how surprising this data observation would be on the (purely instrumental) assumption that the null-model is true.
+In more Bayesian words, we are interested in measuring the perplexity of an agent whose belief is captured by the null-model (so an agent who genuinely and inflexibly believes that the coin is fair), when that agent observes $k=7$ and $N=24$.
+If the agent's perplexity is extremely high, i.e., if the null-model would not have predicted the data at hand to a high enough degree, we take this as **evidence against the null-model**.
 The quantified notion of evidence against a null-model is the $p$-value, famously introduced by Ronald Fisher, which we will discuss in the next section \@ref(ch-03-05-hypothesis-p-values).
+Since the main contestable assumption in the construction of the null-model is the null hypothesis itself, we treat this as evidence against the null hypothesis, and so are able to draw conclusions about a point-valued hypothesis of interest, crucially, without any recourse to subjective probability.
 
 Historically, there have been different schools of thought in frequentist statistics, all of which relate in some way or other to a quantified notion of evidence against a null-model, but that differ substantially in other ways.^[There is no universally accepted Bayesian treatment either. This is why it is important to apply rational deliberation in each case, and not to succumb to the temptation of following easy recipes too quickly.]
 The three main approaches, shown in Figure \@ref(fig:ch-03-04-frequenist-flavors), are Fisher's approach, the Neyman-Pearson approach and the (modern) hybrid approach, often referred to simply as NHST (= null hypothesis significance testing).
-In simplified terms, the main difference is that Fisher's approach is epistemic (relating to beliefs), while the Neyman-Pearson approach is alethic (relating to actions).
-Fisher's approach calculates $p$-values of measures of evidence against a model, but does not necessarily prescribe what to do this this quantitative measure.
+In simplified terms, the main difference is that Fisher's approach is belief-oriented, while the Neyman-Pearson approach is action-oriented.
+Fisher's approach calculates $p$-values as measures of evidence against a model, but does not necessarily prescribe what to do this this quantitative measure.
 The approach championed by Neyman-Pearson calculates a $p$-value and also fixes categorical decision rules relating to whether to accept or reject the null-model (or an alternative model, which is also explicitly featured in the N-P approach).
 The main rationale for the Neyman-Pearson approach is to to have a tight upper bound on certain types of statistical error.
 Section \@ref(ch-03-04-hypothesis-significance-errors) deals with the Neyman-Pearson approach in more detail, where we also introduce the notion of **statistical significance**.
@@ -94,7 +99,7 @@ knitr::include_graphics("visuals/frequentist-flavors.png")
 
 ## Quantifying evidence against a null-model with *p*-values {#ch-03-05-hypothesis-p-values}
 
-All prominent frequentist approaches to statistical hypothesis testing (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)) agree that if empirical observations are sufficiently *un*likely from the point of view of the null hypothesis $H_0$, this should be treated (in some way or other) as evidence *against* the null hypothesis.^[To preview later material (see Section \@ref(ch-03-05-hypothesis-testing-3-approaches)), the Neyman-Pearson approach goes further and also looks at evidence in favor of the null hypothesis. It also tries to quantify something like evidence in favor of the research hypothesis. But Fisher's approach and some flavors of the hybrid approach only consider how much the data speak against the null hypothesis.] 
+All prominent frequentist approaches to statistical hypothesis testing (see Section \@ref(#ch-05-01-frequentist-testing-overview)) agree that if empirical observations are sufficiently *un*likely from the point of view of the null hypothesis $H_0$, this should be treated (in some way or other) as evidence *against* the null hypothesis. 
 A measure, perhaps approximate, of how unlikely (some aspect of) the data is in the light of $H_0$ is the $p$-value.
 To preview the main definition and intuition (to be worked out in detail hereafter), let's first consider a verbal and then a mathematical formulation.
 
@@ -105,7 +110,7 @@ Formally, the $p$-value of observed data $D_\text{obs}$ is:
 $$
 p\left(D_{\text{obs}}\right) = P\left(T^{|H_0} \succeq^{H_{0,a}} t\left(D_{\text{obs}}\right)\right)  % = P(\mathcal{D}^{|H_0} \in \{D \mid t(D) \ge t(D_{\text{obs}})\}) 
 $$
-where $t \colon \mathcal{D} \rightarrow \mathbb{R}$ is a **test statistic** which picks out a relevant summary statistic of each potential data observation, $T^{|H_0}$ is the **sampling distribution**, namely the random variable derived from test statistic $t$ and the assumption that $H_0$ is true, and $\succeq^{H_{0,a}}$ is a linear order on the image of $t$ such that $t(D_1) \succeq^{H_{0,a}} t(D_2)$ expresses that test value $t(D_1)$ is at least as extreme evidence *against* $H_0$ as test value $t(D_2)$.[^53]
+where $t \colon \mathcal{D} \rightarrow \mathbb{R}$ is a **test statistic** which picks out a relevant summary statistic of each potential data observation, $T^{|H_0}$ is the **sampling distribution**, namely the random variable derived from test statistic $t$ and the assumption that $H_0$ is true, and $\succeq^{H_{0,a}}$ is a linear order on the image of $t$ such that $t(D_1) \succeq^{H_{0,a}} t(D_2)$ expresses that test value $t(D_1)$ is at least as extreme evidence *against* $H_0$ as test value $t(D_2)$ when compared to an alternative hypothesis $H_a$.[^53]
 ```
 
 [^53]: This formulation in terms of a context-dependent, i.e., $H_0$-dependent, ordering is not usual. However, the interpretation *is* de facto context-dependent in this way, and so it makes sense to highlight this aspect of the use of $p$-values also formally. Notice, however, that we can get rid of the context-dependence by using different test statistics. But this is also not how it is done in practice. Essentially, this definition aims for maximal generality so as to cover all cases of use. Since the class of use cases is fuzzy, the definition needs this flexibility. Alternative mathematical definitions that appear to be simpler just do not capture all the use cases.
@@ -115,14 +120,14 @@ A few aspects of this definition are particularly important (and subsequent text
 1. this is a frequentist approach in the sense that probabilities are entirely based on (hypothetical) repetitions of the assumed data-generating process, which assumes that $H_0$ is true;
 2. the test statistic *t* plays a fundamental role and should be chosen such that:
     - it must necessarily select exactly those aspects of the data that matter to our research question,
-    - it should optimally make it possible to derive a closed-form (approximation) of $T$, and^[This latter aspect has been particularly important historically. Given more readily available computing power, alternative approaches based on Monte Carlo simulation of $p$-values can also be used.]
+    - it should optimally make it possible to derive a closed-form (approximation) of $T$^[This latter aspect has been particularly important historically. Given more readily available computing power, alternative approaches based on Monte Carlo simulation of $p$-values can also be used.], and
     - it would be desirable (but not necessary) to formulate $t$ in such a way that the comparison relation $\succeq^{H_{0,a}}$ coincides with a simple comparison of numbers: $t(D_1) \succeq^{H_{0,a}} t(D_2)$ iff $t(D_1) \ge t(D_2)$;
 3. there is an assumed data-generating model buried inside notation $T^{|H_0}$; and
 4. the notion of "more extreme evidence against $H_0$", captured in comparison relation $\succeq^{H_{0,a}}$ depends on our epistemic purposes, i.e., what research question we are ultimately interested in.^[It is admittedly a bit of a notational overkill to write this comparison relation as a function of $H_0$ and $H_a$ (the alternative hypothesis). Other definitions of the $p$-value do not. But the comparison *is* context-dependent, and you deserve to see this clearly. To see it clearly, a certain heaviness of notation is the price to pay.]
 
-The following sections will elaborate on all of these points. It is important to mention that especially the third aspect (that there is an implicit data-generating model "inside of" classical hypothesis tests) is not something that receives a lot of emphasis in traditional statistics textbooks. Bad textbooks do not even mention the assumptions implicit in a given test. Better textbooks mention these assumptions, good ones stress them. Using a model-centric approach, as we do here, tries to go even a bit further. We will not only stress key assumptions behind a test but present all of the assumptions behind classical tests in a graphical model, similar to what we did for Bayesian models. This arguably makes all implicit assumptions maximally transparent in a concise and lucid representation. It will also help see parallels between Bayesian and frequentist approaches, thereby helping to see both as more of the same rather than as something completely different. In order to cash in this model-based approach, the following sections will therefore introduce new graphical tools to communicate the data-generating model implicit in the classical tests we cover.
+The remainder of this section will elaborate on all of these points. It is important to mention that especially the third aspect (that there is an implicit data-generating model "inside of" classical hypothesis tests) is not something that receives a lot of emphasis in traditional statistics textbooks. Many textbooks do not even mention the assumptions implicit in a given test. Here we will not only stress key assumptions behind a test but present all of the assumptions behind classical tests in a graphical model, similar to what we did for Bayesian models. This arguably makes all implicit assumptions maximally transparent in a concise and lucid representation. It will also help see parallels between Bayesian and frequentist approaches, thereby helping to see both as more of the same rather than as something completely different. In order to cash in this model-based approach, the following sections will therefore introduce new graphical tools to communicate the data-generating model implicit in the classical tests we cover.
   
-### Binomial Model - frequentist version
+### Frequentist null-models
 
 We start with the Binomial Model because it is the simplest and perhaps most intuitive case. We work out what a $p$-value is for data for this model and introduce the new graphical language to communicate "frequentist models" in the following. We also introduce the notions of *test statistic* and *sampling distribution* based on a case that should be very intuitive, if not familiar.
 
@@ -132,7 +137,7 @@ The [Binomial Model](#Chap-03-03-models-examples-binomial) was covered before fr
 knitr::include_graphics("visuals/binomial-model.png")
 ```
 
-Actually, this way of writing the Binomial Model is rather a shortcut. It glosses over each individual data observation (whether the $i$-th coin flip was heads or tails) and jumps directly to the most relevant summary statistic of how many of the $N$ flips were heads. This might, of course, be just the relevant level of analysis. If our assumption is true that the outcome of each coin flip is independent of any other flip, and given our goal to learn something about $\theta$, all that really matters is $k$. But to prepare ourselves for subsequent frequentist approaches, and in order to appreciate (later!) how powerful a tool a test statistic can be, we can also rewrite the Bayesian model from Figure \@ref(fig:ch-03-04-Binomial-Model-repeated) as the equivalent extended model in Figure \@ref(fig:ch-03-04-Binomial-Model-extended). In the latter representation, the individual outcomes of each flip are represented as $x_i \in \{0,1\}$. Each individual outcome is sampled from a [Bernoulli distribution](#app-91-distributions-bernoulli). Based on the whole vector of $x_i$-s and our knowledge of $N$, we derive the **test statistic** $k$, which maps each observation (a vector $x$ of zeros and ones) to a single number $k$ (the number of heads in the vector). Notice that the node for $k$ has a solid double edge, indicating that it follows deterministically from its parent nodes. This is why we can think of $k$ as a sample from a random variable constructed from "raw data" observations $x$.
+Actually, this way of writing the Binomial Model is a shortcut. It glosses over each individual data observation (whether the $i$-th coin flip was heads or tails) and jumps directly to the most relevant summary statistic of how many of the $N$ flips were heads. This might, of course, be just the relevant level of analysis. If our assumption is true that the outcome of each coin flip is independent of any other flip, and given our goal to learn something about $\theta$, all that really matters is $k$. But we can also rewrite the Bayesian model from Figure \@ref(fig:ch-03-04-Binomial-Model-repeated) as the equivalent extended model in Figure \@ref(fig:ch-03-04-Binomial-Model-extended). In the latter representation, the individual outcomes of each flip are represented as $x_i \in \{0,1\}$. Each individual outcome is sampled from a [Bernoulli distribution](#app-91-distributions-bernoulli). Based on the whole vector of $x_i$-s and our knowledge of $N$, we derive the **test statistic** $k$, which maps each observation (a vector $x$ of zeros and ones) to a single number $k$ (the number of heads in the vector). Notice that the node for $k$ has a solid double edge, indicating that it follows deterministically from its parent nodes. This is why we can think of $k$ as a sample from a random variable constructed from "raw data" observations $x$.
 
 ```{r ch-03-04-Binomial-Model-extended, echo = F, fig.cap="The Binomial Model for a Bayesian approach, extended to show 'raw observations' and the 'summary statistic' implicitly used.", out.width = '60%'}
 knitr::include_graphics("visuals/binomial-model-extended.png")
@@ -149,12 +154,12 @@ Let's take a step back. The frequentist model for the binomial case considers ("
 
 $$P(\mathcal{D}^{|H_0} = \langle x_1, \dots, x_N \rangle) = \prod_{i=1}^N \text{Bernoulli}(x_i, \theta_0)$$
 
-The model does not work with this raw data and its implied distribution (represented by random variable $\mathcal{D}^{|H_0}$), it uses a (very natural!) **test statistic** $t \colon \langle x_1, \dots, x_N \rangle \mapsto \sum_{i=1}^N x_i$ instead. The **sampling distribution** for this model is therefore the distribution of values for the derived measure $k$ - a distribution that follows from the distribution of the raw data ($\mathcal{D}^{|H_0}$) and this particular test statistic $t$. In its most general form, we write the sampling distribution as $T^{|H_0} = t(\mathcal{D^{H_0}})$. ^[Most often, the random variable capturing the sampling distribution is just written as $T$, but it does make sense to stress also notationally that $T$ depends crucially on $H_0$.] It just so happens (what a relief!) that we know how to express $T^{|H_0}$ in a mathematically very concise fashion. It's just the Binomial distribution, so that $k \sim \text{Binomial}(\theta_0, N)$. (Notice how the sampling distribution is really a function of $\theta_0$, i.e., the null hypothesis, and also of $N$.)
+The model does not work with this raw data and its implied distribution (represented by random variable $\mathcal{D}^{|H_0}$), it instead uses a (very natural!) **test statistic** $t \colon \langle x_1, \dots, x_N \rangle \mapsto \sum_{i=1}^N x_i$. The **sampling distribution** for this model is therefore the distribution of values for the derived measure $k$ - a distribution that follows from the distribution of the raw data ($\mathcal{D}^{|H_0}$) and this particular test statistic $t$. In its most general form, we write the sampling distribution as $T^{|H_0} = t(\mathcal{D^{H_0}})$. ^[Most often, the random variable capturing the sampling distribution is just written as $T$, but it does make sense to stress also notationally that $T$ depends crucially on $H_0$.] It just so happens (what a relief!) that we know how to express $T^{|H_0}$ in a mathematically very concise fashion. It's just the Binomial distribution, so that $k \sim \text{Binomial}(\theta_0, N)$. (Notice how the sampling distribution is really a function of $\theta_0$, i.e., the null hypothesis, and also of $N$.)
 
 
-### *p*-values for the Binomial Model
+### One- vs. two-sided $p$-values
 
-After seeing a frequentist model and learning about test statistic and sampling distribution, let's explore what a $p$-value is based on the frequentist Binomial Model. Our running example will be the 24/7 case, where $N = 24$ and $k = 7$. Notice that we are glossing over the "raw" data immediately and work with the value of the test statistic of the observed data directly: $t(D_{\text{obs}}) = 7$.
+After seeing a frequentist null model and learning about notions like "test statistic" and "sampling distribution", let's explore what a $p$-value is based on the frequentist Binomial Model. Our running example will be the 24/7 case, where $N = 24$ and $k = 7$. Notice that we are glossing over the "raw" data immediately and work with the value of the test statistic of the observed data directly: $t(D_{\text{obs}}) = 7$.
 
 Remember that, by the definition given above, $p(D_{\text{obs}})$ is the probability of observing a value of the test statistic that is at least as extreme evidence against $H_0$ as $t(D_{\text{obs}})$, under the assumption that $H_0$ is true:
 
@@ -163,24 +168,25 @@ $$
 $$
 
 To fill this with life, we need to set a null hypothesis, i.e., a value $\theta_0$ of coin bias $\theta$, that we would like to collect evidence *against*. A fixed $H_0$ will directly fix $T^{|H_0}$, but we will have to put extra thought into how to conceptualize $\succeq^{H_{0,a}}$ for any given $H_0$. To make exactly this clearer is the job of this section. Specifically, we will look at what is standardly called a **two-sided $p$-value** and a **one-sided $p$-value**.
-
-As stated in the introduction to this chapter, since this testing routine is geared to give us evidence against $H_0$, we should choose $H_0$ in such a way as to give us information about the research question that really matters to us. So, let's suppose that our research question is either one of the following:
+The difference lies in whether we are testing a point-valued or an interval-based null hypothesis.
+So, let's suppose that we want to test the following null hypotheses:
 
 - Is the coin fair ($\theta = 0.5$)?
 - Is the coin biased towards heads ($\theta > 0.5$)?
 
-As we will see below, in both cases, the null hypothesis will be the same: we are going to assume that $\theta_0 = 0.5$. But given our research question, the **alternative hypothesis** $H_a$ to the null hypothesis will be different. In the case of testing for fairness  ($\theta = 0.5$), the pair of null hypothesis and alternative hypothesis are:
+In the case of testing for fairness  ($\theta = 0.5$), the pair of null hypothesis and alternative hypothesis are:
 
 $$
 \begin{aligned}
 H_0 \colon \theta = 0.5 && H_a \colon \theta \neq 0.5
 \end{aligned}
 $$
-Notice that here the alternative hypothesis $H_a$ is two-sided in the sense that it departs from $H_0$ left and right, so to speak.
 
-But in the case of testing whether there is a bias towards heads ($\theta > 0.5$), the null hypothesis is the same, but the alternative hypothesis is one-sided:[^57]
-
-[^57]: An alternative way of looking at this case is to say that, at first, we test the interval-range null hypothesis $\theta > 0.5$, so that research and null hypothesis coincide. To gather evidence against this interval-range null hypothesis, we will compare it to the alternative hypothesis $\theta < 0.5$. Since we need a point-value to generate the sampling distribution easily, the question becomes which point for the null hypothesis to take. We then choose the value such that if we gather evidence *against* this value, this is most disastrous to the null hypothesis in question.
+The case for testing the null hypothesis $\theta > 0.5$ is slightly more convoluted.
+The frequentist construction of a null model strictly requires point-valued assumptions about all model parameters.
+Otherwise subjective priors would sneak it.
+(NB: Even the assumption of equal probability of parameter values, as in a non-informative prior, *is* a biased and subjective assumption, according to frequentism.)
+We therefore actually test the point-valued null hypothesis $\theta = 0.5$, but we contrast it with a different  alternative hypothesis, which is now one-sided:
 
 $$
 \begin{aligned}
@@ -188,7 +194,9 @@ H_0 \colon \theta = 0.5 && H_a \colon \theta < 0.5
 \end{aligned}
 $$
 
-**Research question $\theta = 0.5$.** To begin with, assume that we want to address the question of whether the coin is fair, i.e., whether $\theta = 0.5$. In this case, we identify the research question with the null hypothesis and set $\theta_0 = 0.5$. Figure \@ref(fig:ch-03-04-testing-binomial-sampling-distribution) shows the sampling distribution of the test statistic $k$. The probability of the observed value of the sampling statistic is shown in red. 
+**Case $\theta = 0.5$.** To begin with, assume that we want to address the question of whether the coin is fair.
+Figure \@ref(fig:ch-03-04-testing-binomial-sampling-distribution) shows the sampling distribution of the test statistic $k$.
+The probability of the observed value of the sampling statistic is shown in red. 
 
 ```{r ch-03-04-testing-binomial-sampling-distribution, echo = F, fig.cap = "Sampling distribution (here: Binomial distribution) and the probability associated with observed data $k=7$ highlighted in red, for $N = 24$ coin flips, under the assumption of a null hypothesis $\\theta = 0.5$."}
 plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
@@ -201,7 +209,9 @@ ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray
   )
 ```
 
-The question we need to settle to obtain a $p$-value is which alternative values of $k$ would count as more extreme evidence against the chosen null hypothesis, i.e., how to interpret $\succeq^{H_{0,a}}$ for this case. The obvious approach is to use the probability of any value of the test statistic $k$ directly and say that observing $D_1$ counts as at least as extreme evidence against $H_0$ as observing $D_2$, $t(D_1) \succeq^{H_{0,a}} t(D_2)$, iff the probability of observing the test statistic associated with $D_1$ is at least as unlikely as observing $D_2$: $P(T^{|H_0} = t(D_1)) \le P(T^{|H_0} = t(D_2))$. To calculate the $p$-value in this way, we therefore need to sum up the probabilities of all values $k$ under the Binomial distribution (with parameters $N=24$ and $\theta = \theta_0 = 0.5$) that are no larger than the value of the observed $k = 7$. In mathematical language:^[Here, the bracket notation $[ \mathit{Boolean} ]$ is the [Iverson bracket](https://en.wikipedia.org/wiki/Iverson_bracket), evaluation to 1 if the Boolean expression is true and to 0 otherwise.]
+The question we need to settle to obtain a $p$-value is how to interpret $\succeq^{H_{0,a}}$ for this case.
+To do this, we need to decide which alternative values of $k$ would count as equally or more extreme evidence *against* the chosen null hypothesis when compared to the specified alternative hypothesis.
+The obvious approach is to use the probability of any value of the test statistic $k$ directly and say that observing $D_1$ counts as at least as extreme evidence against $H_0$ as observing $D_2$, $t(D_1) \succeq^{H_{0,a}} t(D_2)$, iff the probability of observing the test statistic associated with $D_1$ is at least as unlikely as observing $D_2$: $P(T^{|H_0} = t(D_1)) \le P(T^{|H_0} = t(D_2))$. To calculate the $p$-value in this way, we therefore need to sum up the probabilities of all values $k$ under the Binomial distribution (with parameters $N=24$ and $\theta = \theta_0 = 0.5$) that are no larger than the value of the observed $k = 7$. In mathematical language:^[Here, the bracket notation $[ \mathit{Boolean} ]$ is the [Iverson bracket](https://en.wikipedia.org/wiki/Iverson_bracket), evaluating to 1 if the Boolean expression is true and to 0 otherwise.]
 
 $$
 p(k) = \sum_{k' = 0}^{N} [\text{Binomial}(k', N, \theta_0) <= \text{Binomial}(k, N, \theta_0)] \ \text{Binomial}(k', N, \theta_0)
@@ -221,7 +231,7 @@ tibble( lh = dbinom(0:N, N, theta_0) ) %>%
 
 Figure \@ref(fig:ch-03-04-testing-binomial-p-value) shows the values that need to be summed over in red.
 
-```{r ch-03-04-testing-binomial-p-value, echo = F, fig.cap = "Sampling distribution (Binomial likelihood function) and $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null hypothesis $\\theta = 0.5$."}
+```{r ch-03-04-testing-binomial-p-value, echo = F, fig.cap = "Sampling distribution (Binomial likelihood function) and two-sided $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null hypothesis $\\theta = 0.5$."}
 plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
 plotData2 = data.frame(x = c(0:7, 17:24), y = dbinom(c(0:7, 17:24), 24, 0.5))
 ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
@@ -246,10 +256,59 @@ binom.test(
 )
 ```
 
+<div class = "exercises">
+**Exercise 16.1: Output of R's `binom.test`**
 
-**Research question $\theta > 0.5$.** Let's now look at the case where our research hypothesis is that $\theta > 0.5$, i.e., that there is a bias towards heads. Again we need to settle what the null hypothesis should be and how $\succeq^{H_{0,a}}$ should be interpreted. In this case, we could consider an interval-valued null hypothesis like $\theta_0 > 0.5$ (making the research hypothesis the null). But even so, we would still resort to testing a point-valued null hypothesis $\theta_0 = 0.5$ eventually. This is because point-valued null hypotheses are easy to work with.^[The problem for interval-valued null hypotheses is that we would need to specify some more information about how to rank parameters, if only to say that they are all ranked equally (plausible, *a priori*), which is something that we try to avoid in frequentist approaches.] It has therefore become customary to pick the value from the relevant interval which is most favorable of the interval-valued null hypothesis. In case we find strong evidence *against* even the most favorable value from the interval, then this does constitute the strongest possible case *against* the whole interval-based null hypothesis.
+Look at the output of the above call to R's `binom.test` function. 
+Which numbers make sense to you (given your current knowledge) and which do not? 
 
-But even though we use the same null-value of $\theta_0 = 0.5$, the calculation of the $p$-value will be different from the case we looked at previously. The reason lies in a change to what we should consider more extreme evidence against this interval-valued null hypothesis, i.e., the interpretation of $\succeq^{H_{0,a}}$. In the case at hand, observing values of $k$ larger than 12, even if they are unlikely for the point-valued hypothesis $\theta_0 = 0.5$, does not constitute evidence against the interval-valued hypothesis we are interested in. So therefore, we disregard the contribution of the right-hand side in Figure \@ref(fig:ch-03-04-testing-binomial-p-value) to arrive at a picture like in Figure \@ref(fig:ch-03-04-testing-binomial-p-value-one-sided). The associated $p$-value with this so-called **one-sided test** is consequently:
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+The output given first states what was computed, namely and *exact binomial test*.
+You should understand what a *binomial test* is.
+The additional adjective *exact* refers to the fact that we did not use any approximation to get at the shown $p$-value.
+Next, we see the data repeated and the calculated $p$-value, which we have seen how to calculate by hand.
+The output then also names the alternative hypothesis, just like the text previously explained, making clear that this is a two-valued $p$-value.
+Then comes something which you do not yet know about: the notion of a 95% confidence interval will be covered later in this chapter.
+Finally, the output also gives the maximum likelihood estimate of the theta parameter.
+Together with the 95% confidence interval, the test result therefore also reports the most common frequentist estimators, point-values (MLE) and interval-valued (95% confidence interval) for the parameter of interest.
+   
+</div>
+</div>
+</div>
+
+**Case $\theta > 0.5$.** Let's now look at the case where we want to test whether the coin if biased towards heads $\theta > 0.5$. 
+As explained above, we need a point-valued assumption for the coin bias $\theta$ to set up a frequentist model and retrieve a sampling distribution for the relevant test statistic.
+We choose $\theta_{0} = 0.5$ as the point-valued null hypothesis, because *if* we get a high measure of the evidence against the hypothesis $\theta_{0} = 0.5$ (in a comparison against the alternative $\theta < 0.5$), we can discredit the whole interval-based hypothesis $\theta > 0.5$ because any other value of $\theta$ bigger than 0.5 would give a higher $p$-value.
+In other words, we pick the single value for the comparison which is most favorable *for* the hypothesis $\theta > 0.5$ when compared against $\theta < 0.5$, so as when *even that* value is discredited, the whole hypothesis $\theta > 0.5$ is discredited.
+
+But even though we use the same null-value of $\theta_0 = 0.5$, the calculation of the $p$-value will be different from the case we looked at previously. 
+It will be one-sided.
+The reason lies in a change to what we should consider more extreme evidence against this interval-valued null hypothesis, i.e., the interpretation of $\succeq^{H_{0,a}}$. 
+Look at Figure \@ref(fig:ch-03-04-testing-binomial-p-value-one-sided).
+As before we see the Bernoulli likelihood function derived from the point-value null hypothesis.
+The $k$-value observed is $k=7$.
+Again we need to ask: which values of $k$ would constitute equal or more evidence against the null hypothesis *when compared against the alternative hypothesis, which is now $\theta < 0.5$*
+Unlike in the previous, two-sided case, observing large values of $k$, e.g., larger than 12, even if they are unlikely for the point-valued hypothesis $\theta_0 = 0.5$, does not constitute evidence against the interval-valued hypothesis we are interested in.
+So therefore, we disregard the contribution of the right-hand side in Figure \@ref(fig:ch-03-04-testing-binomial-p-value) to arrive at a picture like in Figure \@ref(fig:ch-03-04-testing-binomial-p-value-one-sided). 
+
+```{r ch-03-04-testing-binomial-p-value-one-sided, echo = F, fig.cap = "Sampling distribution (Binomial likelihood function) and one-sided $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null hypothesis $\\theta = 0.5$ compared against the alternative hypothesis $\\theta < 0$."}
+plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
+plotData2 = data.frame(x = c(0:7), y = dbinom(c(0:7), 24, 0.5))
+ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
+  geom_bar(data = plotData2, aes(x = x, y = y), stat = "identity", fill = "firebrick", width = 0.35) +
+  geom_hline(yintercept=dbinom(7,24,0.5)) + 
+  # geom_text(data.frame(x = 3, y = 0.05, label = paste0("p = " , round(1-sum(dbinom(8:16, 24, 0.5)),3), collapse = "")), aes(x = x, y = y, label = label))
+  geom_label(x = 3, y = 0.03, label = paste0("p(k=7) = " , round(sum(dbinom(0:7, 24, 0.5)),5), collapse = "")) +
+  labs(
+    x = latex2exp::TeX("test statistic $k$"),
+    y = latex2exp::TeX("$Binomial(k \\, | \\, n = 24, \\theta = 0.5)$")
+  )
+```
+
+The associated $p$-value with this so-called **one-sided test** is consequently:
 
 ```{r}
 k_obs <- 7
@@ -270,20 +329,39 @@ binom.test(
 )
 ```
 
+### How (not) to interpret *p*-values
 
-```{r ch-03-04-testing-binomial-p-value-one-sided, echo = F, fig.cap = "Sampling distribution (Binomial likelihood function) and $p$-value for the observation of $k=7$ successes in $N = 24$ coin flips, under the assumption of a null hypothesis $\\theta > 0.5$."}
-plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
-plotData2 = data.frame(x = c(0:7), y = dbinom(c(0:7), 24, 0.5))
-ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "gray", width = 0.35) +
-  geom_bar(data = plotData2, aes(x = x, y = y), stat = "identity", fill = "firebrick", width = 0.35) +
-  geom_hline(yintercept=dbinom(7,24,0.5)) + 
-  # geom_text(data.frame(x = 3, y = 0.05, label = paste0("p = " , round(1-sum(dbinom(8:16, 24, 0.5)),3), collapse = "")), aes(x = x, y = y, label = label))
-  geom_label(x = 3, y = 0.03, label = paste0("p(k=7) = " , round(sum(dbinom(0:7, 24, 0.5)),5), collapse = "")) +
-  labs(
-    x = latex2exp::TeX("test statistic $k$"),
-    y = latex2exp::TeX("$Binomial(k \\, | \\, n = 24, \\theta = 0.5)$")
-  )
-```
+Though central to much of frequentist statistics, $p$-values are frequently misinterpreted, even by seasoned scientists [@HallerKrauss2002:Misinterpretati]. To repeat, the $p$-value measures the probability of observing, if the null hypothesis is correct, a value of the test statistic that is (in a specific, contextually specified sense) more extreme than the value of the test statistic that we assign to the observed data. We can therefore treat $p$-values as a measure of evidence *against* the null hypothesis. And if we want to be even more precise, we interpret this as evidence against the whole assumed data-generating process, a central part of which is the null hypothesis.
+
+The $p$-value is *not* a statement about the probability of the null hypothesis given the data. So, it is *not* something like $P(H_0 \mid D)$. The latter is a very appealing notion, but it is one that the frequentist denies herself access to. It can also only be computed based on some consideration of prior plausibility of $H_0$ in relation to some alternative hypothesis. Indeed, to calculate $P(H_0 \mid D)$ is the topic of the chapter on [Model Comparison](#Chap-03-06-model-comparison).
+
+<!-- exercise 1 -->
+<div class = "exercises">
+**Exercise 10.1: $p$-values**
+
+1. Which statement(s) about $p$-values is/are true?
+
+The $p$-value is...
+
+a. ...the probability that the null hypothesis $H_0$ is true.
+b. ...the probability that the alternative hypothesis $H_a$ is true.
+c. ...the probability, derived from the assumption that $H_0$ is true, of obtaining an outcome for the chosen test statistic that is the exact same as the observed outcome.
+d. ...a measure of evidence in favor of $H_0$.
+e. ...the probability, derived from the assumption that $H_0$ is true, of obtaining an outcome for the chosen test statistic that is the same as the observed outcome or more extreme evidence for $H_a$.
+f. ...a measure of evidence against $H_0$.
+
+<div class="collapsibleSolution">
+<button class="trigger">Solution</button>
+<div class="content">
+
+Statements e. and f. are correct. 
+   
+</div>
+</div>
+   
+   
+</div>
+
 
 ## Statistical decisions and long-term error control {#ch-03-04-hypothesis-significance-errors}
 
@@ -335,37 +413,10 @@ $$
 
 Seeing the uniform distribution of $p$-values (under a true null hypothesis) helps appreciate how the $\alpha$-level of significance is related to long-term error control. If the null hypothesis is true, the probability of a significant test result is exactly the significance level. 
 
-### How (not) to interpret *p*-values
-
-Though central to much of frequentist statistics, $p$-values are frequently misinterpreted, even by seasoned scientists [@HallerKrauss2002:Misinterpretati]. To repeat, the $p$-value measures the probability of observing, if the null hypothesis is correct, a value of the test statistic that is (in a specific, contextually specified sense) more extreme than the value of the test statistic that we assign to the observed data. We can therefore treat $p$-values as a measure of evidence *against* the null hypothesis. And if we want to be even more precise, we interpret this as evidence against the whole assumed data-generating process, a central part of which is the null hypothesis.
-
-The $p$-value is *not* a statement about the probability of the null hypothesis given the data. So, it is *not* something like $P(H_0 \mid D)$. The latter is a very appealing notion, but it is one that the frequentist denies herself access to. It can also only be computed based on some consideration of prior plausibility of $H_0$ in relation to some alternative hypothesis. Indeed, to calculate $P(H_0 \mid D)$ is the topic of the chapter on [Model Comparison](#Chap-03-06-model-comparison).
-
-<!-- exercise 1 -->
 <div class = "exercises">
-**Exercise 10.1: $p$-values**
+**Exercise 16.3: Significance & errors**
 
-1. Which statement(s) about $p$-values is/are true?
 
-The $p$-value is...
-
-a. ...the probability that the null hypothesis $H_0$ is true.
-b. ...the probability that the alternative hypothesis $H_a$ is true.
-c. ...the probability, derived from the assumption that $H_0$ is true, of obtaining an outcome for the chosen test statistic that is the exact same as the observed outcome.
-d. ...a measure of evidence in favor of $H_0$.
-e. ...the probability, derived from the assumption that $H_0$ is true, of obtaining an outcome for the chosen test statistic that is the same as the observed outcome or more extreme towards $H_a$.
-f. ...the probability of a Type-I error.
-g. ...a measure of evidence against $H_0$.
-
-<div class="collapsibleSolution">
-<button class="trigger">Solution</button>
-<div class="content">
-
-Statements e. and g. are correct. 
-   
-</div>
-</div>
-   
 If the $p$-value is larger than a *prespecified* significance threshold $\alpha$ (e.g., $\alpha = 0.05$), we...
 
 a. ...accept $H_0$.
@@ -380,8 +431,12 @@ Statement c. is correct.
 
 </div>
 </div>
-   
-2. Suppose that we have reason to believe that a coin is biased to land heads. A hypothesis test should shed light on this belief. We toss the coin $N = 10$ times and observe $k = 8$ heads. We set $\alpha = 0.05$.
+</div>
+
+<div class = "exercises">
+**Exercise 16.4: $p$-value, confidence interval, interpretation etc.**
+
+Suppose that we have reason to believe that a coin is biased to land heads. A hypothesis test should shed light on this belief. We toss the coin $N = 10$ times and observe $k = 8$ heads. We set $\alpha = 0.05$.
 
 a. What is an appropriate null hypothesis, what is an appropriate alternative hypothesis?
 
@@ -473,8 +528,9 @@ With a larger sample size, the $p$-value is smaller compared to 10 coin flips. I
   
 </div>
 </div>
-
 </div>
+
+
 
 ## Central Limit Theorem {#ch-03-05-hypothesis-testing-CLT}
 
