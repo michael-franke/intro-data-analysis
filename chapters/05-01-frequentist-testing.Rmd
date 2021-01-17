@@ -1615,144 +1615,49 @@ The calculated test statistic from b. is smaller than the critical value. We the
 
 ### ANOVA {#ch-03-05-hypothesis-testing-ANOVA}
 
-The class of ANOVAs, which is short for "analysis of variance", comprises different models (similar to what we saw for the $t$-tests) to deal with the case of a metric dependent measurement, which is to be analyszed in terms of one or more categorical variable.
+ANOVA is short for "analysis of variance".
+It's an umbrella term for a number of different models centered around testing the influence of one or several categorical predictors on a metric measurement.
 In previous sections, we have summoned regression models for this task.
 This is indeed the more modern and preferred approach, especially when the regression modeling also takes random effects (so-called hierarchical modeling) into account.
-Nonetheless, it is good to have a basic understanding of ANOVA, as they are featured prominently in a lot of published research papers, whose findings are still relevant.
+Nonetheless, it is good to have a basic understanding of ANOVAs, as they are featured prominently in a lot of published research papers, whose findings are still relevant.
 Also, in some areas of empirical science, ANOVAs are still commonly used.
 
-Here we are just going to cover the most basic type of ANOVA, what is called a *one-way ANOVA*.
+Here we are just going to cover the most basic type of ANOVA, which is called a *one-way ANOVA*.
 A one-way ANOVA is, in regression jargon, a suitable approach for the case of a single categorical predictor with more than two levels (otherwise a $t$-test would be enough) and a metric dependent variable.
+For illustration we will here consider a fictitious case of metric measurement for three groups: A, B, and C.
+These groups are levels of a categorical predictor `group`.
+We want to address the research question of whether the means of the measurements of groups A, B and C could plausibly be identical.
 
-The frequentist model of a one-way ANOVA is shown in Figure \@ref(ch-05-01-ANOVA-onway-model).
+The main idea behind analysis of variance is *not* to look at the means of measurements to be compared, but rather to compare the *between-group variances* to the *within-group variances*.
+Whence the name "analysis of variance".
+While mathematically complex, the idea is quite intuitive.
+Figure \@ref(fig:ch-05-01-examples-F-score) shows four different (made-up) data sets, each with different measurements for groups A, B and C.
+It also shows the "pooled data", i.e., the data from all three groups combined.
+What is also shown in each panel is the so-called F-statistic, which is a number derived from a sample in the following way.
 
-```{r ch-05-01-ANOVA-onway-model, echo = F, fig.cap="Graphical representation of the model underlying a one-way ANOVA.", out.width = '60%'}
-knitr::include_graphics("visuals/anova-oneway-model.png")
-```
+We have $k \ge 2$ groups of metric observations. 
+For group $1 \le j \le k$, there are $n_j$ observations. 
+Let $x_{ij}$ be the observation $1 \le i \le n_j$ for group $1 \le j \le k$. 
+Let $\bar{x}_j = \frac{1}{n_j} \sum_{i = 1}^{n_j} x_{ij}$ be the mean of group $j$ and let $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points.
+The **between-group variance** measures how much, on average, the mean of each group deviates from the grand mean of all data points (where distance is squared distance, as usual):
 
-
-We have $k \ge 2$ groups of metric observations. For group $1 \le j \le k$, there are $n_j$ observations. Let $x_{ij}$ be the observation $1 \le i \le n_j$ for group $1 \le j \le k$. Let $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ be the mean of group $j$ and let $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points. We would like to show that the total sum of squares can be decomposed into two summands: the within-group sum of squares and the between-group sum of squares:
-
-$$ 
-\underbrace{
-  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{\bar{x}})^2
-}_{\text{Total SS}}  = 
-\underbrace{
-  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2
-}_{\text{Within-Group SS}} +
-\underbrace{
-  \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2
-}_{\text{Between-Group SS}}
-$$ 
-
-To show this, we first establish a lemma, which will also be useful later:
-
-<div class = "mathstuff">
-
-```{lemma, label = "SS-cancellation", name = "Sum of squares cancellation"}
-Let $\vec{x}$ be a vector of $n$ real-valued numbers, and let $\bar{x} = \frac{1}{n} \sum_{i=i}^n x_i$ be its mean. The sum of squares around the mean is zero:
 $$
-  \sum_{i=1}^n (x_i - \bar{x}) = 0
+\hat{\sigma}_{\mathrm{between}} = \frac{\sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2}{k-1}
 $$
-  
-```
+The **within-group variance** is a measure of the average variance of the data points inside of each group:
 
-<div class="collapsibleProof">
-<button class="trigger">Proof</button>
-<div class="content">
-
-```{proof}
 $$
-\begin{aligned}
-  \sum_{i=i}^n (x_i - \bar{x}) 
-  & = 
-  \sum_{i=i}^n (x_i - \frac{1}{n} \sum_{j=1}^n x_j) 
-  && 
-  [\text{by def. of mean}] 
-  \\
-  & = 
-  \sum_{i=i}^n x_i - \frac{n}{n} \sum_{j=1}^n x_j) 
-  && 
-  [\text{second summand independent of } i] 
-  \\ 
-  & = 0
-  \\ 
-\end{aligned}
+\hat{\sigma}_{\mathrm{within}} = \frac{\sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2}{\sum_{i=1}^k (n_i - 1)}
 $$
-```
 
-&nbsp;
-</div>
-</div>
-</div>
+Now, if the means of different groups are rather different from each other, the between-group variance should be high.
+But absolute numbers may be misleading, so we need to scale the between-group variance also by how much variance we see, on average, in each group, i.e., the within-group variance.
+That is why the $F$-statistic is defined as:
 
-<div class = "mathstuff">
-
-```{proposition, label = "ANOVA-SS-decomposition", name = "Sum of squares decomposition (ANOVA)"}
-If $x_{ij}$ is observation $1 \le i \le n_j$ for group $1 \le j \le k$, $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ the mean of group $j$ and $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points, then:
-$$ 
-\underbrace{
-  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{\bar{x}})^2
-}_{\text{Total SS}}  = 
-\underbrace{
-  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2
-}_{\text{Within-Group SS}} +
-\underbrace{
-  \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2
-}_{\text{Between-Group SS}}
-$$ 
-  
-```
-
-<div class="collapsibleProof">
-<button class="trigger">Proof</button>
-<div class="content">
-
-```{proof}
 $$
-\begin{aligned}
-  & 
-  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{\bar{x}})^2 
-  \\
-  = &  
-  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j + \bar{x}_j - \bar{\bar{x}})^2
-  && 
-  [- \bar{x}_j + \bar{x}_j = 0] 
-  \\
-  = &  
-  \sum_{j=1}^k \sum_{i=1}^{n_j} \left [ (x_{ij} - \bar{x}_j)^2 + 2(x_{ij} - \bar{x}_j)(\bar{x}_j - \bar{\bar{x}}) + (\bar{x}_j - \bar{\bar{x}})^2 \right ]
-  && 
-  [\text{binomial theorem}] 
-  \\
-  = &  
-  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 + 
-  \sum_{j=1}^k \sum_{i=1}^{n_j} (\bar{x}_j - \bar{\bar{x}})^2 + 
-  \sum_{j=1}^k \sum_{i=1}^{n_j} 2(x_{ij} - \bar{x}_j)(\bar{x}_j - \bar{\bar{x}})
-  && 
-  [\text{rearranging} ] 
-  \\
-  = &  
-  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 + 
-  \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2 + 
-  2 \sum_{j=1}^k (\bar{x}_j - \bar{\bar{x}}) \underbrace{\sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)}_{\text{=0 by lemma}}
-  && 
-  [\text{independences} ] 
-  \\
-    = &  
-  \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 + 
-  \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2
-  && 
-  [\text{by lemma} ] 
-\end{aligned}
+F = \frac{\hat{\sigma}_{\mathrm{between}}}{\mathrm{\hat{\sigma}_{\mathrm{within}}}}
 $$
-```
-
-&nbsp;
-
-</div>
-</div>
-</div>
-
+For illustration, Figure \@ref(fig:ch-05-01-examples-F-score) shows four different scenarios with associated measures of $F$.
 
 ```{r ch-05-01-examples-F-score, echo = F, fig.cap="Different examples of metric measurements for three groups (A, B, C), shown here together with the a polt of the combined (=pooled) data. We see that, as the means of measurements go apart, so does the ratio of between-group variance and within-group variance."}
 plot_anova_data <- function(mu_A, mu_B, mu_C, sd = 10, n = 20) {
@@ -1823,7 +1728,20 @@ plot_grid(
 
 ```
 
-Let's consider some concrete, but fictitious data:
+It can be shown that, under the assumption that the $k$ group's have identical means, the sampling distribution of the $F$ statistic follows an [$F$-distribution](app-91-distributions-F) with appropriate parameters (which is, unsurprisingly, the distribution constructed for exactly this purpose):
+
+$$
+F \sim F\mathrm{\text{-}distribution}\left(k - 1, \sum_{i=1}^k (n_i - 1) \right)
+$$
+
+The complete frequentist model of a one-way ANOVA is shown in Figure \@ref(ch-05-01-ANOVA-onway-model).
+Notice that the null hypothesis of equal means is not shown explicitly, but rather only a single mean $\mu$ is shown, which functions as the mean for all groups.
+
+```{r ch-05-01-ANOVA-onway-model, echo = F, fig.cap="Graphical representation of the model underlying a one-way ANOVA.", out.width = '60%'}
+knitr::include_graphics("visuals/anova-oneway-model.png")
+```
+
+Let's consider some concrete, but fictitious data for a full example:
 
 ```{r}
 # fictitious data
@@ -1875,16 +1793,18 @@ anova_data %>%
     )
 ```
 
-
-We can calculate the one-way ANOVA explicitly as follows, following the calculations described in Figure XYZ:
+We want to know whether it is plausible to entertain the idea that the mean of these three groups are identical.
+We can calculate the one-way ANOVA explicitly as follows, following the calculations described in Figure \@ref(fig:ch-05-01-ANOVA-onway-model):
 
 ```{r, echo = T}
-
+# compute grand_mean 
 grand_mean <- anova_data %>% pull(value) %>% mean()
+
+# compute degrees of freedom (parameters to F-distribution)
 df1 <- 2
 df2 <- n_A + n_B + n_C -3
 
-# between-group sum-of-squares
+# between-group variance
 between_group_variance <- 1/df1 *
   (
     n_A * (mean(x_A) - grand_mean)^2 +
@@ -1892,7 +1812,7 @@ between_group_variance <- 1/df1 *
     n_C * (mean(x_C) - grand_mean)^2  
   )
   
-# within-group sum-of-squares
+# within-group variance
 within_group_variance <- 1/df2 * 
   (
     sum((x_A - mean(x_A))^2) +
@@ -1917,6 +1837,150 @@ To report these results, we could use a statement like this:
 
 > Based on a one-way ANOVA, we find evidence against the assumption of equal means across all groups ($F(2, `r df2`) \approx 4.485$, $p \approx 0.0172$).
 
+<!-- We have $k \ge 2$ groups of metric observations. For group $1 \le j \le k$, there are $n_j$ observations. Let $x_{ij}$ be the observation $1 \le i \le n_j$ for group $1 \le j \le k$. Let $\bar{x}_j = \frac{1}{n_j} \sum_{i = 1}^{n_j} x_{ij}$ be the mean of group $j$ and let $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points. We would like to show that the total sum of squares can be decomposed into two summands: the within-group sum of squares and the between-group sum of squares: -->
+
+<!-- $$  -->
+<!-- \underbrace{ -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{\bar{x}})^2 -->
+<!-- }_{\text{Total SS}}  =  -->
+<!-- \underbrace{ -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 -->
+<!-- }_{\text{Within-Group SS}} + -->
+<!-- \underbrace{ -->
+<!--   \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2 -->
+<!-- }_{\text{Between-Group SS}} -->
+<!-- $$  -->
+
+<!-- To show this, we first establish a lemma, which will also be useful later: -->
+
+<!-- <div class = "mathstuff"> -->
+
+<!-- ```{lemma, label = "SS-cancellation", name = "Sum of squares cancellation"} -->
+<!-- Let $\vec{x}$ be a vector of $n$ real-valued numbers, and let $\bar{x} = \frac{1}{n} \sum_{i=i}^n x_i$ be its mean. The sum of squares around the mean is zero: -->
+<!-- $$ -->
+<!--   \sum_{i=1}^n (x_i - \bar{x}) = 0 -->
+<!-- $$ -->
+
+<!-- ``` -->
+
+<!-- <div class="collapsibleProof"> -->
+<!-- <button class="trigger">Proof</button> -->
+<!-- <div class="content"> -->
+
+<!-- ```{proof} -->
+<!-- $$ -->
+<!-- \begin{aligned} -->
+<!--   \sum_{i=i}^n (x_i - \bar{x})  -->
+<!--   & =  -->
+<!--   \sum_{i=i}^n (x_i - \frac{1}{n} \sum_{j=1}^n x_j)  -->
+<!--   &&  -->
+<!--   [\text{by def. of mean}]  -->
+<!--   \\ -->
+<!--   & =  -->
+<!--   \sum_{i=i}^n x_i - \frac{n}{n} \sum_{j=1}^n x_j)  -->
+<!--   &&  -->
+<!--   [\text{second summand independent of } i]  -->
+<!--   \\  -->
+<!--   & = 0 -->
+<!--   \\  -->
+<!-- \end{aligned} -->
+<!-- $$ -->
+<!-- ``` -->
+
+<!-- &nbsp; -->
+<!-- </div> -->
+<!-- </div> -->
+<!-- </div> -->
+
+<!-- <div class = "mathstuff"> -->
+
+<!-- ```{proposition, label = "ANOVA-SS-decomposition", name = "Sum of squares decomposition (ANOVA)"} -->
+<!-- If $x_{ij}$ is observation $1 \le i \le n_j$ for group $1 \le j \le k$, $\bar{x}_j = \frac{1}{n} \sum_{i = 1}^{n_j} x_{ij}$ the mean of group $j$ and $\bar{\bar{x}} = \frac{1}{k} \sum_{j=1}^k \frac{1}{n_j} \sum_{i=1}^{n_j} x_{ij}$ be the grand mean of all data points, then: -->
+<!-- $$  -->
+<!-- \underbrace{ -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{\bar{x}})^2 -->
+<!-- }_{\text{Total SS}}  =  -->
+<!-- \underbrace{ -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 -->
+<!-- }_{\text{Within-Group SS}} + -->
+<!-- \underbrace{ -->
+<!--   \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2 -->
+<!-- }_{\text{Between-Group SS}} -->
+<!-- $$  -->
+
+<!-- ``` -->
+
+<!-- <div class="collapsibleProof"> -->
+<!-- <button class="trigger">Proof</button> -->
+<!-- <div class="content"> -->
+
+<!-- ```{proof} -->
+<!-- $$ -->
+<!-- \begin{aligned} -->
+<!--   &  -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{\bar{x}})^2  -->
+<!--   \\ -->
+<!--   = &   -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j + \bar{x}_j - \bar{\bar{x}})^2 -->
+<!--   &&  -->
+<!--   [- \bar{x}_j + \bar{x}_j = 0]  -->
+<!--   \\ -->
+<!--   = &   -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} \left [ (x_{ij} - \bar{x}_j)^2 + 2(x_{ij} - \bar{x}_j)(\bar{x}_j - \bar{\bar{x}}) + (\bar{x}_j - \bar{\bar{x}})^2 \right ] -->
+<!--   &&  -->
+<!--   [\text{binomial theorem}]  -->
+<!--   \\ -->
+<!--   = &   -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 +  -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} (\bar{x}_j - \bar{\bar{x}})^2 +  -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} 2(x_{ij} - \bar{x}_j)(\bar{x}_j - \bar{\bar{x}}) -->
+<!--   &&  -->
+<!--   [\text{rearranging} ]  -->
+<!--   \\ -->
+<!--   = &   -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 +  -->
+<!--   \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2 +  -->
+<!--   2 \sum_{j=1}^k (\bar{x}_j - \bar{\bar{x}}) \underbrace{\sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)}_{\text{=0 by lemma}} -->
+<!--   &&  -->
+<!--   [\text{independences} ]  -->
+<!--   \\ -->
+<!--     = &   -->
+<!--   \sum_{j=1}^k \sum_{i=1}^{n_j} (x_{ij} - \bar{x}_j)^2 +  -->
+<!--   \sum_{j=1}^k n_j (\bar{x}_j - \bar{\bar{x}})^2 -->
+<!--   &&  -->
+<!--   [\text{by lemma} ]  -->
+<!-- \end{aligned} -->
+<!-- $$ -->
+<!-- ``` -->
+
+<!-- &nbsp; -->
+
+<!-- </div> -->
+<!-- </div> -->
+<!-- </div> -->
+
+### Linear regression
+
+Significance testing for linear regression parameters follows the same logic as for other models as well.
+In particular, it can be shown that the relevant test statistic for ML-estimates of regression coefficients $\hat\beta_i$, under the assumption that the true model has $\beta_i = 0$, follows a $t$-distribution.
+We can run a linear regression model (with a Gaussian noice function) using the built-in function `glm` (for "generalized linear model"):
+
+```{r}
+fit_murder_mle <- glm(
+  formula = murder_rate ~ low_income,
+  data = aida::data_murder
+)
+```
+
+If we inspect a summary for the model fit, we see the results of a $t$-test, one for each coefficient, based on the null-hypothesis that this coefficient's true value is 0.
+
+
+```{r}
+summary(fit_murder_mle)
+```
+
+
+So, in the case of the `murder_data`, we would conclude that there is strong evidence *against* the assumption that the data could have been generated by model whose slope parameter for `low_income` is set to 0. 
 
 ### Likelihood-Ratio Test {#Chap-05-01-LR-test}
 
