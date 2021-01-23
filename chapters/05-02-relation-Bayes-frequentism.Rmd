@@ -1,43 +1,37 @@
+---
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
 
 # Comparing frequentist and Bayesian statistics {#ch-05-02-comparison-freq-Bayes}
 
-The most obvious difference between the frequentist and the Bayesian approach to data analysis is that the latter, but not the former allows for probability distributions over latent variables, like model parameters or models themselves. 
-Conceptual considerations about what we may or should attach probabilities to aside, the most obvious consequence of this is that Bayesian approaches (i) are more complex to compute or analyze, and (ii) provide richer information.
-But there are more subtle differences, and so this chapter will explore some of these in order to also contribute a better understanding of both approaches in isolation.
+The most obvious difference between the frequentist and the Bayesian approach to data analysis is that the latter, but not the former allows for probability distributions over latent variables, like model parameters or models themselves.
+Conceptual considerations about what we may or should attach probabilities to aside, the most obvious consequence of this is that, usually, Bayesian approaches (i) are more complex to compute or analyze, and (ii) provide richer information.
+But there are more subtle differences, and so this chapter explores some of these in order to also contribute a better understanding of both approaches in isolation.
 
+-   explicit beliefs vs. implicit intentions
 
-
-- explicit beliefs vs. implicit intentions
-
-- error control & baked-in decision rules
-
-- Bayesian power
-
-
-## Comparing the information provided by each account
-
-- intuitively interpretable numbers
-- evidence in favor of the null
 
 ## Frequentist and Bayesian statistical models
 
 Section \@ref(Chap-03-03-models-general) introduced the notion of a Bayesian statistical model as a pair of likelihood function
 
-$$ P_M(D_\text{DV} \mid D_\text{IV}, \theta) $$ 
+$$ P_M(D_\text{DV} \mid D_\text{IV}, \theta) $$
 
 and a prior over model parameters:
 
-$$ P_M(\theta) $$.
+$$ P_M(\theta) $$
 
 Normally, the frequentist approach is not model-centric, but focused on an arsenal of specific tests.
 The explicit model-centric explanation of a selection of frequentist tests given in the previous chapter showed that the frequentist models that underly the computation of $p$-values eradicate all free model parameters by assigning them a single value in one of two ways:
 
-1. fixing a parameter to the value dictated by the relevant null-hypothesis 
-2. estimating the value of a parameter directly from the data (e.g., the standard deviation in a $t$-test)
+1.  fixing a parameter to the value dictated by the relevant null-hypothesis
+2.  estimating the value of a parameter directly from the data (e.g., the standard deviation in a $t$-test)
 
-Beyond $p$-values and significance testing, we may say that a *frequentist model* consists only of a likelihood, assuming -at it were-, but never actually using a flat prior over any remaning free model parameters. 
+Beyond $p$-values and significance testing, we may say that a *frequentist model* consists only of a likelihood, assuming -at it were-, but never actually using a flat prior over any remaning free model parameters.
 
-The upshot of this is that, conceptual quibbles about the nature of probability notwithstanding, from a technical point of view frequentist models can be thought of as just special cases of Bayesian models (with parameters either fixed to a single value somehow, or assuming flat priors). 
+The upshot of this is that, conceptual quibbles about the nature of probability notwithstanding, from a technical point of view frequentist models can be thought of as just special cases of Bayesian models (with parameters either fixed to a single value somehow, or assuming flat priors).
 Seeing this subsumption relation is insightful because it implies that a frequentist concepts like $p$-value, $\alpha$-error or power all directly import into the Bayesian domain (whether they are equally important and useful or not).
 We will see, for instance, the notion of a Bayesian $p$-value later in this chapter.
 
@@ -56,44 +50,22 @@ The next section shows an example of this, namely the approximate computation of
 
 ## MC-simulated $p$ values
 
-Consider the well-known 24/7 case again.
-
 ```{r}
 k_obs = 7
 n_obs = 24
-```
-
-Testing a null hypothesis of no bias $\theta_c = 0.5$ based on this data with R's built-in Binomial test we get:
-
-```{r }
-binom.test(k_obs, n_obs)
-```
-
-Here is how we can also use Monte Carlo simulation to approximate this $p$-value:
-
-```{r}
-# number of MC samples
 x_reps = 500000
 
-# likelihood of each sampled data 
 lhs = map_dbl(1:x_reps, function(i) {
-  # sample a hypothetical data point
   k_hyp = rbinom(1, size = n_obs, prob = 0.5)
-  # determine how likely this hypothetical observation is
   dbinom(k_hyp, size = n_obs, prob = 0.5)
 })
 
-# how likely is the observed data (under H0)
 lh_obs = dbinom(k_obs, size = n_obs, prob = 0.5)
 
-# proportion of samples that are "at least as extreme"
-#   as the observed data
 mean(lhs <= lh_obs) %>% show()
 ```
 
-
-
-```{r eval = F, echo = F}
+```{r}
 tibble(iteration = 1:x_reps, 
        p_value = cumsum(lhs <= lh_obs) / 1:x_reps) %>% 
   ggplot(aes(x = iteration, y = p_value)) + geom_line()
@@ -110,7 +82,7 @@ tibble(iteration = 1:x_reps,
 
 As discussed in Chapter \@ref(ch-03-04-parameter-estimation), parameter estimation is traditionally governed by two measures: (i) a point-estimate for the best parameter value, and (ii) an interval-estimate for a range of values that are considered "good enough" Table \@ref(tab:ch-05-01-estimation-overview) gives the most salient answers that each approach gives.
 
-```{r ch-05-01-estimation-overview, echo = F}
+```{r}
 table_data <- tribble(
   ~estimate, ~Bayesian, ~frequentist,
   "best value", "mean of posterior", "maximum likelihood estimate",
@@ -127,35 +99,41 @@ knitr::kable(
 For Bayesians, point-valued and interval-based estimates are just summary statistics to efficiently communicate about or reason with the main thing: the full posterior distribution.
 For the frequentist, the point-valued and interval-based estimates might be all there is.
 Computing a full posterior can be very hard.
-Computing point-estimates is usually much simpler. 
-Yet, all the trouble of having to specify priors, and having to calculate a much more complex mathematical object, can pay off. 
-An example which is intuitive enough is that of a likelihood function in a multi-dimensional parameter space where there is an infinite collection of parameter values that maximize the likelihood function (think of plateau). 
+Computing point-estimates is usually much simpler.
+Yet, all the trouble of having to specify priors, and having to calculate a much more complex mathematical object, can pay off.
+An example which is intuitive enough is that of a likelihood function in a multi-dimensional parameter space where there is an infinite collection of parameter values that maximize the likelihood function (think of plateau).
 Asking a godly oracle for "the" MLE can be disastrously misleading.
 The full posterior will show the quirkiness.
-In other words, to find an MLE can be an ill-posed problem where exploring the posterior surface is not. 
+In other words, to find an MLE can be an ill-posed problem where exploring the posterior surface is not.
 
 Practical issues aside, there are also conceptual arguments that can be pinned against each other.
-Suppose you do not know the bias of a coin, you flip it once and it lands heads. 
-The case in mathematical notation: $k=1$, $N=1$. 
-As a frequentist, your "best" estimate of the coin's bias is that it is 100% rigged: it will *never* land tails. 
-As a Bayesian, with uninformed priors, your "best" estimate is, following Laplace rule, $\frac{k+1}{N+2} = \frac{2}{3}$. 
-Notice that there might be different notions of what counts as "best" in place. Still, the frequentist "best" estimate seems rather extreme.
+Suppose you do not know the bias of a coin, you flip it once and it lands heads.
+The case in mathematical notation: $k=1$, $N=1$.
+As a frequentist, your "best" estimate of the coin's bias is that it is 100% rigged: it will *never* land tails.
+As a Bayesian, with uninformed priors, your "best" estimate is, following Laplace rule, $\frac{k+1}{N+2} = \frac{2}{3}$.
+Notice that there might be different notions of what counts as "best" in place.
+Still, the frequentist "best" estimate seems rather extreme.
 
-What about interval-ranged estimates? 
-Which is the better tool, confidence intervals or credible intervals? 
--- This is hard to answer. 
-Numerical simulations can help answer these questions.^[Even where the math seems daunting, simulation methods are much more tangible and applicable and sometimes require only basic programming experience.] 
-The idea is simple but immensely powerful. 
-We simulate, repeatedly, a ground-truth and synthetic results for fictitious experiments, and then we apply the statistical tests/procedures to these fictitious data sets. 
+What about interval-ranged estimates?
+Which is the better tool, confidence intervals or credible intervals?
+-- This is hard to answer.
+Numerical simulations can help answer these questions.[^relation-bayes-frequentism-1]
+The idea is simple but immensely powerful.
+We simulate, repeatedly, a ground-truth and synthetic results for fictitious experiments, and then we apply the statistical tests/procedures to these fictitious data sets.
 Since we know the ground-truth, we can check which tests/procedures got it right.
 
-Let's look at a simulation set-up to compare credible intervals to confidence intervals, the latter of which are calculated by asymptotic approximation or the so-called exact method (see the info-box in Section \@ref(ch-05-01-frequentist-testing-confidence-intervals)). 
-To do so, we repeatedly sample a ground-truth (e.g., a known coin bias $\theta_{\text{true}}$) from a flat distribution over $[0;1]$.^[This is already not innocuous. We are fixing, as it were, an assumption about how likely ground-truths should actually occur in the real world.]. 
-We then simulate an experiment in a synthetic world with $\theta_{\text{true}}$, using a fixed value of $n$, here taken from the set $n \in \set{10, 25, 100, 1000}$. 
-We then construct a confidence interval (either approximately or precisely) and a 95% credible interval; for each of the three interval estimates. 
-We check whether the ground-truth $\theta_{\text{true}}$ is *not* included in any given interval estimate. 
-We calculate the mean number of times such as non-inclusion (errors!) happen for each kind of interval estimate. 
+[^relation-bayes-frequentism-1]: Even where the math seems daunting, simulation methods are much more tangible and applicable and sometimes require only basic programming experience.
+
+Let's look at a simulation set-up to compare credible intervals to confidence intervals, the latter of which are calculated by asymptotic approximation or the so-called exact method (see the info-box in Section \@ref(ch-05-01-frequentist-testing-confidence-intervals)).
+To do so, we repeatedly sample a ground-truth (e.g., a known coin bias $\theta_{\text{true}}$) from a flat distribution over $[0;1]$.[^relation-bayes-frequentism-2].
+We then simulate an experiment in a synthetic world with $\theta_{\text{true}}$, using a fixed value of $n$, here taken from the set $n \in \set{10, 25, 100, 1000}$.
+We then construct a confidence interval (either approximately or precisely) and a 95% credible interval; for each of the three interval estimates.
+We check whether the ground-truth $\theta_{\text{true}}$ is *not* included in any given interval estimate.
+We calculate the mean number of times such as non-inclusion (errors!) happen for each kind of interval estimate.
 The code below implements this and the figure below shows the results based on 10,000 samples of $\theta_{\text{true}}$.
+
+[^relation-bayes-frequentism-2]: This is already not innocuous.
+    We are fixing, as it were, an assumption about how likely ground-truths should actually occur in the real world.
 
 ```{r}
 # how many "true" thetas to sample
@@ -250,51 +228,76 @@ However, we must take into account that the simulation assumes that the Bayesian
 We have actually sampled the latent parameter $\theta$ from a uniform distribution; and we have used a flat prior for the Bayesian calculations.
 Obviously, the more the prior divergences from the true distribution, and the fewer data observations we have, the more errors will the Bayesian approach make.
 
-
-
-<div class = "exercises">
-**Exercise 9.5** 
+::: {.exercises}
+**Exercise 9.5**
 
 Pick the correct answer:
 
 The most frequently used point-estimate of Bayesian parameter estimation looks at...
 
-a. ...the median of the posterior distribution.
+a.  ...the median of the posterior distribution.
 
-b. ...the maximum likelihood estimate.
+b.  ...the maximum likelihood estimate.
 
-c. ...the mean of the posterior distribution.
+c.  ...the mean of the posterior distribution.
 
-d. ...the normalizing constant in Bayes rule.
+d.  ...the normalizing constant in Bayes rule.
 
-<div class="collapsibleSolution">
-<button class="trigger">Solution</button>
-<div class="content">
+::: {.collapsibleSolution}
+<button class="trigger">
 
-Statement c. is correct.
+Solution
 
-</div>
-</div>
+</button>
+
+::: {.content}
+Statement c.
+is correct.
+:::
+:::
 
 The most frequently used interval-based estimate in frequentist approaches is...
 
-a. ...the support of the likelihood distribution.
+a.  ...the support of the likelihood distribution.
 
-b. ...the confidence interval.
+b.  ...the confidence interval.
 
-c. ...the hypothesis interval.
+c.  ...the hypothesis interval.
 
-d. ...the 95% highest-density interval of the maximum likelihood estimate.
+d.  ...the 95% highest-density interval of the maximum likelihood estimate.
 
-<div class="collapsibleSolution">
-<button class="trigger">Solution</button>
-<div class="content">
+::: {.collapsibleSolution}
+<button class="trigger">
 
-Statement b. is correct.
+Solution
 
-</div>
-</div>
-</div>
+</button>
 
+::: {.content}
+Statement b.
+is correct.
+:::
+:::
+:::
 
+## Beliefs, decisions and long-term error
+
+Bayesianism is about beliefs, frequentism is about action choices (at least in the post-Fisherian, Neyman-Pearson and modern NHST variant).
+Bayesians can layer a decision procedure on top of the inferred probabilities, but they do not have to.
+
+The Neyman-Pearson variant of frequentism, on the other hand, is inseparably tied to a choice criterion, thereby aiming to provide the long-term error control that motivates this approach.
+If Bayesian approaches adopt a fixed decision routine, like Kruschke's ternary decision rules outlined in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes), they can be subjected to considerations of long-term error control.
+It can then even make sense to perform power calculations similar to those in the frequentist approach (usually: simulation based).
+
+## Evidence for the null
+
+Frequentist analyses in the style of Neyman-Pearson do allow for a categorical decision to "accept the null-hypothesis.
+This requires specification of a (point-valued) alternative hypothesis and it requires sufficient statistical power (see Section \@ref(ch-03-04-hypothesis-significance-errors)).
+Nonetheless, this approach still relies on using a $p$-value derived from the assumption that the null-hypothesis is true.
+This is still a measure of testing whether the null-model is a plausible model of the data. 
+The frequentst approach does not offer a direct and intuitively interpretable measure of evidence for the null-hypothesis.
+
+Arguably, the most straightforward measure of evidence in favor of the null-hypothesis involves assigning some relative probability to it.
+This can only be achieved under a Bayesian approach.
+For example, using model comparison, a Bayesian approach to testing a null-hypothesis is able to conclude that there is evidence in favor of the null-hypothesis (when compared against some alternative) without this necessarily being tight to (i) a point-valued alternative hypothesis or (ii) a binary decision in favor of the null-hypothesis.
 
