@@ -397,5 +397,69 @@ For example, using model comparison, a Bayesian approach to testing a null-hypot
 
 ## Explicit beliefs vs. impplicit intentions
 
-## Chapter summary: three pillars of data analysis
+## Chapter summary: three pillars of data analysis {#Chap-05-02-models-three-pillars}
+
+There are three main uses for models in statistical data analysis:
+
+1. **Parameter estimation**: Based on model $M$ and data $D$, we try to infer which value of the parameter vector $\theta$ we should believe in or work with (e.g., base our decision on). Parameter estimation can also serve knowledge gain, especially if (some component of) $\theta$ is theoretically interesting.
+2. **Model comparison**: If we formulate at least two alternative models, we can ask which model better explains or better predicts some data. In some of its guises, model comparison helps with the question of whether a given data set provides evidence in favor of one model and against another other, and if so, how much.
+3. **Prediction**: Models can also be used to make predictions about future or hypothetical data observations. 
+
+The frequentist and the Bayesian approach each have their specific methods and techniques to do estimation, comparison, and prediction. Even within each approach (frequentist or Bayesian) and a particular goal (estimation, comparison, or prediction) there is not necessarily unanimity about the best method or technique. 
+
+Table \@ref(tab:ch-03-03-pillars-of-DA) lists the most common/salient methods used for each goal in the frequentist and Bayesian approach. A large part of the remainder of this course will be dedicated to understanding the methods name-dropped in this table, and to compare them against each other and further, as of yet unmentioned alternatives. Chapter \@ref(Chap-03-06-model-comparison) deals with model comparison, Chapter \@ref(ch-03-04-parameter-estimation) with parameter estimation. The second main goal of this course is to understand the relation between model-based data analysis, as summarized in Table \@ref(tab:ch-03-03-pillars-of-DA), to test-based approaches as described in Chapter \@ref(ch-03-05-hypothesis-testing) and Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
+
+```{r ch-03-03-pillars-of-DA, echo = F}
+table_data <- tribble(
+  ~`inferential goal`, ~target, ~frequentist, ~Bayesian,
+  "estimation", "$\\theta$",  "MLE: $\\hat{\\theta} = \\arg \\max_{\\theta}\  P_M(D \\mid \\theta)$", "posterior: $P_M(\\theta \\mid D)$",
+  "comparison", "$M$", "AIC, LR-test", "Bayes factor",
+  "prediction", "$D$", "MLE-based: $P_M(D_{rep} \\mid \\hat{\\theta})$", "Posterior-based: $P_M(D_{rep} \\mid D)$"
+)
+knitr::kable(
+  table_data,
+  escape = F,
+  caption = "Most common/salient methods of frequentist and Bayesian approaches for the three major goals of model-based data analysis. The abbreviations used are: MLE for 'maximum likelihood estimate', AIC for 'Akaike information criterion', LR-test for 'likelihood-ratio test' and $D_{rep}$ for 'repeat data'.", 
+  booktabs = TRUE
+)
+```
+
+
+The three pillars of data analysis mentioned above are tightly related, of course. For one, model comparison is often parasitic on prediction: whereas prediction asks which data is to be expected, given the model, model comparison looks at how well a given data set is or would have been predicted by different models. For another, parameter estimation and data predictions are something like each other's reverse operations. Let's elaborate on the latter briefly.
+
+If we flip a coin once, the likelihood of each outcome $x \in X = \{0;1\}$ (representing heads or tails, encoded as 1 and 0, respectively) can be modeled with the **Bernoulli distribution** as follows, where $\theta \in [0;1]$ is the coin's bias towards landing heads:
+
+$$P_M( X = x \mid \theta)=\theta^{[x]}(1-\theta)^{(1-[x])}$$
+
+This likelihood function relates two variables of interest: the coin flip outcome (= data $D$) $x$ and the coin's bias (= model parameter $\theta$). Depending on what is given or assumed to be known, we can then use the same likelihood function, to either infer something about the unknown parameter $\theta$ or, when $\theta$ is given make predictions about the unknown outcome $x$. 
+
+To make this even clearer, we can temporarily use the following bracket notation: the bracket $[ \cdot ]$ indicates that the bracketed parameter is treated as known, given or assumed. The **predictive distribution** for unknown data $x$ is then:
+
+$$\text{Predictive Distribution: }\ \ \ \ F(\theta) = P_M(X=x \mid [\theta])=[\theta]^x(1-[\theta])^{(1-x)}$$
+
+
+
+But often the contrary is the case, that is one is interested in the value of $\theta$ by a given data set. Then $\theta$ is unknown and the data are observed. Treating $\theta$ as a parameter instead of $x$ leads to the *likelihood function* --- a mathematical formula that specifies the plausibility of the data as a function of $\theta$. It states the probability of any possible observation:
+$$\text{Likelihood Function: }\ \ \ \ F(x) =P_M( [X = x] \mid \theta)=\theta^{[x]}(1-\theta)^{(1-[x])}$$
+ Figure \@ref(fig:ch-03-03-likelihood-distribution) shows the likelihood function associated with the one-coin-flip model when the observed and known outcome is $x = 1$ (heads). Notice that the likelihood function is not a probability distribution and thus does not necessarily integrate or sum to 1, even though it does in the case at hand.
+
+```{r ch-03-03-likelihood-distribution, echo = FALSE, fig.cap= "Bernoulli likelihood for the one-coin-flip-model with observed outcome $x =1$ (heads)."}
+# x-axis
+stepsize <- 100
+theta = seq(from = 0, to = 1, by = 1/stepsize)
+
+# beroulli likelihood
+likelihood_bern <- tibble(
+  theta = theta,
+  n = 1,                                    # number of observations
+  k = 1,                                    # number of heads
+  likelihood = (theta^k)*(1-theta)^(n-k)     # bernoulli likelihood
+) %>%
+mutate(likelihood_norm = (likelihood / sum(likelihood)*stepsize)
+           )
+# plot likelihood
+ggplot(likelihood_bern, aes(x = theta, y = likelihood_norm)) +
+  geom_line(size = 2) +
+  labs(x = expression(theta), y = "Likelihood")
+```
 
