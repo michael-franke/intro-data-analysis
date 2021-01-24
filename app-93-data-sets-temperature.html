@@ -430,8 +430,10 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="17.5" data-path="ch-05-01-estimation-comparison.html"><a href="ch-05-01-estimation-comparison.html"><i class="fa fa-check"></i><b>17.5</b> Comparing Bayesian and frequentist estimates</a></li>
 <li class="chapter" data-level="17.6" data-path="beliefs-decisions-and-long-term-error.html"><a href="beliefs-decisions-and-long-term-error.html"><i class="fa fa-check"></i><b>17.6</b> Beliefs, decisions and long-term error</a></li>
 <li class="chapter" data-level="17.7" data-path="evidence-for-the-null.html"><a href="evidence-for-the-null.html"><i class="fa fa-check"></i><b>17.7</b> Evidence for the null</a></li>
-<li class="chapter" data-level="17.8" data-path="explicit-beliefs-vs-impplicit-intentions.html"><a href="explicit-beliefs-vs-impplicit-intentions.html"><i class="fa fa-check"></i><b>17.8</b> Explicit beliefs vs. impplicit intentions</a></li>
-<li class="chapter" data-level="17.9" data-path="Chap-05-02-models-three-pillars.html"><a href="Chap-05-02-models-three-pillars.html"><i class="fa fa-check"></i><b>17.9</b> Chapter summary: three pillars of data analysis</a></li>
+<li class="chapter" data-level="17.8" data-path="Chap-05-02-models-three-pillars.html"><a href="Chap-05-02-models-three-pillars.html"><i class="fa fa-check"></i><b>17.8</b> Three pillars of data analysis</a></li>
+<li class="chapter" data-level="17.9" data-path="testing-hypotheses-by-estimation-comparison-model-checking.html"><a href="testing-hypotheses-by-estimation-comparison-model-checking.html"><i class="fa fa-check"></i><b>17.9</b> Testing hypotheses by estimation, comparison &amp; model checking</a></li>
+<li class="chapter" data-level="17.10" data-path="jeffreys-lindley-paradox.html"><a href="jeffreys-lindley-paradox.html"><i class="fa fa-check"></i><b>17.10</b> Jeffreys-Lindley paradox</a></li>
+<li class="chapter" data-level="17.11" data-path="explicit-beliefs-vs-impplicit-intentions.html"><a href="explicit-beliefs-vs-impplicit-intentions.html"><i class="fa fa-check"></i><b>17.11</b> Explicit beliefs vs. impplicit intentions</a></li>
 </ul></li>
 <li class="appendix"><span><b>Appendix</b></span></li>
 <li class="chapter" data-level="A" data-path="app-90-further-material.html"><a href="app-90-further-material.html"><i class="fa fa-check"></i><b>A</b> Further useful material</a><ul>
@@ -563,7 +565,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <div style="float:right; width:10%;">
 <p><img src="visuals/badge-thermometer.png" alt="badge-thermometer"></p>
 </div>
-<p>This data set has been downloaded from <a href="http://berkeleyearth.org/">Berkeley Earth</a>.<a href="#fn95" class="footnote-ref" id="fnref95"><sup>95</sup></a> More information on the origin and composition of this data set can be found <a href="http://berkeleyearth.org/data-new/">here</a>. Specifically, what we will use here is the time series data for “land only” using the annual summary of monthly average temperature. We have added to the data set used here the absolute average temperature. (Berkeley Earth only lists the “annual anomaly”, i.e., the deviation from a grand mean.)</p>
+<p>This data set has been downloaded from <a href="http://berkeleyearth.org/">Berkeley Earth</a>.<a href="#fn96" class="footnote-ref" id="fnref96"><sup>96</sup></a> More information on the origin and composition of this data set can be found <a href="http://berkeleyearth.org/data-new/">here</a>. Specifically, what we will use here is the time series data for “land only” using the annual summary of monthly average temperature. We have added to the data set used here the absolute average temperature. (Berkeley Earth only lists the “annual anomaly”, i.e., the deviation from a grand mean.)</p>
 <p>Columns of interest are:</p>
 <ul>
 <li><code>year</code> - year of the observation (1750-2019)</li>
@@ -575,9 +577,9 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="loading-and-preprocessing-the-data-4" class="section level3">
 <h3><span class="header-section-number">D.7.2</span> Loading and preprocessing the data</h3>
 <p>We load the data into a variable named <code>data_temperature</code>:</p>
-<div class="sourceCode" id="cb749"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb749-1" data-line-number="1">data_temperature &lt;-<span class="st"> </span>aida<span class="op">::</span>data_WorldTemp</a></code></pre></div>
+<div class="sourceCode" id="cb754"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb754-1" data-line-number="1">data_temperature &lt;-<span class="st"> </span>aida<span class="op">::</span>data_WorldTemp</a></code></pre></div>
 <p>And inspect the first rows of data:</p>
-<div class="sourceCode" id="cb750"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb750-1" data-line-number="1"><span class="kw">head</span>(data_temperature)</a></code></pre></div>
+<div class="sourceCode" id="cb755"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb755-1" data-line-number="1"><span class="kw">head</span>(data_temperature)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 4
 ##    year anomaly uncertainty avg_temp
 ##   &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;    &lt;dbl&gt;
@@ -596,15 +598,15 @@ code span.wa { color: #bf0303; } /* Warning */
 <div id="plotting" class="section level3">
 <h3><span class="header-section-number">D.7.4</span> Plotting</h3>
 <p>Here is a scatterplot of annual average temperature <code>avg_temp</code> against <code>year</code>. The straight line is the best linear predictor.</p>
-<div class="sourceCode" id="cb752"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb752-1" data-line-number="1">data_temperature <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb752-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> avg_temp)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb752-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb752-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb752-5" data-line-number="5"><span class="st">  </span><span class="kw">labs</span>(</a>
-<a class="sourceLine" id="cb752-6" data-line-number="6">    <span class="dt">y =</span> <span class="st">&quot;temperature (degrees Celcius)&quot;</span>,</a>
-<a class="sourceLine" id="cb752-7" data-line-number="7">    <span class="dt">title =</span> <span class="st">&quot;Annual average surface land temperature&quot;</span></a>
-<a class="sourceLine" id="cb752-8" data-line-number="8">  )</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-530-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb757"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb757-1" data-line-number="1">data_temperature <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb757-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> year, <span class="dt">y =</span> avg_temp)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb757-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb757-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb757-5" data-line-number="5"><span class="st">  </span><span class="kw">labs</span>(</a>
+<a class="sourceLine" id="cb757-6" data-line-number="6">    <span class="dt">y =</span> <span class="st">&quot;temperature (degrees Celcius)&quot;</span>,</a>
+<a class="sourceLine" id="cb757-7" data-line-number="7">    <span class="dt">title =</span> <span class="st">&quot;Annual average surface land temperature&quot;</span></a>
+<a class="sourceLine" id="cb757-8" data-line-number="8">  )</a></code></pre></div>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-535-1.png" width="672" style="display: block; margin: auto;" /></p>
 <!-- ### Analysis -->
 <!-- **DISCLAIMER: This analysis is under heavy construction at the moment!** -->
 <!-- We run a simple linear regression model, for relationship `avg_temp ~ year`: -->
@@ -634,8 +636,8 @@ code span.wa { color: #bf0303; } /* Warning */
 </div>
 <div class="footnotes">
 <hr />
-<ol start="95">
-<li id="fn95"><p>Downloaded on October 6th, 2020.<a href="app-93-data-sets-temperature.html#fnref95" class="footnote-back">↩</a></p></li>
+<ol start="96">
+<li id="fn96"><p>Downloaded on October 6th, 2020.<a href="app-93-data-sets-temperature.html#fnref96" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
             </section>
