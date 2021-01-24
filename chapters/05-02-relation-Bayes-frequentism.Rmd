@@ -6,43 +6,45 @@ editor_options:
 
 # Comparing frequentist and Bayesian statistics {#ch-05-02-comparison-freq-Bayes}
 
-The most obvious difference between the frequentist and the Bayesian approach to data analysis is that the latter, but not the former allows for probability distributions over latent variables, like model parameters or models themselves.
-Conceptual considerations about what we may or should attach probabilities to aside, the most obvious consequence of this is that, usually, Bayesian approaches (i) are more complex to compute or analyze, and (ii) provide richer information.
-But there are more subtle differences, and so this chapter explores some of these in order to also contribute a better understanding of both approaches in isolation.
-
--   explicit beliefs vs. implicit intentions
+Bayesian methods allow for probability distributions over latent variables, like model parameters or models themselves.
+Frequentist methods do not.
+That is the most striking difference between these two approaches to data analysis.
+At the heart, this difference is one based on conceptual considerations about what we may or may not attach probabilities to.
+Still, conceptual questions aside, there are also further consequences of this difference.
+The most obvious is that, usually, Bayesian approaches are more complex to compute or analyze but provide richer information, such as a full distribution rather than just a point- and an interval-estimate.
+This chapter will explore some of the more or less obvious differences in order to also contribute a better understanding of both approaches in isolation.
 
 
 ## Frequentist and Bayesian statistical models
 
-Section \@ref(Chap-03-03-models-general) introduced the notion of a Bayesian statistical model as a pair of likelihood function
+Section \@ref(Chap-03-03-models-general) introduced the notion of a Bayesian statistical model as a pair consisting of a likelihood function
 
 $$ P_M(D_\text{DV} \mid D_\text{IV}, \theta) $$
 
-and a prior over model parameters:
+and a prior over model parameters
 
-$$ P_M(\theta) $$
+$$ P_M(\theta)\,.$$
 
-Normally, the frequentist approach is not model-centric, but focused on an arsenal of specific tests.
+Normally, the frequentist approach is not model-centric, but rather describes its methods as an arsenal of situation-specific tests.
 The explicit model-centric explanation of a selection of frequentist tests given in the previous chapter showed that the frequentist models that underly the computation of $p$-values eradicate all free model parameters by assigning them a single value in one of two ways:
 
-1.  fixing a parameter to the value dictated by the relevant null-hypothesis
-2.  estimating the value of a parameter directly from the data (e.g., the standard deviation in a $t$-test)
+1.  fixing a parameter to the value dictated by the relevant null-hypothesis; or
+2.  estimating the value of a parameter directly from the data (e.g., the standard deviation in a $t$-test).
 
-Beyond $p$-values and significance testing, we may say that a *frequentist model* consists only of a likelihood, assuming -at it were-, but never actually using a flat prior over any remaning free model parameters.
+Beyond $p$-values and significance testing, we may say that a *frequentist model* consists only of a likelihood, assuming -as it were-, but never actually using, a flat prior over any remaining free model parameters.
 
 The upshot of this is that, conceptual quibbles about the nature of probability notwithstanding, from a technical point of view frequentist models can be thought of as just special cases of Bayesian models (with parameters either fixed to a single value somehow, or assuming flat priors).
-Seeing this subsumption relation is insightful because it implies that a frequentist concepts like $p$-value, $\alpha$-error or power all directly import into the Bayesian domain (whether they are equally important and useful or not).
+Seeing this subsumption relation is insightful because it implies that frequentist concepts like $p$-value, $\alpha$-error or statistical power all directly import into the Bayesian domain (whether they are equally important and useful or not).
 We will see, for instance, the notion of a Bayesian $p$-value later in this chapter.
 
 ## Approximation: in the model or through the computation
 
-Standard frequentist methods often rely on assumptions, e.g., $\chi^2$-tests assume that, given enough data, it is safe to assume a normal distribution of data that is *de facto* not normally distributed.
+Standard frequentist methods often rely on assumptions, e.g., $\chi^2$-tests cash in the fact that, given enough data, it is safe to assume a normal distribution for data that is *de facto* not normally distributed.
 In this sense, frequentist statistics has approximation built into the models, but often uses clear-cut mathematical analysis to derive results based on these approximation assumptions.
 
-Bayesian models, on the other hand, tend not to make these approximations.
+Bayesian models, on the other hand, frequently do not to make these approximations in their models.
 But since the posterior inference is hard, if not impossible to solve analytically, the Bayesian approach relies on approximating the Bayesian inference, e.g., via sampling techniques.
-In this way, the Bayesian approach shifts the approximation into the computation, not the researcher's assumptions about the data-generating process.
+In this way, the Bayesian approach shifts the approximation into the computation, not the researcher's assumptions about the data-generating process as such.
 
 Notice, however, that Bayesian models can incorporate the same (kind of) approximations the frequentist approach often critically relies on.
 At the same time, the frequentist approach can rely similarly on numerical approximation of its key quantitative notions.
@@ -50,39 +52,131 @@ The next section shows an example of this, namely the approximate computation of
 
 ## MC-simulated $p$ values
 
-```{r}
-k_obs = 7
-n_obs = 24
-x_reps = 500000
+Let's reconsider the 24/7 data set, where we have $k=7$ observations of 'heads' in $N=24$ tosses of a coin.
 
-lhs = map_dbl(1:x_reps, function(i) {
-  k_hyp = rbinom(1, size = n_obs, prob = 0.5)
+```{r}
+# 24/7 data
+k_obs <- 7
+n_obs <- 24
+```
+
+The question of interest is whether the coin is fair, i.e., whether $\theta_c = 0.5$.
+R's built-in function `binom.test` calculates a binomial test and produces a $p$-value which is calculated precisely (since this is possible and cheap in this case).
+
+```{r}
+binom.test(7,24)
+```
+
+It is also possible to approximate a $p$-value by Monte Carlo simulation.
+Notice that the definition of a $p$-value repeated here from Section \@ref(ch-03-05-hypothesis-p-values) is just a statement about the probability that a random variable (from which we can take samples with MC simulation) delivers a value below a fixed threshold:
+
+$$
+p\left(D_{\text{obs}}\right) = P\left(T^{|H_0} \succeq^{H_{0,a}} t\left(D_{\text{obs}}\right)\right)  % = P(\mathcal{D}^{|H_0} \in \{D \mid t(D) \ge t(D_{\text{obs}})\}) 
+$$
+
+So here goes:
+
+```{r}
+# specify how many Monte Carlo samples to take
+x_reps <- 500000
+
+# built a vector of likelihoods (= the relevant test statistic)
+#   for hypothetical data observations, which are 
+#   sampled based on the assumption that H0 is true
+lhs <- map_dbl(1:x_reps, function(i) {
+  # hypothetical data assuming H0 is true
+  k_hyp <- rbinom(1, size = n_obs, prob = 0.5)
+  # likelihood of that hypothetical observation
   dbinom(k_hyp, size = n_obs, prob = 0.5)
 })
 
+# likelihood (= test statistic) of the observed data
 lh_obs = dbinom(k_obs, size = n_obs, prob = 0.5)
 
+# proportion of samples with a lower or equal likelihood than 
+#   the observed data 
 mean(lhs <= lh_obs) %>% show()
 ```
 
-```{r}
-tibble(iteration = 1:x_reps, 
-       p_value = cumsum(lhs <= lh_obs) / 1:x_reps) %>% 
-  ggplot(aes(x = iteration, y = p_value)) + geom_line()
-```
 
+Monte Carlo sampling for $p$-value approximation is always possible, even for cases where we cannot rely on known simplifying assumptions.
 
 ## Bayesian $p$-values & model checking
 
-- use MC-simulation
-- relevance for model checking 
+The previous section showed how to approximate a $p$-value with Monte Carlo sampling.
+Notice that nothing in sampling-based approache hinges on the model having no free parameters.
+Indeed we can similarly approximate so-called *Bayesian predictive $p$-values*.
+Bayesian predictive $p$-values have a good role to play in Bayesian data analysis: they are one possible tool for *model checking* a.k.a. *model criticism*.
 
+Suppose we have a Bayesian model for the binomial 24/7 data.
+The model consists of the usual likelihood function, but also has a prior (maybe from previous research, or maybe obtained from training the model on a training data set):
+
+$$
+\theta_c \sim \text{Beta}(11,2)
+$$
+
+Notice that this is a biased prior, placing more weight on the idea that the coin is biased towards heads.
+In model checking we ask whether the given model could be a plausible model for some data at hand.
+We are not comparing models, we just "check" or "test" (!) the model as such.
+Acing the test doesn't mean that there could not be much better models.
+Failing the test doesn't mean that we know of a better model (we may just have to do more thinking).
+
+Let's approximate a Bayesian predictive $p$-value for this Bayesian model and the 24/7 data.
+The calculations are analogous to those in the previous section.
+
+```{r}
+# 24/7 data
+k_obs <- 7
+n_obs <- 24
+
+# specify how many Monte Carlo samples to take
+x_reps <- 500000
+
+# built a vector of likelihoods (= the relevant test statistic)
+#   for hypothetical data observations, which are 
+#   sampled based on the assumption that the
+#   Bayesian model to be tested is true
+lhs <- map_dbl(1:x_reps, function(i) {
+  # hypothetical data assuming the model is true
+  #   first sample from the prior
+  #   then sample from the likelihood
+  theta_hyp <- rbeta(1, 11,2)
+  k_hyp <- rbinom(1, size = n_obs, prob = theta_hyp)
+  # likelihood of that hypothetical observation
+  dbinom(k_hyp, size = n_obs, prob = theta_hyp)
+})
+
+# likelihood (= test statistic) of the observed data
+#   determined using MC sampling
+lh_obs = map_dbl(1:x_reps, function(i){
+  theta_hyp <- rbeta(1, 11,2)
+  dbinom(k_obs, size = n_obs, prob = theta_hyp)
+}) %>% mean()
+  
+
+# proportion of samples with a lower or equal likelihood than 
+#   the observed data 
+mean(lhs <= lh_obs) %>% show()
+```
+
+This Bayesian predictive $p$-value is rather low, suggesting that this model (prior & likelihood) is **not** a good model for the 24/7 data set.
+
+We can use Bayesian $p$-values for any Bayesian model, whether built on a prior or posterior distribution.
+A common application of Bayesian $p$-values in model checking are so-called **posterior predictive checks**.
+We compute a Bayesian posterior for observed data $D_\text{obs}$ and then test, via a Bayesian posterior predictive $p$-value, whether the trained model is actually a good model for $D_\text{obs}$ itself.
+If the $p$-value is high, that's no cause for hysterical glee.
+It just means that there is cause for alarm.
+If Bayesian posterior predictive $p$-value is very low, the posterior predictive test has failed, and that means that the model, even when trained on the data $D_\text{obs}$, is *NOT* a good model of that very data.
+The model must miss something crucial about the data $D_\text{obs}$.
+Better start researching what that is and built a better model if possible.
+
+Most importantly, these considerations of Bayesian $p$-values show that frequentist testing has a clear analog in the Bayesian realm, namely as model checking.
 
 ## Comparing Bayesian and frequentist estimates {#ch-05-01-estimation-comparison}
 
 As discussed in Chapter \@ref(ch-03-04-parameter-estimation), parameter estimation is traditionally governed by two measures: (i) a point-estimate for the best parameter value, and (ii) an interval-estimate for a range of values that are considered "good enough" Table \@ref(tab:ch-05-01-estimation-overview) gives the most salient answers that each approach gives.
 
-```{r}
+```{r ch-05-01-estimation-overview, echo = F}
 table_data <- tribble(
   ~estimate, ~Bayesian, ~frequentist,
   "best value", "mean of posterior", "maximum likelihood estimate",
@@ -300,4 +394,8 @@ The frequentst approach does not offer a direct and intuitively interpretable me
 Arguably, the most straightforward measure of evidence in favor of the null-hypothesis involves assigning some relative probability to it.
 This can only be achieved under a Bayesian approach.
 For example, using model comparison, a Bayesian approach to testing a null-hypothesis is able to conclude that there is evidence in favor of the null-hypothesis (when compared against some alternative) without this necessarily being tight to (i) a point-valued alternative hypothesis or (ii) a binary decision in favor of the null-hypothesis.
+
+## Explicit beliefs vs. impplicit intentions
+
+## Chapter summary: three pillars of data analysis
 
