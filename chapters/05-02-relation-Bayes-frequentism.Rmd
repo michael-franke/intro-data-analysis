@@ -395,9 +395,7 @@ Arguably, the most straightforward measure of evidence in favor of the null-hypo
 This can only be achieved under a Bayesian approach.
 For example, using model comparison, a Bayesian approach to testing a null-hypothesis is able to conclude that there is evidence in favor of the null-hypothesis (when compared against some alternative) without this necessarily being tight to (i) a point-valued alternative hypothesis or (ii) a binary decision in favor of the null-hypothesis.
 
-## Explicit beliefs vs. impplicit intentions
-
-## Chapter summary: three pillars of data analysis {#Chap-05-02-models-three-pillars}
+## Three pillars of data analysis {#Chap-05-02-models-three-pillars}
 
 There are three main uses for models in statistical data analysis:
 
@@ -407,7 +405,7 @@ There are three main uses for models in statistical data analysis:
 
 The frequentist and the Bayesian approach each have their specific methods and techniques to do estimation, comparison, and prediction. Even within each approach (frequentist or Bayesian) and a particular goal (estimation, comparison, or prediction) there is not necessarily unanimity about the best method or technique. 
 
-Table \@ref(tab:ch-03-03-pillars-of-DA) lists the most common/salient methods used for each goal in the frequentist and Bayesian approach. A large part of the remainder of this course will be dedicated to understanding the methods name-dropped in this table, and to compare them against each other and further, as of yet unmentioned alternatives. Chapter \@ref(Chap-03-06-model-comparison) deals with model comparison, Chapter \@ref(ch-03-04-parameter-estimation) with parameter estimation. The second main goal of this course is to understand the relation between model-based data analysis, as summarized in Table \@ref(tab:ch-03-03-pillars-of-DA), to test-based approaches as described in Chapter \@ref(ch-03-05-hypothesis-testing) and Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
+Table \@ref(tab:ch-03-03-pillars-of-DA) lists the most common/salient methods used for each goal in the frequentist and Bayesian approach, as discussed in the previous chapters.
 
 ```{r ch-03-03-pillars-of-DA, echo = F}
 table_data <- tribble(
@@ -424,42 +422,162 @@ knitr::kable(
 )
 ```
 
+The three pillars of data analysis mentioned above are tightly related, of course. 
+For one, model comparison is often parasitic on prediction: whereas prediction asks which data is to be expected, given the model, model comparison looks at how well a given data set is or would have been predicted by different models. 
+For another, parameter estimation and data predictions are something like each others' reverse operations. 
 
-The three pillars of data analysis mentioned above are tightly related, of course. For one, model comparison is often parasitic on prediction: whereas prediction asks which data is to be expected, given the model, model comparison looks at how well a given data set is or would have been predicted by different models. For another, parameter estimation and data predictions are something like each other's reverse operations. Let's elaborate on the latter briefly.
+## Testing hypotheses by estimation, comparison & model checking
 
-If we flip a coin once, the likelihood of each outcome $x \in X = \{0;1\}$ (representing heads or tails, encoded as 1 and 0, respectively) can be modeled with the **Bernoulli distribution** as follows, where $\theta \in [0;1]$ is the coin's bias towards landing heads:
+Each of the "three pillars of data analysis" discussed in the previous section can be used to test a statistical hypothesis.
+This is where we see a further difference between Bayesian and frequentist approaches.
 
-$$P_M( X = x \mid \theta)=\theta^{[x]}(1-\theta)^{(1-[x])}$$
+Bayesian hypothesis testing uses either parameter estimation or model comparison (e.g., Bayes factors), as discussed extensively in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
 
-This likelihood function relates two variables of interest: the coin flip outcome (= data $D$) $x$ and the coin's bias (= model parameter $\theta$). Depending on what is given or assumed to be known, we can then use the same likelihood function, to either infer something about the unknown parameter $\theta$ or, when $\theta$ is given make predictions about the unknown outcome $x$. 
+Frequentist hypothesis testing in terms of $p$-values is based on the third pillar "prediction".
+To see this, recall that $p$-values are derived from the assumption that the point-valued null hypothesis is true.
+We then ask: based on a model which assumes that the null-hypothesis is true, would we be surprised by the data we observed?; which is the same as asking: would we have *predicted* the data we actually saw?
 
-To make this even clearer, we can temporarily use the following bracket notation: the bracket $[ \cdot ]$ indicates that the bracketed parameter is treated as known, given or assumed. The **predictive distribution** for unknown data $x$ is then:
+Seeing this difference also explains why sometimes frequentist and Bayesian approaches given different results when testing the same null-hypothesis based on the same observed data.
+The next section discusses such a case.
 
-$$\text{Predictive Distribution: }\ \ \ \ F(\theta) = P_M(X=x \mid [\theta])=[\theta]^x(1-[\theta])^{(1-x)}$$
+## Jeffreys-Lindley paradox
 
+Often, Bayesian and frequentist methods yield qualitatively similar results.
+But sometimes results diverge.
+A prominent case of divergence is known as the Savage-Lindley paradox.
+The case is not really a "paradox" in a strict sense. 
+It's a case where predictions are clearly divergent, and it raises attention for the differences between frequentist and Bayesian testing of point-valued null hypotheses.
 
+Let's take the following data.
 
-But often the contrary is the case, that is one is interested in the value of $\theta$ by a given data set. Then $\theta$ is unknown and the data are observed. Treating $\theta$ as a parameter instead of $x$ leads to the *likelihood function* --- a mathematical formula that specifies the plausibility of the data as a function of $\theta$. It states the probability of any possible observation:
-$$\text{Likelihood Function: }\ \ \ \ F(x) =P_M( [X = x] \mid \theta)=\theta^{[x]}(1-\theta)^{(1-[x])}$$
- Figure \@ref(fig:ch-03-03-likelihood-distribution) shows the likelihood function associated with the one-coin-flip model when the observed and known outcome is $x = 1$ (heads). Notice that the likelihood function is not a probability distribution and thus does not necessarily integrate or sum to 1, even though it does in the case at hand.
-
-```{r ch-03-03-likelihood-distribution, echo = FALSE, fig.cap= "Bernoulli likelihood for the one-coin-flip-model with observed outcome $x =1$ (heads)."}
-# x-axis
-stepsize <- 100
-theta = seq(from = 0, to = 1, by = 1/stepsize)
-
-# beroulli likelihood
-likelihood_bern <- tibble(
-  theta = theta,
-  n = 1,                                    # number of observations
-  k = 1,                                    # number of heads
-  likelihood = (theta^k)*(1-theta)^(n-k)     # bernoulli likelihood
-) %>%
-mutate(likelihood_norm = (likelihood / sum(likelihood)*stepsize)
-           )
-# plot likelihood
-ggplot(likelihood_bern, aes(x = theta, y = likelihood_norm)) +
-  geom_line(size = 2) +
-  labs(x = expression(theta), y = "Likelihood")
+```{r}
+k = 49581
+N = 98451
 ```
+
+The point-valued null hypothesis is whether the binomial rate is unbiased, so $\theta_c = 0.5$.
+
+```{r}
+binom.test(k, N)$p.value
+```
+
+Based on the standard $\alpha$-level of $0.05$, frequentism thus prescribes to reject $H_0$.
+
+In contrast, using the Savage-Dickey method to compute the Bayes factor, we find strong supprt *in favor of* $H_0$.
+
+```{r}
+dbeta(0.5, k+1, N - k + 1)
+```  
+
+The reason why these methods give to different results is because they *are* conceptually completely different things. There is no genuine paradox.
+
+Frequentist testing is a form of model checking. 
+The question addressed by the frequentist hypothesis test is whether a model that assumes that $\theta_c = 0.5$ is such that, if we assume that this model is true, the data above appears surprising.
+
+The Bayesian method used above hinges on the comparison of two models.
+The question addressed by the Bayesian comparison-based hypothesis test is which of two models better predicts the observed data from an *ex ante* point of view (i.e., before having seen the data): the first model assumes that $\theta_c = 0.5$ and the second model assumes that $\theta_c \sim \text{Beta}(1,1)$.
+
+For a large $N$, like in the example at hand, it can be the case that $\theta_c = 0.5$ is a bad explanation for the data, so that a model-checking test rejects this null hypothesis.
+At the same time, the alternative model with $\theta_c \sim \text{Beta}(1,1)$ is *even worse* than the model $\theta_c = 0.5$, because it puts credence on many values for $\theta_c$ that are very, very bad predictors of the data.
+
+None of these considerations lend themselves to a principled argument for or against frequentism or Bayesianism.
+The lesson to be learned is that these different approaches ask different questions (about models and data).
+The agile data analyst will diligently check each concrete research context for which method is most conducive of gaining the insights relevant for the given purpose.
+
+The next section also summarizes these different approaches to hypothesis testing.
+
+## Explicit beliefs vs. impplicit intentions
+
+The main objective against Bayesianism which motivated and still drives the frequentist program is that Bayesian priors over parameters and models are *subjective*, and therefore to be regarded less unscientific than hard *objectively justifiable* ingredients.
+A modern Bayesian riposte bites the bullet, chews it well, and spits it back.
+While priors are subjective, they are at least explicit.
+They are completely out in the open and, if the data is available, predictions for any other set of prior assumptions can simply be tested.
+A debate about which "subjective priors" to choose is "objectively" possible.
+In contrast, the frequentist notion of a $p$-values (and with it the confidence interval) relies on something *even more* mystic, namely the researcher's intentions during the data collection, something that is no even in principle openly scrutinizable after the fact. 
+To see how central frequentist notions rely on implicit intentions and counterfactual assumptions about data we could have seen but didn't, let's consider an example (see also [@Wagenmakers2007:A-practical-sol,@kruschke2015] for discussion).
+
+The example is based on the 24/7 data again.
+This time, we are going to look at two cases.
+
+1. **Stop at $N=24$**: The researchers decided in advance to collect $N=24$ data points. They found $k=7$ heads in this experiment.
+2. **Stop at $k=7$**: The researchers decided to flip their coin until they observed $k=7$ heads. It took them $N=24$ tosses in their experiment.
+
+The research question is, as usual, whether $\theta_c = 0.5$.
+
+A common intuition is to say: why would the manner of data collection matter?
+Data is data.
+We base our inference on data.
+We don't base our inference on how the data was obtained.
+Right? -
+Wrong if you are a frequentist.
+
+The manner of data collection dictates what other possible obervations of the experiment are.
+These in turn matter for computing $p$-values.
+For the "Stop at $N=24$" case, the likelihood function is what we used before, the Binomial distribution:
+
+$$ 
+\text{Binomial}(k ; n = 24, \theta = 0.5) = \choose{n}{k} \theta^{k} \, (1-\theta)^{n-k} 
+$$
+
+We therefore obtain the $p$-value-based result that the null hypothesis cannot be rejected (at $\alpha = 0.05$).
+
+```{r, echo = FALSE, fig.align='center', fig.width=5, fig.height=3}
+  
+plotData = data.frame(x = 0:24, y = dbinom(0:24, 24, 0.5))
+plotData2 = data.frame(x = c(0:7, 17:24), y = dbinom(c(0:7, 17:24), 24, 0.5))
+sig.plot = ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "skyblue", width = 0.35) +
+  geom_bar(data = plotData2, aes(x = x, y = y), stat = "identity", fill = "darkblue", width = 0.35) +
+  geom_hline(yintercept=dbinom(7,24,0.5)) + xlab("k") + ylab("B(k | n = 24, theta = 0.5)") +
+  # geom_text(data.frame(x = 3, y = 0.05, label = paste0("p = " , round(1-sum(dbinom(8:16, 24, 0.5)),3), collapse = "")), aes(x = x, y = y, label = label)) 
+  geom_text(x = 3, y = 0.03, label = paste0("p = " , round(1-sum(dbinom(8:16, 24, 0.5)),3), collapse = ""))
+sig.plot
+```
+
+But we we look at the "Stop at $k=7$" case, we need a different likelihood function.
+In principle, we might have had to flip the coin for more than $N=24$ times until receiving $k=7$ heads.
+The likelihood function needed for this case is the *negative Binomial distribution*:
+
+$$ \text{neg-Binomial}(n ; k = 7, \theta = 0.5) = \frac{k}{n} \choose{n}{k} \theta^{k} \, (1-\theta)^{n - k}$$
+
+The resulting sampling distribution and the $p$-value we obtain for it are shown in the plot below.
+
+```{r, echo = FALSE, fig.align='center', fig.width=4, fig.height=3}
+
+negBinom <- function(k, N, theta) {
+  sapply(1:length(k), function(x) k[x]/N * dbinom(k[x], N, theta))
+}
+  
+plotData = data.frame(x = 7:35, 
+                      y = negBinom(7, 7:35, 0.5))
+plotData2 = data.frame(x = 24:35,
+                       y = negBinom(7, 24:35, 0.5))
+myplot = ggplot(plotData, aes(x = x , y = y )) + geom_bar(stat = "identity", fill = "skyblue", width = 0.35) +
+  geom_bar(data = plotData2, aes(x = x, y = y), stat = "identity", fill = "darkblue", width = 0.35) +
+  geom_hline(yintercept=7/24*dbinom(7,24,0.5)) + xlab("n") + ylab("NB(n | k = 7, theta = 0.5)") +
+  # geom_text(data.frame(x = 3, y = 0.05, label = paste0("p = " , round(1-sum(dbinom(8:16, 24, 0.5)),3), collapse = "")), aes(x = x, y = y, label = label)) 
+  geom_text(x = 30, y = 0.015, label = paste0("p = " , round(1-sum(negBinom(7, 7:23, 0.5)),3), collapse = ""))
+myplot
+
+```
+
+So, with the exact same data but different assumptions about how this data was generated, we get a different $p$-value; indeed, a difference that spans the significance boundary of $\alpha = 0.05$.
+The researchers intentions about how to collect data influence the statistical analysis.
+Dependence on researcher intentions is worse than dependence on subjective priors, because it is impossible to verify *ex post* what the precise data-generating protocol was.
+
+Wait!
+Doesn't Bayesian inference have this problem?
+No, it doesn't.
+The difference in likelihood functions used above is a different normalizing constant.
+The normalizing constant cancels out in parameter estimation, and also in model-comparison (if we assume that both models compared use the same likelihood function).^[If we want to ask: "Which likelihood function better explains the data: Binomial or negative Binomial?", we can, of course, compare the appropriate models, so that the non-cancellation of the normalizing constants is exactly what we want.]
+The case of model comparison is obvious.
+To see that normalizing constants cancel out for parameter estimation, see:
+
+$$
+\begin{align*}
+P(\theta \mid D) & = \frac{P(\theta) \ P(D \mid \theta)}{\int_{\theta'} P(\theta') \ P(D \mid \theta')} \\
+& = \frac{ \frac{1}{X} \ P(\theta) \ P(D \mid \theta)}{ \ \frac{1}{X}\ \int_{\theta'} P(\theta') \ P(D \mid \theta')} \\
+& = \frac{P(\theta) \ \frac{1}{X}\ P(D \mid \theta)}{  \int_{\theta'} P(\theta') \ \frac{1}{X}\ P(D \mid \theta')}
+\end{align*}
+$$
+
 
