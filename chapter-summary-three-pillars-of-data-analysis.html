@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>10.3 Bayes factors | Introduction to Data Analysis</title>
+  <title>17.9 Chapter summary: three pillars of data analysis | Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
   <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="10.3 Bayes factors | Introduction to Data Analysis" />
+  <meta property="og:title" content="17.9 Chapter summary: three pillars of data analysis | Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="10.3 Bayes factors | Introduction to Data Analysis" />
+  <meta name="twitter:title" content="17.9 Chapter summary: three pillars of data analysis | Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Introductory text for statistics and data analysis (using R)" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Chap-03-06-model-comparison-AIC.html"/>
-<link rel="next" href="ch-03-07-hypothesis-testing-Bayes.html"/>
+<link rel="prev" href="explicit-beliefs-vs-impplicit-intentions.html"/>
+<link rel="next" href="app-90-further-material.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -556,280 +556,21 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="Chap-03-06-model-comparison-BF" class="section level2">
-<h2><span class="header-section-number">10.3</span> Bayes factors</h2>
-<p>At the end of the previous section, we saw that we can use the AIC-approach to calculate an approximate value of the posterior probability <span class="math inline">\(P(M_{i} \mid D)\)</span> for model <span class="math inline">\(M_{i}\)</span> is given data <span class="math inline">\(D\)</span>. The Bayes factor approach is similar to this, but avoids taking priors over models into the equation by focusing on <em>the extent to which data <span class="math inline">\(D\)</span> changes our beliefs about the which model is more likely</em>.</p>
-<p>Take two Bayesian models:</p>
-<ul>
-<li><span class="math inline">\(M_1\)</span> has prior <span class="math inline">\(P(\theta_1 \mid M_1)\)</span> and likelihood <span class="math inline">\(P(D \mid \theta_1, M_1)\)</span></li>
-<li><span class="math inline">\(M_2\)</span> has prior <span class="math inline">\(P(\theta_2 \mid M_2)\)</span> and likelihood <span class="math inline">\(P(D \mid \theta_2, M_2)\)</span></li>
-</ul>
-<p>Using Bayes rule, we compute the posterior odds of models (given the data) as the product of the likelihood ratio and the prior odds.</p>
-<p><span class="math display">\[\underbrace{\frac{P(M_1 \mid D)}{P(M_2 \mid D)}}_{\text{posterior odds}} = \underbrace{\frac{P(D \mid M_1)}{P(D \mid M_2)}}_{\text{Bayes factor}} \ \underbrace{\frac{P(M_1)}{P(M_2)}}_{\text{prior odds}}\]</span></p>
-<p>The likelihood ratio is also called the <strong>Bayes factor</strong>. Formally, the Bayes factor is the factor by which a rational agent changes her prior odds in the light of observed data to arrive at the posterior odds. More intuitively, the Bayes factor quantifies the strength of evidence given by the data about the models of interest. It expresses this evidence in terms of the models’ relative prior predictive accuracy. To see the latter, let’s expand the Bayes factor as what it actually is: the ratio of marginal likelihoods.</p>
-<p><span class="math display">\[
-\frac{P(D \mid M_1)}{P(D \mid M_2)} = \frac{\int P(\theta_1 \mid M_1) \ P(D \mid \theta_1, M_1) \text{ d}\theta_1}{\int P(\theta_2 \mid M_2) \ P(D \mid \theta_2, M_2) \text{ d}\theta_2}
-\]</span></p>
-<p>Three insights are to be gained from this expansion. Firstly, the Bayes factor is a measure of how well each model would have predicted the data <em>ex ante</em>, i.e., before having seen any data. In this way, it is diametrically opposed to a concept like AIC, which relies on models’ maximum likelihood fits (therefore <em>using the data</em>, so being <em>ex post</em>).</p>
-<p>Secondly, the marginal likelihood of a model is exactly the quantity that we identified (in the context of parameter estimation) as being very hard to compute, especially for complex models. The fact that marginal likelihoods are hard to compute was the reason that we methods like MCMC sampling are useful, since they give posterior samples <em>without</em> requiring the calculation of marginal likelihoods.
-It follows that Bayes factors can be very difficult to compute in general.
-However, for many prominent models, it is possible to calculate Bayes factors analytically if the right kinds of priors are specified <span class="citation">(Rouder et al. <a href="#ref-RouderSpeckman2009:Bayesian-t-test">2009</a>; Rouder and Morey <a href="#ref-RouderMorey2012:Default-Bayes-F">2012</a>; Gronau, Ly, and Wagenmakers <a href="#ref-GronauLy2019:Informed-Bayesi">2019</a>)</span>.
-We will see an example of this in Chapter <a href="ch-03-07-hypothesis-testing-Bayes.html#ch-03-07-hypothesis-testing-Bayes">11</a>.
-Also, as we will see in the following there are very clever approaches to computing Bayes factors in special cases and good algorithms for approximating marginal likelihoods also for complex models.</p>
-<p>Thirdly, Bayes factor model comparison implicitly (and quite vigorously) punishes model complexity, but in a more sophisticated manner than just counting free parameters. To appreciate this intuitively, imagine a model with a large parameter set and a very diffuse, uninformative prior that spreads its probability over a wide range of parameter values. Since Bayes factors are computed based on <em>ex ante</em> predictions, a diffuse model is punished for its imprecision of prior predictions because we integrate over all parameters (weighted by priors) and their associated likelihood.</p>
-<p>As for notation, we write:</p>
-<p><span class="math display">\[\text{BF}_{12} = \frac{P(D \mid M_1)}{P(D \mid M_2)}\]</span>
-for the Bayes factor in favor of model <span class="math inline">\(M_1\)</span> over model <span class="math inline">\(M_2\)</span>. This quantity can take on positive values, which are often translated into natural language as follows:</p>
-<table>
-<thead>
-<tr class="header">
-<th align="center"><span class="math inline">\(BF_{12}\)</span></th>
-<th align="center">interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">irrelevant data</td>
-</tr>
-<tr class="even">
-<td align="center">1 - 3</td>
-<td align="center">hardly worth ink or breath</td>
-</tr>
-<tr class="odd">
-<td align="center">3 - 6</td>
-<td align="center">anecdotal</td>
-</tr>
-<tr class="even">
-<td align="center">6 - 10</td>
-<td align="center">now we’re talking: substantial</td>
-</tr>
-<tr class="odd">
-<td align="center">10 - 30</td>
-<td align="center">strong</td>
-</tr>
-<tr class="even">
-<td align="center">30 - 100</td>
-<td align="center">very strong</td>
-</tr>
-<tr class="odd">
-<td align="center">100 +</td>
-<td align="center">decisive (bye, bye <span class="math inline">\(M_2\)</span>!)</td>
-</tr>
-</tbody>
-</table>
-<p>As <span class="math inline">\(\text{BF}_{12} = \text{BF}_{21}^{-1}\)</span> it suffices to give this translation into natural language only for values <span class="math inline">\(\ge 1\)</span>.</p>
-<p>There are at least two general approaches to calculating or approximating Bayes factors, paired here with a (non-exhaustive) list of example methods:</p>
-<ol style="list-style-type: decimal">
-<li>get each model’s marginal likelihood
-<ul>
-<li>grid approximation (see Section <a href="Chap-03-06-model-comparison-BF.html#Chap-03-06-model-comparison-BF-grid">10.3.1</a>)</li>
-<li>by Monte Carlo sampling (see Section <a href="Chap-03-06-model-comparison-BF.html#Chap-03-06-model-comparison-BF-naiveMC">10.3.2</a>)</li>
-<li>bridge sampling (see Section <a href="Chap-03-06-model-comparison-BF.html#Chap-03-06-model-comparison-BF-bridge">10.3.3</a>)</li>
-</ul></li>
-<li>get Bayes factor directly
-<ul>
-<li>Savage-Dickey method (see Section <a href="ch-03-05-Bayesian-testing-comparison.html#ch-03-07-hypothesis-testing-Bayes-Savage-Dickey">11.4.1</a>)</li>
-<li>using encompassing models (see Section <a href="ch-03-05-Bayesian-testing-comparison.html#ch-03-07-hypothesis-testing-Bayes-encompassing-models">11.4.2</a>)</li>
-</ul></li>
-</ol>
-<div id="Chap-03-06-model-comparison-BF-grid" class="section level3">
-<h3><span class="header-section-number">10.3.1</span> Grid approximation</h3>
-<p>We can use <em>grid approximation</em> to approximate a model’s marginal likelihood if the model are small enough, say, no more than 4-5 free parameters.
-Grid approximation considers discrete values for each parameter evenly spaced over the whole range of plausible parameter values, thereby approximating the integral in the definition of marginal likelihoods.</p>
-<p>Let’s calculate an example for the comparison of the exponential and the power model of forgetting.
-To begin with, we need to define a prior over parameters to obtain Bayesian versions of the exponential and power model.
-Here, we assume flat priors over a reasonable range of parameter values for simplicity. For the exponential model, we choose:</p>
-<p><span class="math display">\[
-\begin{aligned}
-P(k \mid a, b, N, M_{\text{exp}}) &amp; = \text{Binom}(k,N, a \exp (-bt_i)) \\
-P(a \mid M_{\text{exp}}) &amp; = \text{Uniform}(a, 0, 1.5) \\
-P(b \mid M_{\text{exp}}) &amp; = \text{Uniform}(b, 0, 1.5) 
-\end{aligned}
-\]</span></p>
-<p>The (Bayesian) power model is given by:</p>
-<p><span class="math display">\[
-\begin{aligned}
-P(k \mid a, b, N, M_{\text{pow}}) &amp; = \text{Binom}(k,N, c\ t_i^{-d}) \\
-P(c \mid M_{\text{pow}}) &amp; = \text{Uniform}(c, 0, 1.5) \\
-P(d \mid M_{\text{pow}}) &amp; = \text{Uniform}(d, 0, 1.5) 
-\end{aligned}
-\]</span></p>
-<p>We can also express these models in code, like so:</p>
-<div class="sourceCode" id="cb475"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb475-1" data-line-number="1"><span class="co"># prior exponential model</span></a>
-<a class="sourceLine" id="cb475-2" data-line-number="2">priorExp &lt;-<span class="st"> </span><span class="cf">function</span>(a, b){</a>
-<a class="sourceLine" id="cb475-3" data-line-number="3">  <span class="kw">dunif</span>(a, <span class="dv">0</span>, <span class="fl">1.5</span>) <span class="op">*</span><span class="st"> </span><span class="kw">dunif</span>(b, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb475-4" data-line-number="4">}</a>
-<a class="sourceLine" id="cb475-5" data-line-number="5"><span class="co"># likelihood function exponential model</span></a>
-<a class="sourceLine" id="cb475-6" data-line-number="6">lhExp &lt;-<span class="st"> </span><span class="cf">function</span>(a, b){</a>
-<a class="sourceLine" id="cb475-7" data-line-number="7">  theta &lt;-<span class="st"> </span>a<span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>b<span class="op">*</span>t)</a>
-<a class="sourceLine" id="cb475-8" data-line-number="8">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-5</span></a>
-<a class="sourceLine" id="cb475-9" data-line-number="9">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-5</span></a>
-<a class="sourceLine" id="cb475-10" data-line-number="10">  <span class="kw">prod</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>))</a>
-<a class="sourceLine" id="cb475-11" data-line-number="11">}</a>
-<a class="sourceLine" id="cb475-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb475-13" data-line-number="13"><span class="co"># prior power model</span></a>
-<a class="sourceLine" id="cb475-14" data-line-number="14">priorPow &lt;-<span class="st"> </span><span class="cf">function</span>(c, d){</a>
-<a class="sourceLine" id="cb475-15" data-line-number="15">  <span class="kw">dunif</span>(c, <span class="dv">0</span>, <span class="fl">1.5</span>) <span class="op">*</span><span class="st"> </span><span class="kw">dunif</span>(d, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb475-16" data-line-number="16">}</a>
-<a class="sourceLine" id="cb475-17" data-line-number="17"><span class="co"># likelihood function power model</span></a>
-<a class="sourceLine" id="cb475-18" data-line-number="18">lhPow &lt;-<span class="st"> </span><span class="cf">function</span>(c, d){</a>
-<a class="sourceLine" id="cb475-19" data-line-number="19">  theta &lt;-<span class="st"> </span>c<span class="op">*</span>t<span class="op">^</span>(<span class="op">-</span>d)</a>
-<a class="sourceLine" id="cb475-20" data-line-number="20">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-5</span></a>
-<a class="sourceLine" id="cb475-21" data-line-number="21">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-5</span></a>
-<a class="sourceLine" id="cb475-22" data-line-number="22">  <span class="kw">prod</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>))</a>
-<a class="sourceLine" id="cb475-23" data-line-number="23">}</a></code></pre></div>
-<p>To approximate each model’s marginal likelihood via grid approximation, we consider equally spaced values for both parameters (a tighly knit grid), asses the prior and likelihood for each parameter pair and finally take the sum over all of the visited values:</p>
-<div class="sourceCode" id="cb476"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb476-1" data-line-number="1"><span class="co"># make sure the functions accept vector input</span></a>
-<a class="sourceLine" id="cb476-2" data-line-number="2">lhExp &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(lhExp)</a>
-<a class="sourceLine" id="cb476-3" data-line-number="3">lhPow &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(lhPow)</a>
-<a class="sourceLine" id="cb476-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb476-5" data-line-number="5"><span class="co"># define the step size of the grid</span></a>
-<a class="sourceLine" id="cb476-6" data-line-number="6">stepsize &lt;-<span class="st"> </span><span class="fl">0.01</span></a>
-<a class="sourceLine" id="cb476-7" data-line-number="7"><span class="co"># calculate the marginal likelihood</span></a>
-<a class="sourceLine" id="cb476-8" data-line-number="8">marg_lh &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(</a>
-<a class="sourceLine" id="cb476-9" data-line-number="9">  <span class="dt">x =</span> <span class="kw">seq</span>(<span class="fl">0.005</span>, <span class="fl">1.495</span>, <span class="dt">by =</span> stepsize),</a>
-<a class="sourceLine" id="cb476-10" data-line-number="10">  <span class="dt">y =</span> <span class="kw">seq</span>(<span class="fl">0.005</span>, <span class="fl">1.495</span>, <span class="dt">by =</span> stepsize)</a>
-<a class="sourceLine" id="cb476-11" data-line-number="11">) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb476-12" data-line-number="12"><span class="st">  </span><span class="kw">mutate</span>(</a>
-<a class="sourceLine" id="cb476-13" data-line-number="13">    <span class="dt">lhExp =</span> <span class="kw">lhExp</span>(x,y), <span class="dt">priExp =</span> <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="kw">length</span>(x),  <span class="co"># uniform priors!</span></a>
-<a class="sourceLine" id="cb476-14" data-line-number="14">    <span class="dt">lhPow =</span> <span class="kw">lhPow</span>(x,y), <span class="dt">priPow =</span> <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="kw">length</span>(x)</a>
-<a class="sourceLine" id="cb476-15" data-line-number="15">  )</a>
-<a class="sourceLine" id="cb476-16" data-line-number="16"><span class="co"># output result</span></a>
-<a class="sourceLine" id="cb476-17" data-line-number="17"><span class="kw">str_c</span>(</a>
-<a class="sourceLine" id="cb476-18" data-line-number="18">  <span class="st">&quot;BF in favor of exponential model: &quot;</span>, </a>
-<a class="sourceLine" id="cb476-19" data-line-number="19">  <span class="kw">with</span>(marg_lh, <span class="kw">sum</span>(priExp<span class="op">*</span>lhExp)<span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(priPow<span class="op">*</span>lhPow)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb476-20" data-line-number="20">)</a></code></pre></div>
-<pre><code>## [1] &quot;BF in favor of exponential model: 1221.39&quot;</code></pre>
-<p>Based on this computation, we would be entitled to conclude that the data provides overwhelming evidence in favor of the exponential model. The result tells us that a rational agent should adjust her prior odds by a factor of more than 1000 in favor of the exponential model when updating her beliefs with the data. In other words, the data tilt our beliefs very strongly towards the exponential model, no matter what we believed initially. In this sense, the data provides strong evidence for the exponential model.</p>
-</div>
-<div id="Chap-03-06-model-comparison-BF-naiveMC" class="section level3">
-<h3><span class="header-section-number">10.3.2</span> Naive Monte Carlo</h3>
-<p>For simple models (with maybe 4-5 free parameters), we can also use naive Monte Carlo sampling to approximate Bayes factors. In particular, we can approximate the marginal likelihood by taking samples from the prior, calculating the likelihood of the data for each sampled parameter tuple, and then averaging over all calculated likelihoods:</p>
-<p><span class="math display">\[P(D, M_i) = \int P(D \mid \theta, M_i) \ P(\theta \mid M_i) \ \text{d}\theta \approx \frac{1}{n} \sum^{n}_{\theta_j \sim P(\theta \mid M_i)} P(D \mid \theta_j, M_i)\]</span></p>
-<p>Here is a calculation using one million samples from the prior of each model:</p>
-<div class="sourceCode" id="cb478"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb478-1" data-line-number="1">nSamples &lt;-<span class="st"> </span><span class="dv">1000000</span></a>
-<a class="sourceLine" id="cb478-2" data-line-number="2"><span class="co"># sample from the prior</span></a>
-<a class="sourceLine" id="cb478-3" data-line-number="3">a &lt;-<span class="st"> </span><span class="kw">runif</span>(nSamples, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb478-4" data-line-number="4">b &lt;-<span class="st"> </span><span class="kw">runif</span>(nSamples, <span class="dv">0</span>, <span class="fl">1.5</span>)</a>
-<a class="sourceLine" id="cb478-5" data-line-number="5"><span class="co"># calculate likelihood of data for each sample</span></a>
-<a class="sourceLine" id="cb478-6" data-line-number="6">lhExpVec &lt;-<span class="st"> </span><span class="kw">lhExp</span>(a,b)</a>
-<a class="sourceLine" id="cb478-7" data-line-number="7">lhPowVec &lt;-<span class="st"> </span><span class="kw">lhPow</span>(a,b)</a>
-<a class="sourceLine" id="cb478-8" data-line-number="8"><span class="co"># compute marginal likelihoods</span></a>
-<a class="sourceLine" id="cb478-9" data-line-number="9"><span class="kw">str_c</span>(</a>
-<a class="sourceLine" id="cb478-10" data-line-number="10"> <span class="st">&quot;BF in favor of exponential model: &quot;</span>, </a>
-<a class="sourceLine" id="cb478-11" data-line-number="11"> <span class="kw">round</span>(<span class="kw">mean</span>(lhExpVec) <span class="op">/</span><span class="st"> </span><span class="kw">mean</span>(lhPowVec),<span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb478-12" data-line-number="12">)</a></code></pre></div>
-<pre><code>## [1] &quot;BF in favor of exponential model: 1190.76&quot;</code></pre>
-<p>We can also check the time course of our MC-estimate by a plot like that in Figure <a href="Chap-03-06-model-comparison-BF.html#fig:Chap-03-06-model-comparison-MC-estimate-time">10.3</a>.
-The plot shows the current estimate of the Bayes factor on the <span class="math inline">\(y\)</span>-axis after having taken the number of samples given on the <span class="math inline">\(x\)</span>-axis.
-We see that the initial calculations (after only a 10,000 samples) is far off, but that the approximation finally gets reasonably close to the value calculated by grid approximation, which is shown as the red line.</p>
-<div class="figure" style="text-align: center"><span id="fig:Chap-03-06-model-comparison-MC-estimate-time"></span>
-<img src="I2DA_files/figure-html/Chap-03-06-model-comparison-MC-estimate-time-1.png" alt="Temporal development (as more samples come in) of the Monte Carlo estimate of the Bayes factor in favor of the exponential model over the power model of forgetting. The red horizontal line indicates the Bayes factor estimate obtained previously via grid approximation." width="672" />
-<p class="caption">
-Figure 10.3: Temporal development (as more samples come in) of the Monte Carlo estimate of the Bayes factor in favor of the exponential model over the power model of forgetting. The red horizontal line indicates the Bayes factor estimate obtained previously via grid approximation.
-</p>
-</div>
-<div class="exercises">
-<p><strong>Exercise 11.3</strong></p>
-<p>Which statements concerning Bayes Factors (BF) are correct?</p>
-<ol style="list-style-type: lower-alpha">
-<li>The Bayes Factor shows the absolute probability of a particular model to be a good explanation of the observed data.</li>
-<li>If <span class="math inline">\(BF_{12} = 11\)</span>, one should conclude that there is strong evidence in favor of <span class="math inline">\(M_1\)</span>.</li>
-<li>Grid approximation allows us to compare no more than five models simultaneously.</li>
-<li>With the Naive Monte Carlo method, we can only approximate the BF for models with continuous parameters.</li>
-<li>BF computation penalizes more complex models.</li>
-</ol>
-<div class="collapsibleSolution">
-<button class="trigger">
-Solution
-</button>
-<div class="content">
-<p>Statements b. and e. are correct.</p>
-</div>
-</div>
-</div>
-</div>
-<div id="Chap-03-06-model-comparison-BF-bridge" class="section level3">
-<h3><span class="header-section-number">10.3.3</span> Excursion: Bridge sampling</h3>
-<p>For more complex models (e.g., high-dimensional/hierarchical parameter spaces), naive Monte Carlo methods can be highly inefficient. If random sampling of parameter values from the priors is unlikely to deliver values for which the likelihood of the data is reasonably high, most naive MC samples will contribute very little information to the overall estimate of the marginal likelihood. For this reason, there are better sampling-based procedures which preferentially sample <em>a posteriori</em> credible parameter values (given the data) and use clever math to compensate for using the wrong distribution to sample from. This is the main idea behind approaches like <a href="https://en.wikipedia.org/wiki/Importance_sampling">importance sampling</a>. A very promising approach is in particular <strong>bridge sampling</strong>, which also has its own R package <span class="citation">(Gronau et al. <a href="#ref-GronauSarafoglou2017:A-tutorial-on-b">2017</a>)</span>.</p>
-<p>We will not go into the formal details of this method, but just showcase here an application of the <code>bridgesampling</code> package.
-This approach requires samples from the posterior, which we can obtain using Stan (see Section <a href="Ch-03-03-estimation-algorithms.html#ch-03-03-estimation-Stan">9.3.2</a>).
-Towards this end, we first assemble the data for input to the Stan program in a list:</p>
-<div class="sourceCode" id="cb480"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb480-1" data-line-number="1">forgetting_data &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
-<a class="sourceLine" id="cb480-2" data-line-number="2">  <span class="dt">N =</span> <span class="dv">100</span>,</a>
-<a class="sourceLine" id="cb480-3" data-line-number="3">  <span class="dt">k =</span> obs,</a>
-<a class="sourceLine" id="cb480-4" data-line-number="4">  <span class="dt">t =</span> t</a>
-<a class="sourceLine" id="cb480-5" data-line-number="5">)</a></code></pre></div>
-<p>The models are implemented in the Stan. We here only show the exponential model.</p>
-<pre class="mystan"><code>data {
-  int&lt;lower=1&gt; N ;
-  int&lt;lower=0,upper=N&gt; k[6] ;
-  int&lt;lower=0&gt; t[6];
-}
-parameters {
-  real&lt;lower=0,upper=1.5&gt; a ;
-  real&lt;lower=0,upper=1.5&gt; b ;
-} 
-model {
-  // likelihood
-  for (i in 1:6) {
-    target += binomial_lpmf(k[i] | N,  a * exp(-b*t[i])) ;
-  }
-}</code></pre>
-<p>We then use Stan to obtain samples from the posterior in the usual way. To get reliable estimates of Bayes factors via bridge sampling we should take a much larger number of samples than we usually would for a reliable estimation of, say, the posterior means and credible intervals.</p>
-<div class="sourceCode" id="cb482"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb482-1" data-line-number="1">stan_fit_expon &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
-<a class="sourceLine" id="cb482-2" data-line-number="2">  <span class="co"># where is the Stan code</span></a>
-<a class="sourceLine" id="cb482-3" data-line-number="3">  <span class="dt">file =</span> <span class="st">&#39;models_stan/model_comp_exponential_forgetting.stan&#39;</span>,</a>
-<a class="sourceLine" id="cb482-4" data-line-number="4">  <span class="co"># data to supply to the Stan program</span></a>
-<a class="sourceLine" id="cb482-5" data-line-number="5">  <span class="dt">data =</span> forgetting_data,</a>
-<a class="sourceLine" id="cb482-6" data-line-number="6">  <span class="co"># how many iterations of MCMC</span></a>
-<a class="sourceLine" id="cb482-7" data-line-number="7">  <span class="dt">iter =</span> <span class="dv">20000</span>,</a>
-<a class="sourceLine" id="cb482-8" data-line-number="8">  <span class="co"># how many warmup steps</span></a>
-<a class="sourceLine" id="cb482-9" data-line-number="9">  <span class="dt">warmup =</span> <span class="dv">2000</span></a>
-<a class="sourceLine" id="cb482-10" data-line-number="10">)</a></code></pre></div>
-<div class="sourceCode" id="cb483"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb483-1" data-line-number="1">stan_fit_power &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan</span>(</a>
-<a class="sourceLine" id="cb483-2" data-line-number="2">  <span class="co"># where is the Stan code</span></a>
-<a class="sourceLine" id="cb483-3" data-line-number="3">  <span class="dt">file =</span> <span class="st">&#39;models_stan/model_comp_power_forgetting.stan&#39;</span>,</a>
-<a class="sourceLine" id="cb483-4" data-line-number="4">  <span class="co"># data to supply to the Stan program</span></a>
-<a class="sourceLine" id="cb483-5" data-line-number="5">  <span class="dt">data =</span> forgetting_data,</a>
-<a class="sourceLine" id="cb483-6" data-line-number="6">  <span class="co"># how many iterations of MCMC</span></a>
-<a class="sourceLine" id="cb483-7" data-line-number="7">  <span class="dt">iter =</span> <span class="dv">20000</span>,</a>
-<a class="sourceLine" id="cb483-8" data-line-number="8">  <span class="co"># how many warmup steps</span></a>
-<a class="sourceLine" id="cb483-9" data-line-number="9">  <span class="dt">warmup =</span> <span class="dv">2000</span></a>
-<a class="sourceLine" id="cb483-10" data-line-number="10">)</a></code></pre></div>
-<p>The <code>bridgesampling</code> package can then be used to calculate each model’s marginal likelihood.</p>
-<div class="sourceCode" id="cb484"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb484-1" data-line-number="1">expon_bridge &lt;-<span class="st"> </span>bridgesampling<span class="op">::</span><span class="kw">bridge_sampler</span>(stan_fit_expon, <span class="dt">silent =</span> T)</a>
-<a class="sourceLine" id="cb484-2" data-line-number="2">power_bridge &lt;-<span class="st"> </span>bridgesampling<span class="op">::</span><span class="kw">bridge_sampler</span>(stan_fit_power, <span class="dt">silent =</span> T)</a></code></pre></div>
-<p>We then obtain an estimate of the Bayes factor in favor of the exponential model with this function:</p>
-<div class="sourceCode" id="cb485"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb485-1" data-line-number="1">bridgesampling<span class="op">::</span><span class="kw">bf</span>(expon_bridge, power_bridge)</a></code></pre></div>
-<pre><code>## Estimated Bayes factor in favor of expon_bridge over power_bridge: 1225.87337</code></pre>
+<div id="chapter-summary-three-pillars-of-data-analysis" class="section level2">
+<h2><span class="header-section-number">17.9</span> Chapter summary: three pillars of data analysis</h2>
 
 </div>
-</div>
 <!-- </div> -->
-<h3>References</h3>
-<div id="refs" class="references">
-<div id="ref-GronauLy2019:Informed-Bayesi">
-<p>Gronau, Quentin F., Alexander Ly, and Eric-Jan Wagenmakers. 2019. “Informed Bayesian <em>T</em>-Tests.” <em>The American Statistician</em>.</p>
-</div>
-<div id="ref-GronauSarafoglou2017:A-tutorial-on-b">
-<p>Gronau, Quentin F., Alexandra Sarafoglou, Dora Matzke, Alexander Ly, Udo Boehm, Maarten Marsman, David S. Leslie, Jonathan J. Forster, Eric-Jan Wagenmakers, and Helen Steingroever. 2017. “A Tutorial on Bridge Sampling.” <em>Journal of Mathematical Psychology</em> 81: 80–97.</p>
-</div>
-<div id="ref-RouderMorey2012:Default-Bayes-F">
-<p>Rouder, Jeffrey N., and Richard D. Morey. 2012. “Default Bayes Factors for Model Selection in Regression.” <em>Multivariate Behavioral Research</em> 47 (6): 877–903.</p>
-</div>
-<div id="ref-RouderSpeckman2009:Bayesian-t-test">
-<p>Rouder, Jeffrey N., Paul l. Speckman, Dongchu Sun, Richard D. Morey, and Geoffrey Iverson. 2009. “Bayesian <em>T</em> Tests for Accepting and Rejecting the Null Hypothesis.” <em>Psychonomic Bulletin &amp; Review</em> 16 (2): 225–37.</p>
-</div>
-</div>
+
+
+
             </section>
 
           </div>
         </div>
       </div>
-<a href="Chap-03-06-model-comparison-AIC.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="ch-03-07-hypothesis-testing-Bayes.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="explicit-beliefs-vs-impplicit-intentions.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="app-90-further-material.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

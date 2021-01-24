@@ -430,6 +430,8 @@ code span.wa { color: #bf0303; } /* Warning */
 <li class="chapter" data-level="17.5" data-path="ch-05-01-estimation-comparison.html"><a href="ch-05-01-estimation-comparison.html"><i class="fa fa-check"></i><b>17.5</b> Comparing Bayesian and frequentist estimates</a></li>
 <li class="chapter" data-level="17.6" data-path="beliefs-decisions-and-long-term-error.html"><a href="beliefs-decisions-and-long-term-error.html"><i class="fa fa-check"></i><b>17.6</b> Beliefs, decisions and long-term error</a></li>
 <li class="chapter" data-level="17.7" data-path="evidence-for-the-null.html"><a href="evidence-for-the-null.html"><i class="fa fa-check"></i><b>17.7</b> Evidence for the null</a></li>
+<li class="chapter" data-level="17.8" data-path="explicit-beliefs-vs-impplicit-intentions.html"><a href="explicit-beliefs-vs-impplicit-intentions.html"><i class="fa fa-check"></i><b>17.8</b> Explicit beliefs vs. impplicit intentions</a></li>
+<li class="chapter" data-level="17.9" data-path="chapter-summary-three-pillars-of-data-analysis.html"><a href="chapter-summary-three-pillars-of-data-analysis.html"><i class="fa fa-check"></i><b>17.9</b> Chapter summary: three pillars of data analysis</a></li>
 </ul></li>
 <li class="appendix"><span><b>Appendix</b></span></li>
 <li class="chapter" data-level="A" data-path="app-90-further-material.html"><a href="app-90-further-material.html"><i class="fa fa-check"></i><b>A</b> Further useful material</a><ul>
@@ -556,23 +558,51 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="mc-simulated-p-values" class="section level2">
 <h2><span class="header-section-number">17.3</span> MC-simulated <span class="math inline">\(p\)</span> values</h2>
-<div class="sourceCode" id="cb679"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb679-1" data-line-number="1">k_obs =<span class="st"> </span><span class="dv">7</span></a>
-<a class="sourceLine" id="cb679-2" data-line-number="2">n_obs =<span class="st"> </span><span class="dv">24</span></a>
-<a class="sourceLine" id="cb679-3" data-line-number="3">x_reps =<span class="st"> </span><span class="dv">500000</span></a>
-<a class="sourceLine" id="cb679-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb679-5" data-line-number="5">lhs =<span class="st"> </span><span class="kw">map_dbl</span>(<span class="dv">1</span><span class="op">:</span>x_reps, <span class="cf">function</span>(i) {</a>
-<a class="sourceLine" id="cb679-6" data-line-number="6">  k_hyp =<span class="st"> </span><span class="kw">rbinom</span>(<span class="dv">1</span>, <span class="dt">size =</span> n_obs, <span class="dt">prob =</span> <span class="fl">0.5</span>)</a>
-<a class="sourceLine" id="cb679-7" data-line-number="7">  <span class="kw">dbinom</span>(k_hyp, <span class="dt">size =</span> n_obs, <span class="dt">prob =</span> <span class="fl">0.5</span>)</a>
-<a class="sourceLine" id="cb679-8" data-line-number="8">})</a>
-<a class="sourceLine" id="cb679-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb679-10" data-line-number="10">lh_obs =<span class="st"> </span><span class="kw">dbinom</span>(k_obs, <span class="dt">size =</span> n_obs, <span class="dt">prob =</span> <span class="fl">0.5</span>)</a>
-<a class="sourceLine" id="cb679-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb679-12" data-line-number="12"><span class="kw">mean</span>(lhs <span class="op">&lt;=</span><span class="st"> </span>lh_obs) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">show</span>()</a></code></pre></div>
+<p>Let’s reconsider the 24/7 data set, where we have <span class="math inline">\(k=7\)</span> observations of ‘heads’ in <span class="math inline">\(N=24\)</span> tosses of a coin.</p>
+<div class="sourceCode" id="cb679"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb679-1" data-line-number="1"><span class="co"># 24/7 data</span></a>
+<a class="sourceLine" id="cb679-2" data-line-number="2">k_obs &lt;-<span class="st"> </span><span class="dv">7</span></a>
+<a class="sourceLine" id="cb679-3" data-line-number="3">n_obs &lt;-<span class="st"> </span><span class="dv">24</span></a></code></pre></div>
+<p>The question of interest is whether the coin is fair, i.e., whether <span class="math inline">\(\theta_c = 0.5\)</span>.
+R’s built-in function <code>binom.test</code> calculates a binomial test and produces a <span class="math inline">\(p\)</span>-value which is calculated precisely (since this is possible and cheap in this case).</p>
+<div class="sourceCode" id="cb680"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb680-1" data-line-number="1"><span class="kw">binom.test</span>(<span class="dv">7</span>,<span class="dv">24</span>)</a></code></pre></div>
+<pre><code>## 
+##  Exact binomial test
+## 
+## data:  7 and 24
+## number of successes = 7, number of trials = 24, p-value = 0.06391
+## alternative hypothesis: true probability of success is not equal to 0.5
+## 95 percent confidence interval:
+##  0.1261521 0.5109478
+## sample estimates:
+## probability of success 
+##              0.2916667</code></pre>
+<p>It is also possible to approximate a <span class="math inline">\(p\)</span>-value by Monte Carlo simulation.
+Notice that the definition of a <span class="math inline">\(p\)</span>-value repeated here from Section <a href="ch-03-05-hypothesis-p-values.html#ch-03-05-hypothesis-p-values">16.2</a> is just a statement about the probability that a random variable (from which we can take samples with MC simulation) delivers a value below a fixed threshold:</p>
+<p><span class="math display">\[
+p\left(D_{\text{obs}}\right) = P\left(T^{|H_0} \succeq^{H_{0,a}} t\left(D_{\text{obs}}\right)\right)  % = P(\mathcal{D}^{|H_0} \in \{D \mid t(D) \ge t(D_{\text{obs}})\}) 
+\]</span></p>
+<p>So here goes:</p>
+<div class="sourceCode" id="cb682"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb682-1" data-line-number="1"><span class="co"># specify how many Monte Carlo samples to take</span></a>
+<a class="sourceLine" id="cb682-2" data-line-number="2">x_reps &lt;-<span class="st"> </span><span class="dv">500000</span></a>
+<a class="sourceLine" id="cb682-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb682-4" data-line-number="4"><span class="co"># built a vector of likelihoods (= the relevant test statistic)</span></a>
+<a class="sourceLine" id="cb682-5" data-line-number="5"><span class="co">#   for hypothetical data observations, which are </span></a>
+<a class="sourceLine" id="cb682-6" data-line-number="6"><span class="co">#   sampled based on the assumption that H0 is true</span></a>
+<a class="sourceLine" id="cb682-7" data-line-number="7">lhs &lt;-<span class="st"> </span><span class="kw">map_dbl</span>(<span class="dv">1</span><span class="op">:</span>x_reps, <span class="cf">function</span>(i) {</a>
+<a class="sourceLine" id="cb682-8" data-line-number="8">  <span class="co"># hypothetical data assuming H0 is true</span></a>
+<a class="sourceLine" id="cb682-9" data-line-number="9">  k_hyp &lt;-<span class="st"> </span><span class="kw">rbinom</span>(<span class="dv">1</span>, <span class="dt">size =</span> n_obs, <span class="dt">prob =</span> <span class="fl">0.5</span>)</a>
+<a class="sourceLine" id="cb682-10" data-line-number="10">  <span class="co"># likelihood of that hypothetical observation</span></a>
+<a class="sourceLine" id="cb682-11" data-line-number="11">  <span class="kw">dbinom</span>(k_hyp, <span class="dt">size =</span> n_obs, <span class="dt">prob =</span> <span class="fl">0.5</span>)</a>
+<a class="sourceLine" id="cb682-12" data-line-number="12">})</a>
+<a class="sourceLine" id="cb682-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb682-14" data-line-number="14"><span class="co"># likelihood (= test statistic) of the observed data</span></a>
+<a class="sourceLine" id="cb682-15" data-line-number="15">lh_obs =<span class="st"> </span><span class="kw">dbinom</span>(k_obs, <span class="dt">size =</span> n_obs, <span class="dt">prob =</span> <span class="fl">0.5</span>)</a>
+<a class="sourceLine" id="cb682-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb682-17" data-line-number="17"><span class="co"># proportion of samples with a lower or equal likelihood than </span></a>
+<a class="sourceLine" id="cb682-18" data-line-number="18"><span class="co">#   the observed data </span></a>
+<a class="sourceLine" id="cb682-19" data-line-number="19"><span class="kw">mean</span>(lhs <span class="op">&lt;=</span><span class="st"> </span>lh_obs) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">show</span>()</a></code></pre></div>
 <pre><code>## [1] 0.063998</code></pre>
-<div class="sourceCode" id="cb681"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb681-1" data-line-number="1"><span class="kw">tibble</span>(<span class="dt">iteration =</span> <span class="dv">1</span><span class="op">:</span>x_reps, </a>
-<a class="sourceLine" id="cb681-2" data-line-number="2">       <span class="dt">p_value =</span> <span class="kw">cumsum</span>(lhs <span class="op">&lt;=</span><span class="st"> </span>lh_obs) <span class="op">/</span><span class="st"> </span><span class="dv">1</span><span class="op">:</span>x_reps) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb681-3" data-line-number="3"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> iteration, <span class="dt">y =</span> p_value)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>()</a></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-467-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Monte Carlo sampling for <span class="math inline">\(p\)</span>-value approximation is always possible, even for cases where we cannot rely on known simplifying assumptions.</p>
 </div>
             </section>
 
