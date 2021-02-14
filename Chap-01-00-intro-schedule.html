@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>3.3 On the notion of “variables” | An Introduction to Data Analysis</title>
+  <title>1.7 Example schedule (12 week course) | An Introduction to Data Analysis</title>
   <meta name="description" content="Introductory text for statistics and data analysis (using R)" />
   <meta name="generator" content="bookdown 0.21.6 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="3.3 On the notion of “variables” | An Introduction to Data Analysis" />
+  <meta property="og:title" content="1.7 Example schedule (12 week course) | An Introduction to Data Analysis" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="michael-franke/intro-data-analysis" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="3.3 On the notion of “variables” | An Introduction to Data Analysis" />
+  <meta name="twitter:title" content="1.7 Example schedule (12 week course) | An Introduction to Data Analysis" />
   
   <meta name="twitter:description" content="Introductory text for statistics and data analysis (using R)" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Chap-02-01-data-kinds-of-data.html"/>
-<link rel="next" href="Chap-02-01-data-exp-design.html"/>
+<link rel="prev" href="Chap-01-00-intro-installation.html"/>
+<link rel="next" href="Chap-01-01-R.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -556,127 +556,210 @@ code span.wa { color: #bf0303; } /* Warning */
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="Chap-02-01-data-variables" class="section level2">
-<h2><span class="header-section-number">3.3</span> On the notion of “variables”</h2>
-<p>Data used for data analysis, even if it is “raw data”, i.e., data before preprocessing and cleaning, is usually structured or labeled in some way or other. Even if the whole data we have is a vector of numbers, we would usually know what these numbers represent. For instance, we might just have a quintuple of numbers, but we would (usually/ideally) know that these represent the results of an IQ test.</p>
-<div class="sourceCode" id="cb183"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb183-1" data-line-number="1"><span class="co"># a simple data vector of IQ-scores</span></a>
-<a class="sourceLine" id="cb183-2" data-line-number="2">IQ_scores &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">102</span>, <span class="dv">115</span>, <span class="dv">97</span>, <span class="dv">126</span>, <span class="dv">87</span>)</a></code></pre></div>
-<p>Or we might have a Boolean vector with the information of whether each of five students passed an exam. But even then we would (usually/ideally) know the association between names and test results, as in a table like this:</p>
-<div class="sourceCode" id="cb184"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb184-1" data-line-number="1"><span class="co"># who passed the exam</span></a>
-<a class="sourceLine" id="cb184-2" data-line-number="2">exam_results &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb184-3" data-line-number="3"><span class="st">  </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb184-4" data-line-number="4">    <span class="op">~</span>student,   <span class="op">~</span>pass,</a>
-<a class="sourceLine" id="cb184-5" data-line-number="5">    <span class="st">&quot;Jax&quot;</span>,      <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb184-6" data-line-number="6">    <span class="st">&quot;Jason&quot;</span>,    <span class="ot">FALSE</span>,</a>
-<a class="sourceLine" id="cb184-7" data-line-number="7">    <span class="st">&quot;Jamie&quot;</span>,    <span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb184-8" data-line-number="8">  )</a></code></pre></div>
-<p>Association of information, as between different columns in a table like the one above, is crucial. Most often, we have more than one kind of observation that we care about. Most often, we care about systematic relationships between different observables in the world. For instance, we might want to look at a relation between, on the one hand, the chance of passing an exam and, on the other hand, the proportion of attendance of the course’s tutorial sessions:</p>
-<div class="sourceCode" id="cb185"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb185-1" data-line-number="1"><span class="co"># proportion of tutorials attended and exam pass/fail</span></a>
-<a class="sourceLine" id="cb185-2" data-line-number="2">exam_results &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb185-3" data-line-number="3"><span class="st">  </span><span class="kw">tribble</span>(</a>
-<a class="sourceLine" id="cb185-4" data-line-number="4">    <span class="op">~</span>student,   <span class="op">~</span>tutorial_proportion,   <span class="op">~</span>pass,</a>
-<a class="sourceLine" id="cb185-5" data-line-number="5">    <span class="st">&quot;Jax&quot;</span>,      <span class="fl">0.0</span>,                    <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb185-6" data-line-number="6">    <span class="st">&quot;Jason&quot;</span>,    <span class="fl">0.78</span>,                   <span class="ot">FALSE</span>,</a>
-<a class="sourceLine" id="cb185-7" data-line-number="7">    <span class="st">&quot;Jamie&quot;</span>,    <span class="fl">0.39</span>,                   <span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb185-8" data-line-number="8">  )</a>
-<a class="sourceLine" id="cb185-9" data-line-number="9">exam_results</a></code></pre></div>
-<pre><code>## # A tibble: 3 x 3
-##   student tutorial_proportion pass 
-##   &lt;chr&gt;                 &lt;dbl&gt; &lt;lgl&gt;
-## 1 Jax                    0    TRUE 
-## 2 Jason                  0.78 FALSE
-## 3 Jamie                  0.39 TRUE</code></pre>
-<p>Data of this kind is also called <strong>rectangular data</strong>, i.e., data that fits into a rectangular table (More on the structure of rectangular data in Section <a href="Chap-02-02-data-tidy-data.html#Chap-02-02-data-tidy-data">4.2</a>.). In the example above, every column represents a <strong>variable</strong> of interest. A <em>(data) variable</em> stores the observations that are of the same kind.<a href="#fn15" class="footnote-ref" id="fnref15"><sup>15</sup></a></p>
-<p>Different kinds of variables are distinguished based on the structural properties of the kinds of observations that they represent. Common types of variables are, for instance:</p>
-<ul>
-<li><strong>nominal variable</strong>: each observation is an instance of a (finite) set of clearly distinct categories, lacking a natural ordering;</li>
-<li><strong>binary variable</strong>: special case of a nominal variable where there are only two categories;</li>
-<li><strong>Boolean variable</strong>: special case of a binary variable where the two categories are Boolean values “true” and “false”;</li>
-<li><strong>ordinal variable</strong>: each observation is an instance of a (finite) set of clearly distinct and naturally ordered categories, but there is no natural meaning of distance between categories (i.e., it makes sense to say that A is “more” than B but not that A is three times “more” than B);</li>
-<li><strong>metric variable</strong>: each observation is isomorphic to a subset of the reals and interval-scaled (i.e., it makes sense to say that A is three times “more” than B);</li>
-</ul>
-<p>Examples of some different kinds of variables are shown in Figure <a href="Chap-02-01-data-variables.html#fig:Ch-02-01-factor-levels">3.2</a>, and Table <a href="Chap-02-01-data-variables.html#tab:Ch-02-01-variable-types-in-R">3.2</a> lists common and/or natural ways of representing different kinds of (data) variables in R.</p>
-<div class="figure" style="text-align: center"><span id="fig:Ch-02-01-factor-levels"></span>
-<img src="visuals/factor-levels.jpg" alt="Examples of different kinds of (data) variables. Artwork by allison_horst."  />
-<p class="caption">
-Figure 3.2: Examples of different kinds of (data) variables. Artwork by allison_horst.
-</p>
-</div>
+<div id="Chap-01-00-intro-schedule" class="section level2">
+<h2><span class="header-section-number">1.7</span> Example schedule (12 week course)</h2>
+<p>It is possible to teach the content of this web-book in a semester (12 weeks).
+Below is an example schedule of how the material can be chunked.
+This schedule assumes that sections marked as “excursions” are skipped and that lecturers give clear guidance which aspects of each chapter are most important.</p>
 <table>
-<caption><span id="tab:Ch-02-01-variable-types-in-R">Table 3.2: </span>Common / natural formats for representing data of different kinds in R.</caption>
+<caption><span id="tab:ch-01-00-schedule">Table 1.1: </span>Example schedule for a 12 week course based on this web-book.</caption>
 <thead>
 <tr class="header">
-<th align="left">variable type</th>
-<th align="left">representation in R</th>
+<th align="right">week</th>
+<th align="left">topic</th>
+<th align="left">chapter</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">nominal / binary</td>
-<td align="left">unordered factor</td>
+<td align="right">1</td>
+<td align="left">overiew, installation, first steps of R</td>
+<td align="left">1 &amp; 2.1</td>
 </tr>
 <tr class="even">
-<td align="left">Boolean</td>
-<td align="left">logical vector</td>
+<td align="right">2</td>
+<td align="left">basics of R</td>
+<td align="left">2</td>
 </tr>
 <tr class="odd">
-<td align="left">ordinal</td>
-<td align="left">ordered factor</td>
+<td align="right">3</td>
+<td align="left">data types &amp; wrangling</td>
+<td align="left">3 &amp; 4</td>
 </tr>
 <tr class="even">
-<td align="left">metric</td>
-<td align="left">numeric vector</td>
+<td align="right">4</td>
+<td align="left">summary statistics &amp; plotting</td>
+<td align="left">5 &amp; 6</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="left">probability basics</td>
+<td align="left">7</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="left">models &amp; paramter inference</td>
+<td align="left">8 &amp; 9</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="left">model comparison &amp; hypothesis testing</td>
+<td align="left">10 &amp; 11</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="left">linear regression</td>
+<td align="left">12 &amp; 13</td>
+</tr>
+<tr class="odd">
+<td align="right">9</td>
+<td align="left">categorical predictors &amp; GLM</td>
+<td align="left">14 &amp; 15</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="left">frequentist statistics</td>
+<td align="left">16</td>
+</tr>
+<tr class="odd">
+<td align="right">11</td>
+<td align="left">Bayes vs frequentist</td>
+<td align="left">17</td>
+</tr>
+<tr class="even">
+<td align="right">12</td>
+<td align="left">discussion / reflection</td>
+<td align="left"></td>
 </tr>
 </tbody>
 </table>
-<p>In experimental data, we also distinguish the <strong>dependent variable(s)</strong> from the <strong>independent variable(s)</strong>. The dependent variables are the variables that we do not control or manipulate in the experiment, but the ones that we are curious to record (e.g., whether a patient recovered from an illness within a week). Dependent variables are also called <strong>to-be-explained variables</strong>. The independent variables are the variables in the experiment that we manipulate (e.g., which drug to administer), usually with the intention of seeing a particular effect on the dependent variables. Independent variables are also called <strong>explanatory variables</strong>.</p>
-<!-- exercise 1 -->
-<div class="exercises">
-<p><strong>Exercise 3.1: Variables</strong></p>
-<p>You are given the following table of observational data:</p>
-<pre><code>## # A tibble: 7 x 8
-##   name    age gender     handedness height education     `pets?` mood      
-##   &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;         &lt;lgl&gt;   &lt;chr&gt;     
-## 1 A        24 female     right        1.74 undergraduate FALSE   neutral   
-## 2 B        32 non-binary right        1.68 graduate      TRUE    happy     
-## 3 C        23 male       left         1.62 high school   TRUE    OK        
-## 4 D        27 male       right        1.84 graduate      FALSE   very happy
-## 5 E        26 non-binary left         1.59 undergraduate FALSE   very happy
-## 6 F        28 female     right        1.66 graduate      TRUE    OK        
-## 7 G        35 male       right        1.68 high school   FALSE   neutral</code></pre>
-<p>For each column, decide which type of variable (nominal, binary, etc.) is stored.</p>
-<div class="collapsibleSolution">
-<button class="trigger">
-Solution
-</button>
-<div class="content">
-<ul>
-<li><code>name</code>: nominal variable</li>
-<li><code>age</code>: metric variable</li>
-<li><code>gender</code>: nominal variable</li>
-<li><code>handedness</code>: binary variable</li>
-<li><code>height</code>: metric variable</li>
-<li><code>education</code>: ordinal variable</li>
-<li><code>pets?</code>: Boolean variable</li>
-<li><code>mood</code>: ordinal variable</li>
-</ul>
+<!-- ### VirtualBox Setup {#Chap-01-00-intro-installation-VirtualBox} -->
+<!-- #### Step 1. Install VirtualBox -->
+<!-- Follow the instructions -->
+<!-- [here](https://www.virtualbox.org/wiki/Downloads) to download and -->
+<!-- install for your platform. -->
+<!-- #### Step 2. Download our Ubuntu image -->
+<!-- Download the provided VirtualBox Disk Image and move it into a folder -->
+<!-- such as "VMs". The link for the VirtualBox Disk Image is provided on StudIP. -->
+<!-- #### Step 3. Create a new virtual machine and add the downloaded image -->
+<!-- * Open VirtualBox and click New -->
+<!-- * Give your new virtual machine a name, e.g. "IDA2019" -->
+<!-- * Change the Machine Folder to the folder where you put the disk -->
+<!--   image (e.g. inside the folder "VMs") -->
+<!-- * Change the Type to "Linux" and Version to "Ubuntu (64-bit)" and -->
+<!--   click Next to proceed to memory allocation -->
+<!-- * Allocate about half of your available memory and click Next to -->
+<!--   proceed to hard disk selection -->
+<!-- * Choose "Use an existing virtual hard disk file" and use the file -->
+<!--   selection icon to add our provided disk image -->
+<!-- * Click Create -->
+<!-- #### Step 4. Give your virtual machine more processing power -->
+<!-- * Select your virtual machine on the right panel and click Settings -->
+<!--   on the top -->
+<!-- * Navigate to System -> Processor -->
+<!-- * Increase the Processor(s) to about half of what your computer can provide -->
+<!-- #### Step 5. Boot your virtual machine -->
+<!-- * Select your virtual machine and click Start -->
+<!-- * The username of the system is "user" and the password is "password" -->
+<!-- #### Step 6. Install further packages -->
+<!-- The virtual machine includes most of the packages required, but not all.  -->
+<!-- * First, run the following commands in 'Terminal': -->
+<!-- `sudo apt update` -->
+<!-- `sudo apt install r-cran-devtools r-cran-boot r-cran-extradistr r-cran-ggsignif r-cran-naniar` -->
+<!-- * Then, open RStudio and run the following command in the R console: -->
+<!-- `devtools::install_github("n-kall/IDA2019-package")` -->
+<!-- #### Troubleshooting -->
+<!-- * If the virtual machine does not boot, you may need to ensure that -->
+<!--   'virtualization' is enabled in your computer's BIOS. Talk to a tutor if you're having difficulties doing so. -->
+<!-- ### Manual installation {#Chap-01-00-intro-installation-Manual} -->
+<!-- If you don't want to use the virtual machine, or it doesn't work for -->
+<!-- you, the following six steps describe how to get the main components -->
+<!-- installed manually. Depending on your operating system (e.g. macOS, -->
+<!-- Linux, Windows), you might need to follow slightly different -->
+<!-- instructions, which are specified below. Depending on the exact setup of -->
+<!-- your computer, the results may vary. The virtual machine has been -->
+<!-- tested with the required software, so if you can, we recommend using -->
+<!-- that. -->
+<!-- #### Step 1. Install Python -->
+<!-- **Windows and macOS:** -->
+<!-- We recommend installing miniconda from -->
+<!-- [here](https://docs.conda.io/en/latest/miniconda.html) -->
+<!-- **Linux:** -->
+<!-- You can install miniconda or you can just use the preinstalled Python -->
+<!-- (which saves time and space). Make sure you have pip installed, -->
+<!-- e.g. for Ubuntu `sudo apt install python3-pip` -->
+<!-- #### Step 2. Install the required Python packages -->
+<!-- We have provided files that list the required Python packages. They -->
+<!-- can be installed automatically with the following commands in the -->
+<!-- terminal. -->
+<!-- **For Anaconda:** -->
+<!-- Copy the text body of [this environment -->
+<!-- file](https://raw.githubusercontent.com/n-kall/IDA2019-package/master/environment.yml), save it as 'environment.yml', open a terminal, navigate to the folder which contains the downloaded file and run -->
+<!-- `conda env create -f environment.yml` -->
+<!-- **For Linux users who are using pip:** -->
+<!-- Copy the text body of [this requirements file](https://raw.githubusercontent.com/n-kall/IDA2019-package/master/requirements.txt), save it as 'requirements.txt', and run -->
+<!-- `pip3 install -r requirements.txt` -->
+<!-- #### Step 3. Install R -->
+<!-- **Windows and macOS:** -->
+<!-- Download and install R from [here](https://ftp.gwdg.de/pub/misc/cran/) -->
+<!-- **Linux users:** -->
+<!-- We need to have at least version 3.5 of R. This may be available in -->
+<!-- your distribution's repository. If you are using a recent version -->
+<!-- of Ubuntu (18.10 or later), you can install R with `sudo apt install -->
+<!-- r-base`. Otherwise, follow [these -->
+<!-- instructions](https://cran.r-project.org/bin/linux/ubuntu/) for your OS -->
+<!-- version. -->
+<!-- #### Step 4. Install RStudio -->
+<!-- **All platforms:** -->
+<!-- Download and install the latest version of RStudio from -->
+<!-- [here](https://rstudio.com/products/rstudio/download/) -->
+<!-- #### Step 5. Install a C++ toolchains -->
+<!-- For the Stan language, which will be interfaced through an R package -->
+<!-- called brms, you'll need a working C++ compiler. -->
+<!-- **Windows:** -->
+<!-- Download and install the latest version of RTools from -->
+<!-- [here](https://cran.r-project.org/bin/windows/Rtools/) -->
+<!-- **macOS:** -->
+<!-- Download and install the latest version of RTools for macOS from -->
+<!-- [here](https://github.com/rmacoslib/r-macos-rtools/releases/) -->
+<!-- Note: you may need to register for an Apple Developer account (free of -->
+<!-- charge). -->
+<!-- **Linux (e.g. Ubuntu):** -->
+<!-- You can install a compiler and toolchain with `sudo apt install -->
+<!-- build-essential`. -->
+<!-- #### Step 6. Install R packages {#Chap-01-00-intro-installation-packages} -->
+<!-- We have created an R package that, when installed, will prompt the -->
+<!-- installation of the packages we will use in this course. In this step, -->
+<!-- you'll install this package (and automatically install its -->
+<!-- dependencies). -->
+<!-- **For Windows and macOS:** -->
+<!-- Open RStudio and run the following two commands in the console. -->
+<!-- `install.packages("devtools")` -->
+<!-- `devtools::install_github("n-kall/IDA2019-package")` -->
+<!-- **For Linux (e.g. Ubuntu):** -->
+<!-- It's much faster (and less error-prone) if you install devtools from -->
+<!-- the app repository via terminal: `apt install r-cran-devtools` and -->
+<!-- continue to the second line in the R console. But this will only work -->
+<!-- if you are using a recent version of Ubuntu (18.10 or later). -->
+<!-- If you had to manually update your R to version in step 3, you'll need -->
+<!-- to install the following from a terminal: -->
+<!-- `apt install libssl-dev libxml2-dev libcurl4-openssl-dev` -->
+<!-- and then install via the the R console: -->
+<!-- `install.packages("devtools")` -->
+<!-- `devtools::install_github("n-kall/IDA2019-package")` -->
+<!-- ### Updating the course package {#Chap-01-00-intro-installation-Updating} -->
+<!-- Occasionally, we might have to add packages or functionality as we go through this course. In that case, you will have to update the package `IDA2019-package` that takes care of all updates. To update, use the following command in the R console: -->
+<!-- `devtools::install_github("n-kall/IDA2019-package")` -->
+
 </div>
-</div>
-</div>
-</div>
-<div class="footnotes">
-<hr />
-<ol start="15">
-<li id="fn15"><p>This sense of “data variable” is not to be confused with the notion of a “random variable”, a concept we will introduce later in Section <a href="Chap-03-01-probability-random-variables.html#Chap-03-01-probability-random-variables">7.4</a>. The term “data variable” is not commonly used; the common term is merely “variable”.<a href="Chap-02-01-data-variables.html#fnref15" class="footnote-back">↩</a></p></li>
-</ol>
-</div>
+<!-- </div> -->
             </section>
 
           </div>
         </div>
       </div>
-<a href="Chap-02-01-data-kinds-of-data.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="Chap-02-01-data-exp-design.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="Chap-01-00-intro-installation.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="Chap-01-01-R.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
