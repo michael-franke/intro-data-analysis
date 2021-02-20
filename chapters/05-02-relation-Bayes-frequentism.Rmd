@@ -26,7 +26,7 @@ and a prior over model parameters
 $$ P_M(\theta)\,.$$
 
 Normally, the frequentist approach is not model-centric, but rather describes its methods as an arsenal of situation-specific tests.
-The explicit model-centric explanation of a selection of frequentist tests given in the previous chapter showed that the frequentist models that underly the computation of $p$-values eradicate all free model parameters by assigning them a single value in one of two ways:
+The explicit model-centric explanation of a selection of frequentist tests given in the previous chapter showed that the frequentist models that underlie the computation of $p$-values eradicate all free model parameters by assigning them a single value in one of two ways:
 
 1.  fixing a parameter to the value dictated by the relevant null-hypothesis; or
 2.  estimating the value of a parameter directly from the data (e.g., the standard deviation in a $t$-test).
@@ -42,7 +42,7 @@ We will visit, for instance, the notion of a Bayesian $p$-value later in this ch
 Standard frequentist methods often rely on assumptions, e.g., $\chi^2$-tests cash in the fact that, given enough data, it is safe to assume a normal distribution for data that is *de facto* not normally distributed.
 In this sense, frequentist statistics has approximation built into the models, but often uses clear-cut mathematical analysis to derive results based on these approximation assumptions.
 
-Bayesian models, on the other hand, frequently do not to make these approximations in their models.
+Bayesian models, on the other hand, frequently do not make these approximations in their models.
 But since the posterior inference is hard, if not impossible to solve analytically, the Bayesian approach relies on approximating the Bayesian inference, e.g., via sampling techniques.
 In this way, the Bayesian approach shifts the approximation into the computation, not the researcher's assumptions about the data-generating process as such.
 
@@ -50,7 +50,7 @@ Notice, however, that Bayesian models can incorporate the same (kind of) approxi
 At the same time, the frequentist approach can rely similarly on numerical approximation of its key quantitative notions.
 The next section shows an example of this, namely the approximate computation of $p$-values through Monte Carlo sampling.
 
-## MC-simulated $p$ values
+## MC-simulated $p$-values
 
 Let's reconsider the 24/7 data set, where we have $k=7$ observations of 'heads' in $N=24$ tosses of a coin.
 
@@ -80,7 +80,7 @@ So here goes:
 # specify how many Monte Carlo samples to take
 x_reps <- 500000
 
-# built a vector of likelihoods (= the relevant test statistic)
+# build a vector of likelihoods (= the relevant test statistic)
 #   for hypothetical data observations, which are 
 #   sampled based on the assumption that H0 is true
 lhs <- map_dbl(1:x_reps, function(i) {
@@ -105,7 +105,7 @@ Monte Carlo sampling for $p$-value approximation is always possible, even for ca
 
 The previous section showed how to approximate a $p$-value with Monte Carlo sampling.
 Notice that nothing in this sampling-based approach hinges on the model having no free parameters.
-Indeed we can similarly approximate so-called *Bayesian predictive $p$-values*.
+Indeed, we can similarly approximate so-called *Bayesian predictive $p$-values*.
 Bayesian predictive $p$-values have a good role to play in Bayesian data analysis: they are one possible tool for *model checking* a.k.a. *model criticism*.
 
 Suppose we have a Bayesian model for the binomial 24/7 data.
@@ -132,7 +132,7 @@ n_obs <- 24
 # specify how many Monte Carlo samples to take
 x_reps <- 500000
 
-# built a vector of likelihoods (= the relevant test statistic)
+# build a vector of likelihoods (= the relevant test statistic)
 #   for hypothetical data observations, which are 
 #   sampled based on the assumption that the
 #   Bayesian model to be tested is true
@@ -140,7 +140,7 @@ lhs <- map_dbl(1:x_reps, function(i) {
   # hypothetical data assuming the model is true
   #   first sample from the prior
   #   then sample from the likelihood
-  theta_hyp <- rbeta(1, 11,2)
+  theta_hyp <- rbeta(1, 11, 2)
   k_hyp <- rbinom(1, size = n_obs, prob = theta_hyp)
   # likelihood of that hypothetical observation
   dbinom(k_hyp, size = n_obs, prob = theta_hyp)
@@ -149,7 +149,7 @@ lhs <- map_dbl(1:x_reps, function(i) {
 # likelihood (= test statistic) of the observed data
 #   determined using MC sampling
 lh_obs = map_dbl(1:x_reps, function(i){
-  theta_hyp <- rbeta(1, 11,2)
+  theta_hyp <- rbeta(1, 11, 2)
   dbinom(k_obs, size = n_obs, prob = theta_hyp)
 }) %>% mean()
   
@@ -166,7 +166,7 @@ A common application of Bayesian $p$-values in model checking are so-called **po
 We compute a Bayesian posterior for observed data $D_\text{obs}$ and then test, via a Bayesian posterior predictive $p$-value, whether the trained model is actually a good model for $D_\text{obs}$ itself.
 If the $p$-value is high, that's no cause for hysterical glee.
 It just means that there is no cause for alarm.
-If Bayesian posterior predictive $p$-value is very low, the posterior predictive test has failed, and that means that the model, even when trained on the data $D_\text{obs}$, is *NOT* a good model of that very data.
+If the Bayesian posterior predictive $p$-value is very low, the posterior predictive test has failed, and that means that the model, even when trained on the data $D_\text{obs}$, is *NOT* a good model of that very data.
 The model must miss something crucial about the data $D_\text{obs}$.
 Better start researching what that is and build a better model if possible.
 
@@ -174,7 +174,7 @@ Most importantly, these considerations of Bayesian $p$-values show that frequent
 
 ## Comparing Bayesian and frequentist estimates {#ch-05-01-estimation-comparison}
 
-As discussed in Chapter \@ref(ch-03-04-parameter-estimation), parameter estimation is traditionally governed by two measures: (i) a point-estimate for the best parameter value, and (ii) an interval-estimate for a range of values that are considered "good enough" Table \@ref(tab:ch-05-01-estimation-overview) gives the most salient answers that the Bayesian and the frequentist approaches give.
+As discussed in Chapter \@ref(ch-03-04-parameter-estimation), parameter estimation is traditionally governed by two measures: (i) a point-estimate for the best parameter value, and (ii) an interval-estimate for a range of values that are considered "good enough". Table \@ref(tab:ch-05-01-estimation-overview) gives the most salient answers that the Bayesian and the frequentist approaches give.
 
 ```{r ch-05-01-estimation-overview, echo = F}
 table_data <- tribble(
@@ -216,7 +216,7 @@ The idea is simple but immensely powerful.
 We simulate, repeatedly, a ground-truth and synthetic results for fictitious experiments, and then we apply the statistical tests/procedures to these fictitious data sets.
 Since we know the ground-truth, we can check which tests/procedures got it right.
 
-[^relation-bayes-frequentism-1]: Even where the math seems daunting, simulation methods are much more tangible and applicable and sometimes require only basic programming experience.
+[^relation-bayes-frequentism-1]: Even where the math seems daunting, simulation methods are much more tangible, applicable and sometimes require only basic programming experience.
 
 Let's look at a simulation set-up to compare credible intervals to confidence intervals, the latter of which are calculated by asymptotic approximation or the so-called exact method (see the info-box in Section \@ref(ch-05-01-frequentist-testing-confidence-intervals)).
 To do so, we repeatedly sample a ground-truth (e.g., a known coin bias $\theta_{\text{true}}$) from a flat distribution over $[0;1]$.[^relation-bayes-frequentism-2].
@@ -233,11 +233,11 @@ The code below implements this and the figure below shows the results based on 1
 # how many "true" thetas to sample
 n_samples <- 10000 
 # sample a "true" theta
-theta_true <- runif(n=n_samples)
+theta_true <- runif(n = n_samples)
 # create data frame to store results in
 results <- expand.grid(
   theta_true = theta_true,
-  n_flips = c(10,25,100, 1000)
+  n_flips = c(10, 25, 100, 1000)
 ) %>% 
   as_tibble() %>% 
   mutate(
@@ -389,7 +389,7 @@ Frequentist analyses in the style of Neyman-Pearson do allow for a categorical d
 This requires specification of a (point-valued) alternative hypothesis and it requires sufficient statistical power (see Section \@ref(ch-03-04-hypothesis-significance-errors)).
 Nonetheless, this approach still relies on using a $p$-value derived from the assumption that the null-hypothesis is true.
 This is still a measure of testing whether the null-model is a plausible model of the data. 
-The frequentst approach does not offer a direct and intuitively interpretable measure of evidence in favor of the null-hypothesis.
+The frequentist approach does not offer a direct and intuitively interpretable measure of evidence in favor of the null-hypothesis.
 
 Arguably, the most straightforward measure of evidence in favor of the null-hypothesis involves assigning some relative probability to it.
 This can only be achieved under a Bayesian approach.
@@ -463,10 +463,10 @@ binom.test(k, N)$p.value
 
 Based on the standard $\alpha$-level of $0.05$, frequentism thus prescribes to reject $H_0$.
 
-In contrast, using the Savage-Dickey method to compute the Bayes factor, we find strong supprt *in favor of* $H_0$.
+In contrast, using the Savage-Dickey method to compute the Bayes factor, we find strong support *in favor of* $H_0$.
 
 ```{r}
-dbeta(0.5, k+1, N - k + 1)
+dbeta(0.5, k + 1, N - k + 1)
 ```  
 
 The reason why these methods give different results is because they *are* conceptually completely different things. There is no genuine paradox.
@@ -482,11 +482,11 @@ At the same time, the alternative model with $\theta_c \sim \text{Beta}(1,1)$ is
 
 None of these considerations lend themselves to a principled argument for or against frequentism or Bayesianism.
 The lesson to be learned is that these different approaches ask different questions (about models and data).
-The agile data analyst will diligently check each concrete research context for which method is most conducive of gaining the insights relevant for the given purpose.
+The agile data analyst will diligently check each concrete research context for which method is most conducive to gaining the insights relevant for the given purpose.
 
 ## Explicit beliefs vs. implicit intentions
 
-The main objection against Bayesianism which motivated and still drives the frequentist program is that Bayesian priors are *subjective*, and therefore to be regarded as less unscientific than hard *objectively justifiable* ingredients, such as likelihood functions.
+The main objection against Bayesianism which motivated and still drives the frequentist program is that Bayesian priors are *subjective*, and therefore to be regarded as less scientific than hard *objectively justifiable* ingredients, such as likelihood functions.
 A modern Bayesian riposte bites the bullet, chews it well, and spits it back.
 While priors are subjective, they are at least explicit.
 They are completely out in the open and, if the data is available, predictions for any other set of prior assumptions can simply be tested.
@@ -509,7 +509,7 @@ We don't base our inference on how the data was obtained.
 Right? -
 Wrong if you are a frequentist.
 
-The manner of data collection dictates what other possible obervations of the experiment are.
+The manner of data collection dictates what other possible observations of the experiment are.
 These in turn matter for computing $p$-values.
 For the "Stop at $N=24$" case, the likelihood function is what we used before, the Binomial distribution:
 
