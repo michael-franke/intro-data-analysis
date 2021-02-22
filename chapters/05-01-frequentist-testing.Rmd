@@ -27,7 +27,7 @@ The learning goals for this chapter are:
   - confidence interval
   - statistical significance
 - understand and become able to apply and interpret basic frequentist tests:
-  - binomial test, t-tests, ANOVA, linear regression, $\chi^2$-test, likelihood-ratio test
+  - binomial test, $t$-tests, ANOVA, linear regression, $\chi^2$-test, likelihood-ratio test
 ```
 
 ## Frequentist statistics: why & how {#ch-05-01-frequentist-testing-overview}
@@ -43,7 +43,7 @@ While the precise mechanisms of this historical development are very interesting
 
 As an alternative to Bayesian approaches, the dominant method of statistical inference of the 20th century is **frequentist statistics**.
 As a matter of strong philosophical conviction, frequentist statistics makes do entirely without subjective probability: no priors on parameters, no priors on models, no researcher beliefs whatsoever.
-A crude (and certainly simplified) explanation of why frequentist approaches eshew subjective beliefs is this. 
+A crude (and certainly simplified) explanation of why frequentist approaches eschew subjective beliefs is this. 
 Extreme frequentism denies that a probability distribution over a latent parameter like $\theta$ is meaningful.
 Whatever we choose, the choice cannot be justified or defended in a scientifically rigorous manner.
 The only statements about probabilities that are conceptually sound, according to a fundamentalist frequentist interpretation, are those that derive from intuitions about limiting frequencies when (hypothetically) performing a random process (like throwing a dice or drawing a ball from an urn) repeatedly.
@@ -100,7 +100,7 @@ knitr::include_graphics("visuals/frequentist-flavors.png")
 ## Quantifying evidence against a null-model with *p*-values {#ch-03-05-hypothesis-p-values}
 
 All prominent frequentist approaches to statistical hypothesis testing (see Section \@ref(ch-05-01-frequentist-testing-overview)) agree that if empirical observations are sufficiently *un*likely from the point of view of the null hypothesis $H_0$, this should be treated (in some way or other) as evidence *against* the null hypothesis. 
-A measure of how unlikely the data is in the light of $H_0$ is the $p$-value.^[For clarity: the $p$-value is actually a measure of how suprising the data is in light of the whole null-model, which is built around the null hypothesis. As the further ingredients in the null-model are usually considered to be relatively uncontroversial (at least relative to the assumption of the null hypothesis), the $p$-value parlance directly targets the null hypothesis.]
+A measure of how unlikely the data is in the light of $H_0$ is the $p$-value.^[For clarity: the $p$-value is actually a measure of how surprising the data is in light of the whole null-model, which is built around the null hypothesis. As the further ingredients in the null-model are usually considered to be relatively uncontroversial (at least relative to the assumption of the null hypothesis), the $p$-value parlance directly targets the null hypothesis.]
 To preview the main definition and intuition (to be worked out in detail hereafter), let's first consider a verbal and then a mathematical formulation.
 
 <div class = "mathstuff">
@@ -184,7 +184,7 @@ $$
 
 The case for testing the null hypothesis $\theta > 0.5$ is slightly more convoluted.
 The frequentist construction of a null model strictly requires point-valued assumptions about all model parameters.
-Otherwise subjective priors would sneak it.
+Otherwise, subjective priors would sneak it.
 (NB: Even the assumption of equal probability of parameter values, as in a non-informative prior, *is* a biased and subjective assumption, according to frequentism.)
 We therefore actually test the point-valued null hypothesis $\theta = 0.5$, but we contrast it with a different  alternative hypothesis, which is now one-sided:
 
@@ -222,8 +222,8 @@ In code, we calculate this $p$-value as follows:
 ```{r}
 # exact p-value for k = 7 with N = 24 and null hypothesis theta = 0.5
 k_obs <- 7
-N <-  24
-theta_0 <-  0.5
+N <- 24
+theta_0 <- 0.5
 tibble( lh = dbinom(0:N, N, theta_0) ) %>% 
   filter( lh <=  dbinom(k_obs, N, theta_0) ) %>% 
   pull(lh) %>% sum %>% round(5)
@@ -260,13 +260,13 @@ binom.test(
 **Exercise 16.1: Output of R's `binom.test`**
 
 Look at the output of the above call to R's `binom.test` function. 
-Which pieces of information in that outputs make sense to you (given your current knowledge) and which do not? 
+Which pieces of information in that output make sense to you (given your current knowledge) and which do not? 
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
 <div class="content">
 
-The output given first states what was computed, namely and *exact binomial test*.
+The output given first states what was computed, namely an *exact binomial test*.
 You should understand what a *binomial test* is.
 The additional adjective *exact* refers to the fact that we did not use any approximation to get at the shown $p$-value.
 Next, we see the data repeated and the calculated $p$-value, which we have seen how to calculate by hand.
@@ -279,7 +279,7 @@ Together with the 95% confidence interval, the test result therefore also report
 </div>
 </div>
 
-**Case $\theta > 0.5$.** Let's now look at the case where we want to test whether the coin if biased towards heads $\theta > 0.5$. 
+**Case $\theta > 0.5$.** Let's now look at the case where we want to test whether the coin is biased towards heads $\theta > 0.5$. 
 As explained above, we need a point-valued assumption for the coin bias $\theta$ to set up a frequentist model and retrieve a sampling distribution for the relevant test statistic.
 We choose $\theta_{0} = 0.5$ as the point-valued null hypothesis, because *if* we get a high measure of the evidence against the hypothesis $\theta_{0} = 0.5$ (in a comparison against the alternative $\theta < 0.5$), we can discredit the whole interval-based hypothesis $\theta > 0.5$ because any other value of $\theta$ bigger than 0.5 would give at least as high a $p$-value.
 In other words, we pick the single value for the comparison which is most favorable *for* the hypothesis $\theta > 0.5$ when compared against $\theta < 0.5$, so as when *even that* value is discredited, the whole hypothesis $\theta > 0.5$ is discredited.
@@ -466,7 +466,7 @@ tibble(
   group_by(n) %>% 
   mutate(
   mu = mean(samples[1:n])
-)  %>% 
+  ) %>% 
   ggplot(aes(x = n, y = mu)) +
   geom_line()
 ```
@@ -516,23 +516,23 @@ function selectDist() {
   var dist = document.getElementById("select");
 
   if (dist.options[dist.selectedIndex].text == "normally distributed") {
-    document.getElementById("empty").innerHTML = "<pre class='gaussian'>var sample_size = 3;\nvar number_of_samples = 5;\n///fold:\n\n// Population distribution\n\nvar mu = 4; // mean\nvar sigma = 1; // standard deviation\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {gaussian({mu: mu, sigma: sigma})});\nvar population_mean = sum(population)/n_samples;\nprint('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\nprint('Sampling distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
+    document.getElementById("empty").innerHTML = "<pre class='gaussian'>var sample_size = 3;\nvar number_of_samples = 5;\n///fold:\n\n// Population distribution\n\nvar mu = 4; // mean\nvar sigma = 1; // standard deviation\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {gaussian({mu: mu, sigma: sigma})});\nvar population_mean = sum(population)/n_samples;\ndisplay('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\ndisplay('Sampling distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
     var type = 'gaussian';
 
   } else if (dist.options[dist.selectedIndex].text == "uniformly distributed") {
-    document.getElementById("empty").innerHTML = "<pre class='uniform'>var sample_size = 2;\nvar number_of_samples = 6;\n///fold:\n\n// Population distribution\n\nvar a = 1; // lower bound\nvar b = 3; // upper bound (> a)\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {uniform({a: a, b: b})});\nvar population_mean = sum(population)/n_samples;\nprint('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\nprint('Sampling distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
+    document.getElementById("empty").innerHTML = "<pre class='uniform'>var sample_size = 2;\nvar number_of_samples = 6;\n///fold:\n\n// Population distribution\n\nvar a = 1; // lower bound\nvar b = 3; // upper bound (> a)\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {uniform({a: a, b: b})});\nvar population_mean = sum(population)/n_samples;\ndisplay('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\ndisplay('Sampling distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
     var type = 'uniform';
 
   } else if (dist.options[dist.selectedIndex].text == "beta distributed") {
-    document.getElementById("empty").innerHTML = "<pre class='beta'>var sample_size = 3;\nvar number_of_samples = 3;\n///fold:\n\n// Population distribution\n\nvar a = 4; // shape parameter alpha\nvar b = 2; // shape parameter beta\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {beta({a: a, b: b})});\nvar population_mean = sum(population)/n_samples;\nprint('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\nprint('Sampling distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
+    document.getElementById("empty").innerHTML = "<pre class='beta'>var sample_size = 3;\nvar number_of_samples = 3;\n///fold:\n\n// Population distribution\n\nvar a = 4; // shape parameter alpha\nvar b = 2; // shape parameter beta\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {beta({a: a, b: b})});\nvar population_mean = sum(population)/n_samples;\ndisplay('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\ndisplay('Sampling distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
     var type = 'beta';
 
   } else if (dist.options[dist.selectedIndex].text == "binomially distributed") {
-    document.getElementById("empty").innerHTML = "<pre class='binomial'>var sample_size = 6;\nvar number_of_samples = 4;\n///fold:\n\n// Population distribution\n\nvar p = 0.5; // probability of success\nvar n = 10; // number of trials (>= 1)\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {binomial({p: p, n: n})});\nvar population_mean = sum(population)/n_samples;\nprint('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\nprint('Sampling distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
+    document.getElementById("empty").innerHTML = "<pre class='binomial'>var sample_size = 6;\nvar number_of_samples = 4;\n///fold:\n\n// Population distribution\n\nvar p = 0.5; // probability of success\nvar n = 10; // number of trials (>= 1)\nvar n_samples = 10000; // number of samples used for approximation\n\nvar population = repeat(n_samples, function(x) {binomial({p: p, n: n})});\nvar population_mean = sum(population)/n_samples;\ndisplay('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\ndisplay('Sampling distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
     var type = 'binomial';
     
   } else if (dist.options[dist.selectedIndex].text == "custom") {
-    document.getElementById("empty").innerHTML = "<pre class='custom'>var sample_size = 10;\nvar number_of_samples = 10;\nvar population = [1, 2, 4, 5, 5, 3, 7, 5, 3];\n///fold:\n\n// Population distribution\n\nvar population_mean = sum(population)/population.length;\nprint('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\nprint('Sampling distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
+    document.getElementById("empty").innerHTML = "<pre class='custom'>var sample_size = 10;\nvar number_of_samples = 10;\nvar population = [1, 2, 4, 5, 5, 3, 7, 5, 3];\n///fold:\n\n// Population distribution\n\nvar population_mean = sum(population)/population.length;\ndisplay('Population distribution \\nPopulation mean = ' + population_mean);\nviz(population);\n\n// Sampling distribution\n\nvar random_sample = function(population, sample_size) {\n  if(sample_size == 1) {\n    var sample = [_.sample(population)];\n    return sample;\n  } else {\n    var sample = [_.sample(population)];\n    return sample.concat(random_sample(population, sample_size-1));\n  }\n}\n\nvar compute_mean = function(population, sample_size) {\n  var sample = random_sample(population, sample_size);\n  var sample_mean = sum(sample)/sample_size;\n  return sample_mean;\n}\n\nvar sampling_dist = repeat(number_of_samples, function(x){compute_mean(population, sample_size)});\nvar sampling_dist_mean = sum(sampling_dist)/number_of_samples;\ndisplay('Sampling distribution of the sample mean \\nSample mean = ' + sampling_dist_mean);\nviz.hist(sampling_dist);\n///</pre>";
     var type = 'custom';
 
   }
@@ -554,7 +554,7 @@ The point-value for $H_a$ usually comes from previous research or is chosen in a
 If we have a pair of explicit, point-valued hypotheses, null and alternative, we can do more than just to reject or not reject the null hypothesis, so the N-P approach proposes.
 We can reject the null hypothesis, in which case we accept the alternative hypothesis, or we can accept the null hypothesis, in which case we reject the alternative hypothesis.
 Being entirely frequentist, the N-P approach makes this binary decision between competing hypotheses based on $p$-values derived from the null hypothesis, as before.
-As we will see, this binary accept/reject logic is only tight if we make sure that we make sure that a particular kind of error, the $\beta$-error, is low enough; which we do, essentially, by making sure that we have enough data.
+As we will see, this binary accept/reject logic is only tight if we make sure that a particular kind of error, the $\beta$-error, is low enough; which we do, essentially, by making sure that we have enough data.
 
 If we have two hypotheses $H_0$ and $H_a$, and accept/reject them in a binary fashion, there are two types of error relevant to these considerations: 
 
@@ -568,7 +568,7 @@ This is shown for a one-sided test in Figure  \@ref(fig:chap-05-01-freq-testing-
 But now assume that, by the new N-P decision rule, whenever our test result is not significant, i.e., we get a result for the test statistic below $t^*$, we would accept the null hypothesis and reject the alternative hypothesis $H_a$.
 Then, the amount of errors we make, under the assumption that $H_a$ is actually true is given by $\beta$.
 
-```{r chap-05-01-freq-testing-alpha-beta-error, echo = F, fig.cap="Schematic representation of $\\alpha$- and $\\beta$-errors. The green curve is the sampling distribution of some test statistic under the assumption that the null hypothesis is true. The yellow curve is the sampling distribution for the alternative hypothesis. The decision criterion for an N-P test is indicated as $t^*$. The shaded regions show the probabilities of falsely rejecting a true null hypotthesis (in green) and that of false accepting a false alternative hypothesis."}
+```{r chap-05-01-freq-testing-alpha-beta-error, echo = F, fig.cap="Schematic representation of $\\alpha$- and $\\beta$-errors. The green curve is the sampling distribution of some test statistic under the assumption that the null hypothesis is true. The yellow curve is the sampling distribution for the alternative hypothesis. The decision criterion for an N-P test is indicated as $t^*$. The shaded regions show the probabilities of falsely rejecting a true null hypothesis (in green) and that of false accepting a false alternative hypothesis."}
 plot_data <- tibble(
   x = seq(-8, 12, length.out = 1000),
   null = dnorm(x, sd = 2),
@@ -757,7 +757,7 @@ knitr::include_graphics("visuals/confidence-interval.png")
 In some complex cases, the frequentist analyst relies on functions $g_{l}$ and $g_{u}$ that are easy to compute but only approximately satisfy the condition $P(X_l \le \theta_{\text{true}} \le X_u) = \frac{\gamma}{100}$. For example, we might use an
 asymptotically correct calculation, based on the observation that, if $n$ grows to infinity, the binomial distribution approximates a normal distribution. We can then calculate a confidence interval *as if* our binomial distribution actually was a normal distribution. If $n$ is not large enough, this will be increasingly imprecise. Rules of thumb are used to decide how big $n$ has to be to involve at best a tolerable amount of imprecision (see the Info Box below). 
 
-For our running example ($k = 7$, $n=24$), the rule of thumb mentioned in the Info Box below recommends *not* using the asymptotic calculation. If we did nonetheless, we would get a confidence interval of $[0.110; 0.474]$. For the binomial distribution, also a more reliable calculation exist, which yields $[0.126; 0.511]$ for the running example. (We can use numeric simulation to explore how good/bad a particular approximate calculation is, as shown in the next section.) The more reliable construction, the so-called *exact method*, implemented in the function `binom.confint` of R package `binom`, revolves around the close relationship between confidence intervals and $p$-values. (To foreshadow a later discussion: the exact $\gamma\%$ confidence interval is the set of all parameter values for which an exact (binomial) test does not yield a significant test result as the level of $\alpha = 1-\frac{\gamma}{100}$.)
+For our running example ($k = 7$, $n=24$), the rule of thumb mentioned in the Info Box below recommends *not* using the asymptotic calculation. If we did nonetheless, we would get a confidence interval of $[0.110; 0.474]$. For the binomial distribution, also a more reliable calculation exists, which yields $[0.126; 0.511]$ for the running example. (We can use numeric simulation to explore how good/bad a particular approximate calculation is, as shown in the next section.) The more reliable construction, the so-called *exact method*, implemented in the function `binom.confint` of R package `binom`, revolves around the close relationship between confidence intervals and $p$-values. (To foreshadow a later discussion: the exact $\gamma\%$ confidence interval is the set of all parameter values for which an exact (binomial) test does not yield a significant test result as the level of $\alpha = 1-\frac{\gamma}{100}$.)
 
 <div class="infobox">
 **Asymptotic approximation of a binomial confidence interval using a normal distribution.**
@@ -895,7 +895,7 @@ With a larger sample size, the $p$-value is smaller compared to 10 coin flips. I
 
 ## Selected tests {#ch-03-05-hypothesis-testing-tests}
 
-This sections captures a selection of commonly used frequentist tests.
+This section captures a selection of commonly used frequentist tests.
 
 ### Pearson's $\chi^2$-tests {#ch-03-05-hypothesis-testing-Pearsons-Chi}
 
@@ -961,7 +961,7 @@ BLJM_associated_counts %>%
 
 Pearson's $\chi^2$-test for goodness of fit allows us to test whether this data could plausibly have been generated by (a model whose predictions are given by) a prediction vector $\vec{p} = \langle p_1, \dots, p_4 \rangle$, where $p_1$ would be the predicted probability of a choice pair "Biology-Jazz" occurring for a single participant, and so on. Frequently, this test is used to check whether an equal baseline distribution could have generated the data. We do that here, too. We form the null hypothesis that $\vec{p} = \vec{p}_0$ with $p_{0i} = \frac{1}{4}$ for all categories $i$. 
 
-Figure \@ref(fig:ch-03-04-chi2-model-goodness) shows a graphical representation of the model implicitly assumed in the background for a Pearson's $\chi^2$-test for goodness of fit. The model assumes that the observed vector of counts (like our `counts_BLJM_choice_pairs_vector` from above) follows a Multinomial distribution.^[Notice that for economy or presentation, we now (again) gloss over the "raw" data of individual choices and present the summarized count data instead. In the previous case of the Binomial Test, it made good pedagogical sense to tease apart the "raw" observations from the summarized counts because this helped to show what the test statistic is for a case, where the choice of it was very, very obvious; so much so, that we would normally not even bother to make it explicit. Now that we understood what a test statistic is in principle, we can gloss over some steps of data summarizing.] Each vector of (hypothetical) data is associated with a test statistic, called $\chi^2$, which sums over the standardized squared deviation of the observed counts from the predicted baseline in each cell. It can be shown that, if the number of observations $N$ is large enough, the sampling distribution of the $\chi^2$ test statistic is approximated well enough by the [$\chi^2$-distribution](#app-91-distributions-chi2) with $k-1$ degrees of freedom (where $k$ is the number of categories).^[A proof of this fact is non-trivial, but an intuition why this might be so is available if we think of each cell independently first. In each cell, with more and more samples, the distribution of counts will approximate a normal distribution by the CLT. The $\chi^2$-distribution rests (by construction) on a sum of squared samples from a standard normal distribution.] Notice that the approximation by a $\chi^2$-distribution hinges on an approximation, which is only met when there are enough samples (just as we needed in the CLT). A rule-of-thumb is that at most 20% of all cells should have expected frequencies below 5 in order for the test to be applicable, i.e., $np_i < 5$ for all $i$ in Figure \@ref(fig:ch-03-04-chi2-model-goodness).
+Figure \@ref(fig:ch-03-04-chi2-model-goodness) shows a graphical representation of the model implicitly assumed in the background for a Pearson's $\chi^2$-test for goodness of fit. The model assumes that the observed vector of counts (like our `counts_BLJM_choice_pairs_vector` from above) follows a Multinomial distribution.^[Notice that for economy of presentation, we now (again) gloss over the "raw" data of individual choices and present the summarized count data instead. In the previous case of the Binomial Test, it made good pedagogical sense to tease apart the "raw" observations from the summarized counts because this helped to show what the test statistic is for a case, where the choice of it was very, very obvious; so much so, that we would normally not even bother to make it explicit. Now that we understood what a test statistic is in principle, we can gloss over some steps of data summarizing.] Each vector of (hypothetical) data is associated with a test statistic, called $\chi^2$, which sums over the standardized squared deviation of the observed counts from the predicted baseline in each cell. It can be shown that, if the number of observations $N$ is large enough, the sampling distribution of the $\chi^2$ test statistic is approximated well enough by the [$\chi^2$-distribution](#app-91-distributions-chi2) with $k-1$ degrees of freedom (where $k$ is the number of categories).^[A proof of this fact is non-trivial, but an intuition why this might be so is available if we think of each cell independently first. In each cell, with more and more samples, the distribution of counts will approximate a normal distribution by the CLT. The $\chi^2$-distribution rests (by construction) on a sum of squared samples from a standard normal distribution.] Notice that the approximation by a $\chi^2$-distribution hinges on an approximation, which is only met when there are enough samples (just as we needed in the CLT). A rule-of-thumb is that at most 20% of all cells should have expected frequencies below 5 in order for the test to be applicable, i.e., $np_i < 5$ for all $i$ in Figure \@ref(fig:ch-03-04-chi2-model-goodness).
 
 ```{r ch-03-04-chi2-model-goodness, echo = F, fig.cap="Graphical representation of Pearson's $\\chi^2$-test for goodness of fit (testing a vector of predicted proportion).", out.width = '90%'}
 knitr::include_graphics("visuals/chi2-model-goodness.png" )
@@ -973,11 +973,11 @@ We can compute the $\chi^2$-value associated with the observed data $t(D_{obs})$
 # observed counts
 n <- counts_BLJM_choice_pairs_vector
 # proportion predicted 
-p <- rep(1/4,4)
+p <- rep(1/4, 4)
 # expected number in each cell
-e <- sum(n)*p
+e <- sum(n) * p
 # chi-squared for observed data
-chi2_observed <- sum((n-e)^2 * 1/e)
+chi2_observed <- sum((n - e)^2 * 1/e)
 chi2_observed
 ```
 
@@ -1379,7 +1379,7 @@ t_observed %>% round(4)
 We calculate the relevant one-sided $p$-value using the cumulative distribution function `pt` of the $t$-distribution.
 
 ```{r}
-p_value_t_test_IQ <- 1 - pt(t_observed, df = N-1)
+p_value_t_test_IQ <- 1 - pt(t_observed, df = N - 1)
 p_value_t_test_IQ %>% round(6)
 ```
 
@@ -1484,8 +1484,8 @@ n_A <- length(x_A)
 n_B <- length(x_B)
 # variance estimate
 sigma_AB <- sqrt(
-  ( ((n_A -1) * sd(x_A)^2 + (n_B -1) * sd(x_B)^2 ) / 
-      (n_A + n_B -2) ) * (1/n_A + 1/n_B)
+  ( ((n_A - 1) * sd(x_A)^2 + (n_B - 1) * sd(x_B)^2 ) / 
+      (n_A + n_B - 2) ) * (1/n_A + 1/n_B)
 )
 t_observed <- (mu_A - mu_B - delta_0) / sigma_AB
 t_observed  
@@ -1661,7 +1661,7 @@ F = \frac{\hat{\sigma}_{\mathrm{between}}}{\mathrm{\hat{\sigma}_{\mathrm{within}
 $$
 For illustration, Figure \@ref(fig:ch-05-01-examples-F-score) shows four different scenarios with associated measures of $F$.
 
-```{r ch-05-01-examples-F-score, echo = F, fig.cap="Different examples of metric measurements for three groups (A, B, C), shown here together with the a polt of the combined (=pooled) data. We see that, as the means of measurements go apart, so does the ratio of between-group variance and within-group variance."}
+```{r ch-05-01-examples-F-score, echo = F, fig.cap="Different examples of metric measurements for three groups (A, B, C), shown here together with a plot of the combined (= pooled) data. We see that, as the means of measurements go apart, so does the ratio of between-group variance and within-group variance."}
 plot_anova_data <- function(mu_A, mu_B, mu_C, sd = 10, n = 20) {
   # create random data
   fict_data <- tibble(
@@ -1730,7 +1730,7 @@ plot_grid(
 
 ```
 
-It can be shown that, under the assumption that the $k$ group's have identical means, the sampling distribution of the $F$ statistic follows an [$F$-distribution](#app-91-distributions-F) with appropriate parameters (which is, unsurprisingly, the distribution constructed for exactly this purpose):
+It can be shown that, under the assumption that the $k$ groups have identical means, the sampling distribution of the $F$ statistic follows an [$F$-distribution](#app-91-distributions-F) with appropriate parameters (which is, unsurprisingly, the distribution constructed for exactly this purpose):
 
 $$
 F \sim F\mathrm{\text{-}distribution}\left(k - 1, \sum_{i=1}^k (n_i - 1) \right)
@@ -1795,7 +1795,7 @@ anova_data %>%
     )
 ```
 
-We want to know whether it is plausible to entertain the idea that the mean of these three groups are identical.
+We want to know whether it is plausible to entertain the idea that the means of these three groups are identical.
 We can calculate the one-way ANOVA explicitly as follows, following the calculations described in Figure \@ref(fig:ch-05-01-ANOVA-onway-model):
 
 ```{r, echo = T}
@@ -1804,7 +1804,7 @@ grand_mean <- anova_data %>% pull(value) %>% mean()
 
 # compute degrees of freedom (parameters to F-distribution)
 df1 <- 2
-df2 <- n_A + n_B + n_C -3
+df2 <- n_A + n_B + n_C - 3
 
 # between-group variance
 between_group_variance <- 1/df1 *
@@ -1825,7 +1825,7 @@ within_group_variance <- 1/df2 *
 F_observed <-  between_group_variance / within_group_variance
 
 # retrieving the p-value (using the F-distribution)
-p_value_anova <- 1 - pf(F_observed, 2, n_A + n_B + n_C -3)
+p_value_anova <- 1 - pf(F_observed, 2, n_A + n_B + n_C - 3) 
 p_value_anova %>% round(4)
 ```
 
@@ -1965,7 +1965,7 @@ To report these results, we could use a statement like this:
 
 Significance testing for linear regression parameters follows the same logic as for other models as well.
 In particular, it can be shown that the relevant test statistic for ML-estimates of regression coefficients $\hat\beta_i$, under the assumption that the true model has $\beta_i = 0$, follows a $t$-distribution.
-We can run a linear regression model (with a Gaussian noice function) using the built-in function `glm` (for "generalized linear model"):
+We can run a linear regression model (with a Gaussian noise function) using the built-in function `glm` (for "generalized linear model"):
 
 ```{r}
 fit_murder_mle <- glm(
@@ -1982,7 +1982,7 @@ summary(fit_murder_mle)
 ```
 
 
-So, in the case of the `murder_data`, we would conclude that there is strong evidence *against* the assumption that the data could have been generated by model whose slope parameter for `low_income` is set to 0. 
+So, in the case of the `murder_data`, we would conclude that there is strong evidence *against* the assumption that the data could have been generated by a model whose slope parameter for `low_income` is set to 0. 
 
 ### Likelihood-Ratio Test {#Chap-05-01-LR-test}
 
@@ -2054,10 +2054,10 @@ bestExpo <- optim(nLL_exp, par = c(1, 0.5))
 ```{r}
 nLL_expo_nested <- function(b) {
   # calculate predicted recall rates for given parameters
-  theta <- 1.1*exp(-b*t)  # one-param exponential model 
+  theta <- 1.1 * exp(-b * t)  # one-param exponential model 
   # avoid edge cases of infinite log-likelihood
   theta[theta <= 0.0] <- 1.0e-4
-  theta[theta >= 1.0] <- 1-1.0e-4
+  theta[theta >= 1.0] <- 1 - 1.0e-4
   # return negative log-likelihood of data
   - sum(dbinom(x = obs, prob = theta, size = 100, log = T))
 }
@@ -2084,7 +2084,7 @@ LR_observed
 ```
 
 If the simpler (nested) model is true, the sampling distribution of this test statistic approximates a $\chi^2$-distribution with $d$ if we have more and more data. 
-The degrees of freedom $d$ is given by the difference in free parameters, i.e., the number of parameters the nested model fixes to specific values, but which are free in the nesting model. 
+The degrees of freedom $d$ are given by the difference in free parameters, i.e., the number of parameters the nested model fixes to specific values, but which are free in the nesting model. 
 
 We can therefore calculate the $p$-value for the LR-test for our current example like so:
 
@@ -2106,7 +2106,7 @@ TRUE OR FALSE?
 
 a. The nested model usually has more free parameters than the nesting model.
 b. When we perform the LR-test, we initially assume that the nested model is more plausible.
-c. A LR-test can only compare the nested model with nesting models.
+c. An LR-test can only compare the nested model with nesting models.
 d. If the LR-test result has a $p$-value equal to 1.0, one can conclude that it's a piece of evidence in favor of the simpler model. 
 
 <div class="collapsibleSolution">
