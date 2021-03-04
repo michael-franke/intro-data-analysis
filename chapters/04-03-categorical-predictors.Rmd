@@ -3,8 +3,8 @@
 <hr>
 
 The previous chapters applied linear regression models to cases where we wanted to predict a metric variable $y$ based on the values of associated metric measurements $x_i$ ($1 \le i \le n$).
-In this chapter we are generalizing this approach to also deal with the case where a predictor $x_i$ is a categorical variable, such as an indicator value showing which group or experimental condition a measurement of $y$ belongs to.
-In this way, at the end of the chapter we will be able to apply linear regression modeling to the analysis of (metric) measurements, for instance, from a factorial design - a common design type of psychological experiments (see Chapter \@ref(Chap-02-01-data)).
+In this chapter, we are generalizing this approach to also deal with the case where a predictor $x_i$ is a categorical variable, such as an indicator value showing which group or experimental condition a measurement of $y$ belongs to.
+In this way, at the end of the chapter, we will be able to apply linear regression modeling to the analysis of (metric) measurements, for instance, from a factorial design - a common design type of psychological experiments (see Chapter \@ref(Chap-02-01-data)).
 
 As we will see in this chapter, the only "trick" to generalizing linear regression modeling to also cover **categorical predictors**, as we will call them, is to map levels of a categorical variable onto numbers.
 For example, if we have two groups in a predictor variable $x$, say group $A$ and $B$, we could just encode group $A$ as a value of $x = 0$ and group $B$ as a value of $x = 1$.
@@ -24,7 +24,7 @@ The video below provides a dense coverage of single-predictor contrast coding, i
 The learning goals for this chapter are:
 
 - understand the basic idea behind *contrast coding*
-- be able to interpret the results of a regression analysis which uses *treatment coding*
+- be able to interpret the results of a regression analysis that uses *treatment coding*
 - be able to interpret inferences for models including an *interaction coefficient* for two categorical predictors
 
 ```
@@ -102,7 +102,7 @@ How do these results come about?
 And why are the variables returned by `brms` called "Intercept" and "conditionincongruent"?
 In order to use the simple linear regression model, the categorical predictor $x$ has been coded as either $0$ or $1$.
 Concretely, `brms` has introduced a new predictor variable, call it `new_predictor`, which has value $0$ for the "congruent" condition and $1$ for the "incongruent" condition.
-Per default, `brms` chooses the level that is alphanumerically first as the so-called **reference level**, assigning to it the value $0$.
+By default, `brms` chooses the level that is alphanumerically first as the so-called **reference level**, assigning to it the value $0$.
 Here, that's "congruent".
 
 The result would look like this:
@@ -150,7 +150,7 @@ For $\xi_i  = \beta_0 + \beta_1 x_i$, let $x_i =0$ if the data point is from gro
 </div>
 </div>
 
-## Single multi-level predictors {#Chap-04-03-predictors-multi-levels}
+## Single multi-level predictor {#Chap-04-03-predictors-multi-levels}
 
 <div style = "float:right; width:15%;">
 <img src="visuals/badge-mental-chronometry.png" alt="badge-mental-chronometry">  
@@ -229,10 +229,10 @@ $$
 \text{RT in 'goNoGo'} <
 \text{RT in 'discrimination'}
 $$
-Unfortunately, it is not directly possible to read-off information about the second comparison we care about, namely the comparison between "reaction" and "goNoGO".
+Unfortunately, it is not directly possible to read off information about the second comparison we care about, namely the comparison between "reaction" and "goNoGo".
 And here is where we see the point of **contrast coding** pop up for the first time.
 We would like to encode predictor levels ideally in such a way that we can read off (test) the hypotheses we care about directly.
-In other words, if possible, we would like to have parameters in our model in the form of slope coefficients, which directly encode the $\delta$s, so to speak, that we want to test.^[To be precise, it is possible to also test derived random variables from the posterior samples. So, it is not *necessary* to encode the contrasts of interests directly. But, most often, in Bayesian analyses it will make sense to put priors on exactly these $\delta$s (e.g., skeptical priors biased against a hypothesis to be tested) and for *that* purpose it is (almost) practically necessary to have the relevant contrasts expressed as slope coefficients in the model.]
+In other words, if possible, we would like to have parameters in our model in the form of slope coefficients, which directly encode the $\delta$s, so to speak, that we want to test.^[To be precise, it is possible to also test derived random variables from the posterior samples. So, it is not *necessary* to encode the contrasts of interests directly. But, most often, in Bayesian analyses it will make sense to put priors on exactly these $\delta$s (e.g., skeptical priors biased against a hypothesis to be tested) and for *that* purpose, it is (almost) practically necessary to have the relevant contrasts expressed as slope coefficients in the model.]
 
 In the case at hand, all we need to do is change the reference level.
 If the reference level is the "middle category" (as per our ordered hypothesis), the two slopes will express the contrasts we care about.
@@ -276,7 +276,7 @@ tribble(
 ```
 
 As we may have expected, the 95% inter-quantile range for both slope coefficients (which, given the amount of data we have, is almost surely almost identical to the 95% HDI) does not include 0 by a very wide margin.
-We could, therefore, conclude, based on a Bayesian approach to hypothesis testing in terms of posterior estimation, that the reaction times of conditions are credibly different.
+We could therefore conclude that, based on a Bayesian approach to hypothesis testing in terms of posterior estimation, the reaction times of conditions are credibly different.
 
 The coding of levels in terms of a reference level is called *treatment coding*, or also *dummy coding*.
 The video included at the beginning of this chapter discusses further contrast coding schemes, and also shows in more detail how a coding scheme translates into "directly testable" hypotheses.
@@ -302,7 +302,7 @@ tribble(
 ```
 
 
-As group A is a reference category, $\beta_0$ expresses the mean reaction time of group A. The mean reaction time of group B is $\beta_0 + \beta_1$, so we need $(x_{i1} =1 , x_{i2} = 0)$ for any $i$ which is of group B. In the text above, the mean reaction time of group C is given by $\beta_0 + \beta_2$. However, now the value is given by $\beta_0 + \beta_1 + \beta_2$, so $(x_{i1} =1 , x_{i2} = 1)$ will give us the value we need.
+As group A is a reference category, $\beta_0$ expresses the mean reaction time of group A. The mean reaction time of group B is $\beta_0 + \beta_1$, so we need $(x_{i1} =1 , x_{i2} = 0)$ for any $i$ which is of group B. In the text above, the mean reaction time of group C is given by $\beta_0 + \beta_2$. However, the value we need now is given by $\beta_0 + \beta_1 + \beta_2$, so $(x_{i1} =1 , x_{i2} = 1)$.
 
 </div>
 </div>
@@ -316,7 +316,7 @@ But having multiple categorical predictors also requires some additional conside
 
 Here is an informal example.
 Suppose that we have metric measurements of how tasty a snack is perceived to be.
-There are two categorical factors which we want to use to predict the average tastiness of a snack.
+There are two categorical factors that we want to use to predict the average tastiness of a snack.
 The first predictor is `mayo` and we encode it numerically as: 0 if the dish does not contain mayonnaise and 1 if it does.
 The second predictor is `chocolate` and we encode it similarly as: 0 if the dish does not contain chocolate and 1 if it does.
 Suppose we estimate these two  slope coefficients (one for `mayo` and one for `chocolate`) for our imaginary data set and find that both are credibly positive.
@@ -488,7 +488,7 @@ Different coding schemes exist by means of which different comparisons of means 
 A simple coding scheme for differences in our $2 \times 2$ design is shown in Figure \@ref(fig:Chap-04-02-beyond-simple-regression-factorial-coefficients).
 This is a straightforward extension of *treatment coding* for the single predictors introduced previously which additionally includes a potential interaction.
 
-```{r Chap-04-02-beyond-simple-regression-factorial-coefficients, echo = F, fig.cap="Regression coefficients for a factorial design (using so-called 'treatment coding').", fig.width=4}
+```{r Chap-04-02-beyond-simple-regression-factorial-coefficients, echo = F, fig.cap="Regression coefficients for a factorial design (using so-called 'treatment coding').", fig.width=4, out.width='90%'}
 knitr::include_graphics("visuals/coefficients_factorial_design.png")
 ```
 
@@ -522,7 +522,7 @@ In other words, we can express H3 as the parameter-based hypothesis that:
 $$\textbf{H3: (interaction)} \ \ \ \ \beta_\text{pol&male} > 0$$
 The other two hypotheses are not directly expressible as a statement involving a single coefficient.
 But they can be expressed as a complex hypothesis involving more than one coefficient of the model.
-The hypothesis H1 states that the pitch of male speakers (averaging over context types) is lower than that of female speakers (averaging over context types).
+Hypothesis H1 states that the pitch of male speakers (averaging over context types) is lower than that of female speakers (averaging over context types).
 This translates directly into the following statement (where the LHS/RHS is the average pitch of male/female speakers):
 
 $$
@@ -602,7 +602,7 @@ The mean estimate for male speakers speaking in informal contexts is given by $\
 
 ### Sum coding
 
-Treatment coding allowed us to *directly* test H3 in terms of a single coefficient, but testing of hypotheses about so-called "main effects" (H1 and H2) cannot be directly read-off a single coefficient's posterior.
+Treatment coding allowed us to *directly* test H3 in terms of a single coefficient, but testing of hypotheses about so-called "main effects" (H1 and H2) cannot be directly read off a single coefficient's posterior.
 As hypotheses about main effects are natural and common in experimental psychology, another coding scheme is very popular, namely **sum coding**.^[The comparisons tested by sum coding are the same contrasts also addressed by analysis of variance (ANOVA), a special case of regression modeling which was very popular and is still the standard method of statistical analysis for factorial designs in some areas of experimental psychology, despite good arguments in favor of (hierarchical) generalized regression analyses [@Jaeger2008:Categorical-dat].]
 
 Figure \@ref(fig:Chap-04-03-coefficients-sum-coding) shows how the mean of each design cell in our $2\times2$ design is expressed in terms of four regression coefficients.
@@ -613,11 +613,11 @@ For example, $\beta_\text{male}$ encodes the difference between (i) the average 
 Finally, the interaction coefficient $\beta_\text{pol&male}$ serves the same function as before in treatment coding, namely to make room for a difference in the strength of one main effect, e.g., of context, on the levels of the other predictor, e.g., gender.
 
 
-```{r Chap-04-03-coefficients-sum-coding, echo = F, fig.cap="Regression coefficients for a factorial design (using so-called 'sum coding').", fig.width=4}
+```{r Chap-04-03-coefficients-sum-coding, echo = F, fig.cap="Regression coefficients for a factorial design (using so-called 'sum coding').", fig.width=4, out.width='90%'}
 knitr::include_graphics("visuals/coefficients_factorial_design_sum-coding.png")
 ```
 
-It is clear, then that under treatment coding the hypotheses H1 and H2, targeting main effects, can be straightforwardly stated as inequalities concerning singular coefficients, namely:
+It is then clear that under treatment coding, the hypotheses H1 and H2, which target main effects, can be straightforwardly stated as inequalities concerning singular coefficients, namely:
 
 $$
 \textbf{H1: (gender)} \ \ \ \ \beta_\text{male} < 0
