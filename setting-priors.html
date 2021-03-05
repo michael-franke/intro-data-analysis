@@ -567,10 +567,10 @@ The function <code>brms::prior_summary</code> shows which priors a model fitted 
 ##  student_t(3, 8.3, 2.5) Intercept                                       default
 ##    student_t(3, 0, 2.5)     sigma                                       default</code></pre>
 <p>This output tells us that <code>brms</code> used a Student’s <span class="math inline">\(t\)</span> distribution for the intercept and the standard deviation.<a href="#fn61" class="footnote-ref" id="fnref61"><sup>61</sup></a>
-It also shows us that all slope coefficients (abbreviated here as “b”) have a flat (non-informative prior).</p>
+It also shows us that all slope coefficients (abbreviated here as “b”) have a flat (non-informative) prior.</p>
 <p>If we want to change the prior for any model parameter, or family of model parameters, we can use the <code>prior</code> argument in the <code>brm</code> function, which requires a special type of input using <code>brms</code>’ <code>prior()</code> function.
 The syntax for distributions inside the <code>prior()</code> follows that of Stan, as documented in the <a href="https://mc-stan.org/docs/2_25/functions-reference/index.html">Stan function reference</a>.
-The example below sets the prior for the slope coefficient to a very narrow Student’s <span class="math inline">\(t\)</span> distribution with mean zero at <code>-0.001</code> and standard deviation <code>0.001</code>.</p>
+The example below sets the prior for the slope coefficient to a very narrow Student’s <span class="math inline">\(t\)</span> distribution with mean <code>-0.01</code> and standard deviation <code>0.001</code>.</p>
 <div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb539-1" data-line-number="1">fit_temperature_skeptical &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
 <a class="sourceLine" id="cb539-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
 <a class="sourceLine" id="cb539-3" data-line-number="3">  <span class="co">#  using the formula syntax</span></a>
@@ -580,7 +580,7 @@ The example below sets the prior for the slope coefficient to a very narrow Stud
 <a class="sourceLine" id="cb539-7" data-line-number="7">  <span class="co"># hand-craft priors for slope</span></a>
 <a class="sourceLine" id="cb539-8" data-line-number="8">  <span class="dt">prior =</span> <span class="kw">prior</span>(<span class="kw">student_t</span>(<span class="dv">1</span>, <span class="fl">-0.01</span>, <span class="fl">0.001</span>), <span class="dt">coef =</span> year)</a>
 <a class="sourceLine" id="cb539-9" data-line-number="9">)</a></code></pre></div>
-<p>This prior is a <em>skeptical prior</em> in the sense that it assumes a negative slope to be more likely: that the world has been getting colder over the years.
+<p>This prior is a <em>skeptical prior</em> in the sense that it assumes a negative slope to be more likely, that is, the world has been getting colder over the years.
 Comparing the summary statistics for the original fit:</p>
 <div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb540-1" data-line-number="1"><span class="kw">map_dfr</span>(post_samples_temperature <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>lp__), aida<span class="op">::</span>summarize_sample_vector) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb540-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Parameter =</span> <span class="kw">colnames</span>(post_samples_temperature[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]))</a></code></pre></div>
@@ -611,7 +611,7 @@ Solution
 </button>
 <div class="content">
 <p>We should expect the posterior of the slope for <code>year</code> to be much higher than the original estimate, much closer to 5.
-The reason is that the normal distribution is much less “willing” to allow outliers and so constraints the fit much stronger towards the mean of the prior that the Student’s <span class="math inline">\(t\)</span> distribution.
+The reason is that the normal distribution is much less “willing” to allow outliers and so constraints the fit much stronger towards the mean of the prior than the Student’s <span class="math inline">\(t\)</span> distribution.
 Notice that with slope values close to 5, the estimates for the intercept and standard deviation also change (in ridiculous ways).</p>
 <div class="sourceCode" id="cb544"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb544-1" data-line-number="1">fit_temperature_ridiculous &lt;-<span class="st"> </span><span class="kw">brm</span>(</a>
 <a class="sourceLine" id="cb544-2" data-line-number="2">  <span class="co"># specify what to explain in terms of what</span></a>
