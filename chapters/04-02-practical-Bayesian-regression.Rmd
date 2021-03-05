@@ -3,7 +3,7 @@
 <hr>
 
 Instead of hand-coding each Bayesian regression model, we can use the `brms` package [@brms2017].
-From now on the exploration of Bayesian data analysis will be centered on this package.
+From now on, the exploration of Bayesian data analysis in this book will be centered on this package.
 This chapter provides a practical introduction to using this package.
 
 <div style = "float:right; width:7%;">
@@ -12,7 +12,7 @@ This chapter provides a practical introduction to using this package.
 
 As a running example, this chapter uses the [world temperature data set](#app-93-data-sets-temperature).
 We are going to regress `avg_temp` against `year` in order to address the "research question" of whether the world is getting warmer.
-More concretely, we are going to address the question of whether the data provides reason to believe that, on the assumption of a linear relationship $y = \beta_0 + \beta_1 x$, where $x$ is a calendar year and $y$ is the average surface temperature for that year, the coefficient $\beta_1$ is credibly positive.^[Not to let the elephant sneak into the room: yes, there are much better models for this kind of data and research question than a simple linear regression model. But first things first.]
+More concretely, we are going to address the question of whether the data provide reason to believe that, on the assumption of a linear relationship $y = \beta_0 + \beta_1 x$, where $x$ is a calendar year and $y$ is the average surface temperature for that year, the coefficient $\beta_1$ is credibly positive.^[Not to let the elephant sneak into the room: yes, there are much better models for this kind of data and research question than a simple linear regression model. But first things first.]
 
 
 ```{block, type='infobox'}
@@ -30,7 +30,7 @@ The learning goals for this chapter are:
 
 ## Simple linear regression with `brms`
 
-The main function of the `brms` package is `brm` (short for **B**ayesian **R**egression **M**odel). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` is similar to the `lmer` function from the `lme4` package, which is more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example of the current case study based on the [world temperature data set](#app-93-data-sets-temperature) :
+The main function of the `brms` package is `brm` (short for **B**ayesian **R**egression **M**odel). It behaves very similarly to the `glm` function we saw above.^[Actually, `brm` is similar to the `lmer` function from the `lme4` package, which is more general than `glm`. Both `lmer` and `brm` also cover so-called hierarchical regression models.] Here is an example of the current case study based on the [world temperature data set](#app-93-data-sets-temperature):
 
 ```{r, eval = T}
 fit_temperature <- brm(
@@ -44,7 +44,7 @@ fit_temperature <- brm(
 
 The formula syntax `y ~ x` tells R that we want to explain or predict the dependent variable `y` in terms of associated measurements of `x`, as stored in the data set (`tibble` or `data.frame`) supplied in the function call as `data`.
 
-The object returned by this function call is a special purpose object of the class `brmsfit`. If we print this object to the screen we get a summary (which we can also produce with the explicit call `summary(fit_temperature)`.
+The object returned by this function call is a special-purpose object of the class `brmsfit`. If we print this object to the screen we get a summary (which we can also produce with the explicit call `summary(fit_temperature)`).
 
 ```{r}
 fit_temperature
@@ -62,7 +62,7 @@ The function `brms::posterior_samples` extracts the samples from the posterior w
 
 ```{r}
 post_samples_temperature <- brms::posterior_samples(fit_temperature) 
-  head(post_samples_temperature)
+head(post_samples_temperature)
 ```
 
 These extracted samples can be used as before, e.g., to compute our own summary tibble:
@@ -95,7 +95,7 @@ brms::stancode(fit_temperature)
 Even if the Stan code itself is not entirely transparent, a few interesting observations to be glimpsed are:
 
 1. `brms` automatically centralizes the predictor values, but returns fits for the non-centralized coefficients
-2. per default, the prior for slope coefficients is a completely uninformative one (any value equally likely)
+2. by default, the prior for slope coefficients is a completely uninformative one (every value is equally likely)
 
 ## Setting priors
 
@@ -107,11 +107,11 @@ prior_summary(fit_temperature)
 ```
 
 This output tells us that `brms` used a Student's $t$ distribution for the intercept and the standard deviation.^[Actually, the prior on the standard deviation is a *truncated* Student's $t$ distribution, as negative values are impossible for a standard deviation.]
-It also shows us that all slope coefficients (abbreviated here as "b") have a flat (non-informative prior).
+It also shows us that all slope coefficients (abbreviated here as "b") have a flat (non-informative) prior.
 
 If we want to change the prior for any model parameter, or family of model parameters, we can use the `prior` argument in the `brm` function, which requires a special type of input using `brms`' `prior()` function.
 The syntax for distributions inside the `prior()` follows that of Stan, as documented in the [Stan function reference](https://mc-stan.org/docs/2_25/functions-reference/index.html).
-The example below sets the prior for the slope coefficient to a very narrow Student's $t$ distribution with mean zero at `-0.001` and standard deviation `0.001`.
+The example below sets the prior for the slope coefficient to a very narrow Student's $t$ distribution with mean `-0.01` and standard deviation `0.001`.
 
 
 ```{r}
@@ -126,7 +126,7 @@ fit_temperature_skeptical <- brm(
 )
 ```
 
-This prior is a *skeptical prior* in the sense that it assumes a negative slope to be more likely: that the world has been getting colder over the years.
+This prior is a *skeptical prior* in the sense that it assumes a negative slope to be more likely, that is, the world has been getting colder over the years.
 Comparing the summary statistics for the original fit:
 
 ```{r}
@@ -155,7 +155,7 @@ What do you expect to happen to the estimate of the intercept when using a very 
 <div class="content">
 
 We should expect the posterior of the slope for `year` to be much higher than the original estimate, much closer to 5.
-The reason is that the normal distribution is much less "willing" to allow outliers and so constraints the fit much stronger towards the mean of the prior that the Student's $t$ distribution.
+The reason is that the normal distribution is much less "willing" to allow outliers and so constraints the fit much stronger towards the mean of the prior than the Student's $t$ distribution.
 Notice that with slope values close to 5, the estimates for the intercept and standard deviation also change (in ridiculous ways).
 
 ```{r}
@@ -192,7 +192,7 @@ The function `brms::posterior_predict` can also be used to sample from the poste
 If we are interested in predictions of average world surface temperature for the years 2025 and 2040, all we need to do is supply a data frame (or tibble) with the predictor values of interest as an argument.
 
 ```{r}
-# make a tibble with new predictor values
+# create a tibble with new predictor values
 X_new <- tribble(
   ~ "year", 2025, 2040
 )
@@ -211,14 +211,14 @@ The `brms` package also contains a useful function to address hypotheses about m
 The function `brms::hypothesis` can compute Bayes factors for point-valued hypotheses using the Savage-Dickey method.
 It also computes a binary test of whether a point-valued hypothesis is credible based on inclusion in a Bayesian credible interval. 
 For interval-valued hypotheses $\theta \in [a;b]$, the function `brms::hypothesis` computes the posterior odds (called *evidence ratio* in the context of this function):^[Notice that for priors where $P(\theta \in [a;b]) = 0.5$, the posterior odds equal the Bayes factor.
-For other priors, we'd need to correct the posterior odds by the priors to obtain Bayes factors, something that the `brms` package does not (presently seem to) do unfortunately.]
+For other priors, we'd need to correct the posterior odds by the priors to obtain Bayes factors, something that the `brms` package does not (presently seem to) do, unfortunately.]
 $$
 \frac{P(\theta \in [a;b] \mid D)}{P(\theta \not \in [a;b] \mid D)}
 $$
 
-Computing Bayes factors for point-valued hypothesis with `brms::hypothesis` requires proper priors for all parameters that are part of the hypothesis.
-It also requires to take samples from the priors of parameters.^[It may seem unnecessary to take prior samples for parameters, because, after all, couldn't we just look at the (closed-form) definition of the prior for that parameter? Well, that only works for top-level parameters, but not parameters in a hierarchical model which depend on the value of other parameters and which therefore have no (easily accessible) closed-form prior to look up.]
-So, here is a function call of `brms:brm` which (i) specifies a reasonably unconstrained but proper parameter for the slope coefficient for `year` and (ii) also collects samples from the prior (by setting the option `sample_prior = "yes"`)
+Computing Bayes factors for point-valued hypotheses with `brms::hypothesis` requires proper priors for all parameters that are part of the hypothesis.
+It also requires taking samples from the priors of parameters.^[It may seem unnecessary to take prior samples for parameters, because, after all, couldn't we just look at the (closed-form) definition of the prior for that parameter? Well, that only works for top-level parameters, but not parameters in a hierarchical model which depend on the value of other parameters and which therefore have no (easily accessible) closed-form prior to look up.]
+So, here is a function call of `brms:brm` which (i) specifies a reasonably unconstrained but proper parameter for the slope coefficient for `year` and (ii) also collects samples from the prior (by setting the option `sample_prior = "yes"`):
 
 ```{r}
 fit_temperature_weakinfo <- brm(
@@ -253,7 +253,7 @@ This is an interval-valued hypothesis and we can test it like so:
 hypothesis(fit_temperature_weakinfo, "year > 0")
 ```
 
-The table shows the estimate for the slope of `year`, together with an estimated error, lower and upper bounds of a credible interval (95% per default).
+The table shows the estimate for the slope of `year`, together with an estimated error, lower and upper bounds of a credible interval (95% by default).
 All of these numbers are rounded.
 It also shows the "Evidence ratio" which, for an interval-valued hypothesis is *not* the Bayes factor, but the posterior odds (see above).
 In the present case, an evidence ratio of `Inf` means that all posterior samples for the slope coefficient were positive.
@@ -268,6 +268,6 @@ hypothesis(fit_temperature_weakinfo, "year = 0.005")
 For this point-valued hypothesis, the estimate (and associated error and credible interval) are calculated as a comparison against 0, as shown in the "Hypothesis" column.
 The evidence ratio given in the results table is the Bayes factor of the point-valued hypothesis against the embedding model (the full regression model with the prior we specified), as calculated by the Savage-Dickey method.
 As before, the posterior probability is also shown.
-The "Star" in this table indicates that the point-valued hypothesis is excluded from the computed credible interval, so that -if we adopted the (controversial) binary decision logic discussed in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes)- we would reject the tested hypothesis.
+The "Star" in this table indicates that the point-valued hypothesis is excluded from the computed credible interval, so that - if we adopted the (controversial) binary decision logic discussed in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes) - we would reject the tested hypothesis.
 
 
