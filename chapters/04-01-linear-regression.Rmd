@@ -82,7 +82,7 @@ $$
 
 ```{proof}
 
-To find a minimum, consider the first derivative of TSS(\xi) and find its zero points:
+To find a minimum, consider the first derivative of $\text{TSS}(\xi)$ and find its zero points:
 
 $$
 \begin{align*}
@@ -151,7 +151,7 @@ This is what we will cover in Section \@ref(Chap-04-01-linear-regression-MLE) af
 
 ### Prediction with knowledge of unemployment rate
 
-We might not be very content with this prediction error. Suppose we could use some piece of information about the random city whose murder rate we are trying to predict. E.g., we might happen to know the value of the variable `unemployment`. How could that help us make a better prediction?
+We might not be very content with this prediction error. Suppose we could use some piece of information about the random city whose murder rate we are trying to predict. For instance, we might happen to know the value of the variable `unemployment`. How could that help us make a better prediction?
 
 There does seem to be some useful information in the unemployment rate, which may lead to better predictions of the murder rate. We see this in a scatter plot:
 
@@ -254,7 +254,7 @@ The parameters $\beta_0, \beta_1, \dots, \beta_k$ are called **(regression) coef
 In particular, $\beta_0$ is called the **(regression) intercept** and $\beta_1, \dots, \beta_k$ are **(regression) slope coefficients**. 
 
 The term **simple linear regression** is often used to cover the special case of $k=1$.
-If there is more than one predictor, i.e., $k \ge 1$, the term **multiple linear regression** is common.
+If there is more than one predictor, i.e., $k > 1$, the term **multiple linear regression** is common.
 
 Based on the predictions of a parameter vector $\langle {\beta}_0, {\beta}_1, \dots, {\beta}_k\rangle$, we consider the residual sum of squares as a measure of prediction error:
 
@@ -271,7 +271,7 @@ The prediction corresponding to the best parameter values is denoted by $\hat{\x
 $$ \hat{\xi}_i = \hat{\beta}_0 + \hat{\beta}_1 x_{1i} + \dots + \hat{\beta}_k x_{ki}$$
 
 It is also possible, and often convenient, to state the linear regression model in terms of matrix operations.
-Traditionally, we consider a so-called **predictor matrix** $X$ of size $n \times (k+1)$), where $n$ is the number of observations in the data set and $k$ is the number of predictor variables.
+Traditionally, we consider a so-called **predictor matrix** $X$ of size $n \times (k+1)$, where $n$ is the number of observations in the data set and $k$ is the number of predictor variables.
 The predictor matrix includes the values for all predictor variables and it also includes an "intercept column" $(X^{T})_0$ for which $X_{i0}=1$ for all $1 \le i \le n$ so that the intercept $\beta_0$ can be treated on a par with the other regression coefficients.^[You can conveniently think of the predictor matrix as just the data you want to analyze in a tidy tibble format, with the columns giving the variables of interest, only that you have removed the column with the dependent variable $y$ and that you have instead added the "intercept column" containing the entry 1 in each row.]
 
 Using the predictor matrix $X$, the linear predictor vector $\xi$ is:
@@ -290,7 +290,7 @@ How are these parameters usually called in regression jargon?
 
 Parameter $a$ is the slope, $b$ the intercept of a simple linear regression.
 Parameter $a$ gives the amount of change of $y$ for each unit change in $x$. 
-Parameter $b$ gives the the prediction xi for  $x=0$.
+Parameter $b$ gives the prediction $\xi$ for $x=0$.
 
 </div>
 </div>
@@ -349,7 +349,7 @@ x <- murder_data %>% pull(unemployment)
 # function to calculate residual sum of squares
 get_rss = function(y, x, beta_0, beta_1) {
   yPred = beta_0 + x * beta_1
-  sum((y-yPred)^2) 
+  sum((y - yPred)^2) 
 }
 # finding best-fitting values for RSS
 fit_rss = optim(par = c(0, 1),  # initial parameter values
@@ -498,7 +498,7 @@ Let's use these formulas to calculate regression coefficients for the running ex
 
 ```{r}
 tibble(
-  beta_1 = cov(x,y) / var(x),
+  beta_1 = cov(x, y) / var(x),
   beta_0 = mean(y) - beta_1 * mean(x)
 )
 ```
@@ -679,7 +679,7 @@ x <- murder_data %>% pull(unemployment)
 get_nll = function(y, x, beta_0, beta_1, sd) {
   if (sd <= 0) {return( Inf )}
   yPred = beta_0 + x * beta_1
-  nll = -dnorm(y, mean=yPred, sd=sd, log = T)
+  nll = -dnorm(y, mean = yPred, sd = sd, log = T)
   sum(nll)
 }
 # finding MLE
@@ -697,6 +697,7 @@ message(
 )
 
 ```
+
 ### Finding the MLE-solution with `glm`
 
 R also has a built-in way of approaching simple linear regression with a maximum-likelihood approach, namely by using the function `glm` (generalized linear model). 
@@ -758,7 +759,7 @@ $$
 \arg \min_\beta -LLH(\beta) = \sum_{i=1}^n(y_i - (X \beta)_i)^2
 $$
 
-Notice that this result holds independently of $\sigma$, which just cancelled out in this derivation.
+Notice that this result holds independently of $\sigma$, which just canceled out in this derivation.
 
 &nbsp;
 
@@ -859,7 +860,7 @@ get_samples_regression_noninformative <- function(
   samples_posterior <- map_df(
     seq(n_samples), 
     function(i) {
-      s <-  mvtnorm::rmvnorm(1, beta_hat, V_beta * samples_sigma_squared[i])
+      s <- mvtnorm::rmvnorm(1, beta_hat, V_beta * samples_sigma_squared[i])
       colnames(s) = colnames(X)
       as_tibble(s) %>% 
         mutate(sigma = samples_sigma_squared[i] %>% sqrt())
@@ -915,7 +916,7 @@ samples_Bayes_regression %>%
   pivot_longer(cols = everything(), values_to = "sample", names_to = "parameter") %>% 
   mutate(parameter = factor(parameter, levels = c('intercept', 'slope', 'sigma'))) %>% 
   ggplot(aes(x = sample)) +
-    geom_density(fill="lightgray", alpha = 0.5) +
+    geom_density(fill = "lightgray", alpha = 0.5) +
     facet_wrap(~parameter, scales = "free")
 ```
 
@@ -923,7 +924,7 @@ samples_Bayes_regression %>%
 While these results are approximate, because they are affected by random sampling, they also convey a sense of uncertainty: given the data and the model, how certain should we be that, say, the slope is really at 7.08?
 We could, for instance, now test the hypothesis that the factor `unemployment` does not contribute at all to predicting the value of the variable `murder_rate`.
 This could be addressed as the point-valued hypothesis that the slope coefficient is exactly equal to zero. 
-Since the 95% credible interval clearly excludes this value, we might (based on this binary decision logic) now say that based on the model and the data there is reason to believe that `unemployment` *does* contribute to predicting `murder_rate`, in fact that the higher a city's unemployment rate, the higher we should expect its murder rate to be.
+Since the 95% credible interval clearly excludes this value, we might (based on this binary decision logic) now say that based on the model and the data there is reason to believe that `unemployment` *does* contribute to predicting `murder_rate`, in fact, that the higher a city's unemployment rate, the higher we should expect its murder rate to be.
 (Remember: this is not a claim about any kind of causal relation!)
 
 ## Comparison of approaches
