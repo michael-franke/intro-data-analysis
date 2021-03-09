@@ -10,7 +10,7 @@ For example, we might be interested in what we will call a _point-valued hypothe
 Section \@ref(ch-03-07-hypothesis-testing-Bayes-hypotheses) introduces different kinds of statistical hypotheses in more detail.
 
 Given a statistical hypothesis about parameter values, we are interested in "testing" it.
-Strictly speaking, the term "testing" should probably be reserved for for statistical decision procedures which give clear categorical judgements, such as whether to reject a hypothesis, accept it as true or to withhold judgement because no decision can be made (yet/currently).
+Strictly speaking, the term "testing" should probably be reserved for statistical decision procedures which give clear categorical judgements, such as whether to reject a hypothesis, accept it as true or to withhold judgement because no decision can be made (yet/currently).
 While we will encounter such categorical decision routines in this chapter, Bayesian approaches to hypotheses "testing" are first and foremost concerned, not with categorical decisions, but with quantifying evidence in favor or against the hypothesis in question.
 (In a second step, using Bayesian decision theory which also weighs in the utility of different policy choices, we can use Bayesian inference also for informed decision making, of course.)
 But instead of speaking of "Bayesian inference to weigh evidence for/against a hypothesis" we will just speak of "Bayesian hypothesis testing" for ease of parlor.
@@ -20,7 +20,7 @@ We consider two conceptually distinct approaches within Bayesian hypothesis test
 1. **Estimation-based testing** considers just one model. It uses the observed data $D_\text{obs}$ to retrieve posterior beliefs $P(\theta \mid D_{\text{obs}})$ and checks whether, _a posteriori_, our hypothesis is credible.
 2. **Comparison-based testing** uses Bayesian model comparison, in the form of Bayes factors, to compare two models, namely one model that assumes that the hypothesis in question is true, and one model that assumes that the complement of the hypothesis is true.
 
-The main differences between these two approaches is that estimation-based hypothesis testing is simpler (conceptually and computationally), but less informative than comparison-based hypothesis testing. 
+The main difference between these two approaches is that estimation-based hypothesis testing is simpler (conceptually and computationally), but less informative than comparison-based hypothesis testing. 
 In fact, comparison-based methods give a clearer picture of the quantitative evidence for/against a hypothesis because they explicitly take into account a second alternative to the hypothesis which is to be tested. 
 As we will see in this chapter, the technical obstacles for comparison-based approaches can be overcome.
 For special but common use cases, like testing directional hypotheses, there are efficient methods of performing comparison-based hypothesis testing. 
@@ -47,16 +47,16 @@ This chapter considers three types of statistical hypotheses, which are also rep
 While all of the below also applies to discrete parameters and vectors of parameters, the implicit assumption in what follows is that we are dealing with a single continuous parameter. 
 
 1. **Point-valued hypotheses** ask whether it is plausible that the parameter of relevance is identical to exactly one specific value. For example, in a Binomial model with the coin's bias parameter $\theta_{c}$, a point-valued hypothesis could be that $\theta_c = 0.5$. More generally, we write $\theta = \theta^*$ for a point-valued hypothesis about some (singular) parameter $\theta$. 
-2. **ROPE-d hypotheses**, where "ROPE" is short for _region of practical equivalence_, define a small $\epsilon$-region around a point-value of interest, and address the question of whether it is plausible that the parameter value lies inside this interval. For example, suppose that instead of addressing the point-valued hypothesis $\theta_{c} = 0.5$ about a coin's latent bias, we are able (e.g., through prior research or *a priori* conceptual considerations) to specify a reasonable *region of practical equivalence (= ROPE)* around the parameter value of interest. For instance, we might know that a difference of 0.1 in a coins bias really counts as normal slack and negligible for practical purposes. We then address the ROPE-d hypothesis that $\theta_{c} \in [0.49, 0.51]$. More generally, we write $\theta \in [\theta^* - \epsilon\ ;\ \theta^* + \epsilon]$, or $\theta = \theta^* \pm \epsilon$ for ROPE-d hypothesis around the pivotal values $\theta^*$.
+2. **ROPE-d hypotheses**, where "ROPE" is short for _region of practical equivalence_, define a small $\epsilon$-region around a point-value of interest, and address the question of whether it is plausible that the parameter value lies inside this interval. For example, suppose that instead of addressing the point-valued hypothesis $\theta_{c} = 0.5$ about a coin's latent bias, we are able (e.g., through prior research or *a priori* conceptual considerations) to specify a reasonable *region of practical equivalence (= ROPE)* around the parameter value of interest. For instance, we might know that a difference of 0.1 in a coin's bias really counts as normal slack and negligible for practical purposes. We then address the ROPE-d hypothesis that $\theta_{c} \in [0.49, 0.51]$. More generally, we write $\theta \in [\theta^* - \epsilon\ ;\ \theta^* + \epsilon]$, or $\theta = \theta^* \pm \epsilon$ for ROPE-d hypothesis around the pivotal values $\theta^*$.
 3. **Directional hypotheses** fix a specific parameter value, as a lower or upper bound and ask whether it is plausible that the parameter's value is bigger or smaller than that fixed value. For example, $\theta_{c} > 0.5$ could be the directional hypothesis that a coin is biased towards heads.
 
-```{r 03-05-Bayesian-testing-overview-hypotheses, echo = F, fig.cap="Three common types of hypotheses achored to a point-value of interest of a parameter."}
+```{r 03-05-Bayesian-testing-overview-hypotheses, echo = F, fig.cap="Three common types of hypotheses anchored to a point-value of interest of a parameter.", out.width='90%'}
 knitr::include_graphics("visuals/3-types-hypotheses.png")
 ```
 
-Ignoring trivial edge cases, both ROPE-d and directional hypotheses are instances of **interval-based hypotheses** in the sense that they they assume that the true value lies in an interval.
+Ignoring trivial edge cases, both ROPE-d and directional hypotheses are instances of **interval-based hypotheses** in the sense that they assume that the true value lies in an interval.
 
-The complement of a point-valued hypothesis $\theta = \theta^*$ is the hypothesis that the true value is _not_ equal to the cricical value: $\theta \neq \theta^*$.
+The complement of a point-valued hypothesis $\theta = \theta^*$ is the hypothesis that the true value is _not_ equal to the critical value: $\theta \neq \theta^*$.
 The complement of an interval-based hypothesis is the hypothesis that the true parameter value does _not_ lie in the relevant interval.
 For example, the complement of the ROPE-d hypothesis $\theta \in [\theta^* - \epsilon\ ;\ \theta^* + \epsilon]$ is that $\theta \not \in [\theta^* - \epsilon\ ;\ \theta^* + \epsilon]$.
 
@@ -69,7 +69,7 @@ This chapter uses two case studies as running examples: the (fictitious) 24/7 co
 
 ### 24/7
 
-We will use the same (old) example of binomial data: $k = 7$ heads out of $N = 24$ flips. 
+We will use the same (old) example of binomial data: $k = 7$ heads out of $N = 24$ coin flips. 
 Just as before, we will use the standard binomial model with a flat Beta prior, shown below in graphical notation:
 
 ```{r ch-03-06-Binomial-Model-repeated, echo = F, fig.cap="The Binomial Model (repeated from before).", out.width = '40%'}
@@ -134,9 +134,9 @@ The model is set-up in such a way that there is a difference parameter $\delta$ 
 Standardization here means that the difference between the means is represented in relation to the variance of the measurements in each group (which is assumed to be the same in both groups).
 The free variables in this model are therefore: the average of the group means $\mu$, the standardized difference $\delta$ of the group means from each other, and the common variance $\sigma$ of measurements in each group.
 The priors for these parameters are chosen in such a way as to enable direct calculation of Bayes factors for point-valued hypotheses.
-Notice that, by explicitly representing the difference parameter $\delta$ in the model, it is possible to put different kinds of _a priori_ assumptions about the likely differences between groups directly into the model, namely in the form of $\mu_g$ and $g$, which are not free model parameters, but will be set by us modellers, here as $\mu_g = 0$ and $g = 1$.
+Notice that, by explicitly representing the difference parameter $\delta$ in the model, it is possible to put different kinds of _a priori_ assumptions about the likely differences between groups directly into the model, namely in the form of $\mu_g$ and $g$, which are not free model parameters, but will be set by us modelers, here as $\mu_g = 0$ and $g = 1$.
 
-We focus on the the first hypothesis spelled out in Chapter \@ref(app-93-data-sets-simon-task), namely that the correct choices are faster in the congruent condition than in the incongruent condition.
+We focus on the first hypothesis spelled out in Chapter \@ref(app-93-data-sets-simon-task), namely that the correct choices are faster in the congruent condition than in the incongruent condition.
 So, based on this data and model, we are interested in the following statistical hypotheses:
 
 1. **Point-valued**: $\delta = 0$
@@ -182,7 +182,7 @@ If a categorical decision rule is needed, we can:
 - **accept** the point-valued hypothesis if $\theta^*$ is _inside_ of the credible interval; and
 - **reject** the point-valued hypothesis if $\theta^*$ is _outside_ of the credible interval.
 
-@kruschke2015 extends this approach to also address ROPE-d hypotheses. He argues that we should *not* be concerned with point-valued hypotheses, but rather with intervals constructed around the point-value of interest. Kruschke, therefore, suggests to look at a **region of practical equivalence** (ROPE), usually defined by some $\epsilon$-region around $\theta^*_i$:
+@kruschke2015 extends this approach to also address ROPE-d hypotheses. He argues that we should *not* be concerned with point-valued hypotheses, but rather with intervals constructed around the point-value of interest. Kruschke, therefore, suggests looking at a **region of practical equivalence** (ROPE), usually defined by some $\epsilon$-region around $\theta^*_i$:
 
 $$\text{ROPE}(\theta^*_i) = [\theta^*_i- \epsilon, \theta^*_i+ \epsilon]$$
 
@@ -407,9 +407,9 @@ The red shaded area under the curves shows the 95% credible interval. The black 
 
 ## Testing via model comparison {#ch-03-05-Bayesian-testing-comparison}
 
-Testing hypotheses based on parameter estimation, and in particular the categorical decision rules for accepting or rejecting hypotheses outlined in the previous section, only give a very coarse grained picture.
+Testing hypotheses based on parameter estimation, and in particular the categorical decision rules for accepting or rejecting hypotheses outlined in the previous section, only give a very coarse-grained picture.
 Bayesian analysis is about providing quantitative information about uncertainty and evidence, which are intuitive and easily interpretable.
-So, we would also like to a have a quantitative assessment of the evidence for or against a hypothesis provided by some data against the background of a given model.
+So, we would also like to have a quantitative assessment of the evidence for or against a hypothesis provided by some data against the background of a given model.
 This is what the comparison-based approaches to Bayesian hypothesis testing give us.
 
 Here is some further motivation why model comparison might be a good replacement for "testing via estimation".
@@ -417,15 +417,15 @@ A statistical hypothesis $H$ is basically an event: a subset of parameter values
 After observing data $D_\text{obs}$ and based on model $M$, the ideal measure to have is $P_M(H \mid D_\text{obs})$: given data and model, how likely is the hypothesis in question?
 The problem with this posterior formulation $P_M(H \mid D_\text{obs})$ is that, for it to be meaningful, it must quantify over the set of all alternative hypotheses.
 If $H$ is a point-valued hypothesis over a single parameter, the set of all alternative hypotheses could comprise all other logically possible point-valued hypotheses for the same parameter. 
-But then, if that paramter is a continuous parameter, the posterior density at $P_M(H \mid D_\text{obs})$ is not meaningfully interpretable as a probability (mass).
+But then, if that parameter is a continuous parameter, the posterior density at $P_M(H \mid D_\text{obs})$ is not meaningfully interpretable as a probability (mass).
 If $H$ is an interval-based hypothesis, the posterior $P_M(H \mid D_\text{obs})$ would be meaningfully interpretable as a probability (mass), but still the question of what exactly the space of alternatives is is left implicit.
 Moreover, the posterior $P_M(H \mid D_\text{obs})$ is influenced by the model's prior over $H$.
 So, a nominally high value of $P_M(H \mid D_\text{obs})$ is as such uninteresting because we would need to take the prior $P_M(H)$ into account as well.
 
 This is why a comparison-based approach to Bayesian hypothesis testing explicitly compares two models:
 
-- **The null model** $M_0$ is the model that incorporates the assumption of the hypothesis $H$ to be tested. For example, the null model would put prior probability zero on those parameter values which are rules out by $H$.
-- **The alternative model** $M_1$ is an explicity formulated model which incorporates some contextually or technically useful alternative to $M_0$.
+- **The null model** $M_0$ is the model that incorporates the assumption of the hypothesis $H$ to be tested. For example, the null model would put prior probability zero on those parameter values which are ruled out by $H$.
+- **The alternative model** $M_1$ is an explicitly formulated model which incorporates some contextually or technically useful alternative to $M_0$.
 
 The comparison-based approach to hypothesis testing then quantifies, using Bayes factors, the evidence that $D_\text{obs}$ provides for or against $M_0$ (the model representing the "null hypothesis") over the alternative model $M_1$ (the model representing the alternative hypothesis).
 In this way, by looking at the ratio:
@@ -434,12 +434,12 @@ $$
 BF_{01} = \frac{P(D_\text{obs} \mid M_0)}{P(D_\text{obs} \mid M_1)}
 $$
 
-this approach is independent of the prior probability assigned to models: $P(M_0)$ and $P(M_1)$. 
+this approach is independent of the prior probability assigned to models $P(M_0)$ and $P(M_1)$. 
 Notice, however, that it is *not* independent of the priors over $\theta$ used in $M_1$!
 
 When the null hypothesis is point-valued, the alternative model is *not* based on the complement $\theta \neq \theta^*$, but on the technically much more practical and also conceptually more plausible alternative model that assumes that $\theta$ is free to range over a larger interval including, but not limited to $\theta^*$. We can then use the so-called Savage-Dickey method, described in Section \@ref(ch-03-07-hypothesis-testing-Bayes-Savage-Dickey), to compare the null and the alternative models as so-called *nested models*.
 
-When the null hypothesis is interval-values, the alternative model can be conceived as based on the complement of the null hypothesis. We can then use an extension of the Savage-Dickey method based on a so-called encompassing model, described in Section \@ref(ch-03-07-hypothesis-testing-Bayes-encompassing-models), where we construe both the null model and the alternative model as nested under a third, well, encompassing model.
+When the null hypothesis is interval-valued, the alternative model can be conceived as based on the complement of the null hypothesis. We can then use an extension of the Savage-Dickey method based on a so-called encompassing model, described in Section \@ref(ch-03-07-hypothesis-testing-Bayes-encompassing-models), where we construe both the null model and the alternative model as nested under a third, well, encompassing model.
 
 This chapter shows how Bayes factors can be approximated based on samples from the posterior following both of these approaches.
 
@@ -511,7 +511,7 @@ The result follows if we divide by $P(D \mid M_1)$ on both sides of the equation
 
 #### Example: 24/7
 
-Here is an example based on the 24/7 data. For a nesting model with a flat prior ($\theta \sim^{M_1} \text{Beta}(1,1)$), and a point hypothesis $\theta_c = 0.5$, we just have calculate the prior and posterior probability of the critical value $\theta_c = 0.5$:
+Here is an example based on the 24/7 data. For a nesting model with a flat prior ($\theta \sim^{M_1} \text{Beta}(1,1)$), and a point hypothesis $\theta_c = 0.5$, we just have to calculate the prior and posterior probability of the critical value $\theta_c = 0.5$:
 
 ```{r}
 # point-value of interest
@@ -549,8 +549,8 @@ ggplot(plotData, aes(x = theta, y = value, color = distribution)) + xlim(0,1) + 
 
 #### Example: Simon task
 
-In the previous 24/7 example, using the Savage-Dickey method was particularly easy because we know a closed-form solution of the precise posterior, so that we could easily calculte the posterior for the critical value without further ado.
-When this is not the case, like in the application to the Simon task data, we have to obtain an estimate for the posterior density at the critical value, here: $\delta = 0$, from the posterior samples which we obtain from sampling, like we did earlier in this chapter (using Stan). 
+In the previous 24/7 example, using the Savage-Dickey method was particularly easy because we know a closed-form solution of the precise posterior, so that we could easily calculate the posterior for the critical value without further ado.
+When this is not the case, like in the application to the Simon task data, we have to obtain an estimate for the posterior density at the critical value, here: $\delta = 0$, from the posterior samples which we obtain from sampling, as we did earlier in this chapter (using Stan). 
 An approximate method for obtaining this value is implemented in the `polspline` package (using polynomial splines to approximate the posterior curve).
 
 ```{r}
@@ -657,7 +657,7 @@ $BF_{01} \approx \frac{5}{2}$ (see plot above).
 </div>
 </div>
 
-e. Formulate a conclusion to be drawn from this numerical result about the research hypothesis that the mean of the two groups compared here are identical. Write one concise sentence like you would in a research paper.
+e. Formulate a conclusion to be drawn from this numerical result about the research hypothesis that the mean of the two groups compared here is identical. Write one concise sentence like you would in a research paper.
 
 <div class="collapsibleSolution">
 <button class="trigger">Solution</button>
@@ -720,7 +720,7 @@ BF_01_precise
 ### Encompassing models {#ch-03-07-hypothesis-testing-Bayes-encompassing-models}
 
 The Savage-Dickey method can be generalized to also cover interval-valued hypotheses.
-The previous literature has focused on inequality-based intervals/hypotheses (like $\theta \ge 0.5$) [@KlugkistKato2005:Bayesian-model;@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar], but the also applies to ROPE-d hypotheses. 
+The previous literature has focused on inequality-based intervals/hypotheses (like $\theta \ge 0.5$) [@KlugkistKato2005:Bayesian-model;@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar], but the method also applies to ROPE-d hypotheses. 
 The advantage of this method is that we can use samples from the posterior distribution to approximate integrals, which is more robust than having to estimate point-values of posterior density. 
 
 Following previous work [@KlugkistKato2005:Bayesian-model;@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar], the main idea is to use so-called **encompassing priors**. Let $\theta$ be a single parameter of interest (for simplicity), which can in principle take on any real value. We are interested in the interval-based hypotheses:
@@ -844,7 +844,7 @@ bf_directional_hypothesis <- posterior_odds / prior_odds
 bf_directional_hypothesis
 ```
 
-Here we should conclude that the data provides substantial evidence in favor of the assumption that the coin is biased towards tails, when compared against the alternative assumption that it is biased towards heads.
+Here we should conclude that the data provide substantial evidence in favor of the assumption that the coin is biased towards tails, when compared against the alternative assumption that it is biased towards heads.
 If the dichotomy is "heads bias vs tails bias" the data clearly tilts our beliefs towards the "tails bias" possibility.
 
 #### Example: Simon task
