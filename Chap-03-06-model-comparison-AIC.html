@@ -578,13 +578,13 @@ Here, <span class="math inline">\(\hat{\theta}_i = \arg \max_{\theta_i} P(D_\tex
 <a class="sourceLine" id="cb466-8" data-line-number="8">  }</a>
 <a class="sourceLine" id="cb466-9" data-line-number="9">  <span class="co"># calculate predicted recall rates for given parameters</span></a>
 <a class="sourceLine" id="cb466-10" data-line-number="10">  <span class="cf">if</span> (model_name <span class="op">==</span><span class="st"> &quot;exponential&quot;</span>) {</a>
-<a class="sourceLine" id="cb466-11" data-line-number="11">    theta &lt;-<span class="st"> </span>w1<span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>w2<span class="op">*</span>t)  <span class="co"># exponential model</span></a>
+<a class="sourceLine" id="cb466-11" data-line-number="11">    theta &lt;-<span class="st"> </span>w1 <span class="op">*</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>w2 <span class="op">*</span><span class="st"> </span>t)  <span class="co"># exponential model</span></a>
 <a class="sourceLine" id="cb466-12" data-line-number="12">  } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb466-13" data-line-number="13">    theta &lt;-<span class="st"> </span>w1<span class="op">*</span>t<span class="op">^</span>(<span class="op">-</span>w2)     <span class="co"># power model</span></a>
+<a class="sourceLine" id="cb466-13" data-line-number="13">    theta &lt;-<span class="st"> </span>w1 <span class="op">*</span><span class="st"> </span>t<span class="op">^</span>(<span class="op">-</span>w2)       <span class="co"># power model</span></a>
 <a class="sourceLine" id="cb466-14" data-line-number="14">  }</a>
 <a class="sourceLine" id="cb466-15" data-line-number="15">  <span class="co"># avoid edge cases of infinite log-likelihood</span></a>
 <a class="sourceLine" id="cb466-16" data-line-number="16">  theta[theta <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.0</span>] &lt;-<span class="st"> </span><span class="fl">1.0e-4</span></a>
-<a class="sourceLine" id="cb466-17" data-line-number="17">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span><span class="fl">-1.0e-4</span></a>
+<a class="sourceLine" id="cb466-17" data-line-number="17">  theta[theta <span class="op">&gt;=</span><span class="st"> </span><span class="fl">1.0</span>] &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="fl">1.0e-4</span></a>
 <a class="sourceLine" id="cb466-18" data-line-number="18">  <span class="co"># return negative log-likelihood of data</span></a>
 <a class="sourceLine" id="cb466-19" data-line-number="19">  <span class="op">-</span><span class="st"> </span><span class="kw">sum</span>(<span class="kw">dbinom</span>(<span class="dt">x =</span> obs, <span class="dt">prob =</span> theta, <span class="dt">size =</span> <span class="dv">100</span>, <span class="dt">log =</span> T))</a>
 <a class="sourceLine" id="cb466-20" data-line-number="20">}</a>
@@ -596,7 +596,7 @@ Here, <span class="math inline">\(\hat{\theta}_i = \arg \max_{\theta_i} P(D_\tex
 <div class="sourceCode" id="cb467"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb467-1" data-line-number="1"><span class="co"># getting the best fitting values</span></a>
 <a class="sourceLine" id="cb467-2" data-line-number="2">bestExpo &lt;-<span class="st"> </span><span class="kw">optim</span>(nLL_exp, <span class="dt">par =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="fl">0.5</span>))</a>
 <a class="sourceLine" id="cb467-3" data-line-number="3">bestPow  &lt;-<span class="st"> </span><span class="kw">optim</span>(nLL_pow, <span class="dt">par =</span> <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="fl">0.2</span>))</a>
-<a class="sourceLine" id="cb467-4" data-line-number="4">MLEstimates =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">model =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;exponential&quot;</span>, <span class="st">&quot;power&quot;</span>), <span class="dt">each =</span> <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb467-4" data-line-number="4">MLEstimates &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">model =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;exponential&quot;</span>, <span class="st">&quot;power&quot;</span>), <span class="dt">each =</span> <span class="dv">2</span>),</a>
 <a class="sourceLine" id="cb467-5" data-line-number="5">                         <span class="dt">parameter =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;d&quot;</span>),</a>
 <a class="sourceLine" id="cb467-6" data-line-number="6">                         <span class="dt">value =</span> <span class="kw">c</span>(bestExpo<span class="op">$</span>par, bestPow<span class="op">$</span>par))</a>
 <a class="sourceLine" id="cb467-7" data-line-number="7">MLEstimates</a></code></pre></div>
@@ -614,14 +614,14 @@ Figure 10.2: Predictions of the exponential and the power model under best-fitti
 </div>
 <p>By visual inspection of Figure <a href="Chap-03-06-model-comparison-AIC.html#fig:Chap-03-06-model-comparison-MLE-fits">10.2</a> alone, it is impossible to say with confidence which model is better. Numbers might help see more fine-grained differences.
 So, let’s look at the log-likelihood and the corresponding probability of the data for each model under each model’s best fitting parameter values.</p>
-<div class="sourceCode" id="cb469"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb469-1" data-line-number="1">predExp &lt;-<span class="st"> </span><span class="kw">expo</span>(t,a,b)</a>
-<a class="sourceLine" id="cb469-2" data-line-number="2">predPow &lt;-<span class="st"> </span><span class="kw">power</span>(t,c,d)</a>
+<div class="sourceCode" id="cb469"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb469-1" data-line-number="1">predExp &lt;-<span class="st"> </span><span class="kw">expo</span>(t, a, b)</a>
+<a class="sourceLine" id="cb469-2" data-line-number="2">predPow &lt;-<span class="st"> </span><span class="kw">power</span>(t, c, d)</a>
 <a class="sourceLine" id="cb469-3" data-line-number="3">modelStats &lt;-<span class="st"> </span><span class="kw">tibble</span>(</a>
 <a class="sourceLine" id="cb469-4" data-line-number="4">  <span class="dt">model =</span> <span class="kw">c</span>(<span class="st">&quot;expo&quot;</span>, <span class="st">&quot;power&quot;</span>),</a>
-<a class="sourceLine" id="cb469-5" data-line-number="5">  <span class="st">`</span><span class="dt">log likelihood</span><span class="st">`</span> =<span class="st"> </span><span class="kw">round</span>(<span class="kw">c</span>(<span class="op">-</span>bestExpo<span class="op">$</span>value, <span class="op">-</span>bestPow<span class="op">$</span>value),<span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb469-6" data-line-number="6">  <span class="dt">probability =</span> <span class="kw">signif</span>(<span class="kw">exp</span>(<span class="kw">c</span>(<span class="op">-</span>bestExpo<span class="op">$</span>value, <span class="op">-</span>bestPow<span class="op">$</span>value)),<span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb469-5" data-line-number="5">  <span class="st">`</span><span class="dt">log likelihood</span><span class="st">`</span> =<span class="st"> </span><span class="kw">round</span>(<span class="kw">c</span>(<span class="op">-</span>bestExpo<span class="op">$</span>value, <span class="op">-</span>bestPow<span class="op">$</span>value), <span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb469-6" data-line-number="6">  <span class="dt">probability =</span> <span class="kw">signif</span>(<span class="kw">exp</span>(<span class="kw">c</span>(<span class="op">-</span>bestExpo<span class="op">$</span>value, <span class="op">-</span>bestPow<span class="op">$</span>value)), <span class="dv">3</span>),</a>
 <a class="sourceLine" id="cb469-7" data-line-number="7">  <span class="co"># sum of squared errors</span></a>
-<a class="sourceLine" id="cb469-8" data-line-number="8">  <span class="dt">SS =</span> <span class="kw">round</span>(<span class="kw">c</span>( <span class="kw">sum</span>((predExp<span class="op">-</span>y)<span class="op">^</span><span class="dv">2</span>), <span class="kw">sum</span>((predPow<span class="op">-</span>y)<span class="op">^</span><span class="dv">2</span>)),<span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb469-8" data-line-number="8">  <span class="dt">SS =</span> <span class="kw">round</span>(<span class="kw">c</span>(<span class="kw">sum</span>((predExp <span class="op">-</span><span class="st"> </span>y)<span class="op">^</span><span class="dv">2</span>), <span class="kw">sum</span>((predPow <span class="op">-</span><span class="st"> </span>y)<span class="op">^</span><span class="dv">2</span>)), <span class="dv">3</span>)</a>
 <a class="sourceLine" id="cb469-9" data-line-number="9">)</a>
 <a class="sourceLine" id="cb469-10" data-line-number="10">modelStats</a></code></pre></div>
 <pre><code>## # A tibble: 2 x 4
@@ -630,7 +630,7 @@ So, let’s look at the log-likelihood and the corresponding probability of the 
 ## 1 expo             -18.7    7.82e- 9 0.019
 ## 2 power            -26.7    2.47e-12 0.057</code></pre>
 <p>The exponential model has a higher log-likelihood, a higher probability, and a lower sum of squares. This suggests that the exponential model is better.</p>
-<p>The AIC-score of these models is a direct function of the negative log-likelihood. Since both models have the same number of parameters, we arrive at the same verdict as before: based on comparison of AIC-scores, the exponential model is the better model.</p>
+<p>The AIC-score of these models is a direct function of the negative log-likelihood. Since both models have the same number of parameters, we arrive at the same verdict as before: based on a comparison of AIC-scores, the exponential model is the better model.</p>
 <div class="sourceCode" id="cb471"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb471-1" data-line-number="1">get_AIC &lt;-<span class="st"> </span><span class="cf">function</span>(optim_fit) {</a>
 <a class="sourceLine" id="cb471-2" data-line-number="2">  <span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw">length</span>(optim_fit<span class="op">$</span>par) <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>optim_fit<span class="op">$</span>value</a>
 <a class="sourceLine" id="cb471-3" data-line-number="3">}</a>
@@ -702,7 +702,7 @@ Solution
 Solution
 </button>
 <div class="content">
-<p>We use the same data twice! We use <span class="math inline">\(D_{\text{obs}}\)</span> to find the best fitting parameter values, and then we ask how likely <span class="math inline">\(D_{\text{obs}}\)</span>. If model comparison is about how well a model explains the data, then this is a rather circular measure: we quantify how well a model explains or predicts a data set after having “trained / optimized” the model for exactly this data set.</p>
+<p>We use the same data twice! We use <span class="math inline">\(D_{\text{obs}}\)</span> to find the best fitting parameter values, and then we ask how likely <span class="math inline">\(D_{\text{obs}}\)</span> is given the best fitting parameter values. If model comparison is about how well a model explains the data, then this is a rather circular measure: we quantify how well a model explains or predicts a data set after having “trained / optimized” the model for exactly this data set.</p>
 </div>
 </div>
 </div>
