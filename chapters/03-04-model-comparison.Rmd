@@ -15,8 +15,8 @@ But there is more to a good explanation, also intuitively. All else equal, a goo
 
 In this chapter, we will look at two common methods of comparing models: the Akaike information criterion (AIC) and Bayes factors.
 AICs are a non-Bayesian method in the sense that it does not require (or ignores) a model's priors over parameter values.
-Bayes factors are a the flagship Bayesian method for model comparison.
-There are many other approaches to model comparison (e.g., other kinds of information criteria, or methods based on cross-validation, other varieties of). 
+Bayes factors are the flagship Bayesian method for model comparison.
+There are many other approaches to model comparison (e.g., other kinds of information criteria, or methods based on cross-validation). 
 Our goal is not to be exhaustive, but to introduce the main ideas of model comparison and showcase a reasonable selection of representative approaches.
 
 ```{block, type='infobox'}
@@ -26,7 +26,7 @@ The learning goals for this chapter are:
 - understand and apply the two covered methods:
   - Akaike information criterion
   - Bayes factor
-- become familiar with the pro's and con's of each of these methods
+- become familiar with the pros and cons of each of these methods
 - [optional] get acquainted with some methods for computing Bayes factors
 ```
 
@@ -67,7 +67,7 @@ We are interested in comparing two theoretically different models for this data.
 
 $$\theta_t(a, b) = a \exp (-bt), \ \ \ \ \text{where } a,b>0 $$
 
-Taking the binary nature of data (recalled / not recalled) into account, this results in the following likelihood function for the exponential model:
+Taking the binary nature of the data (recalled / not recalled) into account, this results in the following likelihood function for the exponential model:
 
 $$
 \begin{aligned}
@@ -83,7 +83,7 @@ The resulting likelihood function for the power model is:
 
 $$
 \begin{aligned}
-P(k \mid a, b, N , M_{\text{pow}}) & = \text{Binom}(k,N, c\ t^{-d}), \ \ \ \ \text{where } c,d>0 
+P(k \mid c, d, N , M_{\text{pow}}) & = \text{Binom}(k,N, c\ t^{-d}), \ \ \ \ \text{where } c,d>0 
 \end{aligned}
 $$
 
@@ -145,13 +145,13 @@ nLL_generic <- function(par, model_name) {
   }
   # calculate predicted recall rates for given parameters
   if (model_name == "exponential") {
-    theta <- w1*exp(-w2*t)  # exponential model
+    theta <- w1 * exp(-w2 * t)  # exponential model
   } else {
-    theta <- w1*t^(-w2)     # power model
+    theta <- w1 * t^(-w2)       # power model
   }
   # avoid edge cases of infinite log-likelihood
   theta[theta <= 0.0] <- 1.0e-4
-  theta[theta >= 1.0] <- 1-1.0e-4
+  theta[theta >= 1.0] <- 1 - 1.0e-4
   # return negative log-likelihood of data
   - sum(dbinom(x = obs, prob = theta, size = 100, log = T))
 }
@@ -167,7 +167,7 @@ These functions are then optimized with R's built-in function `optim`. The resul
 # getting the best fitting values
 bestExpo <- optim(nLL_exp, par = c(1, 0.5))
 bestPow  <- optim(nLL_pow, par = c(0.5, 0.2))
-MLEstimates = data.frame(model = rep(c("exponential", "power"), each = 2),
+MLEstimates <- data.frame(model = rep(c("exponential", "power"), each = 2),
                          parameter = c("a", "b", "c", "d"),
                          value = c(bestExpo$par, bestPow$par))
 MLEstimates
@@ -195,25 +195,26 @@ forgetPlotBest <- ggplot(data.frame(x = c(1,20)), aes(x)) +
   )
 forgetPlotBest
 ```
+
 By visual inspection of Figure \@ref(fig:Chap-03-06-model-comparison-MLE-fits) alone, it is impossible to say with confidence which model is better. Numbers might help see more fine-grained differences.
 So, let's look at the log-likelihood and the corresponding probability of the data for each model under each model's best fitting parameter values. 
 
 ```{r}
-predExp <- expo(t,a,b)
-predPow <- power(t,c,d)
+predExp <- expo(t, a, b)
+predPow <- power(t, c, d)
 modelStats <- tibble(
   model = c("expo", "power"),
-  `log likelihood` = round(c(-bestExpo$value, -bestPow$value),3),
-  probability = signif(exp(c(-bestExpo$value, -bestPow$value)),3),
+  `log likelihood` = round(c(-bestExpo$value, -bestPow$value), 3),
+  probability = signif(exp(c(-bestExpo$value, -bestPow$value)), 3),
   # sum of squared errors
-  SS = round(c( sum((predExp-y)^2), sum((predPow-y)^2)),3)
+  SS = round(c(sum((predExp - y)^2), sum((predPow - y)^2)), 3)
 )
 modelStats
 ```
 
 The exponential model has a higher log-likelihood, a higher probability, and a lower sum of squares. This suggests that the exponential model is better. 
 
-The AIC-score of these models is a direct function of the negative log-likelihood. Since both models have the same number of parameters, we arrive at the same verdict as before: based on comparison of AIC-scores, the exponential model is the better model.
+The AIC-score of these models is a direct function of the negative log-likelihood. Since both models have the same number of parameters, we arrive at the same verdict as before: based on a comparison of AIC-scores, the exponential model is the better model.
 
 ```{r}
 get_AIC <- function(optim_fit) {
@@ -291,7 +292,7 @@ c. the likelihood of the data $D_{\text{obs}}$ under the best fitting parameters
 <button class="trigger">Solution</button>
 <div class="content">
 
-We use the same data twice! We use $D_{\text{obs}}$ to find the best fitting parameter values, and then we ask how likely $D_{\text{obs}}$. If model comparison is about how well a model explains the data, then this is a rather circular measure: we quantify how well a model explains or predicts a data set after having "trained / optimized" the model for exactly this data set. 
+We use the same data twice! We use $D_{\text{obs}}$ to find the best fitting parameter values, and then we ask how likely $D_{\text{obs}}$ is given the best fitting parameter values. If model comparison is about how well a model explains the data, then this is a rather circular measure: we quantify how well a model explains or predicts a data set after having "trained / optimized" the model for exactly this data set. 
 
 </div>
 </div>
@@ -301,7 +302,7 @@ We use the same data twice! We use $D_{\text{obs}}$ to find the best fitting par
 
 ## Bayes factors {#Chap-03-06-model-comparison-BF}
 
-At the end of the previous section, we saw that we can use the AIC-approach to calculate an approximate value of the posterior probability $P(M_{i} \mid D)$ for model $M_{i}$ is given data $D$. The Bayes factor approach is similar to this, but avoids taking priors over models into the equation by focusing on _the extent to which data $D$ changes our beliefs about the which model is more likely_. 
+At the end of the previous section, we saw that we can use the AIC-approach to calculate an approximate value of the posterior probability $P(M_{i} \mid D)$ for model $M_{i}$ given data $D$. The Bayes factor approach is similar to this, but avoids taking priors over models into the equation by focusing on _the extent to which data $D$ changes our beliefs about which model is more likely_. 
 
 Take two Bayesian models:
 
@@ -320,7 +321,7 @@ $$
 
 Three insights are to be gained from this expansion. Firstly, the Bayes factor is a measure of how well each model would have predicted the data *ex ante*, i.e., before having seen any data. In this way, it is diametrically opposed to a concept like AIC, which relies on models' maximum likelihood fits (therefore *using the data*, so being *ex post*). 
 
-Secondly, the marginal likelihood of a model is exactly the quantity that we identified (in the context of parameter estimation) as being very hard to compute, especially for complex models. The fact that marginal likelihoods are hard to compute was the reason that we methods like MCMC sampling are useful, since they give posterior samples _without_ requiring the calculation of marginal likelihoods. 
+Secondly, the marginal likelihood of a model is exactly the quantity that we identified (in the context of parameter estimation) as being very hard to compute, especially for complex models. The fact that marginal likelihoods are hard to compute was the reason that methods like MCMC sampling are useful, since they give posterior samples _without_ requiring the calculation of marginal likelihoods. 
 It follows that Bayes factors can be very difficult to compute in general. 
 However, for many prominent models, it is possible to calculate Bayes factors analytically if the right kinds of priors are specified [@RouderSpeckman2009:Bayesian-t-test;@RouderMorey2012:Default-Bayes-F;@GronauLy2019:Informed-Bayesi].
 We will see an example of this in Chapter \@ref(ch-03-07-hypothesis-testing-Bayes).
@@ -343,7 +344,7 @@ $BF_{12}$ | interpretation
 30 - 100 | very strong
 100 + | decisive (bye, bye $M_2$!)
 
-As $\text{BF}_{12} = \text{BF}_{21}^{-1}$ it suffices to give this translation into natural language only for values $\ge 1$.
+As $\text{BF}_{12} = \text{BF}_{21}^{-1}$, it suffices to give this translation into natural language only for values $\ge 1$.
 
 There are at least two general approaches to calculating or approximating Bayes factors, paired here with a (non-exhaustive) list of example methods:
 
@@ -357,7 +358,7 @@ There are at least two general approaches to calculating or approximating Bayes 
 
 ### Grid approximation {#Chap-03-06-model-comparison-BF-grid}
 
-We can use _grid approximation_ to approximate a model's marginal likelihood if the model are small enough, say, no more than 4-5 free parameters. 
+We can use _grid approximation_ to approximate a model's marginal likelihood if the model is small enough, say, no more than 4-5 free parameters. 
 Grid approximation considers discrete values for each parameter evenly spaced over the whole range of plausible parameter values, thereby approximating the integral in the definition of marginal likelihoods. 
 
 Let's calculate an example for the comparison of the exponential and the power model of forgetting.
@@ -377,7 +378,7 @@ The (Bayesian) power model is given by:
 
 $$
 \begin{aligned}
-P(k \mid a, b, N, M_{\text{pow}}) & = \text{Binom}(k,N, c\ t_i^{-d}) \\
+P(k \mid c, d, N, M_{\text{pow}}) & = \text{Binom}(k,N, c\ t_i^{-d}) \\
 P(c \mid M_{\text{pow}}) & = \text{Uniform}(c, 0, 1.5) \\
 P(d \mid M_{\text{pow}}) & = \text{Uniform}(d, 0, 1.5) 
 \end{aligned}
@@ -392,9 +393,9 @@ priorExp <- function(a, b){
 }
 # likelihood function exponential model
 lhExp <- function(a, b){
-  theta <- a*exp(-b*t)
+  theta <- a * exp(-b * t)
   theta[theta <= 0.0] <- 1.0e-5
-  theta[theta >= 1.0] <- 1-1.0e-5
+  theta[theta >= 1.0] <- 1 - 1.0e-5
   prod(dbinom(x = obs, prob = theta, size = 100))
 }
 
@@ -404,14 +405,14 @@ priorPow <- function(c, d){
 }
 # likelihood function power model
 lhPow <- function(c, d){
-  theta <- c*t^(-d)
+  theta <- c * t^(-d)
   theta[theta <= 0.0] <- 1.0e-5
-  theta[theta >= 1.0] <- 1-1.0e-5
+  theta[theta >= 1.0] <- 1 - 1.0e-5
   prod(dbinom(x = obs, prob = theta, size = 100))
 }
 ```
 
-To approximate each model's marginal likelihood via grid approximation, we consider equally spaced values for both parameters (a tighly knit grid), asses the prior and likelihood for each parameter pair and finally take the sum over all of the visited values:
+To approximate each model's marginal likelihood via grid approximation, we consider equally spaced values for both parameters (a tighly knit grid), assess the prior and likelihood for each parameter pair and finally take the sum over all of the visited values:
 
 ```{r}
 # make sure the functions accept vector input
@@ -426,17 +427,17 @@ marg_lh <- expand.grid(
   y = seq(0.005, 1.495, by = stepsize)
 ) %>% 
   mutate(
-    lhExp = lhExp(x,y), priExp = 1 / length(x),  # uniform priors!
-    lhPow = lhPow(x,y), priPow = 1 / length(x)
+    lhExp = lhExp(x, y), priExp = 1 / length(x),  # uniform priors!
+    lhPow = lhPow(x, y), priPow = 1 / length(x)
   )
 # output result
 str_c(
   "BF in favor of exponential model: ", 
-  with(marg_lh, sum(priExp*lhExp)/ sum(priPow*lhPow)) %>% round(2)
+  with(marg_lh, sum(priExp * lhExp) / sum(priPow * lhPow)) %>% round(2)
 )
 ```
 
-Based on this computation, we would be entitled to conclude that the data provides overwhelming evidence in favor of the exponential model. The result tells us that a rational agent should adjust her prior odds by a factor of more than 1000 in favor of the exponential model when updating her beliefs with the data. In other words, the data tilt our beliefs very strongly towards the exponential model, no matter what we believed initially. In this sense, the data provides strong evidence for the exponential model. 
+Based on this computation, we would be entitled to conclude that the data provide overwhelming evidence in favor of the exponential model. The result tells us that a rational agent should adjust her prior odds by a factor of more than 1000 in favor of the exponential model when updating her beliefs with the data. In other words, the data tilt our beliefs very strongly towards the exponential model, no matter what we believed initially. In this sense, the data provide strong evidence for the exponential model. 
 
 ### Naive Monte Carlo {#Chap-03-06-model-comparison-BF-naiveMC}
 
@@ -452,18 +453,18 @@ nSamples <- 1000000
 a <- runif(nSamples, 0, 1.5)
 b <- runif(nSamples, 0, 1.5)
 # calculate likelihood of data for each sample
-lhExpVec <- lhExp(a,b)
-lhPowVec <- lhPow(a,b)
+lhExpVec <- lhExp(a, b)
+lhPowVec <- lhPow(a, b)
 # compute marginal likelihoods
 str_c(
  "BF in favor of exponential model: ", 
- round(mean(lhExpVec) / mean(lhPowVec),2)
+ round(mean(lhExpVec) / mean(lhPowVec), 2)
 )
 ```
 
 We can also check the time course of our MC-estimate by a plot like that in Figure \@ref(fig:Chap-03-06-model-comparison-MC-estimate-time).
 The plot shows the current estimate of the Bayes factor on the $y$-axis after having taken the number of samples given on the $x$-axis.
-We see that the initial calculations (after only a 10,000 samples) is far off, but that the approximation finally gets reasonably close to the value calculated by grid approximation, which is shown as the red line.
+We see that the initial calculations (after only 10,000 samples) are far off, but that the approximation finally gets reasonably close to the value calculated by grid approximation, which is shown as the red line.
 
 ```{r Chap-03-06-model-comparison-MC-estimate-time, echo = F, fig.cap = "Temporal development (as more samples come in) of the Monte Carlo estimate of the Bayes factor in favor of the exponential model over the power model of forgetting. The red horizontal line indicates the Bayes factor estimate obtained previously via grid approximation."}
 BFVec <- map_dbl(
@@ -526,7 +527,7 @@ forgetting_data <- list(
 )
 ```
 
-The models are implemented in the Stan. We here only show the exponential model.
+The models are implemented in Stan. We here only show the exponential model.
 
 ```{mystan, eval = F}
 data {
@@ -541,12 +542,16 @@ parameters {
 model {
   // likelihood
   for (i in 1:6) {
-    target += binomial_lpmf(k[i] | N,  a * exp(-b*t[i])) ;
+    target += binomial_lpmf(k[i] | N,  a * exp(-b * t[i])) ;
   }
 }
 ```
 
-We then use Stan to obtain samples from the posterior in the usual way. To get reliable estimates of Bayes factors via bridge sampling we should take a much larger number of samples than we usually would for a reliable estimation of, say, the posterior means and credible intervals.
+<link rel="stylesheet" href="hljs.css">
+<script src="stan.js"></script>
+<script>$('pre.mystan code').each(function(i, block) {hljs.highlightBlock(block);});</script>
+
+We then use Stan to obtain samples from the posterior in the usual way. To get reliable estimates of Bayes factors via bridge sampling, we should take a much larger number of samples than we usually would for a reliable estimation of, say, the posterior means and credible intervals.
 
 ```{r}
 stan_fit_expon <- rstan::stan(
@@ -576,13 +581,13 @@ stan_fit_power <- rstan::stan(
 
 The `bridgesampling` package can then be used to calculate each model's marginal likelihood.
 
-```{r }
+```{r}
 expon_bridge <- bridgesampling::bridge_sampler(stan_fit_expon, silent = T)
 power_bridge <- bridgesampling::bridge_sampler(stan_fit_power, silent = T)
 ```
 
 We then obtain an estimate of the Bayes factor in favor of the exponential model with this function:
 
-```{r }
+```{r}
 bridgesampling::bf(expon_bridge, power_bridge)
 ```
