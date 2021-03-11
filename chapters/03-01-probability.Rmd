@@ -12,9 +12,9 @@ Probability is the basic ingredient of statistical inference.
 
 In this chapter, we will cover the very basics of probability theory. We will visit its axiomatic definition and some common interpretations in Section \@ref(Chap-03-01-probability-basics), where we also start with the main mental exercise of this section: seeing how **probability distributions can be approximately represented by samples**. We will cover important concepts such as joint and marginal probability in Section \@ref(Chap-03-01-probability-marginal). This paves the way for learning about conditional probability and Bayes rule in Section \@ref(Chap-03-01-probability-conditional). Section \@ref(Chap-03-01-probability-random-variables) introduces the notion of a random variable. Finally, Section \@ref(Chap-03-01-probability-R) briefly covers how information about common probability distributions can be accessed in R.
 
-```{block2, type='overview'}
+```{block, type='infobox'}
 
-**Learning goals:** 
+The learning goals for this chapter are:
 
 - become familiar with the notion of probability and also:
   - its axiomatic definition
@@ -28,10 +28,10 @@ In this chapter, we will cover the very basics of probability theory. We will vi
 
 ## Probability  {#Chap-03-01-probability-basics}
 
-Intuitively put, a probability distribution is a formal construct which captures an agent's belief state.
+Intuitively put, a probability distribution is a formal construct that captures an agent's belief state.
 In Bayesian data analysis, that agent of interest is the analyst themselves or a hypothetical model of the analyst.
 More concretely, a probability distribution assigns numerical values (conveniently scaled to lie between 0 and 1) to a number of different contingencies, i.e., different ways the world could be.
-These numbers can be interpreted as the weight of belief (also referred to as "degree of credence" in the philosophical literature) that the agent assigns to the each contingency: the higher the number assigned to a contingency, the more likely the agent considers this way the would could be. 
+These numbers can be interpreted as the weight of belief (also referred to as "degree of credence" in the philosophical literature) that the agent assigns to each contingency: the higher the number assigned to a contingency, the more likely the agent considers this way the world could be. 
 
 ### Outcomes, events, observations
 
@@ -63,7 +63,7 @@ observation that it is not $A$.
 ### Probability distributions
 
 A **probability distribution** $P$ over $\Omega$ is a function
-$P \ \colon \ \mathfrak{P}(\Omega) \rightarrow \mathbb{R}$. ^[For any of you who are interested in the precise mathematical description of probability space, $\mathfrak{P}(\Omega)$ is called [Borel set](https://en.wikipedia.org/wiki/Borel_set). It is important since probabilities can only be defined for measurable sets.] that assigns to all events $A \subseteq \Omega$ a real number, such that the following (so-called Kolmogorov axioms) are satisfied:
+$P \ \colon \ \mathfrak{P}(\Omega) \rightarrow \mathbb{R}$ ^[For any of you who are interested in the precise mathematical description of probability space, $\mathfrak{P}(\Omega)$ is called [Borel set](https://en.wikipedia.org/wiki/Borel_set). It is important since probabilities can only be defined for measurable sets.] that assigns to all events $A \subseteq \Omega$ a real number, such that the following (so-called Kolmogorov axioms) are satisfied:
 
 A1. $0 \le P(A) \le 1$
 
@@ -71,7 +71,7 @@ A2. $P(\Omega) = 1$
 
 A3. $P(A_1 \cup A_2 \cup A_3 \cup \dots) = P(A_1) + P(A_2) + P(A_3) + \dots$ whenever $A_1, A_2, A_3, \dots$ are mutually exclusive^[A3 is the axiom of *countable additivity*. Finite additivity may be enough for finite or countable sets $\Omega$, but infinite additivity is necessary for full generality in the uncountable case.]
 
-Occasionally we encounter notation $P \in \Delta(\Omega)$ to express that $P$ is a probability
+Occasionally, we encounter the notation $P \in \Delta(\Omega)$ to express that $P$ is a probability
 distribution over $\Omega$. (E.g., in physics, theoretical economics or game theory. Less so in psychology or statistics.) If $\omega \in \Omega$ is an elementary event, we often write $P(\omega)$ as a shorthand for $P(\set{\omega})$. In fact, if $\Omega$ is finite, it suffices to assign probabilities to elementary outcomes.
 
 A number of rules follow immediately from the definition:
@@ -102,14 +102,14 @@ C3: $P(A \cup B) = P((A-B) \cup (A \cap B) \cup (B-A)) = P(A-B) + P(A \cap B) + 
 </div>
 
 ### Interpretations of probability
-It is reasonably safe to think of probability, as defined above as, a handy mathematical primitive which is useful for certain applications. There are at least three ways of thinking about where this primitive probability might come from:
+It is reasonably safe to think of probability, as defined above, as a handy mathematical primitive which is useful for certain applications. There are at least three ways of thinking about where this primitive probability might come from:
 
 1. **Frequentist:** Probabilities are generalizations of intuitions/facts about frequencies of events in repeated executions of a random event.
-2. **Subjectivist:** Probabilities are subjective beliefs by a rational agent who is
+2. **Subjectivist:** Probabilities are subjective beliefs of a rational agent who is
   uncertain about the outcome of a random event.
 3. **Realist:** Probabilities are the property of an intrinsically random world.
 
-While trying to stay away from philosohpical quibbles, we will adopt a subjectivist interpretation of probabilities, but note that frequentist considerations should affect what a rational agent should believe.
+While trying to stay away from philosophical quibbles, we will adopt a subjectivist interpretation of probabilities, but note that frequentist considerations should affect what a rational agent should believe.
 
 ### Distributions as samples
 
@@ -169,18 +169,18 @@ tibble(
 To sum this up concisely, we have a random process (drawing once from the urn) whose outcome is uncertain, and we convinced ourselves that the probability of an outcome corresponds to the relative frequency it occurs, in the limit of repeatedly executing the random process (i.e., sampling from the urn). From here, it requires only a small step to a crucial but ultimately very liberating realization. If the probability of an event occurring can be approximated by its frequency in a large sample, then we can approximately represent (say: internally in a computer) a probability distribution as one of two things:
 
 1. a large set of (what is called: representative) samples; or even better as
-2. an oracle (e.g., in the form of a clever algorithm) which quickly returns a representative sample.
+2. an oracle (e.g., in the form of a clever algorithm) that quickly returns a representative sample.
 
 This means that, for approximately computing with probability, we can represent distributions through samples or a sample-generating function. We do not need to know precise probability or be able to express them in a mathematical formula. Samples or **sampling is often enough to approximate probability distributions**.
 
 <div class = "exercises">
 **Exercise 7.2**
 
-Explore how taking more or less samples affects the proportion of draws from an urn with the WebPPL code below. You can enter the number of black balls and the total number of balls for your urn. You can also enter the number of times you want to draw from your urn (with replacement - meaning that after every draw the ball you just picked is placed back into the urn). 
+Explore how taking more or less samples affects the proportion of draws from an urn with the WebPPL code below. You can enter the number of black balls and the total number of balls for your urn. You can also enter the number of times you want to draw from your urn (with replacement - meaning that after every draw, the ball you just picked is placed back into the urn). 
 You should execute the code several times in sequence with the same parameter values. 
 This is because each time you run the code, another different random result will be shown.
 By inspecting what happens across several runs (each drawing `nr_draws` times from the urn), you can check the effect of varying the variable `nr_draws`.
-E.g., what happens with low sample size, e.g., `nr_draws = 20`, as opposed to large sample size, e.g., `nr_draws = 100000`? 
+E.g., what happens with a low sample size, e.g., `nr_draws = 20`, as opposed to a large sample size, e.g., `nr_draws = 100000`? 
 
 <pre class="webppl">
 // how many balls are black? how many in total?
@@ -209,7 +209,7 @@ preEls.map(function(el) { console.log(el); editor.setup(el, {language: 'webppl'}
 <button class="trigger">Solution</button>
 <div class="content">
 
-With small sample size, there is a lot of variation in the observed proportion. As the sample size gets larger and larger, the result converges to `nr_black / nr_total`.
+With a small sample size, there is a lot of variation in the observed proportion. As the sample size gets larger and larger, the result converges to `nr_black / nr_total`.
 
 </div>
 </div>
@@ -417,7 +417,7 @@ Three possibilities for obtaining a value of 0.7 for the marginal probability of
 
 ## Conditional probability {#Chap-03-01-probability-conditional}
 
-Let us assume probability distribution $P \in \Delta(\Omega)$ and events $A,B \subseteq \Omega$ are given. The conditional probability of $A$ given $B$, written as $P(A \mid B)$, gives the probability of $A$ on the assumption that $B$ is true.^[We also verbalize this as "the conditional probability of $A$ conditioned on $B$."] It is defined like so:
+Let us assume probability distribution $P \in \Delta(\Omega)$ and that events $A,B \subseteq \Omega$ are given. The conditional probability of $A$ given $B$, written as $P(A \mid B)$, gives the probability of $A$ on the assumption that $B$ is true.^[We also verbalize this as "the conditional probability of $A$ conditioned on $B$."] It is defined like so:
 
 $$P(A \mid B) = \frac{P(A \cap B)}{P(B)}$$
 
@@ -536,7 +536,7 @@ Three possibilities for obtaining a value of 0.7 for the marginal probability of
 </div>
 
 
-b. Suppose that we know that around 6% of the population has statisticositis, a rare disease which makes you allergic to fallacious statistical reasoning.
+b. Suppose that we know that around 6% of the population has statisticositis, a rare disease that makes you allergic to fallacious statistical reasoning.
 A new test has been developed to diagnose statisticositis but it is not infallible. 
 The _specificity_ of the test (the test result is negative when the subject really does not have statisticositis) is 98%. 
 The _sensitivity_ of the test (the test result is positive when the subject really does have statisticositis) is 95%. 
@@ -645,14 +645,14 @@ So far, we have defined a probability distribution as a function that assigns a 
 We saw that rational beliefs should conform to certain axioms, reflecting a "logic of rational beliefs". 
 But in data analysis, we are often interested in a space of numeric outcomes.
 You probably know stuff like the "normal distribution" which is a distribution that assigns a probability to each real number.
-In keeping with our previous definition of probability as targeting a measureable set $\Omega$, we introduce what we could sloppily call "probability distributions over numbers" using the concept of random variables.
+In keeping with our previous definition of probability as targeting a measurable set $\Omega$, we introduce what we could sloppily call "probability distributions over numbers" using the concept of random variables.
 Caveat: random variables are very useful concepts and offer highly versatile notation, but both concept and notation can be elusive in the beginning. 
 
 Formally, a **random variable** is a function $X \ \colon \ \Omega \rightarrow \mathbb{R}$ that assigns to each elementary outcome a numerical value.
 It is reasonable to think of this number as a **summary statistic**: a number that captures one aspect of relevance of what is actually a much more complex chunk of reality.
 
 ```{block2, type='infobox'}
-**Example.** For a single flip of a coin we have $\Omega_{\text{coin flip}} = \set{\text{heads}, \text{tails}}$. A usual way of mapping this onto numerical outcomes is to define $X_{\text{coin flip}} \ \colon \ \text{heads} \mapsto 1; \text{tails} \mapsto 0$. Less trivially, consider  flipping a coin two times. Elementary outcomes should be individuated by the outcome of the   first flip and the outcome of the second flip, so that we get:
+**Example.** For a single coin flip, we have $\Omega_{\text{coin flip}} = \set{\text{heads}, \text{tails}}$. A usual way of mapping this onto numerical outcomes is to define $X_{\text{coin flip}} \ \colon \ \text{heads} \mapsto 1; \text{tails} \mapsto 0$. Less trivially, consider flipping a coin two times. Elementary outcomes should be individuated by the outcome of the first flip and the outcome of the second flip, so that we get:
 $$
     \Omega_{\text{two flips}} = \set{\tuple{\text{heads}, \text{heads}}, \tuple{\text{heads}, \text{tails}},
     \tuple{\text{tails}, \text{heads}}, \tuple{\text{tails}, \text{tails}}}
@@ -663,7 +663,7 @@ Consider the random variable $X_{\text{two flips}}$ that counts the total number
 
 ### Notation & terminology
 
-Traditionally random variables are represented by capital letters, like $X$. The numeric values they take on are written as small letters, like $x$.
+Traditionally, random variables are represented by capital letters, like $X$. The numeric values they take on are written as small letters, like $x$.
 
 We write $P(X = x)$ as a shorthand for the probability $P(\set{\omega \in \Omega \mid X(\omega) = x})$, that an event $\omega$ occurs which is mapped onto $x$ by the random variable $X$. For example, if our coin is fair, then $P(X_{\text{two flips}} = x) = 0.5$ for $x=1$ and $0.25$ for $x \in \{0,2\}$. Similarly, we can also write $P(X \le x)$ for the probability of observing any event that $X$ maps to a number not bigger than $x$.
 
@@ -689,7 +689,7 @@ $$
 Here $\binom{n}{k} = \frac{n!}{k!(n-k)!}$ is the binomial coefficient, which gives the number of possibilities of drawing an unordered subset with $k$ elements from a set with a total of $n$ elements. Figure \@ref(fig:ch-03-BinomialDistribution-Mass) gives examples of the Binomial distribution, concretely its probability mass functions, for two values of the coin's bias, $\theta = 0.25$ or $\theta = 0.5$, when flipping the coin $n=24$  times. Figure \@ref(fig:ch-03-BinomialDistribution-Cumulative) gives the corresponding cumulative  distributions.
 <!-- add some more explanation -->
 
-```{r ch-03-BinomialDistribution-Mass, echo = FALSE, fig.cap = "Examples of the Binomial distribution. The $y$-axis give the probability of seeing $k$ heads when flipping a coin $n=24$ times with a bias of either $\\theta = 0.25$ or $\\theta = 0.5$."}
+```{r ch-03-BinomialDistribution-Mass, echo = FALSE, fig.cap = "Examples of the Binomial distribution. The $y$-axis gives the probability of seeing $k$ heads when flipping a coin $n=24$ times with a bias of either $\\theta = 0.25$ or $\\theta = 0.5$."}
 binom.plot.data = expand.grid(n = 24, theta = c(0.25, 0.5), k = 0:24) %>%
   mutate(
     probability = dbinom(k,n,theta),
@@ -729,7 +729,7 @@ A probability density function can take values greater than one, unlike a probab
 function.
 
 <div class="infobox">
-**Example.** The **Gaussian (Normal) distribution** characterizes many natural distributions of  measurements which are symmetrically spread around a central tendency. It is defined as:
+**Example.** The [Gaussian (Normal) distribution](#app-91-distributions-normal) characterizes many natural distributions of  measurements which are symmetrically spread around a central tendency. It is defined as:
 $$
     \mathcal{N}(X = x ; \mu, \sigma) = \frac{1}{\sqrt{2 \sigma^2 \pi}} \exp \left ( -
       \frac{(x-\mu)^2}{2 \sigma^2} \right)
@@ -855,7 +855,7 @@ samples_x <- sample(
 
 # `n_samples` flips of a biased coin
 samples_y <- sample(
-  c(0,1),
+  c(0, 1),
   prob = c(0.25, 0.75),
   size = n_samples,
   replace = T
@@ -865,7 +865,7 @@ samples_z <- samples_x + samples_y
 
 tibble(outcome = samples_z) %>%
   dplyr::count(outcome) %>%
-  mutate(n = n/sum(n)) %>%
+  mutate(n = n / sum(n)) %>%
   ggplot(aes(x = outcome, y = n)) +
   geom_col() +
   labs(y = "proportion")
