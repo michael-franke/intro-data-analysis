@@ -19,7 +19,7 @@ The learning goals for this chapter are:
 
 ## Data in, data out {#Chap-02-02-data-IO}
 
-The `readr` package handles the reading and writing of data stored in text files.^[Other packages help with reading data from and writing data to other file types, such as excel sheets. Look at the [data I/O cheat sheet](https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf) for more information.] Here is a cheat sheet on the topic: [data I/O cheat sheet](https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf). The data sets we will mainly deal with in this course are conveniently included in the `aida` package. Occasionally, we will also read in data stored in CSV files.
+The `readr` package handles the reading and writing of data stored in text files.^[Other packages help with reading data from and writing data to other file types, such as excel sheets. Look at the [data I/O cheat sheet](https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf) for more information.] Here is a cheat sheet on the topic: [data I/O cheat sheet](https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf). The data sets we will mainly deal with in this course are included in the `aida` package for convenience. Occasionally, we will also read in data stored in CSV files.
 
 Reading a data set from a CSV file works with the `read_csv` function:
 
@@ -27,7 +27,7 @@ Reading a data set from a CSV file works with the `read_csv` function:
 fresh_raw_data <- read_csv("PATH/FILENAME_RAW_DATA.csv")
 ```
 
-Writing to a csv file can be done with the `write_csv` function:
+Writing to a CSV file can be done with the `write_csv` function:
 
 <!-- TODO: mention reproducible workflow -->
 
@@ -203,7 +203,7 @@ This data is "too wide". We can make it longer with the function `pivot_longer` 
 exam_results_visual %>% 
   pivot_longer(
     # pivot every column except the first 
-    # (a negative number here means "exclude colum with that index number")
+    # (a negative number here means "exclude column with that index number")
     cols = - 1,
     # name of new column which contains the
     # names of the columns to be "gathered"
@@ -217,7 +217,7 @@ exam_results_visual %>%
   select(student, exam, grade)
 ```
 
-What `pivot_longer` does, in general, is take a bunch of columns and gather the values of all cells in these columns into a single, new column, the so-called *value column*, i.e., the column with the values of the cells to be gathered. If `pivot_longer` stopped here, we would loose information about which cell values belonged to which original column. Therefore, `pivot_longer` also creates a second new column, the so-called *name column*, i.e., the column with the names of the original columns that we gathered together. Consequently, in order to do its job, `pivot_longer` minimally needs three pieces of information:^[There are alternative possibilities for specifying names of the value and name column, which allow for more dynamic construction of strings. We will not cover all of these details here, but we will use some of these alternative specifications in subsequent examples.]
+What `pivot_longer` does, in general, is take a bunch of columns and gather the values of all cells in these columns into a single, new column, the so-called *value column*, i.e., the column with the values of the cells to be gathered. If `pivot_longer` stopped here, we would lose information about which cell values belonged to which original column. Therefore, `pivot_longer` also creates a second new column, the so-called *name column*, i.e., the column with the names of the original columns that we gathered together. Consequently, in order to do its job, `pivot_longer` minimally needs three pieces of information:^[There are alternative possibilities for specifying names of the value and name column, which allow for more dynamic construction of strings. We will not cover all of these details here, but we will use some of these alternative specifications in subsequent examples.]
 
 1. which columns to spin around (function argument `cols`)
 2. the name of the to-be-created new value column (function argument `values_to`)
@@ -251,15 +251,16 @@ mixed_results_too_long %>%
   )
 ```
 
-In general, `pivot_wider` picks out two columns, one column of values to distribute into new to-be-created columns, and one vector of names or groups which contains the information about the, well, names of the to-be-created new columns. There are more refined options for `pivot_wider` some of which we will encounter in the context of concrete cases of application.
+In general, `pivot_wider` picks out two columns, one column of values to distribute into new to-be-created columns, and one vector of names or groups which contains the information about the, well, names of the to-be-created new columns. There are more refined options for `pivot_wider`, some of which we will encounter in the context of concrete cases of application.
 
-### Subsetting row & columns
+### Subsetting rows & columns
 
 If a data set contains too much information for your current purposes, you can discard irrelevant (or unhelpful) rows and columns. The function `filter` takes a Boolean expression and returns only those rows of which the Boolean expression is true:
 
 ```{r}
 exam_results_tidy %>% 
-  # keep only entries with grades better than 1.7
+  # keep only entries with grades better than 
+  # or equal to 1.7
   filter(grade <= 1.7)
 ```
 
@@ -268,14 +269,14 @@ To select rows by an index or a vector of indeces, use the `slice` function:
 ```{r}
 exam_results_tidy %>% 
   # keep only entries from rows with an even index
-  slice(c(2,4,6)) 
+  slice(c(2, 4, 6)) 
 ```
 
 The function `select` allows to pick out a subset of columns. Interestingly, it can also be used to reorder columns, because the order in which column names are specified matches the order in the returned tibble.
 
 ```{r}
 exam_results_tidy %>% 
-  # select columns `grade` and `name`
+  # select columns `grade` and `exam`
   select(grade, exam)
 ```
 
@@ -292,20 +293,20 @@ SOME_DATA %>%
         # all columns except the one called "COLNAME"
         - COLNAME
         # all columns with names starting with "STRING"
-       starts_with("STRING")
-       # all columns with names ending with "STRING"
-       ends_with("STRING")
-       # all columns with names containing "STRING"
-       contains("STRING")
-       # all columns with names of the form "Col_i" with i = 1, ..., 10
-       num_range("Col_", 1:10)
+        starts_with("STRING")
+        # all columns with names ending with "STRING"
+        ends_with("STRING")
+        # all columns with names containing "STRING"
+        contains("STRING")
+        # all columns with names of the form "Col_i" with i = 1, ..., 10
+        num_range("Col_", 1:10)
   )
 ```
 
 
 ### Adding, changing and renaming columns
 
-To add a new column, or to change an existing one use function `mutate`, like so:
+To add a new column, or to change an existing one use the function `mutate`, like so:
 
 ```{r}
 exam_results_tidy %>% 
@@ -413,7 +414,7 @@ student_numbers <- tribble(
 full_join(exam_results_tidy, student_numbers, by = "student")
 ```
 
-If two data sets are to be joined by a column that is not exactly shared by both sets (one contains entries in this columns that the other doesn't) then a `full_join` will retain all information from both. If that is not what you want, check out alternative functions like `right_join`, `semi_join` etc. using the [data wrangling cheat sheet](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf).
+If two data sets are to be joined by a column that is not exactly shared by both sets (one contains entries in this column that the other doesn't) then a `full_join` will retain all information from both. If that is not what you want, check out alternative functions like `right_join`, `semi_join` etc. using the [data wrangling cheat sheet](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf).
 
 
 <div class = "exercises">
@@ -435,7 +436,7 @@ Take a look at the following code snippet. Explain what the individual parts (in
 ```{r}
 choice_data <- data %>%  
 #1 
-select(subject_id,choices) %>%  
+select(subject_id, choices) %>%  
 #2
 separate(
   col = choices,
@@ -456,7 +457,7 @@ pivot_longer(
 
 2. In the data set, each cell in the `choices` column contains more than one value. To separate them, we take this column and divide the strings by the ",". The names are then given for each line from one to three. 
 
-3. Now we are making the data set longer, so that each condition is its own row. We are pivoting each column apart from the first. The names of the columns are combined in a column called condition and the values are put into a column called response.
+3. Now we are making the data set longer, so that each condition is its own row. We are pivoting each column apart from the first. The names of the columns are combined in a column called `condition` and the values are put into a column called `response`.
 
 The result: 
 
@@ -471,19 +472,21 @@ choice_data
 
 ## Grouped operations {#Chap-02-02-data-grouping-nesting}
 
-A frequently occurring problem in data analysis is to obtain a summary statistic (see Section \@ref(Chap-02-03-summary-statistics)) for different subsets of data. For example, we might want to calculate the average score for each student in our class. We could do that by filtering like so (notice that `pull` gives you the column vector specified):
+A frequently occurring problem in data analysis is to obtain a summary statistic (see Chapter \@ref(Chap-02-03-summary-statistics)) for different subsets of data. For example, we might want to calculate the average score for each student in our class. We could do that by filtering like so (notice that `pull` gives you the column vector specified):
 
 ```{r}
 # extracting mean grade for Rozz
 mean_grade_Rozz <- exam_results_tidy %>% 
-  filter(student == "Rozz") %>% pull(grade) %>% mean
+  filter(student == "Rozz") %>% 
+  pull(grade) %>% 
+  mean
 mean_grade_Rozz
 ```
 
-But then we need to do that two more times. So, as we shouldn't copy-paste code, we write a function and use `mutate` to add a mean for each student:
+But then we need to do that two more times. So, as we shouldn't copy-paste code, we write a function and use `map_dbl` to add a mean for each student:
 
 ```{r}
-get_mean_for_student = function(student_name) {
+get_mean_for_student <- function(student_name) {
   exam_results_tidy %>% 
   filter(student == student_name) %>% pull(grade) %>% mean
 }
@@ -536,7 +539,7 @@ The raw data set is part of the `aida` package and can be loaded using:
 data_KoF_raw <- aida::data_KoF_raw
 ```
 
-We can then get a glimpse at the data using:
+We then take a glimpse at the data:
 
 ```{r}
 glimpse(data_KoF_raw )
@@ -575,11 +578,11 @@ We might wish to exclude people who do not include "English" as one of their nat
 
 ```{r}
 data_KoF_raw <- data_KoF_raw %>% 
-  select(-languages, - comments, -age, - RT, - education, - gender)
+  select(-languages, -comments, -age, -RT, -education, -gender)
 ```
 
 
-But even after pruning irrelevant columns, this data set is still not ideal. We need to preprocess it more thoroughly to make it more intuitively managable. For example, the information in column `trial_name` does not give the trial's name in an intuitive sense, but its type: whether it is a practice or a main trial. But this information, and more, is also represented in the column `trial_type`. The column `item_version` contains information about the experimental condition. To see this (mess) the code below prints the selected information from the main trials of only one participant in an order that makes it easier to see what is what.
+But even after pruning irrelevant columns, this data set is still not ideal. We need to preprocess it more thoroughly to make it more intuitively manageable. For example, the information in column `trial_name` does not give the trial's name in an intuitive sense, but its type: whether it is a practice or a main trial. But this information, and more, is also represented in the column `trial_type`. The column `item_version` contains information about the experimental condition. To see this (mess), the code below prints the selected information from the main trials of only one participant in an order that makes it easier to see what is what.
 
 ```{r}
 data_KoF_raw %>% 
@@ -591,10 +594,10 @@ data_KoF_raw %>%
   print(n = Inf)
 ```
 
-We see that the information in `item_version` specifies the critical condition. To make this more intuitively manageable, we would like to have a column called `condition` and it should, ideally, also contain useful information for the cases where `trial_type` is not `main` or `special`. That is why we will therefore remove the column `trial_name` completely, and create an informative column `condition` in which we learn of every row whether it belongs to one of the 5 experimental conditions, and if not whether it is a filler or a "background check" (= special) trial.
+We see that the information in `item_version` specifies the critical condition. To make this more intuitively manageable, we would like to have a column called `condition` and it should, ideally, also contain useful information for the cases where `trial_type` is not `main` or `special`. That is why we will therefore remove the column `trial_name` completely, and create an informative column `condition` in which we learn of every row whether it belongs to one of the five experimental conditions, and if not whether it is a filler or a "background check" (= special) trial.
 
 ```{r}
-data_KoF_processed <-  data_KoF_raw %>% 
+data_KoF_processed <- data_KoF_raw %>% 
   # drop redundant information in column `trial_name`
   select(-trial_name) %>% 
   # discard practice trials
@@ -657,8 +660,7 @@ d_cleaned <-
 
 ```{r}
 # exclude every critical trial whose 'background' test question was answered wrongly
-d_cleaned <- 
-  d_cleaned %>% 
+d_cleaned <- d_cleaned %>% 
   # select only the 'background question' trials
   filter(trial_type == "special") %>% 
   # is the background question answered correctly?
