@@ -220,7 +220,7 @@ code span.wa { color: #bf0303; } /* Warning */
 </ul></li>
 <li class="chapter" data-level="4.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html"><i class="fa fa-check"></i><b>4.3</b> Data manipulation: the basics</a><ul>
 <li class="chapter" data-level="4.3.1" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#pivoting"><i class="fa fa-check"></i><b>4.3.1</b> Pivoting</a></li>
-<li class="chapter" data-level="4.3.2" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#subsetting-row-columns"><i class="fa fa-check"></i><b>4.3.2</b> Subsetting row &amp; columns</a></li>
+<li class="chapter" data-level="4.3.2" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#subsetting-rows-columns"><i class="fa fa-check"></i><b>4.3.2</b> Subsetting rows &amp; columns</a></li>
 <li class="chapter" data-level="4.3.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#Chap-02-02-tidy-selection"><i class="fa fa-check"></i><b>4.3.3</b> Tidy selection of column names</a></li>
 <li class="chapter" data-level="4.3.4" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#adding-changing-and-renaming-columns"><i class="fa fa-check"></i><b>4.3.4</b> Adding, changing and renaming columns</a></li>
 <li class="chapter" data-level="4.3.5" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#splitting-and-uniting-columns"><i class="fa fa-check"></i><b>4.3.5</b> Splitting and uniting columns</a></li>
@@ -564,9 +564,9 @@ code span.wa { color: #bf0303; } /* Warning */
 <p>Very familiar instances of summary statistics are counts and frequencies. While there is no conceptual difficulty in understanding these numerical measures, we have yet to see how to obtain counts for categorical data in R. The <a href="app-93-data-sets-BLJM.html#app-93-data-sets-BLJM">Bio-Logic Jazz-Metal data set</a> provides nice material for doing so. If you are unfamiliar with the data and the experiment that generated it, please have a look at Appendix Chapter <a href="app-93-data-sets-BLJM.html#app-93-data-sets-BLJM">D.4</a>.</p>
 <div id="loading-and-inspecting-the-data" class="section level3">
 <h3><span class="header-section-number">5.1.1</span> Loading and inspecting the data</h3>
-<p>We load the preprocessed data immediately (see Appendix Chapter <a href="app-93-data-sets-BLJM.html#app-93-data-sets-BLJM">D.4</a> for details on how this preprocessing was performed).</p>
+<p>We load the preprocessed data immediately (see Appendix <a href="app-93-data-sets-BLJM.html#app-93-data-sets-BLJM">D.4</a> for details on how this preprocessing was performed).</p>
 <div class="sourceCode" id="cb259"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb259-1" data-line-number="1">data_BLJM_processed &lt;-<span class="st"> </span>aida<span class="op">::</span>data_BLJM</a></code></pre></div>
-<p>The preprocessed data lists, for each participant (in column <code>submission_id</code>) the binary choice (in column <code>response</code>) given for a particular condition (in column <code>condition</code>).</p>
+<p>The preprocessed data lists, for each participant (in column <code>submission_id</code>) the binary choice (in column <code>response</code>) in a particular condition (in column <code>condition</code>).</p>
 <div class="sourceCode" id="cb260"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb260-1" data-line-number="1"><span class="kw">head</span>(data_BLJM_processed)</a></code></pre></div>
 <pre><code>## # A tibble: 6 x 3
 ##   submission_id condition response
@@ -592,7 +592,8 @@ code span.wa { color: #bf0303; } /* Warning */
 ## 2 JM                                 102
 ## 3 LB                                 102</code></pre>
 <p>Notice that calling <code>n</code> without grouping just gives you the number of rows in the data set:</p>
-<div class="sourceCode" id="cb264"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb264-1" data-line-number="1">data_BLJM_processed <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarize</span>(<span class="dt">n_rows =</span> <span class="kw">n</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb264"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb264-1" data-line-number="1">data_BLJM_processed <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb264-2" data-line-number="2"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">n_rows =</span> <span class="kw">n</span>())</a></code></pre></div>
 <pre><code>## # A tibble: 1 x 1
 ##   n_rows
 ##    &lt;int&gt;
@@ -651,7 +652,7 @@ code span.wa { color: #bf0303; } /* Warning */
 <a class="sourceLine" id="cb274-2" data-line-number="2"><span class="st">  </span><span class="kw">pivot_wider</span>(<span class="dt">names_from =</span> condition, <span class="dt">values_from =</span> response) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb274-3" data-line-number="3"><span class="st">  </span><span class="co"># drop the Beach vs. Mountain condition</span></a>
 <a class="sourceLine" id="cb274-4" data-line-number="4"><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>BM) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb274-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">count</span>(JM,LB) </a>
+<a class="sourceLine" id="cb274-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">count</span>(JM, LB) </a>
 <a class="sourceLine" id="cb274-6" data-line-number="6">BLJM_associated_counts</a></code></pre></div>
 <pre><code>## # A tibble: 4 x 3
 ##   JM    LB          n

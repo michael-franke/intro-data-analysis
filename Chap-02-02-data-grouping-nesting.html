@@ -220,7 +220,7 @@ code span.wa { color: #bf0303; } /* Warning */
 </ul></li>
 <li class="chapter" data-level="4.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html"><i class="fa fa-check"></i><b>4.3</b> Data manipulation: the basics</a><ul>
 <li class="chapter" data-level="4.3.1" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#pivoting"><i class="fa fa-check"></i><b>4.3.1</b> Pivoting</a></li>
-<li class="chapter" data-level="4.3.2" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#subsetting-row-columns"><i class="fa fa-check"></i><b>4.3.2</b> Subsetting row &amp; columns</a></li>
+<li class="chapter" data-level="4.3.2" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#subsetting-rows-columns"><i class="fa fa-check"></i><b>4.3.2</b> Subsetting rows &amp; columns</a></li>
 <li class="chapter" data-level="4.3.3" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#Chap-02-02-tidy-selection"><i class="fa fa-check"></i><b>4.3.3</b> Tidy selection of column names</a></li>
 <li class="chapter" data-level="4.3.4" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#adding-changing-and-renaming-columns"><i class="fa fa-check"></i><b>4.3.4</b> Adding, changing and renaming columns</a></li>
 <li class="chapter" data-level="4.3.5" data-path="Chap-02-02-data-preprocessing-cleaning.html"><a href="Chap-02-02-data-preprocessing-cleaning.html#splitting-and-uniting-columns"><i class="fa fa-check"></i><b>4.3.5</b> Splitting and uniting columns</a></li>
@@ -558,14 +558,16 @@ code span.wa { color: #bf0303; } /* Warning */
             <section class="normal" id="section-">
 <div id="Chap-02-02-data-grouping-nesting" class="section level2">
 <h2><span class="header-section-number">4.4</span> Grouped operations</h2>
-<p>A frequently occurring problem in data analysis is to obtain a summary statistic (see Section <a href="Chap-02-03-summary-statistics.html#Chap-02-03-summary-statistics">5</a>) for different subsets of data. For example, we might want to calculate the average score for each student in our class. We could do that by filtering like so (notice that <code>pull</code> gives you the column vector specified):</p>
+<p>A frequently occurring problem in data analysis is to obtain a summary statistic (see Chapter <a href="Chap-02-03-summary-statistics.html#Chap-02-03-summary-statistics">5</a>) for different subsets of data. For example, we might want to calculate the average score for each student in our class. We could do that by filtering like so (notice that <code>pull</code> gives you the column vector specified):</p>
 <div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb237-1" data-line-number="1"><span class="co"># extracting mean grade for Rozz</span></a>
 <a class="sourceLine" id="cb237-2" data-line-number="2">mean_grade_Rozz &lt;-<span class="st"> </span>exam_results_tidy <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb237-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(student <span class="op">==</span><span class="st"> &quot;Rozz&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(grade) <span class="op">%&gt;%</span><span class="st"> </span>mean</a>
-<a class="sourceLine" id="cb237-4" data-line-number="4">mean_grade_Rozz</a></code></pre></div>
+<a class="sourceLine" id="cb237-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(student <span class="op">==</span><span class="st"> &quot;Rozz&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb237-4" data-line-number="4"><span class="st">  </span><span class="kw">pull</span>(grade) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb237-5" data-line-number="5"><span class="st">  </span>mean</a>
+<a class="sourceLine" id="cb237-6" data-line-number="6">mean_grade_Rozz</a></code></pre></div>
 <pre><code>## [1] 1.8</code></pre>
-<p>But then we need to do that two more times. So, as we shouldn’t copy-paste code, we write a function and use <code>mutate</code> to add a mean for each student:</p>
-<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb239-1" data-line-number="1">get_mean_for_student =<span class="st"> </span><span class="cf">function</span>(student_name) {</a>
+<p>But then we need to do that two more times. So, as we shouldn’t copy-paste code, we write a function and use <code>map_dbl</code> to add a mean for each student:</p>
+<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb239-1" data-line-number="1">get_mean_for_student &lt;-<span class="st"> </span><span class="cf">function</span>(student_name) {</a>
 <a class="sourceLine" id="cb239-2" data-line-number="2">  exam_results_tidy <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb239-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(student <span class="op">==</span><span class="st"> </span>student_name) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pull</span>(grade) <span class="op">%&gt;%</span><span class="st"> </span>mean</a>
 <a class="sourceLine" id="cb239-4" data-line-number="4">}</a>
