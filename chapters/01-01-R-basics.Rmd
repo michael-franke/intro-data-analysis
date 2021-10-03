@@ -1201,6 +1201,91 @@ weird_RTs %>%
 </div>
 </div>
 
+### Excursion: More on pipes in R
+
+#### Pipes in the `magrittr` package
+
+The base pipe operator `%>%` is automatically imported from the `magrittr` package when you load the `tidyverse` package.
+The `magrittr` package has three more useful pipe operators, which are /not/ loaded automatically when you load the `tidyverse` package.
+
+The **tree pipe** `%T>%` passes on to the RHS whatever it was fed on the LHS. 
+This is particularly useful for printing or plotting intermediate results: 
+
+```{r }
+input_vector <- c(0.4, 0.5, 0.6)
+input_vector %>%
+  # get the mean
+  mean %T>%
+  # output intermediate result
+  print %>%
+  # do more computations
+  sum(3)
+```
+
+The **exposition pipe** `%$%` is like the base pipe `%>%` but makes the names (e.g., columns in a data frame) in the LHS available on the RHS, even when the function on the RHS normally does not allow for this.
+So, this does not work with the normal pipe:
+
+```{r eval = F}
+tibble(
+  x = 1:3
+) %>%    # normal pipe 
+  sum(x) # error: object `x` not found
+```
+
+But it works with the exposition pipe:
+```{r }
+tibble(
+  x = 1:3
+) %$%    # exposition pipe makes 'x' available
+  sum(x) # error: object `x` not found
+```
+
+Finally, the **assignment pipe** `%<>%` which pipes the LHS into a chain of computations and assigns the final value back to the LHS.
+
+```{r }
+x <- c(0.4, 0.5, 0.6)
+# x is changed in place
+x %<>%
+  sum(3) %>%
+  mean
+print(x)
+```
+
+#### Native pipes
+
+Base R has introduced a native pipe operator `|>` in version 4.1.0.
+It differs slightly from the `magrittr` version, e.g., in that it requires function brackets:
+
+```{r eval = F}
+1:10 |> mean    # error!
+1:10 |> mean()  # 5.5
+```
+
+You can read more about the history of the pipe in R in this [blog post](http://adolfoalvarez.cl/blog/2021-09-16-plumbers-chains-and-famous-painters-the-history-of-the-pipe-operator-in-r/).
+
+### Excursion Multiple assignments (or: "unpacking") with the `zeallot` package
+
+The `zeallot` package can be additionally loaded to obtain a "multiple assignment" operator which looks like a pipe, but isn't.
+It allows for several variables to be instantiated at the same time:
+
+```{r }
+library(zeallot)
+c(x, y) %<-% c(3, "huhu")
+print(x)
+print(y)
+```
+
+This is particularly helpful for functions that return several outputs in a list or vector:
+
+```{r }
+input_vector <- c(0.4, 0.5, 0.6)
+some_function <- function(input) {
+    return( list(sum = sum(input), mean = mean(input)))
+}
+c(x, y) %<-% some_function(input_vector)
+print(x)
+print(y)
+```
 
 ## Rmarkdown {#ch-01-01-Rmarkdown}
 
