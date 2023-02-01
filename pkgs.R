@@ -1,4 +1,5 @@
 ## load packages
+library(bookdown)
 library(tidyverse)
 library(brms)
 library(ggsignif)
