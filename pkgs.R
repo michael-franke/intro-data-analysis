@@ -15,9 +15,9 @@ library(scales)      # to massage scales in plots
 # library(ggmcmc)      # tidy Bayes samples
 # library(tidybayes)   # tidy Bayes samples
 # library(HDInterval)  # credible intervals
-# library(binom)       # for binomial confidence intervals 
-# library(BSDA)        # for z.test
-# library(polspline)   # for reliable density estimates at point-values
+library(binom)       # for binomial confidence intervals 
+library(BSDA)        # for z.test
+library(polspline)   # for reliable density estimates at point-values
 # library(GGally)      # for ally plots 
 # library(LaplacesDemon) # for student t-distribution with different means and SDs
 library(magrittr)    # more fun with pipes
@@ -28,7 +28,7 @@ library(zeallot)     # unpacking / multiple assignment operator %<-%
 # if (!("dirichlet" %in% installed.packages())) {
 #   devtools::install_github("dkahle/dirichlet")
 # }
-library(dirichlet)
+# library(dirichlet)  # no longer available for R >4?
 # # same/similar  for aida-package:
 # if (!("aida" %in% installed.packages())) {
 #   devtools::install_github("michael-franke/aida-package")

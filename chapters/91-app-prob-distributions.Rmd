@@ -641,6 +641,61 @@ The probability density function (see formula below) of the Dirichlet distributi
 
 
 ```{r, ch-app-01-dirichlet-distribution-density, fig.cap = "Examples of a probability density function of the Dirichlet distribution with dimension $k$ for different parameter vectors $\\alpha$.", echo=F}
+
+# functions from (deprecated) 'dirichlet' pacakge
+simplex_mesh <- function(delta) {
+  s <- seq(0, 1, delta)
+  mesh <- expand.grid(x = s, y = s)
+  keepers <- apply(mesh, 1, function(v){
+    x <- v[1]; y <- v[2]
+    y <= (sqrt(3)/2)/(1/2)*x  &
+      y <=  2*(sqrt(3)/2) - (sqrt(3)/2)/(1/2)*x
+  })
+  mesh[keepers,]
+}
+
+proj_mat <- matrix(c(
+    1, 1/2,
+    0, sqrt(3)/2
+  ), nrow = 2, ncol = 2, byrow = TRUE
+)
+
+lift_mat <- matrix(c(
+    1, -1/sqrt(3), 
+    0, 2/sqrt(3)
+  ), nrow = 2, ncol = 2, byrow = TRUE
+)
+
+simp2bary <- function (v, simplify = TRUE) {
+  
+  if(is.data.frame(v)) v <- as.matrix(v)
+  if(is.matrix(v)) v <- t(v)
+  
+  if (is.vector(v)) v <- v[-1]
+  if (is.matrix(v)) v <- v[-1,]
+    
+  out <- t(proj_mat %*% v)
+  
+  if (simplify && nrow(out) == 1) out <- as.numeric(out)
+  
+  out
+  
+}
+
+bary2simp <- function (v, simplify = TRUE) {
+  
+  if(is.data.frame(v)) v <- as.matrix(v)
+  if(is.matrix(v)) v <- t(v)
+  
+  out <- lift_mat %*% v
+  out <- t(rbind(1-colSums(out), out))
+  
+  if (simplify && nrow(out) == 1) out <- as.numeric(out)
+  
+  out
+  
+}
+
 C <- matrix(c(10, 1, 2, 0.15, 10, 1, 10, 0.15, 10, 1, 5, 0.15), 4, 3)
 
 f1 <- function(v) ddirichlet(v, C[1,])
