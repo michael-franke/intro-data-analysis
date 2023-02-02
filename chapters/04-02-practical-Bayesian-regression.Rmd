@@ -58,23 +58,18 @@ The columns "l-95% CI" and "u-95% CI" give the 95% inner quantile range of the m
 
 ## Extracting posterior samples
 
-The function `brms::posterior_samples` extracts the samples from the posterior which are part of the `brmsfit` object.^[The column `lp__` gives the log probability of the data for the corresponding parameter values in each row. This is useful information for model checking and model compar
-
-
-
-
-ison, but we will neglect it here.]
+The function `brms::posterior_samples` extracts the samples from the posterior which are part of the `brmsfit` object.^[The column `lp__` gives the log probability of the data for the corresponding parameter values in each row. This is useful information for model checking and model comparison, but we will neglect it here.]
 
 ```{r}
-post_samples_temperature <- brms::posterior_samples(fit_temperature) 
+post_samples_temperature <- brms::posterior_samples(fit_temperature)  %>% select(-lp__,-lprior)
 head(post_samples_temperature)
 ```
 
 These extracted samples can be used as before, e.g., to compute our own summary tibble:
 
 ```{r}
-map_dfr(post_samples_temperature %>% select(-lp__), aida::summarize_sample_vector) %>% 
-  mutate(Parameter = colnames(post_samples_temperature[1:4]))
+map_dfr(post_samples_temperature, aida::summarize_sample_vector) %>% 
+  mutate(Parameter = colnames(post_samples_temperature[1:3]))
 ```
 
 Or for manual plotting:^[There are also specialized packages for plotting the output of Stan models and `brms` model fits, such as the excellent `tidybayes` and `ggdist` packages.]
@@ -135,17 +130,18 @@ This prior is a *skeptical prior* in the sense that it assumes a negative slope 
 Comparing the summary statistics for the original fit:
 
 ```{r}
-map_dfr(post_samples_temperature %>% select(-lp__), aida::summarize_sample_vector) %>% 
-  mutate(Parameter = colnames(post_samples_temperature[1:4]))
+map_dfr(post_samples_temperature, aida::summarize_sample_vector) %>% 
+  mutate(Parameter = colnames(post_samples_temperature[1:3]))
 ```
 
 against those of the new fit using skeptical priors:
 
 ```{r}
-post_samples_temperature_skeptical <- brms::posterior_samples(fit_temperature_skeptical)
-map_dfr(post_samples_temperature_skeptical %>% select(-lp__),
+post_samples_temperature_skeptical <- brms::posterior_samples(fit_temperature_skeptical) %>% 
+  select(-lp__,-lprior)
+map_dfr(post_samples_temperature_skeptical,
         aida::summarize_sample_vector) %>% 
-  mutate(Parameter = colnames(post_samples_temperature_skeptical[1:4]))
+  mutate(Parameter = colnames(post_samples_temperature_skeptical[1:3]))
 ```
 
 we see that the data has overturned the initial skeptical prior, suggesting that the evidence provided in the data for the belief that the slope coefficient is positive is stronger than the original (maybe hypothetical) assumption to the contrary.
@@ -173,10 +169,11 @@ fit_temperature_ridiculous <- brm(
   # hand-craft priors for slope
   prior = prior(normal(5, 0.01), coef = year)
 )
-post_samples_temperature_ridiculous <- brms::posterior_samples(fit_temperature_ridiculous)
-map_dfr(post_samples_temperature_ridiculous %>% select(-lp__),
+post_samples_temperature_ridiculous <- brms::posterior_samples(fit_temperature_ridiculous) %>% 
+  select(-lp__,-lprior)
+map_dfr(post_samples_temperature_ridiculous,
         aida::summarize_sample_vector) %>% 
-  mutate(Parameter = colnames(post_samples_temperature_ridiculous[1:4]))
+  mutate(Parameter = colnames(post_samples_temperature_ridiculous[1:3]))
 ```
 
 </div>
