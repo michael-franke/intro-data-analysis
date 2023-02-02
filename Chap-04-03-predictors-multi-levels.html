@@ -704,10 +704,10 @@ So we are interested in the <span class="math inline">\(\delta\)</span>s, so to 
 <span id="cb593-4"><a href="Chap-04-03-predictors-multi-levels.html#cb593-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>To inspect the posterior fits of this model, we can extract the relevant summary statistics as before:</p>
 <div class="sourceCode" id="cb594"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb594-1"><a href="Chap-04-03-predictors-multi-levels.html#cb594-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_brms_mc)<span class="sc">$</span>fixed[,<span class="fu">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</span></code></pre></div>
-<pre><code>##            l-95% CI  Estimate  u-95% CI
-## Intercept 401.13017 404.90048 408.55243
-## block.L   126.97486 132.84350 138.80216
-## block.Q   -34.41744 -27.32212 -20.02858</code></pre>
+<pre><code>##            l-95% CI Estimate  u-95% CI
+## Intercept 401.08317 404.8729 408.66977
+## block.L   127.25234 132.8051 138.53872
+## block.Q   -34.56431 -27.2325 -19.99271</code></pre>
 <p>Notice that there is an intercept term, as before.
 This corresponds to the mean reaction time of the reference level, which is again set based on alphanumeric ordering, so corresponding to “discrimination”.
 There are two slope coefficients, one for the difference between the reference level and “goNoGo” and another for the difference between the reference level and the “reaction” condition.</p>
@@ -721,7 +721,7 @@ This answers one half of the comparisons we are interested in:</p>
 Unfortunately, it is not directly possible to read off information about the second comparison we care about, namely the comparison between “reaction” and “goNoGo”.
 And here is where we see the point of <strong>contrast coding</strong> pop up for the first time.
 We would like to encode predictor levels ideally in such a way that we can read off (test) the hypotheses we care about directly.
-In other words, if possible, we would like to have parameters in our model in the form of slope coefficients, which directly encode the <span class="math inline">\(\delta\)</span>s, so to speak, that we want to test.<a href="#fn63" class="footnote-ref" id="fnref63"><sup>63</sup></a></p>
+In other words, if possible, we would like to have parameters in our model in the form of slope coefficients, which directly encode the <span class="math inline">\(\delta\)</span>s, so to speak, that we want to test.<a href="#fn64" class="footnote-ref" id="fnref64"><sup>64</sup></a></p>
 <p>In the case at hand, all we need to do is change the reference level.
 If the reference level is the “middle category” (as per our ordered hypothesis), the two slopes will express the contrasts we care about.
 To change the reference level, we only need to make <code>block</code> a factor and order its levels manually, like so:</p>
@@ -735,9 +735,9 @@ To change the reference level, we only need to make <code>block</code> a factor 
 <p>And inspect the summary of the posterior samples for the relevant coefficients:</p>
 <div class="sourceCode" id="cb598"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb598-1"><a href="Chap-04-03-predictors-multi-levels.html#cb598-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_brms_mc_reordered)<span class="sc">$</span>fixed[,<span class="fu">c</span>(<span class="st">&quot;l-95% CI&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;u-95% CI&quot;</span>)]</span></code></pre></div>
 <pre><code>##                    l-95% CI  Estimate  u-95% CI
-## Intercept         401.24565 404.92697 408.67499
-## block_reordered.L  35.77927  42.72936  49.72709
-## block_reordered.Q 122.44320 128.66321 134.88658</code></pre>
+## Intercept         401.12100 404.90178 408.62268
+## block_reordered.L  35.74583  42.71456  49.46491
+## block_reordered.Q 122.63571 128.69622 134.75352</code></pre>
 <p>Now the “Intercept” corresponds to the new reference level “goNoGo”.
 And the two slope coefficients give the differences to the other two levels.</p>
 <p>Which numeric encoding leads to this result?
@@ -778,8 +778,8 @@ Solution
 </div>
 <div class="footnotes">
 <hr />
-<ol start="63">
-<li id="fn63"><p>To be precise, it is possible to also test derived random variables from the posterior samples. So, it is not <em>necessary</em> to encode the contrasts of interests directly. But, most often, in Bayesian analyses it will make sense to put priors on exactly these <span class="math inline">\(\delta\)</span>s (e.g., skeptical priors biased against a hypothesis to be tested) and for <em>that</em> purpose, it is (almost) practically necessary to have the relevant contrasts expressed as slope coefficients in the model.<a href="Chap-04-03-predictors-multi-levels.html#fnref63" class="footnote-back">↩︎</a></p></li>
+<ol start="64">
+<li id="fn64"><p>To be precise, it is possible to also test derived random variables from the posterior samples. So, it is not <em>necessary</em> to encode the contrasts of interests directly. But, most often, in Bayesian analyses it will make sense to put priors on exactly these <span class="math inline">\(\delta\)</span>s (e.g., skeptical priors biased against a hypothesis to be tested) and for <em>that</em> purpose, it is (almost) practically necessary to have the relevant contrasts expressed as slope coefficients in the model.<a href="Chap-04-03-predictors-multi-levels.html#fnref64" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
             </section>

@@ -662,7 +662,7 @@ The function <code>brms::prior_summary</code> shows which priors a model fitted 
 ##                  (flat)         b year                             (vectorized)
 ##  student_t(3, 8.3, 2.5) Intercept                                       default
 ##    student_t(3, 0, 2.5)     sigma                             0         default</code></pre>
-<p>This output tells us that <code>brms</code> used a Student’s <span class="math inline">\(t\)</span> distribution for the intercept and the standard deviation.<a href="#fn60" class="footnote-ref" id="fnref60"><sup>60</sup></a>
+<p>This output tells us that <code>brms</code> used a Student’s <span class="math inline">\(t\)</span> distribution for the intercept and the standard deviation.<a href="#fn61" class="footnote-ref" id="fnref61"><sup>61</sup></a>
 It also shows us that all slope coefficients (abbreviated here as “b”) have a flat (non-informative) prior.</p>
 <p>If we want to change the prior for any model parameter, or family of model parameters, we can use the <code>prior</code> argument in the <code>brm</code> function, which requires a special type of input using <code>brms</code>’ <code>prior()</code> function.
 The syntax for distributions inside the <code>prior()</code> follows that of Stan, as documented in the <a href="https://mc-stan.org/docs/2_25/functions-reference/index.html">Stan function reference</a>.
@@ -678,27 +678,26 @@ The example below sets the prior for the slope coefficient to a very narrow Stud
 <span id="cb558-9"><a href="setting-priors.html#cb558-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>This prior is a <em>skeptical prior</em> in the sense that it assumes a negative slope to be more likely, that is, the world has been getting colder over the years.
 Comparing the summary statistics for the original fit:</p>
-<div class="sourceCode" id="cb559"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb559-1"><a href="setting-priors.html#cb559-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dfr</span>(post_samples_temperature <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>lp__), aida<span class="sc">::</span>summarize_sample_vector) <span class="sc">%&gt;%</span> </span>
-<span id="cb559-2"><a href="setting-priors.html#cb559-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Parameter =</span> <span class="fu">colnames</span>(post_samples_temperature[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span></code></pre></div>
-<pre><code>## # A tibble: 4 × 4
+<div class="sourceCode" id="cb559"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb559-1"><a href="setting-priors.html#cb559-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dfr</span>(post_samples_temperature, aida<span class="sc">::</span>summarize_sample_vector) <span class="sc">%&gt;%</span> </span>
+<span id="cb559-2"><a href="setting-priors.html#cb559-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Parameter =</span> <span class="fu">colnames</span>(post_samples_temperature[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]))</span></code></pre></div>
+<pre><code>## # A tibble: 3 × 4
 ##   Parameter     `|95%`     mean   `95%|`
 ##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-## 1 b_Intercept -4.75    -3.51    -2.37   
-## 2 b_year       0.00567  0.00627  0.00694
-## 3 sigma        0.372    0.405    0.440  
-## 4 lprior      -3.16    -3.16    -3.16</code></pre>
+## 1 b_Intercept -4.78    -3.53    -2.34   
+## 2 b_year       0.00565  0.00628  0.00694
+## 3 sigma        0.371    0.404    0.437</code></pre>
 <p>against those of the new fit using skeptical priors:</p>
-<div class="sourceCode" id="cb561"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb561-1"><a href="setting-priors.html#cb561-1" aria-hidden="true" tabindex="-1"></a>post_samples_temperature_skeptical <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">posterior_samples</span>(fit_temperature_skeptical)</span>
-<span id="cb561-2"><a href="setting-priors.html#cb561-2" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dfr</span>(post_samples_temperature_skeptical <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>lp__),</span>
-<span id="cb561-3"><a href="setting-priors.html#cb561-3" aria-hidden="true" tabindex="-1"></a>        aida<span class="sc">::</span>summarize_sample_vector) <span class="sc">%&gt;%</span> </span>
-<span id="cb561-4"><a href="setting-priors.html#cb561-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Parameter =</span> <span class="fu">colnames</span>(post_samples_temperature_skeptical[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span></code></pre></div>
-<pre><code>## # A tibble: 4 × 4
+<div class="sourceCode" id="cb561"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb561-1"><a href="setting-priors.html#cb561-1" aria-hidden="true" tabindex="-1"></a>post_samples_temperature_skeptical <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">posterior_samples</span>(fit_temperature_skeptical) <span class="sc">%&gt;%</span> </span>
+<span id="cb561-2"><a href="setting-priors.html#cb561-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>lp__,<span class="sc">-</span>lprior)</span>
+<span id="cb561-3"><a href="setting-priors.html#cb561-3" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dfr</span>(post_samples_temperature_skeptical,</span>
+<span id="cb561-4"><a href="setting-priors.html#cb561-4" aria-hidden="true" tabindex="-1"></a>        aida<span class="sc">::</span>summarize_sample_vector) <span class="sc">%&gt;%</span> </span>
+<span id="cb561-5"><a href="setting-priors.html#cb561-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Parameter =</span> <span class="fu">colnames</span>(post_samples_temperature_skeptical[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]))</span></code></pre></div>
+<pre><code>## # A tibble: 3 × 4
 ##   Parameter     `|95%`     mean   `95%|`
 ##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-## 1 b_Intercept -4.71    -3.47    -2.36   
-## 2 b_year       0.00560  0.00625  0.00684
-## 3 sigma        0.372    0.404    0.438  
-## 4 lprior      -3.06    -2.98    -2.90</code></pre>
+## 1 b_Intercept -4.71    -3.47    -2.35   
+## 2 b_year       0.00565  0.00625  0.00690
+## 3 sigma        0.371    0.404    0.440</code></pre>
 <p>we see that the data has overturned the initial skeptical prior, suggesting that the evidence provided in the data for the belief that the slope coefficient is positive is stronger than the original (maybe hypothetical) assumption to the contrary.</p>
 <div class="exercises">
 <p><strong>Exercise 13.1</strong></p>
@@ -720,25 +719,25 @@ Notice that with slope values close to 5, the estimates for the intercept and st
 <span id="cb563-7"><a href="setting-priors.html#cb563-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># hand-craft priors for slope</span></span>
 <span id="cb563-8"><a href="setting-priors.html#cb563-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">5</span>, <span class="fl">0.01</span>), <span class="at">coef =</span> year)</span>
 <span id="cb563-9"><a href="setting-priors.html#cb563-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb563-10"><a href="setting-priors.html#cb563-10" aria-hidden="true" tabindex="-1"></a>post_samples_temperature_ridiculous <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">posterior_samples</span>(fit_temperature_ridiculous)</span>
-<span id="cb563-11"><a href="setting-priors.html#cb563-11" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dfr</span>(post_samples_temperature_ridiculous <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>lp__),</span>
-<span id="cb563-12"><a href="setting-priors.html#cb563-12" aria-hidden="true" tabindex="-1"></a>        aida<span class="sc">::</span>summarize_sample_vector) <span class="sc">%&gt;%</span> </span>
-<span id="cb563-13"><a href="setting-priors.html#cb563-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Parameter =</span> <span class="fu">colnames</span>(post_samples_temperature_ridiculous[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span></code></pre></div>
-<pre><code>## # A tibble: 4 × 4
+<span id="cb563-10"><a href="setting-priors.html#cb563-10" aria-hidden="true" tabindex="-1"></a>post_samples_temperature_ridiculous <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">posterior_samples</span>(fit_temperature_ridiculous) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-11"><a href="setting-priors.html#cb563-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>lp__,<span class="sc">-</span>lprior)</span>
+<span id="cb563-12"><a href="setting-priors.html#cb563-12" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dfr</span>(post_samples_temperature_ridiculous,</span>
+<span id="cb563-13"><a href="setting-priors.html#cb563-13" aria-hidden="true" tabindex="-1"></a>        aida<span class="sc">::</span>summarize_sample_vector) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-14"><a href="setting-priors.html#cb563-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Parameter =</span> <span class="fu">colnames</span>(post_samples_temperature_ridiculous[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]))</span></code></pre></div>
+<pre><code>## # A tibble: 3 × 4
 ##   Parameter     `|95%`     mean   `95%|`
 ##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-## 1 b_Intercept -9446.   -9406.   -9371.  
-## 2 b_year          4.98     4.99     5.01
-## 3 sigma         356.     387.     419.  
-## 4 lprior        -21.4    -18.8    -17.2</code></pre>
+## 1 b_Intercept -9446.   -9407.   -9367.  
+## 2 b_year          4.97     4.99     5.01
+## 3 sigma         355.     386.     420.</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="footnotes">
 <hr />
-<ol start="60">
-<li id="fn60"><p>Actually, the prior on the standard deviation is a <em>truncated</em> Student’s <span class="math inline">\(t\)</span> distribution, as negative values are impossible for a standard deviation.<a href="setting-priors.html#fnref60" class="footnote-back">↩︎</a></p></li>
+<ol start="61">
+<li id="fn61"><p>Actually, the prior on the standard deviation is a <em>truncated</em> Student’s <span class="math inline">\(t\)</span> distribution, as negative values are impossible for a standard deviation.<a href="setting-priors.html#fnref61" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
             </section>
