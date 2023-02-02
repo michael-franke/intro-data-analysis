@@ -28,26 +28,26 @@ jobs:
       - name: install dirichlet from github
         run: Rscript -e 'devtools::install_github("dkahle/dirichlet")'
 
-      - uses: r-lib/actions/setup-renv@v2
+#       - uses: r-lib/actions/setup-renv@v2
       
-      - name: Cache renv
-        uses: actions/cache@v2
-        with:
-          path: ~/.local/share/renv
-          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-renv-
+#       - name: Cache renv
+#         uses: actions/cache@v2
+#         with:
+#           path: ~/.local/share/renv
+#           key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+#           restore-keys: |
+#             ${{ runner.os }}-renv-
 
+      - name: MF builds site
+        run: Rscript -e 'bookdown::render_book("index.Rmd", quiet = TRUE)'
+
+# this came /before/ rendering in earlier versions; why?
       - name: Cache bookdown results
         uses: actions/cache@v2
         with:
           path: _bookdown_files
           key: bookdown-${{ hashFiles('**/*Rmd') }}
           restore-keys: bookdown-
-
-      - name: Build site
-        run: bookdown::render_book("index.Rmd", quiet = TRUE)
-        shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.4
