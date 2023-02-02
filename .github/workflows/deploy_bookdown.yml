@@ -38,22 +38,16 @@ jobs:
 #           restore-keys: |
 #             ${{ runner.os }}-renv-
 
-# why is this /before/ rendering?
-#       - name: Cache bookdown results
-#         uses: actions/cache@v2
-#         with:
-#           path: _bookdown_files
-#           key: bookdown-${{ hashFiles('**/*Rmd') }}
-#           restore-keys: bookdown-
-
-      - name: MF list installed packages
-        run: Rscript -e 'installed.packages()'
-        
-      - name: MF install 'bookdown'
-        run: Rscript -e 'install.packages("bookdown")'
-
       - name: MF builds site
         run: Rscript -e 'bookdown::render_book("index.Rmd", quiet = TRUE)'
+
+# this came /before/ rendering in earlier versions; why?
+      - name: Cache bookdown results
+        uses: actions/cache@v2
+        with:
+          path: _bookdown_files
+          key: bookdown-${{ hashFiles('**/*Rmd') }}
+          restore-keys: bookdown-
 
       - name: Deploy to GitHub pages 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.4
