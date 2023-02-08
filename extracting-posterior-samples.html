@@ -654,38 +654,38 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="extracting-posterior-samples" class="section level2 hasAnchor" number="13.2">
 <h2><span class="header-section-number">13.2</span> Extracting posterior samples<a href="extracting-posterior-samples.html#extracting-posterior-samples" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>The function <code>brms::posterior_samples</code> extracts the samples from the posterior which are part of the <code>brmsfit</code> object.<a href="#fn59" class="footnote-ref" id="fnref59"><sup>59</sup></a></p>
+<p>The function <code>brms::posterior_samples</code> extracts the samples from the posterior which are part of the <code>brmsfit</code> object.<a href="#fn60" class="footnote-ref" id="fnref60"><sup>60</sup></a></p>
 <div class="sourceCode" id="cb549"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb549-1"><a href="extracting-posterior-samples.html#cb549-1" aria-hidden="true" tabindex="-1"></a>post_samples_temperature <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">posterior_samples</span>(fit_temperature)  <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>lp__,<span class="sc">-</span>lprior)</span>
 <span id="cb549-2"><a href="extracting-posterior-samples.html#cb549-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(post_samples_temperature)</span></code></pre></div>
 <pre><code>##   b_Intercept      b_year     sigma
-## 1   -3.311210 0.006183316 0.3973931
-## 2   -3.723888 0.006375166 0.3893994
-## 3   -3.928852 0.006511556 0.4074927
-## 4   -4.669705 0.006902516 0.3957985
-## 5   -3.077419 0.006048328 0.3687815
-## 6   -3.308412 0.006170634 0.3715616</code></pre>
+## 1   -3.533779 0.006299967 0.3886791
+## 2   -3.398347 0.006232285 0.3841801
+## 3   -3.544673 0.006310362 0.3989520
+## 4   -3.515940 0.006267140 0.3777029
+## 5   -2.450541 0.005721455 0.4353580
+## 6   -3.271332 0.006132183 0.4360826</code></pre>
 <p>These extracted samples can be used as before, e.g., to compute our own summary tibble:</p>
 <div class="sourceCode" id="cb551"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb551-1"><a href="extracting-posterior-samples.html#cb551-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dfr</span>(post_samples_temperature, aida<span class="sc">::</span>summarize_sample_vector) <span class="sc">%&gt;%</span> </span>
 <span id="cb551-2"><a href="extracting-posterior-samples.html#cb551-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Parameter =</span> <span class="fu">colnames</span>(post_samples_temperature[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]))</span></code></pre></div>
 <pre><code>## # A tibble: 3 × 4
 ##   Parameter     `|95%`     mean   `95%|`
 ##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-## 1 b_Intercept -4.78    -3.53    -2.34   
-## 2 b_year       0.00565  0.00628  0.00694
-## 3 sigma        0.371    0.404    0.437</code></pre>
-<p>Or for manual plotting:<a href="#fn60" class="footnote-ref" id="fnref60"><sup>60</sup></a></p>
+## 1 b_Intercept -4.67    -3.51    -2.32   
+## 2 b_year       0.00564  0.00627  0.00688
+## 3 sigma        0.372    0.405    0.441</code></pre>
+<p>Or for manual plotting:<a href="#fn61" class="footnote-ref" id="fnref61"><sup>61</sup></a></p>
 <div class="sourceCode" id="cb553"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb553-1"><a href="extracting-posterior-samples.html#cb553-1" aria-hidden="true" tabindex="-1"></a>post_samples_temperature <span class="sc">%&gt;%</span> </span>
 <span id="cb553-2"><a href="extracting-posterior-samples.html#cb553-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>()) <span class="sc">%&gt;%</span> </span>
 <span id="cb553-3"><a href="extracting-posterior-samples.html#cb553-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value)) <span class="sc">+</span></span>
 <span id="cb553-4"><a href="extracting-posterior-samples.html#cb553-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>() <span class="sc">+</span></span>
 <span id="cb553-5"><a href="extracting-posterior-samples.html#cb553-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>name, <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>)</span></code></pre></div>
-<p><img src="I2DA_files/figure-html/unnamed-chunk-378-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="I2DA_files/figure-html/unnamed-chunk-380-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div class="footnotes">
 <hr />
-<ol start="59">
-<li id="fn59"><p>The column <code>lp__</code> gives the log probability of the data for the corresponding parameter values in each row. This is useful information for model checking and model comparison, but we will neglect it here.<a href="extracting-posterior-samples.html#fnref59" class="footnote-back">↩︎</a></p></li>
-<li id="fn60"><p>There are also specialized packages for plotting the output of Stan models and <code>brms</code> model fits, such as the excellent <code>tidybayes</code> and <code>ggdist</code> packages.<a href="extracting-posterior-samples.html#fnref60" class="footnote-back">↩︎</a></p></li>
+<ol start="60">
+<li id="fn60"><p>The column <code>lp__</code> gives the log probability of the data for the corresponding parameter values in each row. This is useful information for model checking and model comparison, but we will neglect it here.<a href="extracting-posterior-samples.html#fnref60" class="footnote-back">↩︎</a></p></li>
+<li id="fn61"><p>There are also specialized packages for plotting the output of Stan models and <code>brms</code> model fits, such as the excellent <code>tidybayes</code> and <code>ggdist</code> packages.<a href="extracting-posterior-samples.html#fnref61" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
             </section>

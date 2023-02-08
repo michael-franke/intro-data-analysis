@@ -657,12 +657,12 @@ div.csl-indent {
 <p>The <code>brms</code> package also contains a useful function to address hypotheses about model parameters.
 The function <code>brms::hypothesis</code> can compute Bayes factors for point-valued hypotheses using the Savage-Dickey method.
 It also computes a binary test of whether a point-valued hypothesis is credible based on inclusion in a Bayesian credible interval.
-For interval-valued hypotheses <span class="math inline">\(\theta \in [a;b]\)</span>, the function <code>brms::hypothesis</code> computes the posterior odds (called <em>evidence ratio</em> in the context of this function):<a href="#fn62" class="footnote-ref" id="fnref62"><sup>62</sup></a>
+For interval-valued hypotheses <span class="math inline">\(\theta \in [a;b]\)</span>, the function <code>brms::hypothesis</code> computes the posterior odds (called <em>evidence ratio</em> in the context of this function):<a href="#fn63" class="footnote-ref" id="fnref63"><sup>63</sup></a>
 <span class="math display">\[
 \frac{P(\theta \in [a;b] \mid D)}{P(\theta \not \in [a;b] \mid D)}
 \]</span></p>
 <p>Computing Bayes factors for point-valued hypotheses with <code>brms::hypothesis</code> requires proper priors for all parameters that are part of the hypothesis.
-It also requires taking samples from the priors of parameters.<a href="#fn63" class="footnote-ref" id="fnref63"><sup>63</sup></a>
+It also requires taking samples from the priors of parameters.<a href="#fn64" class="footnote-ref" id="fnref64"><sup>64</sup></a>
 So, here is a function call of <code>brms:brm</code> which (i) specifies a reasonably unconstrained but proper parameter for the slope coefficient for <code>year</code> and (ii) also collects samples from the prior (by setting the option <code>sample_prior = "yes"</code>):</p>
 <div class="sourceCode" id="cb569"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb569-1"><a href="testing-hypotheses.html#cb569-1" aria-hidden="true" tabindex="-1"></a>fit_temperature_weakinfo <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
 <span id="cb569-2"><a href="testing-hypotheses.html#cb569-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># specify what to explain in terms of what</span></span>
@@ -685,7 +685,7 @@ So, here is a function call of <code>brms:brm</code> which (i) specifies a reaso
 <pre><code>## # A tibble: 1 × 4
 ##   Parameter  `|95%`    mean  `95%|`
 ##   &lt;chr&gt;       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-## 1 &quot;&quot;        0.00564 0.00628 0.00689</code></pre>
+## 1 &quot;&quot;        0.00565 0.00627 0.00688</code></pre>
 <p>The main “research hypothesis” of interest is whether the slope for <code>year</code> is credibly positive.
 This is an interval-valued hypothesis and we can test it like so:</p>
 <div class="sourceCode" id="cb572"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb572-1"><a href="testing-hypotheses.html#cb572-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hypothesis</span>(fit_temperature_weakinfo, <span class="st">&quot;year &gt; 0&quot;</span>)</span></code></pre></div>
@@ -706,7 +706,7 @@ This is also expressed in the posterior probability (“Post.Prod” in the tabl
 <div class="sourceCode" id="cb574"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb574-1"><a href="testing-hypotheses.html#cb574-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hypothesis</span>(fit_temperature_weakinfo, <span class="st">&quot;year = 0.005&quot;</span>)</span></code></pre></div>
 <pre><code>## Hypothesis Tests for class b:
 ##           Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio Post.Prob
-## 1 (year)-(0.005) = 0        0         0        0        0       0.03      0.03
+## 1 (year)-(0.005) = 0        0         0        0        0       0.01      0.01
 ##   Star
 ## 1    *
 ## ---
@@ -723,10 +723,10 @@ The “Star” in this table indicates that the point-valued hypothesis is exclu
 <!-- </div> -->
 <div class="footnotes">
 <hr />
-<ol start="62">
-<li id="fn62"><p>Notice that for priors where <span class="math inline">\(P(\theta \in [a;b]) = 0.5\)</span>, the posterior odds equal the Bayes factor.
-For other priors, we’d need to correct the posterior odds by the priors to obtain Bayes factors, something that the <code>brms</code> package does not (presently seem to) do, unfortunately.<a href="testing-hypotheses.html#fnref62" class="footnote-back">↩︎</a></p></li>
-<li id="fn63"><p>It may seem unnecessary to take prior samples for parameters, because, after all, couldn’t we just look at the (closed-form) definition of the prior for that parameter? Well, that only works for top-level parameters, but not parameters in a hierarchical model which depend on the value of other parameters and which therefore have no (easily accessible) closed-form prior to look up.<a href="testing-hypotheses.html#fnref63" class="footnote-back">↩︎</a></p></li>
+<ol start="63">
+<li id="fn63"><p>Notice that for priors where <span class="math inline">\(P(\theta \in [a;b]) = 0.5\)</span>, the posterior odds equal the Bayes factor.
+For other priors, we’d need to correct the posterior odds by the priors to obtain Bayes factors, something that the <code>brms</code> package does not (presently seem to) do, unfortunately.<a href="testing-hypotheses.html#fnref63" class="footnote-back">↩︎</a></p></li>
+<li id="fn64"><p>It may seem unnecessary to take prior samples for parameters, because, after all, couldn’t we just look at the (closed-form) definition of the prior for that parameter? Well, that only works for top-level parameters, but not parameters in a hierarchical model which depend on the value of other parameters and which therefore have no (easily accessible) closed-form prior to look up.<a href="testing-hypotheses.html#fnref64" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
             </section>
