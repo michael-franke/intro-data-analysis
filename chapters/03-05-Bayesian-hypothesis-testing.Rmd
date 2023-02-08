@@ -723,21 +723,23 @@ The Savage-Dickey method can be generalized to also cover interval-valued hypoth
 The previous literature has focused on inequality-based intervals/hypotheses (like $\theta \ge 0.5$) [@KlugkistKato2005:Bayesian-model;@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar], but the method also applies to ROPE-d hypotheses. 
 The advantage of this method is that we can use samples from the posterior distribution to approximate integrals, which is more robust than having to estimate point-values of posterior density. 
 
-Following previous work [@KlugkistKato2005:Bayesian-model;@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar], the main idea is to use so-called **encompassing priors**. Let $\theta$ be a single parameter of interest (for simplicity), which can in principle take on any real value. We are interested in the interval-based hypotheses:
+Following previous work [@KlugkistKato2005:Bayesian-model;@WetzelsGrasman2010:An-encompassing;@Oh2014:Bayesian-compar], the main idea is to use so-called **encompassing priors**. Let $\theta$ be a single parameter of interest (for simplicity^[This method also works for vectors of parameters.]), which can in principle take on any real value. We are interested in the interval-based hypotheses:
 
 - $H_0 \colon \theta \in I_0$, and 
-- $H_a \colon \theta \not \in I_{0}$
+- $H_1 \colon \theta \in I_{1}$
 
-where $I_{0}$ is some possibly half-open interval.
+where $I_{0}$ is an interval, possibly half-open and $I_1$ is the "negation" of $I_0$ (in the sense that $I_1 = \set{\theta \mid \theta \not \in I_0}$. 
 
-An **encompassing model** $M_e$ has a suitable likelihood function $P_{M_e}(D \mid \theta, \omega)$ (where $\omega$ is a vector of other parameters besides the parameter $\theta$ of interest). It also defines a prior $P_{M_e}(\theta, \omega)$, which does not already rule out $H_{0}$ or $H_{a}$.
+An **encompassing model** $M_e$ has a suitable likelihood function $P(D \mid \theta, \omega, M_{e})$ (where $\omega$ is a vector of other parameters besides the parameter $\theta$ of interest, so-called "nuisance parameters").
+It also defines a prior $P(\theta, \omega \mid M_{e})$, which does not already rule out $H_{0}$ or $H_{1}$.
 
 Generalizing over the Savage-Dickey approach, we construct *two* models, one for each hypothesis, *both* of which are nested under the encompassing model:
 
-- $M_0$ has prior $P_{M_0}(\theta, \omega) = P_{M_e}(\theta, \omega \mid \theta \in [a;b])$
-- $M_a$ has prior $P_{M_a}(\theta, \omega) = P_{M_e}(\theta, \omega \mid \theta \not \in [a;b])$
+- $M_0$ has prior $P(\theta, \omega \mid M_0) = P(\theta, \omega \mid \theta \in I_0, M_e)$
+- $M_1$ has prior $P(\theta, \omega \mid M_1) = P(\theta, \omega \mid \theta \in I_1, M_e)$
 
-Both $M_0$ and $M_a$ have the same likelihood function as $M_e$, which is why we drop the model index for better readability in the following. 
+We assume that the priors over $\theta$ are independent of the nuisance parameters $\omega$.
+Both $M_0$ and $M_1$ have the same likelihood function as $M_e$. 
 
 Figure \@ref(fig:ch-03-07-hypothesis-testing-Bayes-encompassing-prior) shows an example of the priors of an encompassing model for two nested models based on a ROPE-d hypothesis testing approach.
 
@@ -773,27 +775,71 @@ tibble(
   )
 ```
 
+If our hypothesis of interest is $I_0$, which is captured in $M_0$, there are two comparisons we can make to quantify evidence in favor of or against $M_0$: we can compare $M_{0}$ against the encompassing model $M_{e}$, or against its "negation" $M_{1}$.
+Bayes Factors for both comparisons can be easily expressed with the encompassing-models approach, as shown in Theorems \@ref(thm:encompassing-BG-against-encompassing) and \@ref(thm:encompassing-BG-against-alternative).
+Essentially, we can express Bayes Factors in terms of statements regarding the prior or posterior propability of $I_0$ and $I_1$ from the point of view of the encompassing model alone.
+This means that we can approximate these Bayes Factors by just setting up one model, the encompassing model, and retrieving prior and posterior samples for it.
+
+Concretely, Theorem \@ref(thm:encompassing-BG-against-encompassing) states that the Bayes Factor in favor of $M_i$, when compared against the encompassing model $M_e$ is the ratio of the posterior probability of $\theta$ being in $I_i$ divided by the prior probability, both from the perspective of $M_e$.
+
+and \@ref(thm:encompassing-BG-against-alternative)
 <div class = "mathstuff">
 
-```{theorem, "BF-ROPED-hypotheses"}
-Fix a Bayesian model $M$ (the encompassing model) with prior $P_M(\theta, \omega)$ and likelihood function $P_M(D \mid \theta, \omega)$, where $\theta$ is the parameter of interest and $\omega$ is a vector of other (nuisance) parameters. Assume that the priors over $\theta$ are independent of the nuisance parameters $\omega$. For an interval-valued hypothesis $H_0 \colon \theta \in I_0$, the Bayes factor in favor of this hypothesis over its negation $H_a \colon \theta \not \in I_0$ can be expressed as:
-
-$$ 
-\begin{aligned}
-\text {BF}_{01} & = \frac{\text{posterior-odds of } H_0}{\text{prior-odds of } H_0}  \\
-& = \frac{P_M(\theta \in I_0 \mid D)}{P_M(\theta \not \in I_0 \mid D)} \frac{P_M(\theta \not \in I_0)}{P_M(\theta \in I_0)}
-\end{aligned}
-$$
+```{theorem, "encompassing-BG-against-encompassing"}
+The Bayes Factor in favor of nested model $M_{i}$ over encompassing model $M_{e}$ is:
+  \begin{align*}
+    \BF_{ie} = \frac{P(\theta \in I_{i} \mid D, M_{e})}{P(\theta \in I_{i} \mid M_{e})}
+  \end{align*}
 
 ```
-
 
 <div class="collapsibleProof">
 <button class="trigger">Show proof.</button>
 <div class="content">
 
-```{proof}
-TBD
+```{proof} 
+The following is only a sketch of a proof.
+Important doemal details are glossed over.
+For more detail, see [@KlugkistHoijtink2007:The-Bayes-facto].
+
+We start by making three observations which hold for any model $M_{i}$, $i \in \set{0,1}$, and any \emph{specific} pair of vectors of parameter values $\theta\prime, \omega\prime$ such that $P(\theta\prime, \omega\prime \mid D, M_{i}) \neq 0$ (which entails that $\theta\prime \in I_{I}$, $P(\theta\prime, \omega\prime \mid M_{i}) > 0$ and $P(D \mid \theta\prime, \omega\prime, M_{i}) > 0$):
+  
+- **Observation 1:** The definition of the posterior:
+    \begin{align*}
+      P(\theta\prime, \omega\prime \mid D, M_{i}) = \frac{P(D \mid \theta\prime, \omega\prime, M_{i}) \ P(\theta\prime, \omega\prime \mid M_{i})}{P(D \mid M_{i})}
+    \end{align*}
+    can be rewritten as:
+    \begin{align*}
+       P(D \mid M_{i}) = \frac{P(D \mid \theta\prime, \omega\prime, M_{i}) \ P(\theta\prime, \omega\prime \mid M_{i})}{P(\theta\prime, \omega\prime \mid D, M_{i})}
+    \end{align*}
+    This also holds for model $M_{e}$.
+
+- **Observation 2:** The prior for $\theta\prime, \omega\prime$ in $M_{i}$ can be expressed in terms of the priors in $M_{e}$ as:
+    \begin{align*}
+      P(\theta\prime, \omega\prime \mid M_{i}) = \frac{P(\theta\prime, \omega\prime \mid M_{e})}{P(\theta \in I_{i} \mid M_{e})}
+    \end{align*}
+
+- **Observation 3:**  The posterior for $\theta\prime, \omega\prime$ in $M_{i}$ can be expressed in terms of the posteriors in $M_{e}$ as:
+    \begin{align*}
+      P(\theta\prime, \omega\prime \mid D, M_{i}) = \frac{P(\theta\prime, \omega\prime \mid D, M_{e})}{P(\theta \in I_{i} \mid D, M_{e})}
+    \end{align*}
+
+With these observations in place, we can rewrite the Bayes Factor $\BF_{ie}$ in terms of a \emph{specific} pair of vectors of parameter values $\theta\prime, \omega\prime$ (for which $P(\theta\prime, \omega\prime \mid D, M_{i}) \neq 0$) as:
+  \begin{align*}
+    \BF_{ie}
+    & = \frac{P(D \mid M_{i})}{P(D \mid M_{e})}
+    \\
+    & = \frac{P(D \mid \theta\prime, \omega\prime, M_{i}) \ P(\theta\prime, \omega\prime \mid M_{i})\ / \ P(\theta\prime, \omega\prime \mid D, M_{i})}
+      {P(D \mid \theta\prime, \omega\prime, M_{e}) \ P(\theta\prime, \omega\prime \mid M_{e})\ / \ P(\theta\prime, \omega\prime \mid D, M_{e})}
+    & \textcolor{gray}{[\text{by Obs.~1}]}
+    \\
+    & = \frac{ P(\theta\prime, \omega\prime \mid M_{i})\ / \ P(\theta\prime, \omega\prime \mid D, M_{i}))}
+      { P(\theta\prime, \omega\prime \mid M_{e})\ / \ P(\theta\prime, \omega\prime \mid D, M_{e})}
+    & \textcolor{gray}{[\text{by def.~(identity of LH)}]}
+    \\
+    & = \frac{P(\theta \in I_{i} \mid D, M_{e})}{P(\theta \in I_{i} \mid M_{e})}
+    & \textcolor{gray}{[\text{by Obs.~1 \& 2}]}
+  \end{align*}
 ```
 
 &nbsp;
@@ -803,6 +849,46 @@ TBD
 </div>
 
 
+Theorem \@ref(thm:encompassing-BG-against-encompassing) states that the Bayes Factor in favor of $M_0$, when compared against the alternative "negated" model $M_1$ is the ratio of the posterior *odds* of $\theta$ being in $I_0$ divided by the prior *odds*, both from the perspective of $M_e$.
+
+
+<div class = "mathstuff">
+
+```{theorem, "encompassing-BG-against-alternative"}
+
+The Bayes Factor in favor of model $M_{0}$ over alternative model $M_{1}$ is:
+\begin{align*}
+    \BF_{01} = \frac{P(\theta \in I_{0} \mid D, M_{e})}{P(\theta \in I_{1} \mid D, M_{e})} \ \frac{P(\theta \in I_{1} \mid  M_{e})}{P(\theta \in I_{0} \mid M_{e})}
+\end{align*}
+
+```
+
+<div class="collapsibleProof">
+<button class="trigger">Show proof.</button>
+<div class="content">
+
+```{proof}
+This result follows as a direct corollary from Theorem \@ref(thm:encompassing-BG-against-encompassing) and Proposition \@ref(prp:transitivity-BF).
+```
+
+&nbsp;
+  
+</div>
+</div>
+</div>
+
+Which comparison should be used for quantifying evidence in favor of or against $M_0$: the encompassing model $M_e$ or the alternative, "negation" model $M_1$?
+There are good reasons for taking $M_1$. 
+Here is why.
+
+Suppose we hypothesize that a coin is biased towards heads, i.e., we consider the interval-valued hypothesis of interest $H_0$ that $\theta > 0.5$, where $\theta$ is the parameter of a Binomial likelihood function.
+Suppose we see $k = 100$ from $N=100$ tosses landing heads.
+That is, intuitively, extremely strong evidence in favor of our hypothesis.
+But if, as may be prudent, the encompassing model is neutral between our hypothesis and its negation, so that $P(\theta > 0.5 \mid M_{e}) = 0.5$, the biggest Bayes Factor that we could possibly attain in favor of $\theta > 0,5$ over the encompassing model, no matter what data we observe, is 2.
+This is because, by Theorem~\@ref[thm:encompassing-BG-against-encompassing], the numerator can at most be 1 and the denominator is fixed, by assumption, to be 0.5.
+That does not seem like an intuitive way of quantifying the evidence in favor of $\theta > 0.5$ when observing $k=100$ out of $N=100$, which seem quite overwhelming.
+Instead, by Theorem~\@ref[thm:encompassing-BG-against-alternative], the Bayes Factor for a comparison of $\theta > 0.5$ against $\theta \le 0.5$ is virtually infinite, reflecting the intuition that this data set provides overwhelming support for the idea that $\theta > 0.5$.
+Based on considerations like these, it seems that the more intuitive comparison is against the negation of an interval-valued hypothesis, not against the encompassing model.
 
 #### Example: 24/7
 
